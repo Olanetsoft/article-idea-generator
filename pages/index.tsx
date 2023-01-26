@@ -157,6 +157,7 @@ export default function Home() {
                 type="checkbox"
                 checked={additionalFeature}
                 onChange={() => setAdditionalFeature((prev) => !prev)}
+                onClick={(e) => generateArticleTitle(e)}
               />
               <span> Enable SEO and Clickbait Feature</span>
             </button>
