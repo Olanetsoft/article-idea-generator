@@ -17,7 +17,6 @@ export default function Document() {
           rel="stylesheet"
         />
         <link rel="icon" href="/favicon.ico" />
-        {/* <!-- HTML Meta Tags --> */}
         <meta
           name="description"
           content="Generate your next article idea with ease."
@@ -31,13 +30,13 @@ export default function Document() {
         />
         <meta
           itemProp="image"
-          content="https://article-idea-generator.vercel.app/articleideagenerator.com/og-image.png"
+          content="http://article-idea-generator.vercel.app/articleideagenerator.com/og-image.png"
         />
 
         {/* <!-- Facebook Meta Tags --> */}
         <meta
           property="og:url"
-          content="https://article-idea-generator.vercel.app"
+          content="https://www.articleideagenerator.com"
         />
         <meta property="og:type" content="website" />
         <meta property="og:title" content="Article Idea Generator" />
@@ -47,7 +46,7 @@ export default function Document() {
         />
         <meta
           property="og:image"
-          content="https://article-idea-generator.vercel.app/articleideagenerator.com/og-image.png"
+          content="http://article-idea-generator.vercel.app/articleideagenerator.com/og-image.png"
         />
 
         {/* <!-- Twitter Meta Tags --> */}
@@ -59,10 +58,8 @@ export default function Document() {
         />
         <meta
           name="twitter:image"
-          content="https://article-idea-generator.vercel.app/articleideagenerator.com/og-image.png"
+          content="http://article-idea-generator.vercel.app/articleideagenerator.com/og-image.png"
         />
-
-        {/* <!-- Meta Tags Generated via http://heymeta.com --> */}
       </Head>
       <body>
         <Main />
