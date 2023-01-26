@@ -23,7 +23,6 @@ export default function Home() {
     setGeneratedTitle("");
     setLoading(true);
 
-    console.log("prompt:", prompt);
 
     const response = await fetch("/api/generate", {
       method: "POST",
@@ -36,7 +35,6 @@ export default function Home() {
     });
 
     console.log("responding...");
-    console.log("response: ", response);
 
     if (!response.ok) {
       setLoading(false);
@@ -159,6 +157,7 @@ export default function Home() {
                 type="checkbox"
                 checked={additionalFeature}
                 onChange={() => setAdditionalFeature((prev) => !prev)}
+                onClick={(e) => generateArticleTitle(e)}
               />
               <span> Enable SEO and Clickbait Feature</span>
             </button>
