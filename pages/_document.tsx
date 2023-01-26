@@ -30,7 +30,7 @@ export default function Document() {
         />
         <meta
           itemProp="image"
-          content="http://article-idea-generator.vercel.app/articleideagenerator.com/og-image.png"
+          content="https://articleideagenerator.com/og-image.png"
         />
 
         {/* <!-- Facebook Meta Tags --> */}
@@ -46,7 +46,7 @@ export default function Document() {
         />
         <meta
           property="og:image"
-          content="http://article-idea-generator.vercel.app/articleideagenerator.com/og-image.png"
+          content="http://articleideagenerator.com/og-image.png"
         />
 
         {/* <!-- Twitter Meta Tags --> */}
@@ -58,7 +58,7 @@ export default function Document() {
         />
         <meta
           name="twitter:image"
-          content="http://article-idea-generator.vercel.app/articleideagenerator.com/og-image.png"
+          content="http://articleideagenerator.com/og-image.png"
         />
       </Head>
       <body>
