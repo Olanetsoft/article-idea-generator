@@ -3,26 +3,28 @@ import Avatar from "../components/Avatar";
 import { SearchIcon } from "@heroicons/react/outline";
 import Image from "next/image";
 import { useState } from "react";
+import { Toaster, toast } from "react-hot-toast";
+import { AnimatePresence, motion } from "framer-motion";
+import ResizablePanel from "../components/ResizablePanel";
 
 import Footer from "../components/Footer";
 
 export default function Home() {
   const [loading, setLoading] = useState(false);
   const [additionalFeature, setAdditionalFeature] = useState(false);
-  const [generatedTitle, setGeneratedTitle] = useState("");
+  const [generatedTitles, setGeneratedTitles] = useState("");
   const [text, setText] = useState("");
 
   const prompt =
     additionalFeature === true
-      ? `Generate 4 article title for ${text}. Ensure its SEO friendly titles with clickbait`
-      : `Generate 4 article title for ${text}`;
+      ? `Generate 4 article title for ${text}. Ensure its SEO friendly titles with clickbait.`
+      : `Generate 4 article title for ${text}.`;
 
   const generateArticleTitle = async (e: any) => {
     e.preventDefault();
 
-    setGeneratedTitle("");
+    setGeneratedTitles("");
     setLoading(true);
-
 
     const response = await fetch("/api/generate", {
       method: "POST",
@@ -57,33 +59,10 @@ export default function Home() {
       done = doneReading;
       const chunkValue = decoder.decode(value);
 
-      setGeneratedTitle((prev) => prev + chunkValue);
+      setGeneratedTitles((prev) => prev + chunkValue);
     }
 
     setLoading(false);
-  };
-
-  interface Props {
-    generatedTitle: string;
-  }
-
-  const Component: React.FC<Props> = ({ generatedTitle }) => {
-    const sections = generatedTitle.split(/([0-9]+.)/).filter(Boolean);
-    return (
-      <div className="w-full max-w-xl rounded overflow-hidden shadow-lg mt-5">
-        {sections.map((section, i) => (
-          <p
-            className="px-4 py-1 text-gray-700 text-lg font-Ubuntu p-4"
-            key={i}
-          >
-            {section
-              .replace(/[0-9]+./g, "")
-              .trim()
-              .replace(/"/g, "")}
-          </p>
-        ))}
-      </div>
-    );
   };
 
   return (
@@ -176,9 +155,43 @@ export default function Home() {
               </div>
             )}
           </div>
-          <div className="flex flex-col items-center gap-2 mt-3">
-            {generatedTitle && <Component generatedTitle={generatedTitle} />}
-          </div>
+          <Toaster
+            position="bottom-center"
+            reverseOrder={false}
+            toastOptions={{ duration: 2000 }}
+          />
+          <hr className="h-px bg-gray-700 border-1 dark:bg-gray-700" />
+          <ResizablePanel>
+            <AnimatePresence>
+              <motion.div className="space-y-5 my-5">
+                {generatedTitles && (
+                  <div className="space-y-3 flex flex-col items-center justify-center max-w-xl mx-auto sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-4 sm:max-w-none lg:grid-cols-3 lg:max-w-full">
+                    <p className="text-sm text-center text-gray-500 dark:text-gray-400 font-Ubuntu">
+                      Click on any idea to copy it to your clipboard
+                    </p>
+                    {generatedTitles
+                      .match(/[0-9]+.[^0-9]+/g)
+                      ?.map((generatedTitle, index) => {
+                        return (
+                          <div
+                            className="bg-white rounded-xl shadow-md p-4 hover:bg-gray-100 transition cursor-copy border"
+                            onClick={() => {
+                              navigator.clipboard.writeText(generatedTitle);
+                              toast.success("Title copied to clipboard", {
+                                icon: "✂️",
+                              });
+                            }}
+                            key={index}
+                          >
+                            <p>{generatedTitle.replace(/[0-9]+. /g, "")}</p>
+                          </div>
+                        );
+                      })}
+                  </div>
+                )}
+              </motion.div>
+            </AnimatePresence>
+          </ResizablePanel>
         </form>
 
         <Footer />
