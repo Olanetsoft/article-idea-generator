@@ -162,7 +162,7 @@ export default function Home() {
           />
           <hr className="h-px bg-gray-700 border-1 dark:bg-gray-700" />
           <ResizablePanel>
-            <AnimatePresence>
+            <AnimatePresence mode="wait">
               <motion.div className="space-y-5 my-5">
                 {generatedTitles && (
                   <div className="space-y-3 flex flex-col items-center justify-center max-w-xl mx-auto sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-4 sm:max-w-none lg:grid-cols-3 lg:max-w-full">
