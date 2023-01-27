@@ -2,8 +2,9 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
+
     <footer
-      className="text-center h-16 sm:h-20 bg-gray-100 w-full sm:pt-2 pt-4 border-t flex sm:flex-row flex-col justify-between items-center px-3 space-y-3 sm:mb-0 mb-3"
+     className="text-center h-16 sm:h-20 w-full sm:pt-2 pt-4 border-t mt-5 flex sm:flex-row flex-col justify-between items-center px-3 space-y-3 sm:mb-0 mb-3"
       style={{
         position: "absolute",
         bottom: "0",
@@ -46,7 +47,7 @@ export default function Footer() {
           OpenAI.{" "}
         </a>
       </div>
-      <div className="flex space-x-4 pb-4 sm:pb-0">
+      <div className="flex space-x-4 pb-4 sm:pb-0" aria-label="Social" role="group">
         <Link
           href="https://github.com/Olanetsoft/article-idea-generator"
           className="group"
