@@ -90,13 +90,9 @@ export default function Home() {
           onSubmit={(e) => generateArticleTitle(e)}
           className="flex flex-col items-center pt-3 w-4/5"
         >
-          <Image
-            src="/banner.gif"
-            height={207}
-            width={500}
-            priority
-            alt="Logo"
-          />
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 sm:text-3xl sm:leading-9 sm:truncate mb-2 text-center sm:text-4xl lg:text-5xl xl:text-6xl ">
+            Article Idea Generator
+          </h1>
           <div
             className="flex w-full mt-5 hover:shadow-lg focus-within:shadow-lg max-w-md rounded-full
       border border-gray-200 px-5 py-3 items-center sm:max-w-xl lg:max-w-2xl"
