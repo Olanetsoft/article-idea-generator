@@ -58,6 +58,7 @@ const Header = () => {
           target="_blank"
           rel="noreferrer"
         >
+          <p className="sr-only">GitHub</p>
           <svg
             aria-hidden="true"
             className="h-8 w-8 fill-slate-600 group-hover:fill-slate-700 dark:text-gray-100"
