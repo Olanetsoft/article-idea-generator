@@ -106,6 +106,7 @@ export default function Home() {
 
           {/*right section*/}
           <div className="flex space-x-4 font-Ubuntu items-center">
+            <h1 className="font-bold">Star ⭐️ on GitHub</h1>
             <a href="https://github.com/Olanetsoft/article-idea-generator">
               <Avatar url="/github-brands.png" />
             </a>
