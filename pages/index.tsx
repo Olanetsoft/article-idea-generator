@@ -165,35 +165,34 @@ export default function Home() {
             <AnimatePresence mode="wait">
               <motion.div className="space-y-5 my-5">
                 {generatedTitles && (
-                  <div className="space-y-3 flex flex-col items-center justify-center max-w-xl mx-auto sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-4 sm:max-w-none lg:grid-cols-3 lg:max-w-full">
+                  <>
                     <p className="text-sm text-center text-gray-500 dark:text-gray-400 font-Ubuntu">
                       Click on any idea to copy it to your clipboard
                     </p>
-                    {generatedTitles
-                      .match(/[0-9]+.[^0-9]+/g)
-                      ?.map((generatedTitle, index) => {
-                        return (
-                          <div
-                            className="bg-white rounded-xl shadow-md p-4 hover:bg-gray-100 transition cursor-copy border"
-                            onClick={() => {
-                              navigator.clipboard.writeText(generatedTitle);
-                              toast.success("Title copied to clipboard", {
-                                icon: "✂️",
-                              });
-                            }}
-                            key={index}
-                          >
-                            <p>{generatedTitle.replace(/[0-9]+. /g, "")}</p>
-                          </div>
-                        );
-                      })}
-                  </div>
+                    <div className="space-y-3 flex flex-col items-center justify-center max-w-xl mx-auto sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-4 sm:max-w-none lg:grid-cols-3 lg:max-w-full">
+                      {generatedTitles
+                        .match(/[0-9]+.[^0-9]+/g)
+                        ?.map((generatedTitle, index) => {
+                          return (
+                            <div
+                              className="bg-white rounded-xl shadow-md p-2 hover:bg-gray-100 transition cursor-copy border"
+                              onClick={() => {
+                                navigator.clipboard.writeText(generatedTitle);
+                                toast.success("Title copied to clipboard");
+                              }}
+                              key={index}
+                            >
+                              <p>{generatedTitle.replace(/[0-9]+. /g, "")}</p>
+                            </div>
+                          );
+                        })}
+                    </div>
+                  </>
                 )}
               </motion.div>
             </AnimatePresence>
           </ResizablePanel>
         </form>
-
         <Footer />
       </div>
     </>
