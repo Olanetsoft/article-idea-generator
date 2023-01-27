@@ -28,6 +28,7 @@ export default function Document() {
           itemProp="description"
           content="Generate your next article idea with ease."
         />
+        <meta property="og:site_name" content="articleideagenerator.com" />
         <meta
           itemProp="image"
           content="https://articleideagenerator.com/og-image.png"
@@ -55,6 +56,10 @@ export default function Document() {
         <meta
           name="twitter:description"
           content="Generate your next article idea with ease."
+        />
+        <meta
+          property="og:image"
+          content="https://twitterbio.com/og-image.png"
         />
         <meta
           name="twitter:image"
