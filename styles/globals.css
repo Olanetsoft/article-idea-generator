@@ -2,25 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-.search-box {
-  position: relative;
-  input {
-    background: transparent;
-    ::placeholder {
-      color: transparent;
-    }
-  }
-  &:after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: transparent;
-  }
-}
-
 @layer components {
   body {
     overflow-y: scroll;
