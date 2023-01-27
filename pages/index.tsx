@@ -135,7 +135,7 @@ export default function Home() {
               onChange={(e) => setText(e.target.value)}
               type="text"
               className="flex-grow focus:outline-none"
-              placeholder="Enter anything you want to write about"
+              placeholder="What's on your mind?"
               id="search"
             />
           </div>
