@@ -43,3 +43,6 @@ Thanks for spending your time helping `Article Idea Generator` grow. Happy Hacki
 [![Stargazers](https://git-lister.onrender.com/api/stars/Olanetsoft/article-idea-generator?limit=15)](https://github.com/Olanetsoft/article-idea-generator)
 
 
+## Acknowledgement
+
+Built with 💗 by [Olanetsoft](https://twitter.com/olanetsoft) & [Kelvin](https://twitter.com/iam_kelvinjnr). Inspired by [Nutlope](https://twitter.com/nutlope), powered by [Open AI](https://openai.com/) & [Vercel Edge Functions](https://vercel.com).
