@@ -101,12 +101,12 @@ export default function Home() {
             className="flex w-full mt-5 hover:shadow-lg focus-within:shadow-lg max-w-md rounded-full
       border border-gray-200 px-5 py-3 items-center sm:max-w-xl lg:max-w-2xl"
           >
-            <SearchIcon className="h-5 mr-3 text-gray-700 dark:bg-gray-900 dark:text-gray-100" />
+            <SearchIcon className="h-5 mr-3 text-gray-700 dark:text-gray-100" />
             <label htmlFor="search" className="sr-only"></label>
             <input
               onChange={(e) => setText(e.target.value)}
               type="text"
-              className="flex-grow focus:outline-none dark:bg-gray-900 dark:text-gray-100"
+              className="flex-grow focus:outline-none dark:bg-black dark:text-white bg-transparent text-gray-700"
               placeholder="What's on your mind?"
               id="search-box"
             />
