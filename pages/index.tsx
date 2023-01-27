@@ -108,7 +108,7 @@ export default function Home() {
           <div className="flex space-x-4 font-Ubuntu items-center">
             <h1 className="font-bold">Star ⭐️ on GitHub</h1>
             <a href="https://github.com/Olanetsoft/article-idea-generator">
-              <Avatar url="/github-brands.png" />
+              <Avatar url="/github-icon.png" />
             </a>
           </div>
         </header>
@@ -130,12 +130,13 @@ export default function Home() {
       border border-gray-200 px-5 py-3 items-center sm:max-w-xl lg:max-w-2xl"
           >
             <SearchIcon className="h-5 mr-3 text-gray-700" />
-
+            <label htmlFor="search" className="sr-only"></label>
             <input
               onChange={(e) => setText(e.target.value)}
               type="text"
               className="flex-grow focus:outline-none"
               placeholder="Enter anything you want to write about"
+              id="search"
             />
           </div>
 
