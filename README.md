@@ -1,9 +1,15 @@
+[![Open in GitPod](https://img.shields.io/badge/Gitpod-Ready--to--Code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/Olanetsoft/article-idea-generator) [![GitHub issues](https://img.shields.io/github/issues/Olanetsoft/article-idea-generator)](https://github.com/Olanetsoft/article-idea-generator/issues)
+[![GitHub forks](https://img.shields.io/github/forks/Olanetsoft/article-idea-generator)](https://img.shields.io/github/forks/Olanetsoft/article-idea-generator)
+[![GitHub stars](https://img.shields.io/github/stars/Olanetsoft/article-idea-generator)](https://img.shields.io/github/stars/Olanetsoft/article-idea-generator)
+[![GitHub watchers](https://img.shields.io/github/watchers/Olanetsoft/article-idea-generator?style=label=Watch)](https://github.com/Olanetsoft/article-idea-generator)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![GitHub repo size](https://img.shields.io/github/repo-size/Olanetsoft/article-idea-generator)](https://github.com/Olanetsoft/article-idea-generator)
+
 ## [Article Idea Generator](https://www.articleideagenerator.com/)
 
 This simple tool generates article ideas for your blog or website. It's a great way to get started with your content marketing strategy.
 
-[![Article Idea Generator](./public//screenshot.png)](https://www.articleideagenerator.com/)
-[![Article Idea Generator](./public//screenshot-2.png)](https://www.articleideagenerator.com/)
+[![Article Idea Generator](./public/screenshot.png)](https://www.articleideagenerator.com/)
+[![Article Idea Generator](./public/screenshot-2.png)](https://www.articleideagenerator.com/)
 
 ## How to use
 
