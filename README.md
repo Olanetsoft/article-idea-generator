@@ -24,7 +24,7 @@ This simple tool generates article ideas for your blog or website. It's a great 
 
 ## How it works
 
-The [OpenAI GPT-3 API](https://openai.com/api/) (text-davinci-003) and [Vercel Edge streaming](https://vercel.com/features/edge-functions) features are used in this application. Based on the form and user input, it creates a prompt, sends it to the GPT-3 API using a Vercel Edge function, and streams the response back to the application.
+The [OpenAI GPT-3 API](https://openai.com/api/) (text-davinci-003) and [Vercel Edge streaming](https://vercel.com/features/edge-functions) features are used in this application. Based on the user's input, it creates a prompt, sends it to the GPT-3 API using a Vercel Edge function, and streams the response back to the application.
 
 ## Running Project Locally
 
