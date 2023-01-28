@@ -23,7 +23,7 @@ export default function Home() {
     e.preventDefault();
 
     if (!text) {
-      toast.error("Enter a topic for your article title");
+      toast.error("Input what's on your mind!");
       return;
     }
 
