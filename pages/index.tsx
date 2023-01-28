@@ -158,7 +158,7 @@ export default function Home() {
           <hr className="h-px bg-gray-700 border-1 dark:bg-gray-700" />
           <ResizablePanel>
             <AnimatePresence mode="wait">
-              <motion.div className="space-y-5 my-5">
+              <motion.div className="space-y-3 my-5">
                 {generatedTitles && (
                   <>
                     <p className="text-sm text-center dark:text-gray-400 font-Ubuntu">

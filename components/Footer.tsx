@@ -2,9 +2,8 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-  
-    <footer 
-      className="text-center border-t h-2 sm:h-12 w-full sm:pt-2 pt-2 flex sm:flex-row flex-col justify-between items-center px-3 space-y-2 sm:mb-0 dark:bg-black-900 dark:text-gray-100"
+    <footer
+      className="text-center border-t sm:h-12 w-full sm:pt-2 pt-2 flex sm:flex-row flex-col justify-between items-center px-3 space-y-2 sm:mb-0 dark:bg-black-900 dark:text-gray-100"
       style={{
         position: "absolute",
         bottom: "0",
