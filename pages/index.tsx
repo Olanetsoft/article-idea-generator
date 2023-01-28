@@ -1,6 +1,5 @@
 import Head from "next/head";
-import { SearchIcon } from "@heroicons/react/outline";
-import Image from "next/image";
+import { SearchIcon, DotsCircleHorizontalIcon } from "@heroicons/react/outline";
 import { useState } from "react";
 import { Toaster, toast } from "react-hot-toast";
 import { AnimatePresence, motion } from "framer-motion";
@@ -140,13 +139,7 @@ export default function Home() {
 
             {loading && (
               <div className="flex flex-col items-center gap-2 mt-5">
-                <Image
-                  src="/loading.gif"
-                  height={50}
-                  width={70}
-                  priority
-                  alt="Loading"
-                />
+                <DotsCircleHorizontalIcon className="h-3 animate-spin text-black-600 dark:text-gray-100" />
               </div>
             )}
           </div>
@@ -158,7 +151,7 @@ export default function Home() {
           <hr className="h-px bg-gray-700 border-1 dark:bg-gray-700" />
           <ResizablePanel>
             <AnimatePresence mode="wait">
-              <motion.div className="space-y-3 my-5">
+              <motion.div className="space-y-4 my-5">
                 {generatedTitles && (
                   <>
                     <p className="text-sm text-center dark:text-gray-400 font-Ubuntu">
