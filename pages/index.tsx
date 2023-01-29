@@ -76,7 +76,7 @@ export default function Home() {
           <title>Article Idea Generator</title>
           <meta
             name="description"
-            content="Article Idea Generator built to help fix writers block."
+            content="Using Article Idea Generator can help you get over writer's block. Do you have an idea of where to start? Generate your next article idea with ease."
           />
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <link rel="icon" href="/favicon.ico" />
@@ -171,7 +171,9 @@ export default function Home() {
                               key={index}
                             >
                               <p className="dark:text-gray-800">
-                                {generatedTitle.replace(/[0-9]+. /g, "")}
+                                {generatedTitle
+                                  .replace(/^"|"$|[0-9]+. /g, "")
+                                  .trim()}
                               </p>
                             </div>
                           );
