@@ -171,7 +171,9 @@ export default function Home() {
                               key={index}
                             >
                               <p className="dark:text-gray-800">
-                                {generatedTitle.replace(/[0-9]+. /g, "")}
+                                {generatedTitle
+                                  .replace(/^"|"$|[0-9]+. /g, "")
+                                  .trim()}
                               </p>
                             </div>
                           );
