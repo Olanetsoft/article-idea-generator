@@ -14,7 +14,7 @@ This simple tool generates article ideas for your blog or website. It's a great 
 ## How to use
 
 1. Go to [https://www.articleideagenerator.com/](https://www.articleideagenerator.com/)
-2. Enter any related keyword to the topic you have in mind and click `Enter.`
+2. Enter any related keyword to the topic you have in mind and click `Enter.` <br>
 `Optional`: click on the `Enable SEO and CLickbait feature` to get some ideas that would easily rank on search engines
 3. Four different article ideas will be generated; copy any of the generated article idea
 4. Paste it into your favourite content editor
