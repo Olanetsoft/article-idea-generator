@@ -56,7 +56,6 @@ const Header = () => {
             <span>on GitHub</span>
           </a>
         </span>
-        {/* <Avatar url="/github-icon.png" /> */}
         <a
           href="https://github.com/Olanetsoft/article-idea-generator/"
           target="_blank"
