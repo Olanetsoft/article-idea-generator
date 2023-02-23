@@ -9,12 +9,17 @@ module.exports = {
     // Or if using `src` directory:
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
-  darkMode: "class", 
+  darkMode: "class",
   theme: {
     extend: {
       fontFamily: {
-        Ubuntu: "'Ubuntu'",
-        OpenSans: "'Open Sans'",
+        sansSerif: "sans-serif",
+      },
+      backgroundColor: {
+        darkOffset: "#202025",
+      },
+      boxShadow: {
+        lg: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px",
       },
     },
   },
