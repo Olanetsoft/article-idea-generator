@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+input:checked + div {
+  @apply border-indigo-500;
+}
+input:checked + div svg {
+  @apply block;
+}
+
 @layer components {
   body {
     overflow-y: scroll;
@@ -17,8 +24,19 @@
 }
 
 @layer base {
+  html {
+    font-family: "Product Sans", sans-serif;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: "Space Grotesk", sans-serif;
+  }
   body {
-    @apply bg-gray-50 text-gray-900 dark:bg-black dark:text-gray-100;
+    @apply bg-gray-50 text-gray-900 dark:bg-zinc-900 dark:text-gray-100;
     @apply min-h-screen;
   }
 

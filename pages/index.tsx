@@ -1,12 +1,21 @@
 import Head from "next/head";
-import { SearchIcon, DotsCircleHorizontalIcon } from "@heroicons/react/outline";
 import { useState } from "react";
 import { Toaster, toast } from "react-hot-toast";
+import { Space_Grotesk } from "@next/font/google";
+import { SearchIcon } from "@heroicons/react/outline";
+import { ArrowSmRightIcon } from "@heroicons/react/solid";
 import { AnimatePresence, motion } from "framer-motion";
+
 import ResizablePanel from "../components/ResizablePanel";
 
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+
+const spaceGrotesk = Space_Grotesk({
+  weight: "700",
+  display: "swap",
+  subsets: ["latin"],
+});
 
 export default function Home() {
   const [loading, setLoading] = useState(false);
@@ -19,7 +28,7 @@ export default function Home() {
       ? `Generate 4 article title for ${text}. Ensure its SEO friendly titles with clickbait.`
       : `Generate 4 article title for ${text}.`;
 
-  const generateArticleTitle = async (e: any) => {
+  const generateArticleTitle = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!text) {
@@ -40,11 +49,11 @@ export default function Home() {
       }),
     });
 
-    console.log("responding...");
+    // console.log("responding...");
 
     if (!response.ok) {
       setLoading(false);
-      console.error(response.statusText);
+      // console.error(response.statusText);
       return;
     }
 
@@ -85,61 +94,88 @@ export default function Home() {
         <Header />
 
         {/*body*/}
-        <form
-          onSubmit={(e) => generateArticleTitle(e)}
-          className="flex flex-col items-center pt-3 w-4/5"
-        >
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 sm:text-3xl sm:leading-9 sm:truncate mb-2 text-center sm:text-4xl lg:text-5xl xl:text-6xl ">
+        <div className="flex flex-col items-center pt-14 w-full px-4 md:px-0 max-w-screen-md">
+          <h1
+            className={`${spaceGrotesk.className} text-3xl font-bold text-gray-900 dark:text-zinc-300  sm:leading-9 sm:truncate mb-2 text-center sm:text-4xl lg:text-6xl xl:text-6xl`}
+          >
             Article Idea Generator
           </h1>
-          <div
-            className="flex w-full mt-5 hover:shadow-lg focus-within:shadow-lg max-w-md rounded-full
-      border border-gray-200 px-5 py-3 items-center sm:max-w-xl lg:max-w-2xl"
+          <form
+            onSubmit={(e) => generateArticleTitle(e)}
+            className="flex w-full mt-5 transition-all ease-linear hover:shadow-lg focus-within:shadow-lg  rounded-full border border-gray-200 dark:border-zinc-600 p-1.5 pl-5 items-center"
           >
             <SearchIcon className="h-5 mr-3 text-gray-700 dark:text-gray-100" />
             <label htmlFor="search" className="sr-only"></label>
             <input
               onChange={(e) => setText(e.target.value)}
               type="text"
-              className="flex-grow focus:outline-none dark:bg-black dark:text-white bg-transparent text-gray-700"
+              className="flex-grow focus:outline-none dark:text-white bg-transparent text-gray-700"
               placeholder="What's on your mind?"
               id="search-box"
             />
-          </div>
+            <button
+              className="border dark:border-zinc-600 w-12 h-12 rounded-full flex items-center justify-center bg-indigo-500"
+              id="submit"
+              aria-label="search-button"
+            >
+              <ArrowSmRightIcon className="w-6 h-6 text-white" />
+            </button>
+          </form>
 
-          <div
-            className="flex flex-col w-1/2 space-y-2 justify-center mt-8 sm:space-y-0 sm:flex-row sm:space-x-4sm:flex-row"
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              flexWrap: "wrap",
-              alignItems: "center",
-              width: "100%",
-              gap: "1rem",
-            }}
-          >
-            <div className="flex items-center pl-4 border border-gray-200 rounded dark:border-gray-700">
+          <div className="flex w-full max-w-screen-md items-center justify-between mt-8 mb-2">
+            <label
+              htmlFor="bordered-checkbox-1"
+              className="flex items-center justify-center"
+            >
               <input
-                id="bordered-checkbox-1"
                 type="checkbox"
+                id="bordered-checkbox-1"
+                name="bordered-checkbox"
+                value="yes"
                 checked={additionalFeature}
                 onChange={() => setAdditionalFeature((prev) => !prev)}
                 onClick={(e) => generateArticleTitle(e)}
-                name="bordered-checkbox"
-                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+                className="opacity-0 absolute h-8 w-8"
               />
-
-              <label
-                htmlFor="bordered-checkbox-1"
-                className="w-full py-4 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300 cursor-pointer px-4"
-              >
+              <div className="bg-transparent border-2 rounded-md border-indigo-400 w-5 h-5 flex flex-shrink-0 justify-center items-center mr-2 focus-within:border-indigo-500">
+                <svg
+                  className="fill-current hidden w-3 h-3 text-indigo-600 pointer-events-none"
+                  version="1.1"
+                  viewBox="0 0 17 12"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <g fill="none" fillRule="evenodd">
+                    <g
+                      transform="translate(-9 -11)"
+                      fill="#6366f1"
+                      fillRule="nonzero"
+                    >
+                      <path d="m25.576 11.414c0.56558 0.55188 0.56558 1.4439 0 1.9961l-9.404 9.176c-0.28213 0.27529-0.65247 0.41385-1.0228 0.41385-0.37034 0-0.74068-0.13855-1.0228-0.41385l-4.7019-4.588c-0.56584-0.55188-0.56584-1.4442 0-1.9961 0.56558-0.55214 1.4798-0.55214 2.0456 0l3.679 3.5899 8.3812-8.1779c0.56558-0.55214 1.4798-0.55214 2.0456 0z" />
+                    </g>
+                  </g>
+                </svg>
+              </div>
+              <span className="select-none font-medium">
                 Enable SEO & Clickbait Feature
-              </label>
-            </div>
+              </span>
+            </label>
 
             {loading && (
-              <div className="flex flex-col items-center gap-2 mt-5">
-                <DotsCircleHorizontalIcon className="h-3 animate-spin text-black-600 dark:text-gray-100" />
+              <div>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={2}
+                  stroke="currentColor"
+                  className="w-6 h-6 animate-spin text-black-600 dark:text-gray-100"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
+                  />
+                </svg>
               </div>
             )}
           </div>
@@ -148,29 +184,30 @@ export default function Home() {
             reverseOrder={false}
             toastOptions={{ duration: 3000 }}
           />
-          <hr className="h-px bg-gray-700 border-1 dark:bg-gray-700" />
+          <div className="h-px max-w-screen-md w-full border-b dark:border-zinc-800"></div>
           <ResizablePanel>
             <AnimatePresence mode="wait">
               <motion.div className="space-y-4 my-5">
                 {generatedTitles && (
                   <>
-                    <p className="text-sm text-center dark:text-gray-400 font-Ubuntu">
+                    <p className="text-xs text-center font-bold text-gray-400 uppercase">
                       Click on any idea to copy it to your clipboard
                     </p>
-                    <div className="space-y-3 flex flex-col items-center justify-center max-w-xl mx-auto sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-4 sm:max-w-none lg:grid-cols-3 lg:max-w-full">
+                    <div className="max-w-screen-md grid gap-2 grid-cols-1  m-auto md:grid-cols-2">
                       {generatedTitles
                         .match(/[0-9]+.[^0-9]+/g)
+                        ?.sort((a, b) => b.length - a.length)
                         ?.map((generatedTitle, index) => {
                           return (
                             <div
-                              className="bg-white dark:bg-gray-200  dark:text-gray-100 rounded-xl shadow-md p-2 hover:bg-gray-100 transition cursor-copy border"
+                              className="bg-zinc-100 dark:bg-darkOffset  dark:text-gray-100 rounded-md p-3 hover:bg-gray-100 transition cursor-copy border-zinc-200 border dark:border-zinc-800"
                               onClick={() => {
                                 navigator.clipboard.writeText(generatedTitle);
                                 toast.success("Title copied to clipboard");
                               }}
                               key={index}
                             >
-                              <p className="dark:text-gray-800">
+                              <p className="text-zinc-800 dark:text-zinc-300">
                                 {generatedTitle
                                   .replace(/^"|"$|[0-9]+. /g, "")
                                   .trim()}
@@ -184,7 +221,7 @@ export default function Home() {
               </motion.div>
             </AnimatePresence>
           </ResizablePanel>
-        </form>
+        </div>
         <Footer />
       </div>
     </>
