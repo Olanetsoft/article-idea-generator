@@ -198,19 +198,21 @@ export default function Home() {
                         .match(/[0-9]+.[^0-9]+/g)
                         ?.sort((a, b) => b.length - a.length)
                         ?.map((generatedTitle, index) => {
+                          const textContent = generatedTitle
+                            .replace(/^"|"$|[0-9]+. /g, "")
+                            .trim();
+
                           return (
                             <div
                               className="bg-zinc-100 dark:bg-darkOffset  dark:text-gray-100 rounded-md p-3 hover:bg-gray-100 transition cursor-copy border-zinc-200 border dark:border-zinc-800"
                               onClick={() => {
-                                navigator.clipboard.writeText(generatedTitle);
+                                navigator.clipboard.writeText(textContent);
                                 toast.success("Title copied to clipboard");
                               }}
                               key={index}
                             >
                               <p className="text-zinc-800 dark:text-zinc-300">
-                                {generatedTitle
-                                  .replace(/^"|"$|[0-9]+. /g, "")
-                                  .trim()}
+                                {textContent}
                               </p>
                             </div>
                           );
