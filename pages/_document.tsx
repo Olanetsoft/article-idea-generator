@@ -5,17 +5,6 @@ export default function Document() {
     <Html lang="en">
       <Head>
         <meta charSet="utf-8" />
-
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap"
-          rel="stylesheet"
-        />
         <link rel="icon" href="/favicon.ico" />
         <meta
           name="description"
@@ -66,7 +55,7 @@ export default function Document() {
           content="http://articleideagenerator.com/og-image.png"
         />
       </Head>
-      <body>
+      <body className="transition-colors duration-200">
         <Main />
         <NextScript />
       </body>
