@@ -12,7 +12,7 @@ export default function ResizablePanel({
     <motion.div
       animate={height ? { height } : {}}
       style={height ? { height } : {}}
-      className="relative w-full overflow-y-scroll mb-20"
+      className="relative w-full overflow-y-auto mb-20"
       transition={{ type: "tween", duration: 0.5 }}
     >
       <div ref={ref} className={height ? "absolute inset-x-0" : "relative"}>
