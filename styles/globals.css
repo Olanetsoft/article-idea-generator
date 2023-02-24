@@ -11,7 +11,7 @@ input:checked + div svg {
 
 @layer components {
   body {
-    overflow-y: scroll;
+    overflow-y: auto;
   }
   .btn {
     @apply bg-[#f8f9fa] p-3 rounded-md ring-gray-200 text-sm text-gray-800 
