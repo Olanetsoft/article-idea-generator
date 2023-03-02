@@ -25,8 +25,8 @@ export default function Home() {
 
   const prompt =
     additionalFeature === true
-      ? `Generate 4 article titles for ${text}. Ensure its SEO friendly titles with clickbait. Make sure its not more than 4, its relevant and not out out of context.`
-      : `Generate 4 article titles for "${text}". Make sure its not more than 4, its relevant and not out out of context.`;
+      ? `Generate 4 article title for ${text}. Ensure its SEO friendly titles with clickbait. Make sure its not more than 4, its relevant and not out out of context.`
+      : `Generate 4 article title for "${text}". Make sure its not more than 4, its relevant and not out out of context.`;
 
   const generateArticleTitle = async (e: React.FormEvent) => {
     e.preventDefault();
