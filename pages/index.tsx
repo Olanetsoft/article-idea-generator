@@ -99,9 +99,9 @@ export default function Home() {
           </h1>
           <form
             onSubmit={(e) => generateArticleTitle(e)}
-            className="flex w-full mt-5 transition-all ease-linear hover:shadow-lg focus-within:shadow-lg  rounded-full border border-gray-200 dark:border-zinc-600 p-1.5 pl-5 items-center"
+            className="flex w-full mt-5 transition-all ease-linear hover:shadow-lg focus-within:shadow-lg  rounded-full border border-[#6366f1] dark:border-[#6366f1] p-1.5 pl-5 items-center"
           >
-            <SearchIcon className="h-5 mr-3 text-gray-700 dark:text-gray-100" />
+            <SearchIcon className="h-5 mr-3 text-[#6366f1] dark:text-gray-100" />
             <label htmlFor="search" className="sr-only"></label>
             <input
               onChange={(e) => setText(e.target.value)}
