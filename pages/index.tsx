@@ -111,7 +111,7 @@ export default function Home() {
               id="search-box"
             />
             <button
-              className="border dark:border-zinc-600 w-12 h-12 rounded-full flex items-center justify-center bg-indigo-500"
+              className="border dark:border-zinc-600 w-10 h-10 rounded-full flex items-center justify-center bg-indigo-500"
               id="submit"
               aria-label="search-button"
             >
@@ -119,7 +119,7 @@ export default function Home() {
             </button>
           </form>
 
-          <div className="flex w-full max-w-screen-md items-center justify-between mt-8 mb-2">
+          <div className="flex w-full max-w-screen-md items-center justify-between mt-8 mb-2 ml-6">
             <label
               htmlFor="bordered-checkbox-1"
               className="flex items-center justify-center"
@@ -134,7 +134,7 @@ export default function Home() {
                 onClick={(e) => generateArticleTitle(e)}
                 className="opacity-0 absolute h-8 w-8"
               />
-              <div className="bg-transparent border-2 rounded-md border-indigo-400 w-5 h-5 flex flex-shrink-0 justify-center items-center mr-2 focus-within:border-indigo-500">
+              <div className="bg-transparent border-2 rounded-md border-indigo-400 w-4 h-4 flex flex-shrink-0 justify-center items-center mr-2 focus-within:border-indigo-500">
                 <svg
                   className="fill-current hidden w-3 h-3 text-indigo-600 pointer-events-none"
                   version="1.1"
@@ -152,7 +152,7 @@ export default function Home() {
                   </g>
                 </svg>
               </div>
-              <span className="select-none font-medium">
+              <span className="select-none">
                 Enable SEO & Clickbait Feature
               </span>
             </label>
