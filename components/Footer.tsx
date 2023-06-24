@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { HeartIcon } from "@heroicons/react/solid";
 
 export default function Footer() {
@@ -8,33 +7,8 @@ export default function Footer() {
         <span className="flex w-fit items-center gap-2">
           <span>Built with </span>
           <HeartIcon className="w-6 h-6 text-red-500" />
-          <span> by </span>
         </span>
-        <Link
-          href="https://twitter.com/olanetsoft"
-          className="font-bold hover:underline underline-offset-2"
-          aria-label="Olanetsoft on Twitter"
-        >
-          Olanetsoft
-        </Link>{" "}
-        &{" "}
-        <Link
-          href="https://twitter.com/iam_kelvinjnr"
-          className="font-bold hover:underline underline-offset-2"
-          aria-label="Kelvin Chibueze on Twitter"
-        >
-          Kelvin.
-        </Link>{" "}
-        Inspired by{" "}
-        <Link
-          href="https://twitter.com/nutlope"
-          className="font-bold hover:underline underline-offset-2"
-          aria-label="TaxPal on Twitter"
-        >
-          {" "}
-          Nutlope,
-        </Link>{" "}
-        Powered by{" "}
+        - Powered by{" "}
         <a
           href="https://openai.com/"
           target="_blank"
