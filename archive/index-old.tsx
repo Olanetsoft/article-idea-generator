@@ -49,9 +49,28 @@ export default function Home() {
       }),
     });
 
-    const data = await response.json();
+    if (!response.ok) {
+      setLoading(false);
+      return;
+    }
 
-    setGeneratedTitles(data.choices[0].message.content);
+    const data = response.body;
+
+    if (!data) {
+      return;
+    }
+
+    const reader = data.getReader();
+    const decoder = new TextDecoder();
+    let done = false;
+
+    while (!done) {
+      const { value, done: doneReading } = await reader.read();
+      done = doneReading;
+      const chunkValue = decoder.decode(value);
+
+      setGeneratedTitles((prev) => prev + chunkValue);
+    }
 
     setLoading(false);
   };
@@ -71,6 +90,7 @@ export default function Home() {
 
         <Header />
 
+        {/*body*/}
         <div className="flex flex-col items-center pt-14 w-full px-4 md:px-0 max-w-screen-md">
           <h1
             className={`${spaceGrotesk.className} text-3xl font-bold text-gray-900 dark:text-zinc-300  sm:leading-9 sm:truncate mb-2 text-center sm:text-4xl lg:text-6xl xl:text-6xl`}
@@ -170,24 +190,31 @@ export default function Home() {
                     <p className="text-xs text-center font-bold text-gray-400 uppercase">
                       Click on any idea to copy it to your clipboard
                     </p>
-                    {generatedTitles.split("\n").map((title, index) => (
-                      <div
-                        className="bg-zinc-100 dark:bg-darkOffset dark:text-gray-100 rounded-md p-3 hover:bg-gray-100 transition cursor-copy border-zinc-200 border dark:border-zinc-800"
-                        onClick={() => {
-                          navigator.clipboard.writeText(
-                            title.replace(/[^a-zA-Z\s]/g, "")
+                    <div className="max-w-screen-md grid gap-2 grid-cols-1  m-auto md:grid-cols-2">
+                      {generatedTitles
+                        .match(/[0-9]+.[^0-9]+/g)
+                        ?.sort((a, b) => b.length - a.length)
+                        ?.map((generatedTitle, index) => {
+                          const textContent = generatedTitle
+                            .replace(/^"|"$|[0-9]+. /g, "")
+                            .trim();
+
+                          return (
+                            <div
+                              className="bg-zinc-100 dark:bg-darkOffset  dark:text-gray-100 rounded-md p-3 hover:bg-gray-100 transition cursor-copy border-zinc-200 border dark:border-zinc-800"
+                              onClick={() => {
+                                navigator.clipboard.writeText(textContent);
+                                toast.success("Title copied to clipboard");
+                              }}
+                              key={index}
+                            >
+                              <p className="text-zinc-800 dark:text-zinc-300">
+                                {textContent}
+                              </p>
+                            </div>
                           );
-                          toast.success("Title copied to clipboard");
-                        }}
-                        key={index}
-                      >
-                        <div className="flex items-center">
-                          <p className="text-zinc-800 dark:text-zinc-300 font-bold">
-                            {title.replace(/"/g, "")}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
+                        })}
+                    </div>
                   </>
                 )}
               </motion.div>
