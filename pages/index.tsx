@@ -19,12 +19,12 @@ const spaceGrotesk = Space_Grotesk({
 
 export default function Home() {
   const [loading, setLoading] = useState(false);
-  const [additionalFeature, setAdditionalFeature] = useState(false);
+  const [seoEnabled, setSeoEnabled] = useState(false);
   const [generatedTitles, setGeneratedTitles] = useState("");
   const [text, setText] = useState("");
 
   const prompt =
-    additionalFeature === true
+    seoEnabled === true
       ? `Generate 4 article title for ${text}. Ensure its SEO friendly titles with clickbait. Make sure its not more than 4, its relevant and not out out of context.`
       : `Generate 4 article title for "${text}". Make sure its not more than 4, its relevant and not out out of context.`;
 
@@ -109,8 +109,8 @@ export default function Home() {
                 id="bordered-checkbox-1"
                 name="bordered-checkbox"
                 value="yes"
-                checked={additionalFeature}
-                onChange={() => setAdditionalFeature((prev) => !prev)}
+                checked={seoEnabled}
+                onChange={() => setSeoEnabled((prev) => !prev)}
                 onClick={(e) => generateArticleTitle(e)}
                 className="opacity-0 absolute h-8 w-8"
               />
