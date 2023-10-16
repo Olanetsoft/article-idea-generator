@@ -49,11 +49,14 @@ export default function Home() {
       }),
     });
 
-    const data = await response.json();
-
-    setGeneratedTitles(data.choices[0].message.content);
-
-    setLoading(false);
+    try {
+      const data = await response.json();
+      setGeneratedTitles(data.choices[0].message.content);
+      setLoading(false);
+    } catch (error) {
+      toast.error("Please try again!");
+      return;
+    }
   };
 
   return (
