@@ -61,35 +61,36 @@ export default function Home() {
     }
   };
 
-  const generateAbsractForArticles = async (title: string) => {
+  const generateAbstractForArticles = async (title: string) => {
     if (!title) {
       toast.error("Generate an article first!");
       return;
     }
 
-    console.log(title);
-
     const prompt = `Generate a high-quality abstract for ${title} that provides a brief overview of the topic, highlights key areas discussed, points and arguments, explains the relevance and impact of the technical article, outlines the structure, reflects appropriate technical depth, and is clear and concise.`;
     setLoading(true);
 
-    const response = await fetch("/api/generate", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        prompt,
-      }),
-    });
-
     try {
+      const response = await fetch("/api/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ prompt }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const data = await response.json();
-      console.log(data);
       setAbstract(data.choices[0].message.content);
-      setLoading(false);
+      toast.success("Abstract generated successfully!");
     } catch (error) {
-      toast.error("Please try again!");
-      return;
+      toast.error("Failed to generate abstract. Please try again!");
+      console.error("Error generating abstract:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -226,16 +227,16 @@ export default function Home() {
                           </div>
                         </div>
 
-                        <div
+                        <button
                           onClick={() =>
-                            generateAbsractForArticles(title.replace(/"/g, ""))
+                            generateAbstractForArticles(title.replace(/"/g, ""))
                           }
                           className=" w-1/5 bg-green-800 dark:bg-green-800 dark:text-gray-100 rounded-md p-3 hover:bg-green-600 transition cursor-pointer border-zinc-200 border dark:border-zinc-800"
                         >
                           <h2 className="text-sm text-white ">
                             Generate Abstract
                           </h2>
-                        </div>
+                        </button>
                       </div>
                     ))}
                   </>
