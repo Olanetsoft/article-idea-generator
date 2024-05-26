@@ -22,6 +22,7 @@ export default function Home() {
   const [seoEnabled, setSeoEnabled] = useState(false);
   const [generatedTitles, setGeneratedTitles] = useState("");
   const [text, setText] = useState("");
+  const [abstract, setAbstract] = useState("");
 
   const prompt =
     seoEnabled === true
@@ -37,6 +38,7 @@ export default function Home() {
     }
 
     setGeneratedTitles("");
+    setAbstract("");
     setLoading(true);
 
     const response = await fetch("/api/generate", {
@@ -56,6 +58,39 @@ export default function Home() {
     } catch (error) {
       toast.error("Please try again!");
       return;
+    }
+  };
+
+  const generateAbstractForArticles = async (title: string) => {
+    if (!title) {
+      toast.error("Generate an article first!");
+      return;
+    }
+
+    const prompt = `Generate a high-quality abstract for ${title} that provides a brief overview of the topic, highlights key areas discussed, points and arguments, explains the relevance and impact of the technical article, outlines the structure, reflects appropriate technical depth, and is clear and concise.`;
+    setLoading(true);
+
+    try {
+      const response = await fetch("/api/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ prompt }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setAbstract(data.choices[0].message.content);
+      toast.success("Abstract generated successfully!");
+    } catch (error) {
+      toast.error("Failed to generate abstract. Please try again!");
+      console.error("Error generating abstract:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -174,23 +209,67 @@ export default function Home() {
                       Click on any idea to copy it to your clipboard
                     </p>
                     {generatedTitles.split("\n").map((title, index) => (
-                      <div
-                        className="bg-zinc-100 dark:bg-darkOffset dark:text-gray-100 rounded-md p-3 hover:bg-gray-100 transition cursor-copy border-zinc-200 border dark:border-zinc-800"
-                        onClick={() => {
-                          navigator.clipboard.writeText(
-                            title.replace(/[^a-zA-Z\s]/g, "")
-                          );
-                          toast.success("Title copied to clipboard");
-                        }}
-                        key={index}
-                      >
-                        <div className="flex items-center">
-                          <p className="text-zinc-800 dark:text-zinc-300 font-bold">
-                            {title.replace(/"/g, "")}
-                          </p>
+                      <div className="flex items-center gap-3">
+                        <div
+                          className=" w-4/5 bg-zinc-100 dark:bg-darkOffset dark:text-gray-100 rounded-md p-3 hover:bg-gray-100 transition cursor-copy border-zinc-200 border dark:border-zinc-800"
+                          onClick={() => {
+                            navigator.clipboard.writeText(
+                              title.replace(/[^a-zA-Z\s]/g, "")
+                            );
+                            toast.success("Title copied to clipboard");
+                          }}
+                          key={index}
+                        >
+                          <div className="flex items-center">
+                            <p className="text-zinc-800 dark:text-zinc-300 font-bold">
+                              {title.replace(/"/g, "")}
+                            </p>
+                          </div>
                         </div>
+
+                        <button
+                          onClick={() =>
+                            generateAbstractForArticles(title.replace(/"/g, ""))
+                          }
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              generateAbstractForArticles(
+                                title.replace(/"/g, "")
+                              );
+                            }
+                          }}
+                          className="w-1/5  bg-[#6366f1] dark:bg-[#6366f1] dark:text-gray-100 rounded-md p-3 hover:bg-[#6366f1] transition cursor-pointer border-zinc-200 border dark:border-zinc-800"
+                        >
+                          <h2 className="text-xs sm:text-sm text-white">
+                            Generate Abstract
+                          </h2>
+                        </button>
                       </div>
                     ))}
+                  </>
+                )}
+
+                {abstract && (
+                  <>
+                    <p className="text-xs text-center font-bold text-gray-400 uppercase">
+                      Click to copy
+                    </p>
+
+                    <div
+                      className=" bg-zinc-100 dark:bg-darkOffset dark:text-gray-100 rounded-md p-3 hover:bg-gray-100 transition cursor-copy border-zinc-200 border dark:border-zinc-800"
+                      onClick={() => {
+                        navigator.clipboard.writeText(
+                          abstract.replace(/[^a-zA-Z\s]/g, "")
+                        );
+                        toast.success("Abstract copied to clipboard");
+                      }}
+                    >
+                      <div className="flex items-center">
+                        <p className="text-zinc-800 dark:text-zinc-300 text-sm">
+                          {abstract.replace(/"/g, "")}
+                        </p>
+                      </div>
+                    </div>
                   </>
                 )}
               </motion.div>
