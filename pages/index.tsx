@@ -231,9 +231,16 @@ export default function Home() {
                           onClick={() =>
                             generateAbstractForArticles(title.replace(/"/g, ""))
                           }
-                          className=" w-1/5 bg-green-800 dark:bg-green-800 dark:text-gray-100 rounded-md p-3 hover:bg-green-600 transition cursor-pointer border-zinc-200 border dark:border-zinc-800"
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              generateAbstractForArticles(
+                                title.replace(/"/g, "")
+                              );
+                            }
+                          }}
+                          className="w-1/5  bg-[#6366f1] dark:bg-[#6366f1] dark:text-gray-100 rounded-md p-3 hover:bg-[#6366f1] transition cursor-pointer border-zinc-200 border dark:border-zinc-800"
                         >
-                          <h2 className="text-sm text-white ">
+                          <h2 className="text-xs sm:text-sm text-white">
                             Generate Abstract
                           </h2>
                         </button>
