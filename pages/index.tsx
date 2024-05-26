@@ -63,11 +63,12 @@ export default function Home() {
 
   const generateAbstractForArticles = async (title: string) => {
     if (!title) {
-      toast.error("Generate an article first!");
+      toast.error("Generate an article title first!");
       return;
     }
 
-    const prompt = `Generate a high-quality abstract for ${title} that provides a brief overview of the topic, highlights key areas discussed, points and arguments, explains the relevance and impact of the technical article, outlines the structure, reflects appropriate technical depth, and is clear and concise.`;
+    // const prompt = `Generate a high-quality abstract for ${title} that provides a brief overview of the topic, highlights key areas discussed, points and arguments, explains the relevance and impact of the technical article, outlines the structure, reflects appropriate technical depth, and is clear and concise.`;
+    const prompt = `Generate a concise, high-quality abstract for ${title} that briefly covers the topic, key points, relevance, impact, and structure with appropriate technical depth.`;
     setLoading(true);
 
     try {
@@ -209,7 +210,7 @@ export default function Home() {
                       Click on any idea to copy it to your clipboard
                     </p>
                     {generatedTitles.split("\n").map((title, index) => (
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3" key={index}>
                         <div
                           className=" w-4/5 bg-zinc-100 dark:bg-darkOffset dark:text-gray-100 rounded-md p-3 hover:bg-gray-100 transition cursor-copy border-zinc-200 border dark:border-zinc-800"
                           onClick={() => {
@@ -218,7 +219,6 @@ export default function Home() {
                             );
                             toast.success("Title copied to clipboard");
                           }}
-                          key={index}
                         >
                           <div className="flex items-center">
                             <p className="text-zinc-800 dark:text-zinc-300 font-bold">
