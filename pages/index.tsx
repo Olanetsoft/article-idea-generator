@@ -1,5 +1,5 @@
 import Head from "next/head";
-import { useState, FormEvent } from "react";
+import React, { useState, FormEvent } from "react";
 import { Toaster, toast } from "react-hot-toast";
 import { Space_Grotesk } from "@next/font/google";
 import { SearchIcon, DocumentSearchIcon } from "@heroicons/react/outline";
@@ -16,22 +16,22 @@ const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
 });
 
-export default function Home() {
-  const [loading, setLoading] = useState(false);
-  const [seoEnabled, setSeoEnabled] = useState(false);
-  const [generatedTitles, setGeneratedTitles] = useState("");
-  const [text, setText] = useState("");
-  const [abstract, setAbstract] = useState("");
+const fetchOptions = {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+};
 
-  const fetchOptions = {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-  };
+export default function Home(): JSX.Element {
+  const [loading, setLoading] = useState<boolean>(false);
+  const [seoEnabled, setSeoEnabled] = useState<boolean>(false);
+  const [generatedTitles, setGeneratedTitles] = useState<string>("");
+  const [text, setText] = useState<string>("");
+  const [abstract, setAbstract] = useState<string>("");
 
-  const generateArticleTitle = async (e: FormEvent) => {
+  const generateArticleTitle = async (e: FormEvent): Promise<void> => {
     e.preventDefault();
     if (!text) {
-      toast.error("Input what's on your mind!");
+      toast.error("Please enter a topic!");
       return;
     }
     setGeneratedTitles("");
@@ -50,19 +50,19 @@ export default function Home() {
       const data = await response.json();
       setGeneratedTitles(data.choices[0].message.content);
     } catch {
-      toast.error("Please try again!");
+      toast.error("An error occurred. Please try again!");
     } finally {
       setLoading(false);
     }
   };
 
-  const generateAbstractForArticles = async (title: string) => {
+  const generateAbstractForArticles = async (title: string): Promise<void> => {
     if (!title) {
       toast.error("Generate an article title first!");
       return;
     }
 
-    const prompt = `Generate a concise, high-quality abstract for "${title}" that briefly covers the topic, key points, relevance, impact, and structure with appropriate technical depth. Do not include redundant phrases.`;
+    const prompt = `Generate a concise, high-quality abstract for "${title}" that briefly covers the topic, key points, relevance, impact, and structure with appropriate technical depth. Ensure the abstract does not include any phrases like 'This abstract provides' or 'This paper discusses' or similar. Focus on content only.`;
 
     setLoading(true);
     try {
@@ -101,10 +101,15 @@ export default function Home() {
       <Header />
 
       <div className="flex flex-col items-center pt-14 w-full px-4 md:px-0 max-w-screen-md">
-        <h1 className={`${spaceGrotesk.className} text-3xl font-bold text-gray-900 dark:text-zinc-300 sm:leading-9 sm:truncate mb-2 text-center sm:text-4xl lg:text-6xl xl:text-6xl`}>
+        <h1
+          className={`${spaceGrotesk.className} text-3xl font-bold text-gray-900 dark:text-zinc-300 sm:leading-9 sm:truncate mb-2 text-center sm:text-4xl lg:text-6xl xl:text-6xl`}
+        >
           Article Idea Generator
         </h1>
-        <form onSubmit={generateArticleTitle} className="flex w-full mt-5 transition-all ease-linear hover:shadow-lg focus-within:shadow-lg rounded-full border border-[#6366f1] dark:border-[#6366f1] p-1.5 pl-5 items-center">
+        <form
+          onSubmit={generateArticleTitle}
+          className="flex w-full mt-5 transition-all ease-linear hover:shadow-lg focus-within:shadow-lg rounded-full border border-[#6366f1] dark:border-[#6366f1] p-1.5 pl-5 items-center bg-white dark:bg-zinc-800"
+        >
           <SearchIcon className="h-5 mr-3 text-[#6366f1] dark:text-gray-100" />
           <input
             onChange={(e) => setText(e.target.value)}
@@ -113,26 +118,38 @@ export default function Home() {
             placeholder="What's on your mind?"
             id="search-box"
           />
-          <button className="border dark:border-zinc-600 w-10 h-10 rounded-full flex items-center justify-center bg-indigo-500" id="submit" aria-label="search-button">
+          <button
+            className="border dark:border-zinc-600 w-10 h-10 rounded-full flex items-center justify-center bg-indigo-500 hover:bg-indigo-600 transition"
+            id="submit"
+            aria-label="search-button"
+          >
             <ArrowSmRightIcon className="w-6 h-6 text-white" />
           </button>
         </form>
 
         <div className="flex w-full max-w-screen-md items-center justify-between mt-8 mb-2 ml-6">
-          <label htmlFor="bordered-checkbox-1" className="flex items-center justify-center">
+          <label
+            htmlFor="bordered-checkbox-1"
+            className="flex items-center justify-center"
+          >
             <input
               type="checkbox"
               id="bordered-checkbox-1"
               name="bordered-checkbox"
               checked={seoEnabled}
               onChange={() => setSeoEnabled((prev) => !prev)}
-              onClick={generateArticleTitle}
               className="opacity-0 absolute h-8 w-8"
             />
             <div className="bg-transparent border-2 rounded-md border-indigo-400 w-4 h-4 flex justify-center items-center mr-2">
-              <svg className="fill-current hidden w-3 h-3 text-indigo-600 pointer-events-none" viewBox="0 0 17 12" xmlns="http://www.w3.org/2000/svg">
-                <path d="m25.576 11.414c0.56558 0.55188 0.56558 1.4439 0 1.9961l-9.404 9.176c-0.28213 0.27529-0.65247 0.41385-1.0228 0.41385-0.37034 0-0.74068-0.13855-1.0228-0.41385l-4.7019-4.588c-0.56584-0.55188-0.56584-1.4442 0-1.9961 0.56558-0.55214 1.4798-0.55214 2.0456 0l3.679 3.5899 8.3812-8.1779c0.56558-0.55214 1.4798-0.55214 2.0456 0z" />
-              </svg>
+              {seoEnabled && (
+                <svg
+                  className="fill-current w-3 h-3 text-indigo-600 pointer-events-none"
+                  viewBox="0 0 17 12"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path d="m25.576 11.414c0.56558 0.55188 0.56558 1.4439 0 1.9961l-9.404 9.176c-0.28213 0.27529-0.65247 0.41385-1.0228 0.41385-0.37034 0-0.74068-0.13855-1.0228-0.41385l-4.7019-4.588c-0.56584-0.55188-0.56584-1.4442 0-1.9961 0.56558-0.55214 1.4798-0.55214 2.0456 0l3.679 3.5899 8.3812-8.1779c0.56558-0.55214 1.4798-0.55214 2.0456 0z" />
+                </svg>
+              )}
             </div>
             <span className="select-none">Enable SEO & Clickbait Feature</span>
           </label>
@@ -156,7 +173,11 @@ export default function Home() {
           )}
         </div>
 
-        <Toaster position="bottom-center" reverseOrder={false} toastOptions={{ duration: 3000 }} />
+        <Toaster
+          position="bottom-center"
+          reverseOrder={false}
+          toastOptions={{ duration: 3000 }}
+        />
         <div className="h-px max-w-screen-md w-full border-b dark:border-zinc-800"></div>
 
         <ResizablePanel>
@@ -165,14 +186,17 @@ export default function Home() {
               {generatedTitles && (
                 <>
                   <p className="text-xs text-center font-bold text-gray-400">
-                    Click on any idea to copy it to your clipboard or the icon to generate abstract.
+                    Click on any idea to copy it to your clipboard or the icon
+                    to generate abstract.
                   </p>
                   {generatedTitles.split("\n").map((title, index) => (
                     <div className="flex items-center gap-3" key={index}>
                       <div
                         className="w-full bg-zinc-100 dark:bg-darkOffset dark:text-gray-100 rounded-md p-3 hover:bg-gray-100 transition cursor-copy border-zinc-200 border dark:border-zinc-800 flex justify-between items-center"
                         onClick={() => {
-                          navigator.clipboard.writeText(title.replace(/[^a-zA-Z\s]/g, ""));
+                          navigator.clipboard.writeText(
+                            title.replace(/[^a-zA-Z\s]/g, "")
+                          );
                           toast.success("Title copied to clipboard");
                         }}
                       >
@@ -183,16 +207,19 @@ export default function Home() {
                           <DocumentSearchIcon
                             onClick={(e) => {
                               e.stopPropagation();
-                              generateAbstractForArticles(title.replace(/"/g, ""));
+                              generateAbstractForArticles(
+                                title.replace(/"/g, "")
+                              );
                             }}
                             onKeyDown={(e) => {
                               if (e.key === "Enter" || e.key === " ") {
                                 e.stopPropagation();
-                                generateAbstractForArticles(title.replace(/"/g, ""));
+                                generateAbstractForArticles(
+                                  title.replace(/"/g, "")
+                                );
                               }
                             }}
                             className="h-5 text-[#6366f1] dark:text-gray-100 cursor-pointer"
-                            title="Generate abstract"
                           />
                           <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:flex px-2 py-1 bg-gray-700 text-white text-xs rounded-md">
                             Generate abstract
@@ -213,7 +240,9 @@ export default function Home() {
                   <div
                     className="bg-zinc-100 dark:bg-darkOffset dark:text-gray-100 rounded-md p-3 hover:bg-gray-100 transition cursor-copy border-zinc-200 border dark:border-zinc-800"
                     onClick={() => {
-                      navigator.clipboard.writeText(abstract.replace(/[^a-zA-Z\s]/g, ""));
+                      navigator.clipboard.writeText(
+                        abstract.replace(/[^a-zA-Z\s]/g, "")
+                      );
                       toast.success("Abstract copied to clipboard");
                     }}
                   >
