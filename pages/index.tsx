@@ -1,5 +1,5 @@
 import Head from "next/head";
-import React, { useState, FormEvent } from "react";
+import React, { useState, FormEvent, useEffect } from "react";
 import { Toaster, toast } from "react-hot-toast";
 import { Space_Grotesk } from "@next/font/google";
 import { SearchIcon, DocumentSearchIcon } from "@heroicons/react/outline";
@@ -28,8 +28,7 @@ export default function Home(): JSX.Element {
   const [text, setText] = useState<string>("");
   const [abstract, setAbstract] = useState<string>("");
 
-  const generateArticleTitle = async (e: FormEvent): Promise<void> => {
-    e.preventDefault();
+  const generateArticleTitle = async (): Promise<void> => {
     if (!text) {
       toast.error("Please enter a topic!");
       return;
@@ -86,6 +85,12 @@ export default function Home(): JSX.Element {
     }
   };
 
+  useEffect(() => {
+    if (text) {
+      generateArticleTitle();
+    }
+  }, [seoEnabled]);
+
   return (
     <div className="flex flex-col items-center m-0">
       <Head>
@@ -107,7 +112,10 @@ export default function Home(): JSX.Element {
           Article Idea Generator
         </h1>
         <form
-          onSubmit={generateArticleTitle}
+          onSubmit={(e) => {
+            e.preventDefault();
+            generateArticleTitle();
+          }}
           className="flex w-full mt-5 transition-all ease-linear hover:shadow-lg focus-within:shadow-lg rounded-full border border-[#6366f1] dark:border-[#6366f1] p-1.5 pl-5 items-center bg-white dark:bg-zinc-800"
         >
           <SearchIcon className="h-5 mr-3 text-[#6366f1] dark:text-gray-100" />
@@ -130,17 +138,19 @@ export default function Home(): JSX.Element {
         <div className="flex w-full max-w-screen-md items-center justify-between mt-8 mb-2 ml-6">
           <label
             htmlFor="bordered-checkbox-1"
-            className="flex items-center justify-center"
+            className="flex items-center justify-center cursor-pointer"
           >
             <input
               type="checkbox"
               id="bordered-checkbox-1"
               name="bordered-checkbox"
               checked={seoEnabled}
-              onChange={() => setSeoEnabled((prev) => !prev)}
-              className="opacity-0 absolute h-8 w-8"
+              onChange={() => {
+                setSeoEnabled((prev) => !prev);
+              }}
+              className="opacity-0 absolute h-8 w-8 cursor-pointer"
             />
-            <div className="bg-transparent border-2 rounded-md border-indigo-400 w-4 h-4 flex justify-center items-center mr-2">
+            <div className="bg-transparent border-2 rounded-md border-indigo-400 w-4 h-4 flex justify-center items-center mr-2 cursor-pointer">
               {seoEnabled && (
                 <svg
                   className="fill-current w-3 h-3 text-indigo-600 pointer-events-none"
@@ -151,7 +161,9 @@ export default function Home(): JSX.Element {
                 </svg>
               )}
             </div>
-            <span className="select-none">Enable SEO & Clickbait Feature</span>
+            <span className="select-none cursor-pointer">
+              Enable SEO & Clickbait Feature
+            </span>
           </label>
           {loading && (
             <div>
