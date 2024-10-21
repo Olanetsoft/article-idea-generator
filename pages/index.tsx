@@ -29,7 +29,7 @@ export default function Home(): JSX.Element {
   const [abstract, setAbstract] = useState<string>("");
 
   const generateArticleTitle = async (): Promise<void> => {
-    if (!text) {
+    if (!text.trim()) {
       toast.error("Please enter a topic!");
       return;
     }
