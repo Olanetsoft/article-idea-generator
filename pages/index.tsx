@@ -105,7 +105,7 @@ export default function Home(): JSX.Element {
 
       <Header />
 
-      <div className="flex flex-col items-center pt-14 w-full px-4 md:px-0 max-w-screen-md">
+      <div className="flex flex-col items-center pt-14 w-full px-4 lg:px-0 max-w-screen-md">
         <h1
           className={`${spaceGrotesk.className} text-3xl font-bold text-gray-900 dark:text-zinc-300 sm:leading-9 sm:truncate mb-2 text-center sm:text-4xl lg:text-6xl xl:text-6xl`}
         >
