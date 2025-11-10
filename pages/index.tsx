@@ -201,9 +201,9 @@ Format: Just the abstract text, nothing else.`;
 
       <Header />
 
-      <div className="flex flex-col items-center pt-14 w-full px-4 lg:px-0 max-w-screen-md flex-grow pb-8">
+      <div className="flex flex-col items-center pt-8 sm:pt-14 w-full px-4 lg:px-0 max-w-screen-md flex-grow pb-8">
         <h1
-          className={`${spaceGrotesk.className} text-3xl font-bold text-gray-900 dark:text-zinc-300 sm:leading-9 sm:truncate mb-2 text-center sm:text-4xl lg:text-6xl xl:text-6xl`}
+          className={`${spaceGrotesk.className} text-2xl font-bold text-gray-900 dark:text-zinc-300 leading-tight mb-4 text-center sm:text-4xl lg:text-5xl xl:text-6xl`}
         >
           Article Idea Generator
         </h1>
@@ -233,10 +233,10 @@ Format: Just the abstract text, nothing else.`;
           </button>
         </form>
 
-        <div className="flex w-full max-w-screen-md items-center justify-between mt-8 mb-2 ml-6">
+        <div className="flex w-full max-w-screen-md items-center justify-between mt-8 mb-2 px-2 sm:ml-6">
           <label
             htmlFor="bordered-checkbox-1"
-            className="flex items-center justify-center cursor-pointer text-sm sm:text-base"
+            className="flex items-center cursor-pointer text-xs sm:text-sm md:text-base"
           >
             <input
               type="checkbox"
@@ -267,7 +267,7 @@ Format: Just the abstract text, nothing else.`;
                 </svg>
               )}
             </div>
-            <span className="select-none cursor-pointer">
+            <span className="select-none cursor-pointer break-words">
               Enable SEO &amp; Clickbait Feature
             </span>
           </label>
@@ -316,36 +316,6 @@ Format: Just the abstract text, nothing else.`;
                       <div className="h-6 bg-gray-300 dark:bg-zinc-700 rounded w-3/4"></div>
                     </div>
                   ))}
-                </motion.div>
-              )}
-              {!generatedTitles && !loading && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  className="text-center py-12"
-                >
-                  <svg
-                    className="mx-auto h-24 w-24 text-gray-300 dark:text-gray-600"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1.5}
-                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                    />
-                  </svg>
-                  <h3 className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
-                    Ready to generate ideas?
-                  </h3>
-                  <p className="mt-2 text-sm text-gray-500 dark:text-gray-400 max-w-sm mx-auto">
-                    Enter a topic above and let AI generate creative article
-                    titles for you. Enable SEO mode for optimized suggestions!
-                  </p>
                 </motion.div>
               )}
               {generatedTitles && !loading && (
@@ -436,145 +406,55 @@ Format: Just the abstract text, nothing else.`;
           </AnimatePresence>
         </ResizablePanel>
 
-        {/* SEO Content Sections */}
-        <section className="w-full max-w-screen-md mt-16 px-4">
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-zinc-200 mb-6 text-center">
-            How It Works
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12">
-            <div className="text-center">
-              <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900 rounded-full flex items-center justify-center mx-auto mb-3">
-                <span className="text-indigo-600 dark:text-indigo-300 font-bold text-xl">
-                  1
-                </span>
+        {/* SEO Content Sections - Only show when no results and not loading */}
+        {!generatedTitles && !loading && (
+          <section className="w-full max-w-screen-md mt-12 sm:mt-16 px-4">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-zinc-200 mb-6 text-center">
+              How It Works
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-6 mb-12">
+              <div className="text-center">
+                <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <span className="text-indigo-600 dark:text-indigo-300 font-bold text-xl">
+                    1
+                  </span>
+                </div>
+                <h3 className="font-semibold text-gray-900 dark:text-zinc-200 mb-2 text-base sm:text-lg">
+                  Enter Your Topic
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Type any subject or keyword you want to write about
+                </p>
               </div>
-              <h3 className="font-semibold text-gray-900 dark:text-zinc-200 mb-2">
-                Enter Your Topic
-              </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Type any subject or keyword you want to write about
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900 rounded-full flex items-center justify-center mx-auto mb-3">
-                <span className="text-indigo-600 dark:text-indigo-300 font-bold text-xl">
-                  2
-                </span>
+              <div className="text-center">
+                <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <span className="text-indigo-600 dark:text-indigo-300 font-bold text-xl">
+                    2
+                  </span>
+                </div>
+                <h3 className="font-semibold text-gray-900 dark:text-zinc-200 mb-2 text-base sm:text-lg">
+                  AI Generates Titles
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Get 4 unique, SEO-optimized article titles instantly
+                </p>
               </div>
-              <h3 className="font-semibold text-gray-900 dark:text-zinc-200 mb-2">
-                AI Generates Titles
-              </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Get 4 unique, SEO-optimized article titles instantly
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900 rounded-full flex items-center justify-center mx-auto mb-3">
-                <span className="text-indigo-600 dark:text-indigo-300 font-bold text-xl">
-                  3
-                </span>
+              <div className="text-center">
+                <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <span className="text-indigo-600 dark:text-indigo-300 font-bold text-xl">
+                    3
+                  </span>
+                </div>
+                <h3 className="font-semibold text-gray-900 dark:text-zinc-200 mb-2 text-base sm:text-lg">
+                  Copy & Create
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Click to copy and start writing your article
+                </p>
               </div>
-              <h3 className="font-semibold text-gray-900 dark:text-zinc-200 mb-2">
-                Copy & Create
-              </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Click to copy and start writing your article
-              </p>
             </div>
-          </div>
-
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-zinc-200 mb-6 text-center">
-            Why Use Our Article Idea Generator?
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
-            <div className="bg-white dark:bg-zinc-800 p-4 rounded-lg border border-gray-200 dark:border-zinc-700">
-              <h3 className="font-semibold text-gray-900 dark:text-zinc-200 mb-2">
-                Beat Writer&apos;s Block
-              </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Never stare at a blank page again. Get instant inspiration for
-                your next article.
-              </p>
-            </div>
-            <div className="bg-white dark:bg-zinc-800 p-4 rounded-lg border border-gray-200 dark:border-zinc-700">
-              <h3 className="font-semibold text-gray-900 dark:text-zinc-200 mb-2">
-                SEO-Optimized
-              </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Generate titles designed to rank well in search engines and
-                attract clicks.
-              </p>
-            </div>
-            <div className="bg-white dark:bg-zinc-800 p-4 rounded-lg border border-gray-200 dark:border-zinc-700">
-              <h3 className="font-semibold text-gray-900 dark:text-zinc-200 mb-2">
-                ⚡ Lightning Fast
-              </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Powered by GPT-4o-mini AI, get high-quality titles in seconds,
-                not hours.
-              </p>
-            </div>
-            <div className="bg-white dark:bg-zinc-800 p-4 rounded-lg border border-gray-200 dark:border-zinc-700">
-              <h3 className="font-semibold text-gray-900 dark:text-zinc-200 mb-2">
-                {" "}
-                100% Free
-              </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                No signup, no credit card, no limits. Generate unlimited article
-                titles for free.
-              </p>
-            </div>
-          </div>
-
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-zinc-200 mb-6 text-center">
-            Frequently Asked Questions
-          </h2>
-          <div className="space-y-4 mb-12">
-            <details className="bg-white dark:bg-zinc-800 p-4 rounded-lg border border-gray-200 dark:border-zinc-700">
-              <summary className="font-semibold text-gray-900 dark:text-zinc-200 cursor-pointer">
-                What is an article idea generator?
-              </summary>
-              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                An article idea generator is an AI-powered tool that creates
-                compelling article titles and headlines based on your topic or
-                keywords. It helps writers, bloggers, and content creators
-                overcome writer&apos;s block and find engaging angles for their
-                content.
-              </p>
-            </details>
-            <details className="bg-white dark:bg-zinc-800 p-4 rounded-lg border border-gray-200 dark:border-zinc-700">
-              <summary className="font-semibold text-gray-900 dark:text-zinc-200 cursor-pointer">
-                Is the article title generator really free?
-              </summary>
-              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                Yes! Our article idea generator is completely free to use with
-                no signup required. You can generate unlimited article titles
-                without any restrictions or hidden fees.
-              </p>
-            </details>
-            <details className="bg-white dark:bg-zinc-800 p-4 rounded-lg border border-gray-200 dark:border-zinc-700">
-              <summary className="font-semibold text-gray-900 dark:text-zinc-200 cursor-pointer">
-                What&apos;s the difference between SEO mode and regular mode?
-              </summary>
-              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                SEO mode generates titles optimized for search engines with
-                attention-grabbing elements and relevant keywords. Regular mode
-                creates professional, straightforward titles without clickbait
-                elements. Choose based on your content goals.
-              </p>
-            </details>
-            <details className="bg-white dark:bg-zinc-800 p-4 rounded-lg border border-gray-200 dark:border-zinc-700">
-              <summary className="font-semibold text-gray-900 dark:text-zinc-200 cursor-pointer">
-                Can I generate abstracts for my article titles?
-              </summary>
-              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                Yes! Click the document icon next to any generated title to
-                create a professional abstract. This helps you plan your article
-                structure and key points before writing.
-              </p>
-            </details>
-          </div>
-        </section>
+          </section>
+        )}
       </div>
       <Footer />
     </div>
