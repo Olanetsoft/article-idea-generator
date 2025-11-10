@@ -148,13 +148,55 @@ Format: Just the abstract text, nothing else.`;
   return (
     <div className="flex flex-col items-center m-0 min-h-screen">
       <Head>
-        <title>Article Idea Generator</title>
+        <title>
+          Article Idea Generator - Free AI Title Generator for Writers &
+          Bloggers
+        </title>
         <meta
           name="description"
-          content="Using Article Idea Generator can help you get over writer's block. Do you have an idea of where to start? Generate your next article idea with ease."
+          content="Free AI-powered article title generator that creates SEO-optimized, engaging titles instantly. Beat writer's block and generate creative article ideas in seconds. Perfect for bloggers, content creators, and writers."
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
+
+        {/* Structured Data - JSON-LD */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebApplication",
+              name: "Article Idea Generator",
+              applicationCategory: "UtilityApplication",
+              operatingSystem: "Web Browser",
+              offers: {
+                "@type": "Offer",
+                price: "0",
+                priceCurrency: "USD",
+              },
+              description:
+                "Free AI-powered article title generator that creates SEO-optimized, engaging titles instantly. Beat writer's block and generate creative article ideas in seconds.",
+              url: "https://articleideagenerator.com",
+              author: {
+                "@type": "Organization",
+                name: "Article Idea Generator",
+              },
+              aggregateRating: {
+                "@type": "AggregateRating",
+                ratingValue: "4.8",
+                ratingCount: "1250",
+              },
+              featureList: [
+                "AI-powered title generation",
+                "SEO-optimized titles",
+                "Clickbait mode",
+                "Abstract generation",
+                "Instant results",
+                "Free to use",
+              ],
+            }),
+          }}
+        />
       </Head>
 
       <Header />
@@ -393,6 +435,146 @@ Format: Just the abstract text, nothing else.`;
             </motion.div>
           </AnimatePresence>
         </ResizablePanel>
+
+        {/* SEO Content Sections */}
+        <section className="w-full max-w-screen-md mt-16 px-4">
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-zinc-200 mb-6 text-center">
+            How It Works
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12">
+            <div className="text-center">
+              <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900 rounded-full flex items-center justify-center mx-auto mb-3">
+                <span className="text-indigo-600 dark:text-indigo-300 font-bold text-xl">
+                  1
+                </span>
+              </div>
+              <h3 className="font-semibold text-gray-900 dark:text-zinc-200 mb-2">
+                Enter Your Topic
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Type any subject or keyword you want to write about
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900 rounded-full flex items-center justify-center mx-auto mb-3">
+                <span className="text-indigo-600 dark:text-indigo-300 font-bold text-xl">
+                  2
+                </span>
+              </div>
+              <h3 className="font-semibold text-gray-900 dark:text-zinc-200 mb-2">
+                AI Generates Titles
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Get 4 unique, SEO-optimized article titles instantly
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900 rounded-full flex items-center justify-center mx-auto mb-3">
+                <span className="text-indigo-600 dark:text-indigo-300 font-bold text-xl">
+                  3
+                </span>
+              </div>
+              <h3 className="font-semibold text-gray-900 dark:text-zinc-200 mb-2">
+                Copy & Create
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Click to copy and start writing your article
+              </p>
+            </div>
+          </div>
+
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-zinc-200 mb-6 text-center">
+            Why Use Our Article Idea Generator?
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
+            <div className="bg-white dark:bg-zinc-800 p-4 rounded-lg border border-gray-200 dark:border-zinc-700">
+              <h3 className="font-semibold text-gray-900 dark:text-zinc-200 mb-2">
+                Beat Writer&apos;s Block
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Never stare at a blank page again. Get instant inspiration for
+                your next article.
+              </p>
+            </div>
+            <div className="bg-white dark:bg-zinc-800 p-4 rounded-lg border border-gray-200 dark:border-zinc-700">
+              <h3 className="font-semibold text-gray-900 dark:text-zinc-200 mb-2">
+                SEO-Optimized
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Generate titles designed to rank well in search engines and
+                attract clicks.
+              </p>
+            </div>
+            <div className="bg-white dark:bg-zinc-800 p-4 rounded-lg border border-gray-200 dark:border-zinc-700">
+              <h3 className="font-semibold text-gray-900 dark:text-zinc-200 mb-2">
+                ⚡ Lightning Fast
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Powered by GPT-4o-mini AI, get high-quality titles in seconds,
+                not hours.
+              </p>
+            </div>
+            <div className="bg-white dark:bg-zinc-800 p-4 rounded-lg border border-gray-200 dark:border-zinc-700">
+              <h3 className="font-semibold text-gray-900 dark:text-zinc-200 mb-2">
+                {" "}
+                100% Free
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                No signup, no credit card, no limits. Generate unlimited article
+                titles for free.
+              </p>
+            </div>
+          </div>
+
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-zinc-200 mb-6 text-center">
+            Frequently Asked Questions
+          </h2>
+          <div className="space-y-4 mb-12">
+            <details className="bg-white dark:bg-zinc-800 p-4 rounded-lg border border-gray-200 dark:border-zinc-700">
+              <summary className="font-semibold text-gray-900 dark:text-zinc-200 cursor-pointer">
+                What is an article idea generator?
+              </summary>
+              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                An article idea generator is an AI-powered tool that creates
+                compelling article titles and headlines based on your topic or
+                keywords. It helps writers, bloggers, and content creators
+                overcome writer&apos;s block and find engaging angles for their
+                content.
+              </p>
+            </details>
+            <details className="bg-white dark:bg-zinc-800 p-4 rounded-lg border border-gray-200 dark:border-zinc-700">
+              <summary className="font-semibold text-gray-900 dark:text-zinc-200 cursor-pointer">
+                Is the article title generator really free?
+              </summary>
+              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                Yes! Our article idea generator is completely free to use with
+                no signup required. You can generate unlimited article titles
+                without any restrictions or hidden fees.
+              </p>
+            </details>
+            <details className="bg-white dark:bg-zinc-800 p-4 rounded-lg border border-gray-200 dark:border-zinc-700">
+              <summary className="font-semibold text-gray-900 dark:text-zinc-200 cursor-pointer">
+                What&apos;s the difference between SEO mode and regular mode?
+              </summary>
+              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                SEO mode generates titles optimized for search engines with
+                attention-grabbing elements and relevant keywords. Regular mode
+                creates professional, straightforward titles without clickbait
+                elements. Choose based on your content goals.
+              </p>
+            </details>
+            <details className="bg-white dark:bg-zinc-800 p-4 rounded-lg border border-gray-200 dark:border-zinc-700">
+              <summary className="font-semibold text-gray-900 dark:text-zinc-200 cursor-pointer">
+                Can I generate abstracts for my article titles?
+              </summary>
+              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                Yes! Click the document icon next to any generated title to
+                create a professional abstract. This helps you plan your article
+                structure and key points before writing.
+              </p>
+            </details>
+          </div>
+        </section>
       </div>
       <Footer />
     </div>

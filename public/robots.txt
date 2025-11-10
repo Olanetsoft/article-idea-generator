@@ -1,0 +1,14 @@
+# Robots.txt for Article Idea Generator
+
+# Allow all crawlers
+User-agent: *
+Allow: /
+
+# Disallow admin/api paths (if any)
+Disallow: /api/
+
+# Sitemap location
+Sitemap: https://articleideagenerator.com/sitemap.xml
+
+# Crawl-delay (optional, helps prevent overload)
+Crawl-delay: 1
