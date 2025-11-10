@@ -6,6 +6,7 @@ import {
   SearchIcon,
   DocumentSearchIcon,
   ShareIcon,
+  MicrophoneIcon,
 } from "@heroicons/react/outline";
 import { ArrowSmRightIcon } from "@heroicons/react/solid";
 import { AnimatePresence, motion } from "framer-motion";
@@ -33,6 +34,18 @@ export default function Home(): JSX.Element {
   const [abstract, setAbstract] = useState<string>("");
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [showShareMenu, setShowShareMenu] = useState<number | null>(null);
+  const [isListening, setIsListening] = useState<boolean>(false);
+  const [speechSupported, setSpeechSupported] = useState<boolean>(false);
+
+  // Check for speech recognition support on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const SpeechRecognition =
+        (window as any).SpeechRecognition ||
+        (window as any).webkitSpeechRecognition;
+      setSpeechSupported(!!SpeechRecognition);
+    }
+  }, []);
 
   // Load recent searches from localStorage on mount
   useEffect(() => {
@@ -65,6 +78,61 @@ export default function Home(): JSX.Element {
       "https://articleideagenerator.com"
     )}`;
     window.open(url, "_blank");
+  };
+
+  const startVoiceInput = () => {
+    if (!speechSupported) {
+      toast.error("Voice input is not supported in your browser");
+      return;
+    }
+
+    const SpeechRecognition =
+      (window as any).SpeechRecognition ||
+      (window as any).webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+
+    recognition.lang = "en-US";
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => {
+      setIsListening(true);
+      toast.success("Listening... Speak now!");
+    };
+
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setText(transcript);
+      const inputElement = document.getElementById(
+        "search-box"
+      ) as HTMLInputElement;
+      if (inputElement) inputElement.value = transcript;
+      toast.success("Voice captured!");
+    };
+
+    recognition.onerror = (event: any) => {
+      setIsListening(false);
+      if (event.error === "no-speech") {
+        toast.error("No speech detected. Please try again.");
+      } else if (event.error === "not-allowed") {
+        toast.error(
+          "Microphone access denied. Please allow microphone access."
+        );
+      } else {
+        toast.error(`Voice recognition error: ${event.error}`);
+      }
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    try {
+      recognition.start();
+    } catch (error) {
+      setIsListening(false);
+      toast.error("Could not start voice recognition");
+    }
   };
 
   const generateArticleTitle = async (): Promise<void> => {
@@ -263,6 +331,28 @@ Format: Just the abstract text, nothing else.`;
             id="search-box"
             aria-label="Enter article topic"
           />
+          {speechSupported && (
+            <button
+              type="button"
+              onClick={startVoiceInput}
+              disabled={isListening || loading}
+              className={`mr-2 min-w-[36px] min-h-[36px] rounded-full flex items-center justify-center transition focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                isListening
+                  ? "bg-red-500 hover:bg-red-600 animate-pulse"
+                  : "hover:bg-gray-100 dark:hover:bg-zinc-700"
+              } disabled:opacity-50 disabled:cursor-not-allowed`}
+              aria-label={isListening ? "Listening..." : "Use voice input"}
+              title={isListening ? "Listening..." : "Speak your topic"}
+            >
+              <MicrophoneIcon
+                className={`h-5 w-5 ${
+                  isListening
+                    ? "text-white"
+                    : "text-[#6366f1] dark:text-gray-100"
+                }`}
+              />
+            </button>
+          )}
           <button
             className="border dark:border-zinc-600 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition disabled:opacity-50 disabled:cursor-not-allowed"
             id="submit"
