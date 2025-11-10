@@ -37,14 +37,35 @@ export default function Home(): JSX.Element {
     setAbstract("");
     setLoading(true);
 
-    const prompt = `Generate 4 article title for "${text}". ${
-      seoEnabled ? "Ensure its SEO friendly titles with clickbait. " : ""
-    }Make sure its not more than 4, its relevant and not out of context.`;
+    const systemMessage = `You are an expert content strategist and SEO specialist. Generate compelling, clear, and engaging article titles that capture reader attention while accurately representing the topic.`;
+
+    const prompt = seoEnabled
+      ? `Generate exactly 4 SEO-optimized article titles for the topic: "${text}". 
+         
+Requirements:
+- Each title should be attention-grabbing and click-worthy
+- Include relevant keywords naturally
+- Keep titles between 50-60 characters for optimal SEO
+- Use power words and emotional triggers
+- Make them specific and actionable
+- Number each title (1., 2., 3., 4.)
+
+Format: Return only the 4 numbered titles, one per line.`
+      : `Generate exactly 4 professional article titles for the topic: "${text}".
+
+Requirements:
+- Clear and informative titles
+- Accurately represent the content
+- Engaging but not clickbait
+- Professional tone
+- Number each title (1., 2., 3., 4.)
+
+Format: Return only the 4 numbered titles, one per line.`;
 
     try {
       const response = await fetch("/api/generate", {
         ...fetchOptions,
-        body: JSON.stringify({ prompt }),
+        body: JSON.stringify({ prompt, systemMessage }),
       });
       const data = await response.json();
 
@@ -69,13 +90,32 @@ export default function Home(): JSX.Element {
       return;
     }
 
-    const prompt = `Generate a concise, high-quality abstract for "${title}" that briefly covers the topic, key points, relevance, impact, and structure with appropriate technical depth. Ensure the abstract does not include any phrases like 'This abstract provides' or 'This paper discusses' or similar. Focus on content only.`;
+    const systemMessage = `You are a seasoned writer with 15 years of experience. Write naturally and conversationally, avoiding corporate jargon and AI-sounding language. Be direct and human.`;
+
+    const prompt = `Write a compelling abstract for: "${title}"
+
+STRICT RULES - DO NOT USE these overused AI phrases:
+❌ "delve into", "landscape", "realm", "navigating", "pivotal", "robust", "comprehensive", "harness", "leverage", "unlock", "embark", "journey", "dive deep", "it's important to note", "revolutionize", "game-changer", "cutting-edge", "seamless", "empower", "transform", "unveil", "uncover", "探索" (explore)
+
+❌ NO meta phrases like: "This article explores", "We will discuss", "This piece examines", "In this post"
+
+INSTEAD, write like a human:
+✅ Use simple, direct language
+✅ Start with the actual topic, not what the article does
+✅ Write 120-180 words
+✅ Use active voice and concrete examples
+✅ Be conversational but professional
+✅ Focus on what readers will learn or gain
+✅ Use contractions (it's, you'll, we're) when natural
+✅ Vary sentence length
+
+Format: Just the abstract text, nothing else.`;
 
     setLoading(true);
     try {
       const response = await fetch("/api/generate", {
         ...fetchOptions,
-        body: JSON.stringify({ prompt }),
+        body: JSON.stringify({ prompt, systemMessage }),
       });
 
       if (!response.ok) {
