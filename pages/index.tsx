@@ -99,13 +99,14 @@ export default function Home(): JSX.Element {
   };
 
   useEffect(() => {
-    if (text) {
+    if (text && seoEnabled !== undefined) {
       generateArticleTitle();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [seoEnabled]);
 
   return (
-    <div className="flex flex-col items-center m-0">
+    <div className="flex flex-col items-center m-0 min-h-screen">
       <Head>
         <title>Article Idea Generator</title>
         <meta
@@ -118,7 +119,7 @@ export default function Home(): JSX.Element {
 
       <Header />
 
-      <div className="flex flex-col items-center pt-14 w-full px-4 lg:px-0 max-w-screen-md">
+      <div className="flex flex-col items-center pt-14 w-full px-4 lg:px-0 max-w-screen-md flex-grow pb-8">
         <h1
           className={`${spaceGrotesk.className} text-3xl font-bold text-gray-900 dark:text-zinc-300 sm:leading-9 sm:truncate mb-2 text-center sm:text-4xl lg:text-6xl xl:text-6xl`}
         >
@@ -135,14 +136,16 @@ export default function Home(): JSX.Element {
           <input
             onChange={(e) => setText(e.target.value)}
             type="text"
-            className="flex-grow focus:outline-none dark:text-white bg-transparent text-gray-700"
+            className="flex-grow focus:outline-none dark:text-white bg-transparent text-gray-700 py-2"
             placeholder="What's on your mind?"
             id="search-box"
+            aria-label="Enter article topic"
           />
           <button
-            className="border dark:border-zinc-600 w-10 h-10 rounded-full flex items-center justify-center bg-indigo-500 hover:bg-indigo-600 transition"
+            className="border dark:border-zinc-600 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center bg-indigo-500 hover:bg-indigo-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
             id="submit"
-            aria-label="search-button"
+            aria-label="Generate article titles"
+            disabled={loading}
           >
             <ArrowSmRightIcon className="w-6 h-6 text-white" />
           </button>
@@ -151,7 +154,7 @@ export default function Home(): JSX.Element {
         <div className="flex w-full max-w-screen-md items-center justify-between mt-8 mb-2 ml-6">
           <label
             htmlFor="bordered-checkbox-1"
-            className="flex items-center justify-center cursor-pointer"
+            className="flex items-center justify-center cursor-pointer text-sm sm:text-base"
           >
             <input
               type="checkbox"
@@ -162,20 +165,21 @@ export default function Home(): JSX.Element {
                 setSeoEnabled((prev) => !prev);
               }}
               className="opacity-0 absolute h-8 w-8 cursor-pointer"
+              disabled={loading}
             />
-            <div className="bg-transparent border-2 rounded-md border-indigo-400 w-4 h-4 flex justify-center items-center mr-2 cursor-pointer">
+            <div className="bg-transparent border-2 rounded-md border-indigo-400 w-5 h-5 flex justify-center items-center mr-2 cursor-pointer flex-shrink-0">
               {seoEnabled && (
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
-                  stroke-width="4"
+                  strokeWidth="4"
                   stroke="#4f46e5"
                   className="w-4 h-4"
                 >
                   <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                     d="m4.5 12.75 6 6 9-13.5"
                   />
                 </svg>
@@ -215,7 +219,54 @@ export default function Home(): JSX.Element {
         <ResizablePanel>
           <AnimatePresence mode="wait">
             <motion.div className="space-y-4 my-5">
-              {generatedTitles && (
+              {loading && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="space-y-4"
+                >
+                  {[1, 2, 3, 4].map((i) => (
+                    <div
+                      key={i}
+                      className="w-full bg-zinc-100 dark:bg-darkOffset rounded-md p-3 border-zinc-200 border dark:border-zinc-800 animate-pulse"
+                    >
+                      <div className="h-6 bg-gray-300 dark:bg-zinc-700 rounded w-3/4"></div>
+                    </div>
+                  ))}
+                </motion.div>
+              )}
+              {!generatedTitles && !loading && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  className="text-center py-12"
+                >
+                  <svg
+                    className="mx-auto h-24 w-24 text-gray-300 dark:text-gray-600"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
+                  <h3 className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
+                    Ready to generate ideas?
+                  </h3>
+                  <p className="mt-2 text-sm text-gray-500 dark:text-gray-400 max-w-sm mx-auto">
+                    Enter a topic above and let AI generate creative article
+                    titles for you. Enable SEO mode for optimized suggestions!
+                  </p>
+                </motion.div>
+              )}
+              {generatedTitles && !loading && (
                 <>
                   <p className="text-xs text-center font-bold text-gray-400">
                     Click on any idea to copy it to your clipboard or the icon
@@ -231,32 +282,34 @@ export default function Home(): JSX.Element {
                           );
                           toast.success("Title copied to clipboard");
                         }}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            navigator.clipboard.writeText(
+                              title.replace(/[^a-zA-Z\s]/g, "")
+                            );
+                            toast.success("Title copied to clipboard");
+                          }
+                        }}
+                        aria-label={`Copy title: ${title.replace(/"/g, "")}`}
                       >
-                        <p className="text-zinc-800 dark:text-zinc-300 font-bold flex-grow">
+                        <p className="text-zinc-800 dark:text-zinc-300 font-bold flex-grow break-words">
                           {title.replace(/"/g, "")}
                         </p>
-                        <div className="relative group flex items-center">
-                          <DocumentSearchIcon
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              generateAbstractForArticles(
-                                title.replace(/"/g, "")
-                              );
-                            }}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter" || e.key === " ") {
-                                e.stopPropagation();
-                                generateAbstractForArticles(
-                                  title.replace(/"/g, "")
-                                );
-                              }
-                            }}
-                            className="h-5 text-[#6366f1] dark:text-gray-100 cursor-pointer"
-                          />
-                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:flex px-2 py-1 bg-gray-700 text-white text-xs rounded-md">
-                            Generate abstract
-                          </div>
-                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            generateAbstractForArticles(
+                              title.replace(/"/g, "")
+                            );
+                          }}
+                          className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-md transition"
+                          aria-label="Generate abstract for this title"
+                          disabled={loading}
+                        >
+                          <DocumentSearchIcon className="h-6 w-6 text-[#6366f1] dark:text-gray-100" />
+                        </button>
                       </div>
                     </div>
                   ))}
@@ -277,9 +330,20 @@ export default function Home(): JSX.Element {
                       );
                       toast.success("Abstract copied to clipboard");
                     }}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        navigator.clipboard.writeText(
+                          abstract.replace(/[^a-zA-Z\s]/g, "")
+                        );
+                        toast.success("Abstract copied to clipboard");
+                      }
+                    }}
+                    aria-label="Copy abstract to clipboard"
                   >
                     <div className="flex items-center">
-                      <p className="text-zinc-800 dark:text-zinc-300 text-sm">
+                      <p className="text-zinc-800 dark:text-zinc-300 text-sm break-words">
                         {abstract.replace(/"/g, "")}
                       </p>
                     </div>
