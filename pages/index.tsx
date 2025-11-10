@@ -47,8 +47,16 @@ export default function Home(): JSX.Element {
         body: JSON.stringify({ prompt }),
       });
       const data = await response.json();
+
+      if (!response.ok || !data.choices || !data.choices[0]) {
+        throw new Error(
+          data.error?.message || "Failed to generate article titles"
+        );
+      }
+
       setGeneratedTitles(data.choices[0].message.content);
-    } catch {
+    } catch (error) {
+      console.log(error);
       toast.error("An error occurred. Please try again!");
     } finally {
       setLoading(false);
@@ -75,6 +83,11 @@ export default function Home(): JSX.Element {
       }
 
       const data = await response.json();
+
+      if (!data.choices || !data.choices[0]) {
+        throw new Error(data.error?.message || "Failed to generate abstract");
+      }
+
       setAbstract(data.choices[0].message.content);
       toast.success("Abstract generated successfully!");
     } catch (error) {
