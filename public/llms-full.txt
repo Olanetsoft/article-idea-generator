@@ -1,0 +1,155 @@
+# Article Idea Generator - Full Documentation
+
+## Overview
+
+Article Idea Generator is a free, AI-powered web application that helps writers, bloggers, content marketers, and journalists generate creative, SEO-optimized article titles and abstracts. The tool uses OpenAI's GPT-4o-mini model to produce human-like, engaging content ideas.
+
+## Target Audience
+
+- **Bloggers**: Need fresh ideas for regular content
+- **Content Marketers**: Creating SEO-driven content strategies
+- **Journalists**: Finding angles for news stories
+- **Students**: Academic paper title inspiration
+- **YouTubers**: Video title ideas
+- **Podcasters**: Episode naming
+- **Social Media Managers**: Engaging post ideas
+
+## Core Functionality
+
+### Title Generation
+
+When a user enters a topic:
+1. The topic is sent to the GPT-4o-mini API
+2. The AI generates 5 unique, SEO-optimized titles
+3. Each title is designed to be:
+   - Engaging and clickable
+   - Search engine friendly
+   - Free of AI-sounding buzzwords
+   - Naturally written
+
+### Abstract Generation
+
+For any generated title, users can:
+1. Click "Generate Abstract"
+2. Receive a 2-3 paragraph summary
+3. Use it as a starting point for their article
+
+### Voice Input
+
+- Uses Web Speech API
+- Supports English language
+- Provides real-time feedback
+- Falls back gracefully on unsupported browsers
+
+## Technical Architecture
+
+### Frontend
+- **Framework**: Next.js 13.1.5
+- **UI Library**: React 18.2.0
+- **Styling**: Tailwind CSS
+- **Animations**: Framer Motion
+- **Theme**: next-themes (dark/light mode)
+
+### Backend
+- **API Routes**: Next.js API routes
+- **AI Model**: OpenAI GPT-4o-mini
+- **Rate Limiting**: 10 requests/minute/IP
+
+### Infrastructure
+- **Hosting**: Vercel
+- **PWA**: next-pwa for offline support
+- **Analytics**: Vercel Analytics
+
+## API Parameters
+
+The generation API uses:
+- **Model**: gpt-4o-mini
+- **Temperature**: 0.7 (balanced creativity)
+- **Max Tokens**: 800
+- **System Prompt**: Instructs natural, SEO-friendly output
+
+## User Interface
+
+### Home Page
+- Topic input field with character count
+- Voice input button
+- Generate button
+- Results display with copy/share options
+- Recent searches sidebar
+
+### FAQ Page
+- Common questions answered
+- SEO-optimized with Schema.org FAQPage markup
+
+### Error Pages
+- Custom 404 with helpful navigation
+- Custom 500 with retry functionality
+
+## SEO Implementation
+
+### Meta Tags
+- Title, description, keywords
+- Open Graph tags for social sharing
+- Twitter Card tags
+- Canonical URLs
+
+### Structured Data
+- WebApplication schema on home page
+- FAQPage schema on FAQ page
+- BreadcrumbList for navigation
+
+### Technical SEO
+- XML Sitemap at /sitemap.xml
+- Robots.txt configuration
+- Security headers (HSTS, CSP basics)
+
+## Accessibility
+
+- Semantic HTML structure
+- ARIA labels on interactive elements
+- Keyboard navigation support
+- Focus indicators
+- Reduced motion support
+- Color contrast compliance
+
+## Privacy
+
+- No user accounts required
+- Recent searches stored in localStorage (client-side only)
+- No personal data collected
+- Rate limiting by IP (not stored)
+
+## Limitations
+
+- 10 requests per minute per IP
+- English language only
+- Requires JavaScript
+- Voice input requires microphone permission
+
+## Common Questions
+
+**Q: Is it free?**
+A: Yes, completely free with no signup required.
+
+**Q: What AI model is used?**
+A: OpenAI's GPT-4o-mini model.
+
+**Q: Can I use the generated titles?**
+A: Yes, all generated content is yours to use.
+
+**Q: Is there an API?**
+A: No public API is available.
+
+**Q: How many titles per request?**
+A: 5 unique titles per topic.
+
+## Version History
+
+- **v1.0**: Initial release with GPT-3.5-turbo
+- **v2.0**: Upgraded to GPT-4o-mini, added voice input, SEO improvements
+
+## Links
+
+- Production: https://articleideagenerator.com
+- Source Code: https://github.com/Olanetsoft/article-idea-generator
+- Issues: https://github.com/Olanetsoft/article-idea-generator/issues

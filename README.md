@@ -20,8 +20,7 @@ Generate engaging article ideas instantly using AI. This tool helps content crea
 - **Mobile Responsive**: Optimized for all devices
 - **Accessibility**: Full keyboard navigation and ARIA labels
 
-[![Article Idea Generator - I](https://github.com/Olanetsoft/article-idea-generator/assets/45847909/d193b273-e38f-43a9-88ee-2faddb21ea5b)](https://www.articleideagenerator.com/)
-[![Article Idea Generator - II](https://github.com/Olanetsoft/article-idea-generator/assets/45847909/cc7c64c0-e623-4026-9155-7e104ec67d61)](https://www.articleideagenerator.com/)
+[![Article Idea Generator - I](./public/screenshot.png)](https://www.articleideagenerator.com/)
 
 ## How to use
 

@@ -3,7 +3,7 @@
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://articleideagenerator.com</loc>
-    <lastmod>2025-01-10</lastmod>
+    <lastmod>2025-11-28</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <image:image>
@@ -13,8 +13,14 @@
   </url>
   <url>
     <loc>https://articleideagenerator.com/faq</loc>
-    <lastmod>2025-01-10</lastmod>
+    <lastmod>2025-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://articleideagenerator.com/llms.txt</loc>
+    <lastmod>2025-11-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
   </url>
 </urlset>

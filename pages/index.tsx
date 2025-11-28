@@ -273,34 +273,88 @@ Format: Just the abstract text, nothing else.`;
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
-              "@type": "WebApplication",
-              name: "Article Idea Generator",
-              applicationCategory: "UtilityApplication",
-              operatingSystem: "Web Browser",
-              offers: {
-                "@type": "Offer",
-                price: "0",
-                priceCurrency: "USD",
-              },
-              description:
-                "Free AI-powered article title generator that creates SEO-optimized, engaging titles instantly. Beat writer's block and generate creative article ideas in seconds.",
-              url: "https://articleideagenerator.com",
-              author: {
-                "@type": "Organization",
-                name: "Article Idea Generator",
-              },
-              aggregateRating: {
-                "@type": "AggregateRating",
-                ratingValue: "4.8",
-                ratingCount: "1250",
-              },
-              featureList: [
-                "AI-powered title generation",
-                "SEO-optimized titles",
-                "Clickbait mode",
-                "Abstract generation",
-                "Instant results",
-                "Free to use",
+              "@graph": [
+                {
+                  "@type": "WebApplication",
+                  "@id": "https://articleideagenerator.com/#app",
+                  name: "Article Idea Generator",
+                  applicationCategory: "UtilityApplication",
+                  operatingSystem: "Web Browser",
+                  browserRequirements: "Requires JavaScript",
+                  offers: {
+                    "@type": "Offer",
+                    price: "0",
+                    priceCurrency: "USD",
+                  },
+                  description:
+                    "Free AI-powered article title generator that creates SEO-optimized, engaging titles instantly. Beat writer's block and generate creative article ideas in seconds.",
+                  url: "https://articleideagenerator.com",
+                  author: {
+                    "@type": "Organization",
+                    name: "Article Idea Generator",
+                    url: "https://articleideagenerator.com",
+                  },
+                  featureList: [
+                    "AI-powered title generation",
+                    "SEO-optimized titles",
+                    "Clickbait mode",
+                    "Abstract generation",
+                    "Voice input",
+                    "Dark mode",
+                    "Free to use",
+                  ],
+                },
+                {
+                  "@type": "HowTo",
+                  "@id": "https://articleideagenerator.com/#howto",
+                  name: "How to Generate Article Ideas with AI",
+                  description:
+                    "Learn how to use the Article Idea Generator to create SEO-optimized article titles in seconds.",
+                  totalTime: "PT1M",
+                  step: [
+                    {
+                      "@type": "HowToStep",
+                      position: 1,
+                      name: "Enter your topic",
+                      text: "Type your topic or keyword into the search box (e.g., 'machine learning', 'healthy recipes')",
+                    },
+                    {
+                      "@type": "HowToStep",
+                      position: 2,
+                      name: "Generate titles",
+                      text: "Click the 'Generate Ideas' button or press Enter to get AI-generated article titles",
+                    },
+                    {
+                      "@type": "HowToStep",
+                      position: 3,
+                      name: "Choose your favorite",
+                      text: "Review the 5 generated titles and click to copy your favorite one",
+                    },
+                    {
+                      "@type": "HowToStep",
+                      position: 4,
+                      name: "Generate abstract (optional)",
+                      text: "Click 'Generate Abstract' to get a summary for your chosen title",
+                    },
+                  ],
+                },
+                {
+                  "@type": "WebSite",
+                  "@id": "https://articleideagenerator.com/#website",
+                  url: "https://articleideagenerator.com",
+                  name: "Article Idea Generator",
+                  description:
+                    "Free AI article title generator for writers and bloggers",
+                  potentialAction: {
+                    "@type": "SearchAction",
+                    target: {
+                      "@type": "EntryPoint",
+                      urlTemplate:
+                        "https://articleideagenerator.com/?topic={search_term_string}",
+                    },
+                    "query-input": "required name=search_term_string",
+                  },
+                },
               ],
             }),
           }}

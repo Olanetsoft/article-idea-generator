@@ -1,0 +1,57 @@
+# Article Idea Generator
+
+> Free AI-powered article title generator that creates SEO-optimized, engaging titles instantly. Beat writer's block and generate creative article ideas in seconds.
+
+## About
+
+Article Idea Generator is a free web tool that uses GPT-4o-mini to generate creative, SEO-friendly article titles and abstracts. Writers, bloggers, content marketers, and journalists use it to overcome writer's block and find inspiration for their next piece.
+
+## Features
+
+- **AI-Powered Generation**: Uses OpenAI's GPT-4o-mini model
+- **SEO-Optimized Titles**: Generates titles designed for search engine visibility
+- **Article Abstracts**: Creates compelling summaries for your topics
+- **Voice Input**: Speak your topic instead of typing
+- **Dark Mode**: Comfortable viewing in any lighting
+- **Recent Searches**: Quick access to your previous topics
+- **Share Functionality**: Share results on Twitter and LinkedIn
+
+## How It Works
+
+1. Enter a topic or keyword (e.g., "machine learning", "sustainable living")
+2. Click "Generate Ideas" or use voice input
+3. Receive 5 unique, SEO-optimized article title suggestions
+4. Optionally generate an abstract for any title
+5. Copy or share your favorite ideas
+
+## Use Cases
+
+- Blog post ideas
+- Newsletter topics
+- YouTube video titles
+- Podcast episode names
+- Social media content
+- Academic paper titles
+- Marketing campaign headlines
+
+## Technical Details
+
+- Built with Next.js 13 and React 18
+- Styled with Tailwind CSS
+- PWA-enabled for offline access
+- Mobile-responsive design
+- Rate limited to 10 requests per minute
+
+## API
+
+The site does not offer a public API. All generation is done through the web interface.
+
+## Links
+
+- Website: https://articleideagenerator.com
+- FAQ: https://articleideagenerator.com/faq
+- GitHub: https://github.com/Olanetsoft/article-idea-generator
+
+## Contact
+
+For issues or feature requests, please open a GitHub issue.

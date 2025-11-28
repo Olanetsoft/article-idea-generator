@@ -27,17 +27,52 @@ export default function FAQ(): JSX.Element {
         <link rel="icon" href="/favicon.ico" />
         <link rel="canonical" href="https://articleideagenerator.com/faq" />
 
+        {/* Robots */}
+        <meta
+          name="robots"
+          content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+        />
+
         {/* Open Graph */}
-        <meta property="og:title" content="FAQ - Article Idea Generator" />
+        <meta property="og:site_name" content="Article Idea Generator" />
+        <meta
+          property="og:title"
+          content="FAQ - Article Idea Generator | Common Questions Answered"
+        />
         <meta
           property="og:description"
-          content="Get answers to common questions about our free AI-powered article title generator."
+          content="Get answers to common questions about our free AI-powered article title generator. Learn how to generate SEO-optimized titles and create abstracts."
         />
         <meta
           property="og:url"
           content="https://articleideagenerator.com/faq"
         />
         <meta property="og:type" content="website" />
+        <meta
+          property="og:image"
+          content="https://articleideagenerator.com/og-image.png"
+        />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta
+          property="og:image:alt"
+          content="Article Idea Generator FAQ - Frequently Asked Questions"
+        />
+
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta
+          name="twitter:title"
+          content="FAQ - Article Idea Generator | Common Questions Answered"
+        />
+        <meta
+          name="twitter:description"
+          content="Get answers to common questions about our free AI-powered article title generator."
+        />
+        <meta
+          name="twitter:image"
+          content="https://articleideagenerator.com/og-image.png"
+        />
 
         {/* Structured Data for FAQ */}
         <script
@@ -269,16 +304,16 @@ export default function FAQ(): JSX.Element {
 
         <div className="w-full bg-indigo-50 dark:bg-indigo-900/20 p-6 rounded-lg border border-indigo-200 dark:border-indigo-800 text-center">
           <h2 className="text-xl font-bold text-gray-900 dark:text-zinc-200 mb-2">
-            Ready to Generate Article Ideas?
+            Try Our Free Article Title Generator
           </h2>
           <p className="text-gray-600 dark:text-gray-400 mb-4">
-            Start creating compelling article titles in seconds
+            Generate SEO-optimized article ideas in seconds with AI
           </p>
           <Link
             href="/"
             className="inline-block px-6 py-3 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-lg transition"
           >
-            Try It Now
+            Generate Article Ideas Now
           </Link>
         </div>
       </div>
