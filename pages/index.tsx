@@ -289,11 +289,6 @@ Format: Just the abstract text, nothing else.`;
                 "@type": "Organization",
                 name: "Article Idea Generator",
               },
-              aggregateRating: {
-                "@type": "AggregateRating",
-                ratingValue: "4.8",
-                ratingCount: "1250",
-              },
               featureList: [
                 "AI-powered title generation",
                 "SEO-optimized titles",

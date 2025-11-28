@@ -3,6 +3,7 @@ import type { AppProps } from "next/app";
 import { Analytics } from "@vercel/analytics/react";
 import { ThemeProvider } from "next-themes";
 import localFont from "@next/font/local";
+import ErrorBoundary from "../components/ErrorBoundary";
 
 const productSans = localFont({
   src: [
@@ -28,10 +29,12 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <>
       <ThemeProvider enableSystem={true} attribute="class">
-        <main className={productSans.className}>
-          <Component {...pageProps} />
-          <Analytics />
-        </main>
+        <ErrorBoundary>
+          <main className={productSans.className}>
+            <Component {...pageProps} />
+            <Analytics />
+          </main>
+        </ErrorBoundary>
       </ThemeProvider>
     </>
   );

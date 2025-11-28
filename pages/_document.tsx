@@ -7,6 +7,7 @@ export default function Document() {
         <meta charSet="utf-8" />
         <link rel="icon" href="/favicon.ico" />
         <link rel="canonical" href="https://articleideagenerator.com" />
+        <link rel="apple-touch-icon" href="/icon-192.png" />
 
         {/* Preconnect to external domains */}
         <link rel="preconnect" href="https://api.openai.com" />
