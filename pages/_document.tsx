@@ -9,6 +9,10 @@ export default function Document() {
         <link rel="canonical" href="https://articleideagenerator.com" />
         <link rel="apple-touch-icon" href="/icon-192.png" />
 
+        {/* LLM-friendly content */}
+        <link rel="llms" href="/llms.txt" />
+        <link rel="llms-full" href="/llms-full.txt" />
+
         {/* Preconnect to external domains */}
         <link rel="preconnect" href="https://api.openai.com" />
         <link rel="dns-prefetch" href="https://api.openai.com" />
@@ -84,6 +88,15 @@ export default function Document() {
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="format-detection" content="telephone=no" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="application-name" content="Article Idea Generator" />
+        <meta
+          name="apple-mobile-web-app-title"
+          content="Article Idea Generator"
+        />
+
+        {/* Google Search Console - Replace with your verification code */}
+        {/* <meta name="google-site-verification" content="YOUR_VERIFICATION_CODE" /> */}
       </Head>
       <body className="transition-colors duration-200">
         <Main />

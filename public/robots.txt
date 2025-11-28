@@ -10,5 +10,10 @@ Disallow: /api/
 # Sitemap location
 Sitemap: https://articleideagenerator.com/sitemap.xml
 
+# LLM-friendly content (llms.txt standard)
+# See: https://llmstxt.org/
+# /llms.txt - Summary for AI assistants
+# /llms-full.txt - Detailed documentation
+
 # Crawl-delay (optional, helps prevent overload)
 Crawl-delay: 1
