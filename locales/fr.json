@@ -28,9 +28,9 @@
   "howItWorks": {
     "title": "Comment Ça Marche",
     "step1Title": "Entrez Votre Sujet",
-    "step1Desc": "Tapez n'importe quel sujet, mot-clé ou thème sur lequel vous voulez écrire.",
-    "step2Title": "L'IA Génère des Idées",
-    "step2Desc": "Notre IA analyse votre entrée et crée des titres uniques et engageants.",
+    "step1Desc": "Tapez n'importe quel sujet ou mot-clé sur lequel vous voulez écrire.",
+    "step2Title": "L'IA Génère des Titres",
+    "step2Desc": "Obtenez 4 titres d'articles uniques et optimisés pour le SEO instantanément.",
     "step3Title": "Copiez et Utilisez",
     "step3Desc": "Cliquez sur n'importe quel titre pour le copier et commencer à écrire."
   },
