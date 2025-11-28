@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Space_Grotesk } from "@next/font/google";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import { useTranslation } from "../hooks/useTranslation";
 
 const spaceGrotesk = Space_Grotesk({
   weight: "700",
@@ -11,10 +12,12 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export default function FAQ(): JSX.Element {
+  const { t, locale } = useTranslation();
+
   return (
     <div className="flex flex-col items-center m-0 min-h-screen">
       <Head>
-        <title>FAQ - Article Idea Generator | Frequently Asked Questions</title>
+        <title>FAQ - Article Idea Generator | {t("faq.pageTitle")}</title>
         <meta
           name="description"
           content="Get answers to common questions about our free AI-powered article title generator. Learn how to generate SEO-optimized titles, create abstracts, and maximize your content creation."
@@ -25,7 +28,29 @@ export default function FAQ(): JSX.Element {
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
-        <link rel="canonical" href="https://articleideagenerator.com/faq" />
+        <link
+          rel="canonical"
+          href={`https://articleideagenerator.com${
+            locale === "en" ? "" : `/${locale}`
+          }/faq`}
+        />
+
+        {/* Hreflang for FAQ page */}
+        <link
+          rel="alternate"
+          hrefLang="en"
+          href="https://articleideagenerator.com/faq"
+        />
+        <link
+          rel="alternate"
+          hrefLang="fr"
+          href="https://articleideagenerator.com/fr/faq"
+        />
+        <link
+          rel="alternate"
+          hrefLang="x-default"
+          href="https://articleideagenerator.com/faq"
+        />
 
         {/* Robots */}
         <meta
@@ -37,7 +62,7 @@ export default function FAQ(): JSX.Element {
         <meta property="og:site_name" content="Article Idea Generator" />
         <meta
           property="og:title"
-          content="FAQ - Article Idea Generator | Common Questions Answered"
+          content={`FAQ - Article Idea Generator | ${t("faq.pageTitle")}`}
         />
         <meta
           property="og:description"
@@ -45,7 +70,9 @@ export default function FAQ(): JSX.Element {
         />
         <meta
           property="og:url"
-          content="https://articleideagenerator.com/faq"
+          content={`https://articleideagenerator.com${
+            locale === "en" ? "" : `/${locale}`
+          }/faq`}
         />
         <meta property="og:type" content="website" />
         <meta
@@ -58,12 +85,16 @@ export default function FAQ(): JSX.Element {
           property="og:image:alt"
           content="Article Idea Generator FAQ - Frequently Asked Questions"
         />
+        <meta
+          property="og:locale"
+          content={locale === "fr" ? "fr_FR" : "en_US"}
+        />
 
         {/* Twitter Card */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta
           name="twitter:title"
-          content="FAQ - Article Idea Generator | Common Questions Answered"
+          content={`FAQ - Article Idea Generator | ${t("faq.pageTitle")}`}
         />
         <meta
           name="twitter:description"
@@ -84,66 +115,66 @@ export default function FAQ(): JSX.Element {
               mainEntity: [
                 {
                   "@type": "Question",
-                  name: "What is an article idea generator?",
+                  name: t("faq.q1"),
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "An article idea generator is an AI-powered tool that creates compelling article titles and headlines based on your topic or keywords. It helps writers, bloggers, and content creators overcome writer's block and find engaging angles for their content.",
+                    text: t("faq.a1"),
                   },
                 },
                 {
                   "@type": "Question",
-                  name: "Is the article title generator really free?",
+                  name: t("faq.q2"),
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "Yes! Our article idea generator is completely free to use with no signup required. You can generate unlimited article titles without any restrictions or hidden fees.",
+                    text: t("faq.a2"),
                   },
                 },
                 {
                   "@type": "Question",
-                  name: "What's the difference between SEO mode and regular mode?",
+                  name: t("faq.q3"),
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "SEO mode generates titles optimized for search engines with attention-grabbing elements and relevant keywords. Regular mode creates professional, straightforward titles without clickbait elements. Choose based on your content goals.",
+                    text: t("faq.a3"),
                   },
                 },
                 {
                   "@type": "Question",
-                  name: "Can I generate abstracts for my article titles?",
+                  name: t("faq.q4"),
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "Yes! Click the document icon next to any generated title to create a professional abstract. This helps you plan your article structure and key points before writing.",
+                    text: t("faq.a4"),
                   },
                 },
                 {
                   "@type": "Question",
-                  name: "What AI model powers the article generator?",
+                  name: t("faq.q5"),
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "We use GPT-4o-mini, OpenAI's latest and most efficient model, to generate high-quality, creative article titles and abstracts in seconds.",
+                    text: t("faq.a5"),
                   },
                 },
                 {
                   "@type": "Question",
-                  name: "How many article titles can I generate?",
+                  name: t("faq.q6"),
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "You can generate unlimited article titles! There are no daily limits, no signup requirements, and no hidden restrictions. Use it as much as you need.",
+                    text: t("faq.a6"),
                   },
                 },
                 {
                   "@type": "Question",
-                  name: "Can I use the generated titles for commercial purposes?",
+                  name: t("faq.q7"),
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "Yes! All generated titles are yours to use freely for any purpose - personal blogs, commercial websites, client work, or any other content creation needs.",
+                    text: t("faq.a7"),
                   },
                 },
                 {
                   "@type": "Question",
-                  name: "Why should I use an article title generator?",
+                  name: t("faq.q8"),
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "An article title generator helps you overcome writer's block, saves time brainstorming, provides SEO-optimized titles, offers fresh perspectives on topics, and helps you create more engaging content that attracts readers.",
+                    text: t("faq.a8"),
                   },
                 },
               ],
@@ -160,14 +191,18 @@ export default function FAQ(): JSX.Element {
                 {
                   "@type": "ListItem",
                   position: 1,
-                  name: "Home",
-                  item: "https://articleideagenerator.com",
+                  name: t("header.home"),
+                  item: `https://articleideagenerator.com${
+                    locale === "en" ? "" : `/${locale}`
+                  }`,
                 },
                 {
                   "@type": "ListItem",
                   position: 2,
                   name: "FAQ",
-                  item: "https://articleideagenerator.com/faq",
+                  item: `https://articleideagenerator.com${
+                    locale === "en" ? "" : `/${locale}`
+                  }/faq`,
                 },
               ],
             }),
@@ -186,7 +221,7 @@ export default function FAQ(): JSX.Element {
                 href="/"
                 className="hover:text-indigo-500 dark:hover:text-indigo-400 transition"
               >
-                Home
+                {t("header.home")}
               </Link>
             </li>
             <li>
@@ -201,119 +236,98 @@ export default function FAQ(): JSX.Element {
         <h1
           className={`${spaceGrotesk.className} text-2xl font-bold text-gray-900 dark:text-zinc-300 leading-tight mb-4 text-center sm:text-4xl lg:text-5xl`}
         >
-          Frequently Asked Questions
+          {t("faq.pageTitle")}
         </h1>
         <p className="text-center text-gray-600 dark:text-gray-400 mb-12 max-w-2xl">
-          Everything you need to know about using our AI-powered article idea
-          generator
+          {t("faq.pageDescription")}
         </p>
 
         <div className="w-full space-y-4 mb-8">
           <details className="bg-white dark:bg-zinc-800 p-5 rounded-lg border border-gray-200 dark:border-zinc-700 group">
             <summary className="font-semibold text-gray-900 dark:text-zinc-200 cursor-pointer text-lg">
-              What is an article idea generator?
+              {t("faq.q1")}
             </summary>
             <p className="mt-3 text-gray-600 dark:text-gray-400 leading-relaxed">
-              An article idea generator is an AI-powered tool that creates
-              compelling article titles and headlines based on your topic or
-              keywords. It helps writers, bloggers, and content creators
-              overcome writer&apos;s block and find engaging angles for their
-              content.
+              {t("faq.a1")}
             </p>
           </details>
 
           <details className="bg-white dark:bg-zinc-800 p-5 rounded-lg border border-gray-200 dark:border-zinc-700 group">
             <summary className="font-semibold text-gray-900 dark:text-zinc-200 cursor-pointer text-lg">
-              Is the article title generator really free?
+              {t("faq.q2")}
             </summary>
             <p className="mt-3 text-gray-600 dark:text-gray-400 leading-relaxed">
-              Yes! Our article idea generator is completely free to use with no
-              signup required. You can generate unlimited article titles without
-              any restrictions or hidden fees.
+              {t("faq.a2")}
             </p>
           </details>
 
           <details className="bg-white dark:bg-zinc-800 p-5 rounded-lg border border-gray-200 dark:border-zinc-700 group">
             <summary className="font-semibold text-gray-900 dark:text-zinc-200 cursor-pointer text-lg">
-              What&apos;s the difference between SEO mode and regular mode?
+              {t("faq.q3")}
             </summary>
             <p className="mt-3 text-gray-600 dark:text-gray-400 leading-relaxed">
-              SEO mode generates titles optimized for search engines with
-              attention-grabbing elements and relevant keywords. Regular mode
-              creates professional, straightforward titles without clickbait
-              elements. Choose based on your content goals.
+              {t("faq.a3")}
             </p>
           </details>
 
           <details className="bg-white dark:bg-zinc-800 p-5 rounded-lg border border-gray-200 dark:border-zinc-700 group">
             <summary className="font-semibold text-gray-900 dark:text-zinc-200 cursor-pointer text-lg">
-              Can I generate abstracts for my article titles?
+              {t("faq.q4")}
             </summary>
             <p className="mt-3 text-gray-600 dark:text-gray-400 leading-relaxed">
-              Yes! Click the document icon next to any generated title to create
-              a professional abstract. This helps you plan your article
-              structure and key points before writing.
+              {t("faq.a4")}
             </p>
           </details>
 
           <details className="bg-white dark:bg-zinc-800 p-5 rounded-lg border border-gray-200 dark:border-zinc-700 group">
             <summary className="font-semibold text-gray-900 dark:text-zinc-200 cursor-pointer text-lg">
-              What AI model powers the article generator?
+              {t("faq.q5")}
             </summary>
             <p className="mt-3 text-gray-600 dark:text-gray-400 leading-relaxed">
-              We use GPT-4o-mini, OpenAI&apos;s latest and most efficient model,
-              to generate high-quality, creative article titles and abstracts in
-              seconds.
+              {t("faq.a5")}
             </p>
           </details>
 
           <details className="bg-white dark:bg-zinc-800 p-5 rounded-lg border border-gray-200 dark:border-zinc-700 group">
             <summary className="font-semibold text-gray-900 dark:text-zinc-200 cursor-pointer text-lg">
-              How many article titles can I generate?
+              {t("faq.q6")}
             </summary>
             <p className="mt-3 text-gray-600 dark:text-gray-400 leading-relaxed">
-              You can generate unlimited article titles! There are no daily
-              limits, no signup requirements, and no hidden restrictions. Use it
-              as much as you need.
+              {t("faq.a6")}
             </p>
           </details>
 
           <details className="bg-white dark:bg-zinc-800 p-5 rounded-lg border border-gray-200 dark:border-zinc-700 group">
             <summary className="font-semibold text-gray-900 dark:text-zinc-200 cursor-pointer text-lg">
-              Can I use the generated titles for commercial purposes?
+              {t("faq.q7")}
             </summary>
             <p className="mt-3 text-gray-600 dark:text-gray-400 leading-relaxed">
-              Yes! All generated titles are yours to use freely for any purpose
-              - personal blogs, commercial websites, client work, or any other
-              content creation needs.
+              {t("faq.a7")}
             </p>
           </details>
 
           <details className="bg-white dark:bg-zinc-800 p-5 rounded-lg border border-gray-200 dark:border-zinc-700 group">
             <summary className="font-semibold text-gray-900 dark:text-zinc-200 cursor-pointer text-lg">
-              Why should I use an article title generator?
+              {t("faq.q8")}
             </summary>
             <p className="mt-3 text-gray-600 dark:text-gray-400 leading-relaxed">
-              An article title generator helps you overcome writer&apos;s block,
-              saves time brainstorming, provides SEO-optimized titles, offers
-              fresh perspectives on topics, and helps you create more engaging
-              content that attracts readers.
+              {t("faq.a8")}
             </p>
           </details>
         </div>
 
         <div className="w-full bg-indigo-50 dark:bg-indigo-900/20 p-6 rounded-lg border border-indigo-200 dark:border-indigo-800 text-center">
           <h2 className="text-xl font-bold text-gray-900 dark:text-zinc-200 mb-2">
-            Try Our Free Article Title Generator
+            {t("faq.ctaTitle")}
           </h2>
           <p className="text-gray-600 dark:text-gray-400 mb-4">
-            Generate SEO-optimized article ideas in seconds with AI
+            {t("faq.ctaDescription")}
           </p>
           <Link
             href="/"
             className="inline-block px-6 py-3 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-lg transition"
           >
-            Generate Article Ideas Now
+            {t("faq.ctaButton")}
           </Link>
         </div>
       </div>

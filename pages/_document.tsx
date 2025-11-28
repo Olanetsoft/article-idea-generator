@@ -1,8 +1,10 @@
 import { Html, Head, Main, NextScript } from "next/document";
 
 export default function Document() {
+  // Note: Next.js automatically sets the lang attribute based on the current locale
+  // when using i18n configuration in next.config.js
   return (
-    <Html lang="en">
+    <Html>
       <Head>
         <meta charSet="utf-8" />
         <link rel="icon" href="/favicon.ico" />
