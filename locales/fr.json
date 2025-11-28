@@ -1,0 +1,63 @@
+{
+  "meta": {
+    "title": "Générateur d'Idées d'Articles - Générateur de Titres IA Gratuit",
+    "description": "Générateur gratuit de titres d'articles alimenté par l'IA qui crée des titres optimisés pour le SEO instantanément. Surmontez le syndrome de la page blanche et générez des idées créatives en secondes."
+  },
+  "header": {
+    "home": "Accueil",
+    "faq": "FAQ",
+    "darkMode": "Basculer le mode sombre"
+  },
+  "home": {
+    "title": "Générateur d'Idées d'Articles",
+    "placeholder": "Qu'avez-vous en tête ?",
+    "generateButton": "Générer des Idées",
+    "voiceInput": "Entrée vocale",
+    "listening": "Écoute en cours...",
+    "seoToggle": "Activer la fonction SEO et Clickbait",
+    "copyHint": "Cliquez sur une idée pour la copier ou la partager",
+    "characters": "caractères",
+    "optimalSeo": "Optimal pour le SEO",
+    "generateAbstract": "Générer un Résumé",
+    "share": "Partager",
+    "twitter": "Twitter",
+    "linkedin": "LinkedIn",
+    "copyAbstract": "Cliquez pour copier le résumé"
+  },
+  "howItWorks": {
+    "title": "Comment Ça Marche",
+    "step1Title": "Entrez Votre Sujet",
+    "step1Desc": "Tapez n'importe quel sujet, mot-clé ou thème sur lequel vous voulez écrire.",
+    "step2Title": "L'IA Génère des Idées",
+    "step2Desc": "Notre IA analyse votre entrée et crée des titres uniques et engageants.",
+    "step3Title": "Copiez et Utilisez",
+    "step3Desc": "Cliquez sur n'importe quel titre pour le copier et commencer à écrire."
+  },
+  "recentSearches": {
+    "title": "Recherches Récentes",
+    "empty": "Aucune recherche récente"
+  },
+  "footer": {
+    "builtWith": "Créé avec",
+    "by": "par",
+    "openSource": "Open Source sur GitHub"
+  },
+  "errors": {
+    "enterTopic": "Veuillez entrer un sujet !",
+    "generateFirst": "Générez d'abord un titre d'article !",
+    "voiceNotSupported": "L'entrée vocale n'est pas prise en charge par votre navigateur",
+    "noSpeech": "Aucune voix détectée. Veuillez réessayer.",
+    "micDenied": "Accès au microphone refusé. Veuillez autoriser l'accès.",
+    "voiceError": "Erreur de reconnaissance vocale",
+    "couldNotStart": "Impossible de démarrer la reconnaissance vocale",
+    "failedGenerate": "Une erreur s'est produite. Veuillez réessayer !",
+    "failedAbstract": "Échec de la génération du résumé. Veuillez réessayer !"
+  },
+  "success": {
+    "copied": "Titre copié dans le presse-papiers",
+    "abstractCopied": "Résumé copié dans le presse-papiers",
+    "voiceCaptured": "Voix capturée !",
+    "abstractGenerated": "Résumé généré avec succès !",
+    "speakNow": "Écoute en cours... Parlez maintenant !"
+  }
+}

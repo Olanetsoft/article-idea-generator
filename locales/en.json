@@ -1,0 +1,63 @@
+{
+  "meta": {
+    "title": "Article Idea Generator - Free AI Title Generator for Writers & Bloggers",
+    "description": "Free AI-powered article title generator that creates SEO-optimized, engaging titles instantly. Beat writer's block and generate creative article ideas in seconds."
+  },
+  "header": {
+    "home": "Home",
+    "faq": "FAQ",
+    "darkMode": "Toggle dark mode"
+  },
+  "home": {
+    "title": "Article Idea Generator",
+    "placeholder": "What's on your mind?",
+    "generateButton": "Generate Ideas",
+    "voiceInput": "Voice input",
+    "listening": "Listening...",
+    "seoToggle": "Enable SEO & Clickbait Feature",
+    "copyHint": "Click on any idea to copy it or share on social media",
+    "characters": "characters",
+    "optimalSeo": "Optimal for SEO",
+    "generateAbstract": "Generate Abstract",
+    "share": "Share",
+    "twitter": "Twitter",
+    "linkedin": "LinkedIn",
+    "copyAbstract": "Click to copy abstract"
+  },
+  "howItWorks": {
+    "title": "How It Works",
+    "step1Title": "Enter Your Topic",
+    "step1Desc": "Type any subject or keyword you want to write about",
+    "step2Title": "AI Generates Titles",
+    "step2Desc": "Get 4 unique, SEO-optimized article titles instantly",
+    "step3Title": "Copy & Create",
+    "step3Desc": "Click to copy and start writing your article"
+  },
+  "recentSearches": {
+    "title": "Recent Searches",
+    "empty": "No recent searches"
+  },
+  "footer": {
+    "builtWith": "Built with",
+    "by": "by",
+    "openSource": "Open Source on GitHub"
+  },
+  "errors": {
+    "enterTopic": "Please enter a topic!",
+    "generateFirst": "Generate an article title first!",
+    "voiceNotSupported": "Voice input is not supported in your browser",
+    "noSpeech": "No speech detected. Please try again.",
+    "micDenied": "Microphone access denied. Please allow microphone access.",
+    "voiceError": "Voice recognition error",
+    "couldNotStart": "Could not start voice recognition",
+    "failedGenerate": "An error occurred. Please try again!",
+    "failedAbstract": "Failed to generate abstract. Please try again!"
+  },
+  "success": {
+    "copied": "Title copied to clipboard",
+    "abstractCopied": "Abstract copied to clipboard",
+    "voiceCaptured": "Voice captured!",
+    "abstractGenerated": "Abstract generated successfully!",
+    "speakNow": "Listening... Speak now!"
+  }
+}

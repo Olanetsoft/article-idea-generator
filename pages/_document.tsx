@@ -95,6 +95,23 @@ export default function Document() {
           content="Article Idea Generator"
         />
 
+        {/* Hreflang tags for internationalization */}
+        <link
+          rel="alternate"
+          hrefLang="en"
+          href="https://articleideagenerator.com"
+        />
+        <link
+          rel="alternate"
+          hrefLang="fr"
+          href="https://articleideagenerator.com/fr"
+        />
+        <link
+          rel="alternate"
+          hrefLang="x-default"
+          href="https://articleideagenerator.com"
+        />
+
         {/* Google Search Console - Replace with your verification code */}
         {/* <meta name="google-site-verification" content="YOUR_VERIFICATION_CODE" /> */}
       </Head>

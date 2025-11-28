@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
 import { SunIcon, MoonIcon, StarIcon } from "@heroicons/react/solid";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 const Header = () => {
   const { systemTheme, theme, setTheme } = useTheme();
@@ -59,6 +60,7 @@ const Header = () => {
           </svg>
         </Link>
         {renderThemeChanger()}
+        <LanguageSwitcher />
       </div>
 
       {/*right section*/}

@@ -1,0 +1,63 @@
+{
+  "meta": {
+    "title": "Generador de Ideas para Artículos - Generador de Títulos con IA Gratis",
+    "description": "Generador gratuito de títulos de artículos con IA que crea títulos optimizados para SEO al instante. Supera el bloqueo del escritor y genera ideas creativas en segundos."
+  },
+  "header": {
+    "home": "Inicio",
+    "faq": "Preguntas Frecuentes",
+    "darkMode": "Cambiar modo oscuro"
+  },
+  "home": {
+    "title": "Generador de Ideas para Artículos",
+    "placeholder": "Ingresa tu tema (ej., inteligencia artificial, vida sostenible)",
+    "generateButton": "Generar Ideas",
+    "voiceInput": "Entrada de voz",
+    "listening": "Escuchando...",
+    "seoToggle": "Habilitar función SEO y Clickbait",
+    "copyHint": "Haz clic en cualquier idea para copiarla o compartirla",
+    "characters": "caracteres",
+    "optimalSeo": "Óptimo para SEO",
+    "generateAbstract": "Generar Resumen",
+    "share": "Compartir",
+    "twitter": "Twitter",
+    "linkedin": "LinkedIn",
+    "copyAbstract": "Haz clic para copiar el resumen"
+  },
+  "howItWorks": {
+    "title": "Cómo Funciona",
+    "step1Title": "Ingresa Tu Tema",
+    "step1Desc": "Escribe cualquier tema, palabra clave o temática sobre la que quieras escribir.",
+    "step2Title": "La IA Genera Ideas",
+    "step2Desc": "Nuestra IA analiza tu entrada y crea títulos únicos y atractivos.",
+    "step3Title": "Copia y Usa",
+    "step3Desc": "Haz clic en cualquier título para copiarlo y comenzar a escribir tu artículo."
+  },
+  "recentSearches": {
+    "title": "Búsquedas Recientes",
+    "empty": "Sin búsquedas recientes"
+  },
+  "footer": {
+    "builtWith": "Hecho con",
+    "by": "por",
+    "openSource": "Código Abierto en GitHub"
+  },
+  "errors": {
+    "enterTopic": "¡Por favor ingresa un tema!",
+    "generateFirst": "¡Primero genera un título de artículo!",
+    "voiceNotSupported": "La entrada de voz no es compatible con tu navegador",
+    "noSpeech": "No se detectó voz. Por favor intenta de nuevo.",
+    "micDenied": "Acceso al micrófono denegado. Por favor permite el acceso.",
+    "voiceError": "Error de reconocimiento de voz",
+    "couldNotStart": "No se pudo iniciar el reconocimiento de voz",
+    "failedGenerate": "Ocurrió un error. ¡Por favor intenta de nuevo!",
+    "failedAbstract": "Error al generar el resumen. ¡Por favor intenta de nuevo!"
+  },
+  "success": {
+    "copied": "Título copiado al portapapeles",
+    "abstractCopied": "Resumen copiado al portapapeles",
+    "voiceCaptured": "¡Voz capturada!",
+    "abstractGenerated": "¡Resumen generado exitosamente!",
+    "speakNow": "Escuchando... ¡Habla ahora!"
+  }
+}
