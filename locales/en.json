@@ -1,0 +1,102 @@
+{
+  "meta": {
+    "title": "Article Idea Generator - Free AI Title Generator for Writers & Bloggers",
+    "description": "Free AI-powered article title generator that creates SEO-optimized, engaging titles instantly. Beat writer's block and generate creative article ideas in seconds."
+  },
+  "header": {
+    "home": "Home",
+    "faq": "FAQ",
+    "darkMode": "Toggle dark mode",
+    "starOnGithub": "Star on GitHub"
+  },
+  "home": {
+    "title": "Article Idea Generator",
+    "placeholder": "What's on your mind?",
+    "generateButton": "Generate Ideas",
+    "voiceInput": "Voice input",
+    "listening": "Listening...",
+    "seoToggle": "Enable SEO & Clickbait Feature",
+    "copyHint": "Click on any idea to copy it or share on social media",
+    "characters": "characters",
+    "optimalSeo": "Optimal for SEO",
+    "generateAbstract": "Generate Abstract",
+    "share": "Share",
+    "twitter": "Twitter",
+    "linkedin": "LinkedIn",
+    "copyAbstract": "Click to copy abstract"
+  },
+  "howItWorks": {
+    "title": "How It Works",
+    "step1Title": "Enter Your Topic",
+    "step1Desc": "Type any subject or keyword you want to write about",
+    "step2Title": "AI Generates Titles",
+    "step2Desc": "Get 4 unique, SEO-optimized article titles instantly",
+    "step3Title": "Copy & Create",
+    "step3Desc": "Click to copy and start writing your article"
+  },
+  "recentSearches": {
+    "title": "Recent Searches",
+    "empty": "No recent searches"
+  },
+  "footer": {
+    "builtWith": "Built with",
+    "poweredBy": "Powered by",
+    "copyright": "All rights reserved."
+  },
+  "notFound": {
+    "title": "Page Not Found",
+    "description": "Oops! The page you're looking for doesn't exist or has been moved. Let's get you back on track.",
+    "generateButton": "Generate Article Ideas",
+    "faqButton": "View FAQ"
+  },
+  "serverError": {
+    "title": "Server Error",
+    "description": "Oops! Something went wrong on our end. Our servers are having a moment. Please try again in a few minutes.",
+    "tryAgain": "Try Again",
+    "goHome": "Go Home",
+    "persistsMessage": "If the problem persists, please check our",
+    "githubIssues": "GitHub issues",
+    "orTryLater": "or try again later."
+  },
+  "faq": {
+    "pageTitle": "Frequently Asked Questions",
+    "pageDescription": "Everything you need to know about using our AI-powered article idea generator",
+    "q1": "What is an article idea generator?",
+    "a1": "An article idea generator is an AI-powered tool that creates compelling article titles and headlines based on your topic or keywords. It helps writers, bloggers, and content creators overcome writer's block and find engaging angles for their content.",
+    "q2": "Is the article title generator really free?",
+    "a2": "Yes! Our article idea generator is completely free to use with no signup required. You can generate unlimited article titles without any restrictions or hidden fees.",
+    "q3": "What's the difference between SEO mode and regular mode?",
+    "a3": "SEO mode generates titles optimized for search engines with attention-grabbing elements and relevant keywords. Regular mode creates professional, straightforward titles without clickbait elements. Choose based on your content goals.",
+    "q4": "Can I generate abstracts for my article titles?",
+    "a4": "Yes! Click the document icon next to any generated title to create a professional abstract. This helps you plan your article structure and key points before writing.",
+    "q5": "What AI model powers the article generator?",
+    "a5": "We use GPT-4o-mini, OpenAI's latest and most efficient model, to generate high-quality, creative article titles and abstracts in seconds.",
+    "q6": "How many article titles can I generate?",
+    "a6": "You can generate unlimited article titles! There are no daily limits, no signup requirements, and no hidden restrictions. Use it as much as you need.",
+    "q7": "Can I use the generated titles for commercial purposes?",
+    "a7": "Yes! All generated titles are yours to use freely for any purpose - personal blogs, commercial websites, client work, or any other content creation needs.",
+    "q8": "Why should I use an article title generator?",
+    "a8": "An article title generator helps you overcome writer's block, saves time brainstorming, provides SEO-optimized titles, offers fresh perspectives on topics, and helps you create more engaging content that attracts readers.",
+    "ctaTitle": "Try Our Free Article Title Generator",
+    "ctaDescription": "Generate SEO-optimized article ideas in seconds with AI",
+    "ctaButton": "Generate Article Ideas Now"
+  },
+  "errors": {
+    "enterTopic": "Please enter a topic!",
+    "generateFirst": "Generate an article title first!",
+    "voiceNotSupported": "Voice input is not supported in your browser",
+    "noSpeech": "No speech detected. Please try again.",
+    "micDenied": "Microphone access denied. Please allow microphone access.",
+    "voiceError": "Voice recognition error",
+    "couldNotStart": "Could not start voice recognition",
+    "failedGenerate": "An error occurred. Please try again!",
+    "failedAbstract": "Failed to generate abstract. Please try again!"
+  },
+  "success": {
+    "copied": "Title copied to clipboard",
+    "abstractCopied": "Abstract copied to clipboard",
+    "voiceCaptured": "Voice captured!",
+    "abstractGenerated": "Abstract generated successfully!",
+    "speakNow": "Listening... Speak now!"
+  }
+}

@@ -37,6 +37,12 @@ module.exports = {
   images: {
     domains: ["i.imgur.com", "www.google.com", "media.giphy.com"],
   },
+  // Internationalization configuration
+  i18n: {
+    locales: ["en", "fr"],
+    defaultLocale: "en",
+    localeDetection: true,
+  },
   async headers() {
     return [
       {

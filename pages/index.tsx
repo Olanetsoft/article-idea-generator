@@ -1,5 +1,7 @@
 import Head from "next/head";
-import React, { useState, FormEvent, useEffect } from "react";
+import React, { useState, FormEvent, useEffect, lazy, Suspense } from "react";
+import dynamic from "next/dynamic";
+import { useRouter } from "next/router";
 import { Toaster, toast } from "react-hot-toast";
 import { Space_Grotesk } from "@next/font/google";
 import {
@@ -13,7 +15,16 @@ import { AnimatePresence, motion } from "framer-motion";
 
 import ResizablePanel from "../components/ResizablePanel";
 import Header from "../components/Header";
-import Footer from "../components/Footer";
+import { TitleListSkeleton, AbstractSkeleton } from "../components/Skeleton";
+import { useTranslation } from "../hooks/useTranslation";
+
+// Lazy load Footer for better initial load performance
+const Footer = dynamic(() => import("../components/Footer"), {
+  loading: () => (
+    <div className="h-16 animate-pulse bg-gray-100 dark:bg-zinc-800" />
+  ),
+  ssr: true,
+});
 
 const spaceGrotesk = Space_Grotesk({
   weight: "700",
@@ -27,7 +38,9 @@ const fetchOptions = {
 };
 
 export default function Home(): JSX.Element {
+  const { t, locale } = useTranslation();
   const [loading, setLoading] = useState<boolean>(false);
+  const [abstractLoading, setAbstractLoading] = useState<boolean>(false);
   const [seoEnabled, setSeoEnabled] = useState<boolean>(false);
   const [generatedTitles, setGeneratedTitles] = useState<string>("");
   const [text, setText] = useState<string>("");
@@ -82,7 +95,7 @@ export default function Home(): JSX.Element {
 
   const startVoiceInput = () => {
     if (!speechSupported) {
-      toast.error("Voice input is not supported in your browser");
+      toast.error(t("errors.voiceNotSupported"));
       return;
     }
 
@@ -97,7 +110,7 @@ export default function Home(): JSX.Element {
 
     recognition.onstart = () => {
       setIsListening(true);
-      toast.success("Listening... Speak now!");
+      toast.success(t("success.speakNow"));
     };
 
     recognition.onresult = (event: any) => {
@@ -107,19 +120,17 @@ export default function Home(): JSX.Element {
         "search-box"
       ) as HTMLInputElement;
       if (inputElement) inputElement.value = transcript;
-      toast.success("Voice captured!");
+      toast.success(t("success.voiceCaptured"));
     };
 
     recognition.onerror = (event: any) => {
       setIsListening(false);
       if (event.error === "no-speech") {
-        toast.error("No speech detected. Please try again.");
+        toast.error(t("errors.noSpeech"));
       } else if (event.error === "not-allowed") {
-        toast.error(
-          "Microphone access denied. Please allow microphone access."
-        );
+        toast.error(t("errors.micDenied"));
       } else {
-        toast.error(`Voice recognition error: ${event.error}`);
+        toast.error(`${t("errors.voiceError")}: ${event.error}`);
       }
     };
 
@@ -131,13 +142,13 @@ export default function Home(): JSX.Element {
       recognition.start();
     } catch (error) {
       setIsListening(false);
-      toast.error("Could not start voice recognition");
+      toast.error(t("errors.couldNotStart"));
     }
   };
 
   const generateArticleTitle = async (): Promise<void> => {
     if (!text.trim()) {
-      toast.error("Please enter a topic!");
+      toast.error(t("errors.enterTopic"));
       return;
     }
     setGeneratedTitles("");
@@ -186,7 +197,7 @@ Format: Return only the 4 numbered titles, one per line.`;
       setGeneratedTitles(data.choices[0].message.content);
     } catch (error) {
       console.log(error);
-      toast.error("An error occurred. Please try again!");
+      toast.error(t("errors.failedGenerate"));
     } finally {
       setLoading(false);
     }
@@ -194,7 +205,7 @@ Format: Return only the 4 numbered titles, one per line.`;
 
   const generateAbstractForArticles = async (title: string): Promise<void> => {
     if (!title) {
-      toast.error("Generate an article title first!");
+      toast.error(t("errors.generateFirst"));
       return;
     }
 
@@ -219,7 +230,7 @@ INSTEAD, write like a human:
 
 Format: Just the abstract text, nothing else.`;
 
-    setLoading(true);
+    setAbstractLoading(true);
     try {
       const response = await fetch("/api/generate", {
         ...fetchOptions,
@@ -237,12 +248,12 @@ Format: Just the abstract text, nothing else.`;
       }
 
       setAbstract(data.choices[0].message.content);
-      toast.success("Abstract generated successfully!");
+      toast.success(t("success.abstractGenerated"));
     } catch (error) {
-      toast.error("Failed to generate abstract. Please try again!");
+      toast.error(t("errors.failedAbstract"));
       console.error("Error generating abstract:", error);
     } finally {
-      setLoading(false);
+      setAbstractLoading(false);
     }
   };
 
@@ -367,7 +378,7 @@ Format: Just the abstract text, nothing else.`;
         <h1
           className={`${spaceGrotesk.className} text-2xl font-bold text-gray-900 dark:text-zinc-300 leading-tight mb-4 text-center sm:text-4xl lg:text-5xl xl:text-6xl`}
         >
-          Article Idea Generator
+          {t("home.title")}
         </h1>
         <form
           onSubmit={(e) => {
@@ -381,9 +392,9 @@ Format: Just the abstract text, nothing else.`;
             onChange={(e) => setText(e.target.value)}
             type="text"
             className="flex-grow focus:outline-none dark:text-white bg-transparent text-gray-700 py-2"
-            placeholder="What's on your mind?"
+            placeholder={t("home.placeholder")}
             id="search-box"
-            aria-label="Enter article topic"
+            aria-label={t("home.placeholder")}
           />
           {speechSupported && (
             <button
@@ -420,7 +431,7 @@ Format: Just the abstract text, nothing else.`;
         {recentSearches.length > 0 && (
           <div className="w-full mt-4">
             <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
-              Recent searches:
+              {t("recentSearches.title")}:
             </p>
             <div className="flex flex-wrap gap-2">
               {recentSearches.map((search, idx) => (
@@ -477,7 +488,7 @@ Format: Just the abstract text, nothing else.`;
               )}
             </div>
             <span className="select-none cursor-pointer break-words">
-              Enable SEO &amp; Clickbait Feature
+              {t("home.seoToggle")}
             </span>
           </label>
           {loading && (
@@ -515,22 +526,14 @@ Format: Just the abstract text, nothing else.`;
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="space-y-4"
                 >
-                  {[1, 2, 3, 4].map((i) => (
-                    <div
-                      key={i}
-                      className="w-full bg-zinc-100 dark:bg-darkOffset rounded-md p-3 border-zinc-200 border dark:border-zinc-800 animate-pulse"
-                    >
-                      <div className="h-6 bg-gray-300 dark:bg-zinc-700 rounded w-3/4"></div>
-                    </div>
-                  ))}
+                  <TitleListSkeleton count={4} />
                 </motion.div>
               )}
               {generatedTitles && !loading && (
                 <>
                   <p className="text-xs text-center font-bold text-gray-400">
-                    Click on any idea to copy it or share on social media
+                    {t("home.copyHint")}
                   </p>
                   {generatedTitles.split("\n").map((title, index) => {
                     const cleanTitle = title
@@ -547,14 +550,14 @@ Format: Just the abstract text, nothing else.`;
                               className="flex-grow cursor-copy"
                               onClick={() => {
                                 navigator.clipboard.writeText(cleanTitle);
-                                toast.success("Title copied to clipboard");
+                                toast.success(t("success.copied"));
                               }}
                               role="button"
                               tabIndex={0}
                               onKeyDown={(e) => {
                                 if (e.key === "Enter" || e.key === " ") {
                                   navigator.clipboard.writeText(cleanTitle);
-                                  toast.success("Title copied to clipboard");
+                                  toast.success(t("success.copied"));
                                 }
                               }}
                               aria-label={`Copy title: ${cleanTitle}`}
@@ -570,8 +573,9 @@ Format: Just the abstract text, nothing else.`;
                                       : "text-gray-500 dark:text-gray-400"
                                   }`}
                                 >
-                                  {charCount} characters{" "}
-                                  {isOptimalLength && "✓ Optimal for SEO"}
+                                  {charCount} {t("home.characters")}{" "}
+                                  {isOptimalLength &&
+                                    `✓ ${t("home.optimalSeo")}`}
                                 </span>
                               </div>
                             </div>
@@ -631,9 +635,9 @@ Format: Just the abstract text, nothing else.`;
                                   e.stopPropagation();
                                   generateAbstractForArticles(cleanTitle);
                                 }}
-                                className="min-w-[36px] min-h-[36px] flex items-center justify-center hover:bg-zinc-200 dark:hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md transition"
+                                className="min-w-[36px] min-h-[36px] flex items-center justify-center hover:bg-zinc-200 dark:hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md transition disabled:opacity-50 disabled:cursor-not-allowed"
                                 aria-label="Generate abstract for this title"
-                                disabled={loading}
+                                disabled={loading || abstractLoading}
                               >
                                 <DocumentSearchIcon className="h-5 w-5 text-[#6366f1] dark:text-gray-100" />
                               </button>
@@ -646,10 +650,20 @@ Format: Just the abstract text, nothing else.`;
                 </>
               )}
 
-              {abstract && (
+              {abstractLoading && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
+                  <AbstractSkeleton />
+                </motion.div>
+              )}
+
+              {abstract && !abstractLoading && (
                 <>
                   <p className="text-xs text-center font-bold text-gray-400">
-                    Click to copy abstract
+                    {t("home.copyAbstract")}
                   </p>
 
                   <div
@@ -658,7 +672,7 @@ Format: Just the abstract text, nothing else.`;
                       navigator.clipboard.writeText(
                         abstract.replace(/[^a-zA-Z\s]/g, "")
                       );
-                      toast.success("Abstract copied to clipboard");
+                      toast.success(t("success.abstractCopied"));
                     }}
                     role="button"
                     tabIndex={0}
@@ -667,10 +681,10 @@ Format: Just the abstract text, nothing else.`;
                         navigator.clipboard.writeText(
                           abstract.replace(/[^a-zA-Z\s]/g, "")
                         );
-                        toast.success("Abstract copied to clipboard");
+                        toast.success(t("success.abstractCopied"));
                       }
                     }}
-                    aria-label="Copy abstract to clipboard"
+                    aria-label={t("home.copyAbstract")}
                   >
                     <div className="flex items-center">
                       <p className="text-zinc-800 dark:text-zinc-300 text-sm break-words">
@@ -688,7 +702,7 @@ Format: Just the abstract text, nothing else.`;
         {!generatedTitles && !loading && (
           <section className="w-full max-w-screen-md mt-12 sm:mt-16 px-4">
             <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-zinc-200 mb-6 text-center">
-              How It Works
+              {t("howItWorks.title")}
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-6 mb-12">
               <div className="text-center">
@@ -698,10 +712,10 @@ Format: Just the abstract text, nothing else.`;
                   </span>
                 </div>
                 <h3 className="font-semibold text-gray-900 dark:text-zinc-200 mb-2 text-base sm:text-lg">
-                  Enter Your Topic
+                  {t("howItWorks.step1Title")}
                 </h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Type any subject or keyword you want to write about
+                  {t("howItWorks.step1Desc")}
                 </p>
               </div>
               <div className="text-center">
@@ -711,10 +725,10 @@ Format: Just the abstract text, nothing else.`;
                   </span>
                 </div>
                 <h3 className="font-semibold text-gray-900 dark:text-zinc-200 mb-2 text-base sm:text-lg">
-                  AI Generates Titles
+                  {t("howItWorks.step2Title")}
                 </h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Get 4 unique, SEO-optimized article titles instantly
+                  {t("howItWorks.step2Desc")}
                 </p>
               </div>
               <div className="text-center">
@@ -724,10 +738,10 @@ Format: Just the abstract text, nothing else.`;
                   </span>
                 </div>
                 <h3 className="font-semibold text-gray-900 dark:text-zinc-200 mb-2 text-base sm:text-lg">
-                  Copy & Create
+                  {t("howItWorks.step3Title")}
                 </h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Click to copy and start writing your article
+                  {t("howItWorks.step3Desc")}
                 </p>
               </div>
             </div>

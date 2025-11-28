@@ -2,12 +2,15 @@ import Head from "next/head";
 import Link from "next/link";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import { useTranslation } from "../hooks/useTranslation";
 
 export default function Custom500() {
+  const { t } = useTranslation();
+
   return (
     <div className="flex flex-col items-center m-0 min-h-screen">
       <Head>
-        <title>500 - Server Error | Article Idea Generator</title>
+        <title>500 - {t("serverError.title")} | Article Idea Generator</title>
         <meta name="robots" content="noindex, nofollow" />
         <meta
           name="description"
@@ -44,11 +47,10 @@ export default function Custom500() {
             500
           </h1>
           <h2 className="text-2xl font-semibold text-gray-700 dark:text-gray-300 mb-4">
-            Server Error
+            {t("serverError.title")}
           </h2>
           <p className="text-gray-600 dark:text-gray-400 mb-8">
-            Oops! Something went wrong on our end. Our servers are having a
-            moment. Please try again in a few minutes.
+            {t("serverError.description")}
           </p>
 
           {/* Action Buttons */}
@@ -71,7 +73,7 @@ export default function Custom500() {
                   d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
                 />
               </svg>
-              Try Again
+              {t("serverError.tryAgain")}
             </button>
             <Link
               href="/"
@@ -91,22 +93,22 @@ export default function Custom500() {
                   d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
                 />
               </svg>
-              Go Home
+              {t("serverError.goHome")}
             </Link>
           </div>
 
           {/* Status Check */}
           <p className="mt-8 text-sm text-gray-500 dark:text-gray-500">
-            If the problem persists, please check our{" "}
+            {t("serverError.persistsMessage")}{" "}
             <a
               href="https://github.com/Olanetsoft/article-idea-generator/issues"
               target="_blank"
               rel="noopener noreferrer"
               className="text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 underline"
             >
-              GitHub issues
+              {t("serverError.githubIssues")}
             </a>{" "}
-            or try again later.
+            {t("serverError.orTryLater")}
           </p>
         </div>
       </main>
