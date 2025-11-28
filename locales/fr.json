@@ -1,0 +1,102 @@
+{
+  "meta": {
+    "title": "Générateur d'Idées d'Articles - Générateur de Titres IA Gratuit",
+    "description": "Générateur gratuit de titres d'articles alimenté par l'IA qui crée des titres optimisés pour le SEO instantanément. Surmontez le syndrome de la page blanche et générez des idées créatives en secondes."
+  },
+  "header": {
+    "home": "Accueil",
+    "faq": "FAQ",
+    "darkMode": "Basculer le mode sombre",
+    "starOnGithub": "Star sur GitHub"
+  },
+  "home": {
+    "title": "Générateur d'Idées d'Articles",
+    "placeholder": "Qu'avez-vous en tête ?",
+    "generateButton": "Générer des Idées",
+    "voiceInput": "Entrée vocale",
+    "listening": "Écoute en cours...",
+    "seoToggle": "Activer la fonction SEO et Clickbait",
+    "copyHint": "Cliquez sur une idée pour la copier ou la partager",
+    "characters": "caractères",
+    "optimalSeo": "Optimal pour le SEO",
+    "generateAbstract": "Générer un Résumé",
+    "share": "Partager",
+    "twitter": "Twitter",
+    "linkedin": "LinkedIn",
+    "copyAbstract": "Cliquez pour copier le résumé"
+  },
+  "howItWorks": {
+    "title": "Comment Ça Marche",
+    "step1Title": "Entrez Votre Sujet",
+    "step1Desc": "Tapez n'importe quel sujet, mot-clé ou thème sur lequel vous voulez écrire.",
+    "step2Title": "L'IA Génère des Idées",
+    "step2Desc": "Notre IA analyse votre entrée et crée des titres uniques et engageants.",
+    "step3Title": "Copiez et Utilisez",
+    "step3Desc": "Cliquez sur n'importe quel titre pour le copier et commencer à écrire."
+  },
+  "recentSearches": {
+    "title": "Recherches Récentes",
+    "empty": "Aucune recherche récente"
+  },
+  "footer": {
+    "builtWith": "Créé avec",
+    "poweredBy": "Propulsé par",
+    "copyright": "Tous droits réservés."
+  },
+  "notFound": {
+    "title": "Page Non Trouvée",
+    "description": "Oups ! La page que vous recherchez n'existe pas ou a été déplacée. Revenons sur la bonne voie.",
+    "generateButton": "Générer des Idées d'Articles",
+    "faqButton": "Voir la FAQ"
+  },
+  "serverError": {
+    "title": "Erreur Serveur",
+    "description": "Oups ! Quelque chose s'est mal passé de notre côté. Nos serveurs ont un petit souci. Veuillez réessayer dans quelques minutes.",
+    "tryAgain": "Réessayer",
+    "goHome": "Retour à l'Accueil",
+    "persistsMessage": "Si le problème persiste, veuillez consulter nos",
+    "githubIssues": "Issues GitHub",
+    "orTryLater": "ou réessayez plus tard."
+  },
+  "faq": {
+    "pageTitle": "Questions Fréquemment Posées",
+    "pageDescription": "Tout ce que vous devez savoir sur l'utilisation de notre générateur d'idées d'articles alimenté par l'IA",
+    "q1": "Qu'est-ce qu'un générateur d'idées d'articles ?",
+    "a1": "Un générateur d'idées d'articles est un outil alimenté par l'IA qui crée des titres et des gros titres d'articles convaincants basés sur votre sujet ou vos mots-clés. Il aide les écrivains, blogueurs et créateurs de contenu à surmonter le syndrome de la page blanche et à trouver des angles engageants pour leur contenu.",
+    "q2": "Le générateur de titres d'articles est-il vraiment gratuit ?",
+    "a2": "Oui ! Notre générateur d'idées d'articles est entièrement gratuit sans inscription requise. Vous pouvez générer un nombre illimité de titres d'articles sans aucune restriction ni frais cachés.",
+    "q3": "Quelle est la différence entre le mode SEO et le mode normal ?",
+    "a3": "Le mode SEO génère des titres optimisés pour les moteurs de recherche avec des éléments accrocheurs et des mots-clés pertinents. Le mode normal crée des titres professionnels et directs sans éléments clickbait. Choisissez en fonction de vos objectifs de contenu.",
+    "q4": "Puis-je générer des résumés pour mes titres d'articles ?",
+    "a4": "Oui ! Cliquez sur l'icône de document à côté de n'importe quel titre généré pour créer un résumé professionnel. Cela vous aide à planifier la structure de votre article et les points clés avant d'écrire.",
+    "q5": "Quel modèle d'IA alimente le générateur d'articles ?",
+    "a5": "Nous utilisons GPT-4o-mini, le modèle le plus récent et le plus efficace d'OpenAI, pour générer des titres et des résumés d'articles de haute qualité et créatifs en quelques secondes.",
+    "q6": "Combien de titres d'articles puis-je générer ?",
+    "a6": "Vous pouvez générer un nombre illimité de titres d'articles ! Il n'y a pas de limites quotidiennes, pas d'inscription requise et pas de restrictions cachées. Utilisez-le autant que vous en avez besoin.",
+    "q7": "Puis-je utiliser les titres générés à des fins commerciales ?",
+    "a7": "Oui ! Tous les titres générés sont à vous et peuvent être utilisés librement à n'importe quelle fin - blogs personnels, sites web commerciaux, travail client ou tout autre besoin de création de contenu.",
+    "q8": "Pourquoi devrais-je utiliser un générateur de titres d'articles ?",
+    "a8": "Un générateur de titres d'articles vous aide à surmonter le syndrome de la page blanche, fait gagner du temps de brainstorming, fournit des titres optimisés pour le SEO, offre de nouvelles perspectives sur les sujets et vous aide à créer un contenu plus engageant qui attire les lecteurs.",
+    "ctaTitle": "Essayez Notre Générateur de Titres d'Articles Gratuit",
+    "ctaDescription": "Générez des idées d'articles optimisées pour le SEO en quelques secondes avec l'IA",
+    "ctaButton": "Générer des Idées d'Articles Maintenant"
+  },
+  "errors": {
+    "enterTopic": "Veuillez entrer un sujet !",
+    "generateFirst": "Générez d'abord un titre d'article !",
+    "voiceNotSupported": "L'entrée vocale n'est pas prise en charge par votre navigateur",
+    "noSpeech": "Aucune voix détectée. Veuillez réessayer.",
+    "micDenied": "Accès au microphone refusé. Veuillez autoriser l'accès.",
+    "voiceError": "Erreur de reconnaissance vocale",
+    "couldNotStart": "Impossible de démarrer la reconnaissance vocale",
+    "failedGenerate": "Une erreur s'est produite. Veuillez réessayer !",
+    "failedAbstract": "Échec de la génération du résumé. Veuillez réessayer !"
+  },
+  "success": {
+    "copied": "Titre copié dans le presse-papiers",
+    "abstractCopied": "Résumé copié dans le presse-papiers",
+    "voiceCaptured": "Voix capturée !",
+    "abstractGenerated": "Résumé généré avec succès !",
+    "speakNow": "Écoute en cours... Parlez maintenant !"
+  }
+}

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Space_Grotesk } from "@next/font/google";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import { useTranslation } from "../hooks/useTranslation";
 
 const spaceGrotesk = Space_Grotesk({
   weight: "700",
@@ -11,10 +12,12 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export default function Custom404(): JSX.Element {
+  const { t } = useTranslation();
+
   return (
     <div className="flex flex-col items-center m-0 min-h-screen">
       <Head>
-        <title>404 - Page Not Found | Article Idea Generator</title>
+        <title>404 - {t("notFound.title")} | Article Idea Generator</title>
         <meta
           name="description"
           content="The page you're looking for doesn't exist. Return to Article Idea Generator to create SEO-optimized article titles with AI."
@@ -61,24 +64,23 @@ export default function Custom404(): JSX.Element {
         <h2
           className={`${spaceGrotesk.className} text-2xl sm:text-3xl font-bold text-gray-900 dark:text-zinc-300 mb-4`}
         >
-          Page Not Found
+          {t("notFound.title")}
         </h2>
         <p className="text-gray-600 dark:text-gray-400 mb-8 max-w-md">
-          Oops! The page you&apos;re looking for doesn&apos;t exist or has been
-          moved. Let&apos;s get you back on track.
+          {t("notFound.description")}
         </p>
         <div className="flex flex-col sm:flex-row gap-4">
           <Link
             href="/"
             className="px-6 py-3 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-lg transition focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
           >
-            Generate Article Ideas
+            {t("notFound.generateButton")}
           </Link>
           <Link
             href="/faq"
             className="px-6 py-3 bg-gray-100 dark:bg-zinc-800 hover:bg-gray-200 dark:hover:bg-zinc-700 text-gray-900 dark:text-zinc-300 font-semibold rounded-lg transition focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
           >
-            View FAQ
+            {t("notFound.faqButton")}
           </Link>
         </div>
       </div>
