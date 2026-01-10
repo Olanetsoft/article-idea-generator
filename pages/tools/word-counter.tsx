@@ -491,38 +491,94 @@ export default function WordCounterPage(): JSX.Element {
           </Link>
         </div>
 
-        {/* SEO Content Section */}
+        {/* About Section */}
         <section className="w-full max-w-screen-lg mt-12">
           <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-4">
             {t("tools.wordCounter.aboutTitle")}
           </h2>
-          <p className="text-zinc-600 dark:text-zinc-400 mb-6">
+          <p className="text-zinc-600 dark:text-zinc-400">
             {t("tools.wordCounter.aboutDescription")}
           </p>
+        </section>
 
+        {/* Features & Use Cases Grid */}
+        <section className="w-full max-w-screen-lg mt-8">
           <div className="grid md:grid-cols-2 gap-8">
-            <div>
-              <h3 className="text-xl font-semibold text-zinc-900 dark:text-white mb-3">
+            <div className="bg-zinc-50 dark:bg-darkOffset p-6 rounded-xl border border-zinc-200 dark:border-zinc-800">
+              <h3 className="text-xl font-semibold text-zinc-900 dark:text-white mb-4 flex items-center gap-2">
+                <svg
+                  className="w-5 h-5 text-indigo-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
                 {t("tools.wordCounter.featuresTitle")}
               </h3>
-              <ul className="list-disc list-inside text-zinc-600 dark:text-zinc-400 space-y-2">
-                <li>{t("tools.wordCounter.feature1")}</li>
-                <li>{t("tools.wordCounter.feature2")}</li>
-                <li>{t("tools.wordCounter.feature3")}</li>
-                <li>{t("tools.wordCounter.feature4")}</li>
-                <li>{t("tools.wordCounter.feature5")}</li>
+              <ul className="text-zinc-600 dark:text-zinc-400 space-y-3">
+                <li className="flex items-start gap-2">
+                  <span className="text-indigo-600 mt-1">•</span>
+                  {t("tools.wordCounter.feature1")}
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-indigo-600 mt-1">•</span>
+                  {t("tools.wordCounter.feature2")}
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-indigo-600 mt-1">•</span>
+                  {t("tools.wordCounter.feature3")}
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-indigo-600 mt-1">•</span>
+                  {t("tools.wordCounter.feature4")}
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-indigo-600 mt-1">•</span>
+                  {t("tools.wordCounter.feature5")}
+                </li>
               </ul>
             </div>
 
-            <div>
-              <h3 className="text-xl font-semibold text-zinc-900 dark:text-white mb-3">
+            <div className="bg-zinc-50 dark:bg-darkOffset p-6 rounded-xl border border-zinc-200 dark:border-zinc-800">
+              <h3 className="text-xl font-semibold text-zinc-900 dark:text-white mb-4 flex items-center gap-2">
+                <svg
+                  className="w-5 h-5 text-indigo-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                </svg>
                 {t("tools.wordCounter.useCasesTitle")}
               </h3>
-              <ul className="list-disc list-inside text-zinc-600 dark:text-zinc-400 space-y-2">
-                <li>{t("tools.wordCounter.useCase1")}</li>
-                <li>{t("tools.wordCounter.useCase2")}</li>
-                <li>{t("tools.wordCounter.useCase3")}</li>
-                <li>{t("tools.wordCounter.useCase4")}</li>
+              <ul className="text-zinc-600 dark:text-zinc-400 space-y-3">
+                <li className="flex items-start gap-2">
+                  <span className="text-indigo-600 mt-1">•</span>
+                  {t("tools.wordCounter.useCase1")}
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-indigo-600 mt-1">•</span>
+                  {t("tools.wordCounter.useCase2")}
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-indigo-600 mt-1">•</span>
+                  {t("tools.wordCounter.useCase3")}
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-indigo-600 mt-1">•</span>
+                  {t("tools.wordCounter.useCase4")}
+                </li>
               </ul>
             </div>
           </div>
