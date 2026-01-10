@@ -388,13 +388,13 @@ export default function WordCounterPage(): JSX.Element {
         </div>
 
         {/* Main Content */}
-        <div className="flex flex-col lg:flex-row gap-6 w-full max-w-screen-lg">
+        <div className="flex flex-col lg:flex-row lg:items-stretch gap-6 w-full max-w-screen-lg">
           {/* Left: Textarea */}
-          <div className="flex-1">
+          <div className="flex-1 flex flex-col">
             <textarea
               value={text}
               onChange={(e) => analyzeText(e.target.value)}
-              className="w-full h-64 lg:h-96 p-4 border rounded-lg bg-white dark:bg-darkOffset border-zinc-200 dark:border-zinc-800 focus:ring-2 focus:ring-indigo-500 focus:border-transparent focus:outline-none text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 resize-none"
+              className="w-full h-48 sm:h-64 lg:flex-1 lg:h-auto lg:min-h-[300px] p-4 border rounded-lg bg-white dark:bg-darkOffset border-zinc-200 dark:border-zinc-800 focus:ring-2 focus:ring-indigo-500 focus:border-transparent focus:outline-none text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 resize-none"
               placeholder={t("tools.wordCounter.placeholder")}
               aria-label={t("tools.wordCounter.placeholder")}
             />
@@ -447,34 +447,40 @@ export default function WordCounterPage(): JSX.Element {
         </div>
 
         {/* SEO Content Section */}
-        <section className="w-full max-w-screen-lg mt-12 prose dark:prose-invert max-w-none">
+        <section className="w-full max-w-screen-lg mt-12">
           <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-4">
             {t("tools.wordCounter.aboutTitle")}
           </h2>
-          <p className="text-zinc-600 dark:text-zinc-400 mb-4">
+          <p className="text-zinc-600 dark:text-zinc-400 mb-6">
             {t("tools.wordCounter.aboutDescription")}
           </p>
 
-          <h3 className="text-xl font-semibold text-zinc-900 dark:text-white mb-3 mt-6">
-            {t("tools.wordCounter.featuresTitle")}
-          </h3>
-          <ul className="list-disc list-inside text-zinc-600 dark:text-zinc-400 space-y-2">
-            <li>{t("tools.wordCounter.feature1")}</li>
-            <li>{t("tools.wordCounter.feature2")}</li>
-            <li>{t("tools.wordCounter.feature3")}</li>
-            <li>{t("tools.wordCounter.feature4")}</li>
-            <li>{t("tools.wordCounter.feature5")}</li>
-          </ul>
+          <div className="grid md:grid-cols-2 gap-8">
+            <div>
+              <h3 className="text-xl font-semibold text-zinc-900 dark:text-white mb-3">
+                {t("tools.wordCounter.featuresTitle")}
+              </h3>
+              <ul className="list-disc list-inside text-zinc-600 dark:text-zinc-400 space-y-2">
+                <li>{t("tools.wordCounter.feature1")}</li>
+                <li>{t("tools.wordCounter.feature2")}</li>
+                <li>{t("tools.wordCounter.feature3")}</li>
+                <li>{t("tools.wordCounter.feature4")}</li>
+                <li>{t("tools.wordCounter.feature5")}</li>
+              </ul>
+            </div>
 
-          <h3 className="text-xl font-semibold text-zinc-900 dark:text-white mb-3 mt-6">
-            {t("tools.wordCounter.useCasesTitle")}
-          </h3>
-          <ul className="list-disc list-inside text-zinc-600 dark:text-zinc-400 space-y-2">
-            <li>{t("tools.wordCounter.useCase1")}</li>
-            <li>{t("tools.wordCounter.useCase2")}</li>
-            <li>{t("tools.wordCounter.useCase3")}</li>
-            <li>{t("tools.wordCounter.useCase4")}</li>
-          </ul>
+            <div>
+              <h3 className="text-xl font-semibold text-zinc-900 dark:text-white mb-3">
+                {t("tools.wordCounter.useCasesTitle")}
+              </h3>
+              <ul className="list-disc list-inside text-zinc-600 dark:text-zinc-400 space-y-2">
+                <li>{t("tools.wordCounter.useCase1")}</li>
+                <li>{t("tools.wordCounter.useCase2")}</li>
+                <li>{t("tools.wordCounter.useCase3")}</li>
+                <li>{t("tools.wordCounter.useCase4")}</li>
+              </ul>
+            </div>
+          </div>
         </section>
       </main>
 
