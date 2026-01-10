@@ -2,16 +2,9 @@
  * Configuration for all tools in the /tools section
  */
 
-export type ToolIcon = "document" | "calculator" | "chart" | "clock";
+import type { Tool, ToolIcon } from "@/types";
 
-export interface Tool {
-  id: string;
-  nameKey: string;
-  descriptionKey: string;
-  href: string;
-  icon: ToolIcon;
-  available: boolean;
-}
+export type { Tool, ToolIcon };
 
 export const tools: Tool[] = [
   {

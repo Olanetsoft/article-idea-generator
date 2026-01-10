@@ -2,6 +2,8 @@
  * Text analysis utilities for writing tools
  */
 
+import type { TextStats } from "@/types";
+
 export function countWords(text: string): number {
   return text.trim().split(/\s+/).filter(Boolean).length;
 }
@@ -162,17 +164,6 @@ export function formatTime(minutes: number): string {
   const hrs = Math.floor(minutes / 60);
   const mins = minutes % 60;
   return mins > 0 ? `${hrs}h ${mins}m` : `${hrs}h`;
-}
-
-export interface TextStats {
-  words: number;
-  characters: number;
-  charactersNoSpaces: number;
-  sentences: number;
-  paragraphs: number;
-  readingTime: number;
-  speakingTime: number;
-  topKeywords: Array<{ word: string; count: number; percentage: number }>;
 }
 
 export function analyzeText(text: string): TextStats {

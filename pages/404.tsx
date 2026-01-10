@@ -19,7 +19,7 @@ export default function Custom404(): JSX.Element {
       <ErrorPageLayout
         statusCode={404}
         title={t("notFound.title")}
-        description="The page you're looking for doesn't exist. Return to Article Idea Generator to create SEO-optimized article titles with AI."
+        description={t("notFound.metaDescription")}
         noindex={true}
         nofollow={false}
       >

@@ -12,7 +12,7 @@ export default function Custom500() {
       <ErrorPageLayout
         statusCode={500}
         title={t("serverError.title")}
-        description="We're experiencing server issues. Please try again later."
+        description={t("serverError.metaDescription")}
         noindex={true}
         nofollow={true}
       >

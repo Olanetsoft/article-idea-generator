@@ -50,12 +50,14 @@
   "notFound": {
     "title": "Page Non Trouvée",
     "description": "Oups ! La page que vous recherchez n'existe pas ou a été déplacée. Revenons sur la bonne voie.",
+    "metaDescription": "La page que vous recherchez n'existe pas. Retournez au Générateur d'Idées d'Articles pour créer des titres optimisés pour le SEO avec l'IA.",
     "generateButton": "Générer des Idées d'Articles",
     "faqButton": "Voir la FAQ"
   },
   "serverError": {
     "title": "Erreur Serveur",
     "description": "Oups ! Quelque chose s'est mal passé de notre côté. Nos serveurs ont un petit souci. Veuillez réessayer dans quelques minutes.",
+    "metaDescription": "Nous rencontrons des problèmes de serveur. Veuillez réessayer plus tard.",
     "tryAgain": "Réessayer",
     "goHome": "Retour à l'Accueil",
     "persistsMessage": "Si le problème persiste, veuillez consulter nos",

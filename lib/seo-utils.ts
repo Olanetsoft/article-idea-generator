@@ -2,6 +2,8 @@
  * SEO utilities for character limits and platform constraints
  */
 
+import type { Platform, LimitCheck } from "@/types";
+
 export const PLATFORM_LIMITS = {
   twitter: 280,
   metaTitle: 60,
@@ -13,8 +15,6 @@ export const PLATFORM_LIMITS = {
   facebook: 63206,
 } as const;
 
-export type Platform = keyof typeof PLATFORM_LIMITS;
-
 export const PLATFORM_LABELS: Record<Platform, string> = {
   twitter: "Twitter/X",
   metaTitle: "Meta Title",
@@ -25,14 +25,6 @@ export const PLATFORM_LABELS: Record<Platform, string> = {
   youtube: "YouTube Title",
   facebook: "Facebook",
 };
-
-export interface LimitCheck {
-  count: number;
-  limit: number;
-  remaining: number;
-  isOver: boolean;
-  percentage: number;
-}
 
 export function checkLimit(text: string, platform: Platform): LimitCheck {
   const count = text.length;

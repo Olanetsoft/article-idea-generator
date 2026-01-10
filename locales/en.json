@@ -50,12 +50,14 @@
   "notFound": {
     "title": "Page Not Found",
     "description": "Oops! The page you're looking for doesn't exist or has been moved. Let's get you back on track.",
+    "metaDescription": "The page you're looking for doesn't exist. Return to Article Idea Generator to create SEO-optimized article titles with AI.",
     "generateButton": "Generate Article Ideas",
     "faqButton": "View FAQ"
   },
   "serverError": {
     "title": "Server Error",
     "description": "Oops! Something went wrong on our end. Our servers are having a moment. Please try again in a few minutes.",
+    "metaDescription": "We're experiencing server issues. Please try again later.",
     "tryAgain": "Try Again",
     "goHome": "Go Home",
     "persistsMessage": "If the problem persists, please check our",
