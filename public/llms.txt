@@ -34,6 +34,26 @@ Article Idea Generator is a free web tool that uses GPT-4o-mini to generate crea
 - Academic paper titles
 - Marketing campaign headlines
 
+## Free Writing Tools
+
+In addition to the AI generator, we offer free writing tools:
+
+### Word Counter
+URL: https://articleideagenerator.com/tools/word-counter
+
+Free online word counter that provides:
+- Real-time word, character, sentence, and paragraph counts
+- Reading time and speaking time estimates
+- Top keyword frequency analysis
+- Character count with and without spaces
+
+Perfect for writers checking article length, students meeting word count requirements, and SEO professionals analyzing content.
+
+### Coming Soon
+- Character Counter - Track limits for Twitter, LinkedIn, meta descriptions
+- Reading Time Calculator - Generate "X min read" badges
+- Headline Analyzer - Score headlines for SEO and engagement
+
 ## Technical Details
 
 - Built with Next.js 13 and React 18
