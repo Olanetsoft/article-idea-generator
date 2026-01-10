@@ -34,7 +34,6 @@ export default function ToolsPage(): JSX.Element {
 
         {/* Hreflang */}
         <link rel="alternate" hrefLang="en" href={`${SITE_URL}/tools`} />
-        <link rel="alternate" hrefLang="fr" href={`${SITE_URL}/fr/tools`} />
         <link rel="alternate" hrefLang="x-default" href={`${SITE_URL}/tools`} />
 
         {/* Robots */}
@@ -59,10 +58,7 @@ export default function ToolsPage(): JSX.Element {
           property="og:image:alt"
           content="Free Writing Tools - Word Counter, Character Counter, Reading Time Calculator"
         />
-        <meta
-          property="og:locale"
-          content={locale === "fr" ? "fr_FR" : "en_US"}
-        />
+        <meta property="og:locale" content="en_US" />
 
         {/* Twitter Card */}
         <meta name="twitter:card" content="summary_large_image" />

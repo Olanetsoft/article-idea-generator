@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Space_Grotesk } from "@next/font/google";
 import { Header, Footer } from "@/components";
 import { useTranslation } from "@/hooks/useTranslation";
-import { SITE_URL, getLocalePath } from "@/lib/constants";
+import { SITE_URL } from "@/lib/constants";
 
 const spaceGrotesk = Space_Grotesk({
   weight: "700",
@@ -12,7 +12,7 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export default function FAQ(): JSX.Element {
-  const { t, locale } = useTranslation();
+  const { t } = useTranslation();
 
   return (
     <div className="flex flex-col items-center m-0 min-h-screen">
@@ -28,14 +28,10 @@ export default function FAQ(): JSX.Element {
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
-        <link
-          rel="canonical"
-          href={`${SITE_URL}${getLocalePath("/faq", locale)}`}
-        />
+        <link rel="canonical" href={`${SITE_URL}/faq`} />
 
         {/* Hreflang for FAQ page */}
         <link rel="alternate" hrefLang="en" href={`${SITE_URL}/faq`} />
-        <link rel="alternate" hrefLang="fr" href={`${SITE_URL}/fr/faq`} />
         <link rel="alternate" hrefLang="x-default" href={`${SITE_URL}/faq`} />
 
         {/* Robots */}
@@ -56,9 +52,7 @@ export default function FAQ(): JSX.Element {
         />
         <meta
           property="og:url"
-          content={`https://articleideagenerator.com${
-            locale === "en" ? "" : `/${locale}`
-          }/faq`}
+          content="https://articleideagenerator.com/faq"
         />
         <meta property="og:type" content="website" />
         <meta
@@ -71,10 +65,7 @@ export default function FAQ(): JSX.Element {
           property="og:image:alt"
           content="Article Idea Generator FAQ - Frequently Asked Questions"
         />
-        <meta
-          property="og:locale"
-          content={locale === "fr" ? "fr_FR" : "en_US"}
-        />
+        <meta property="og:locale" content="en_US" />
 
         {/* Twitter Card */}
         <meta name="twitter:card" content="summary_large_image" />
@@ -178,17 +169,13 @@ export default function FAQ(): JSX.Element {
                   "@type": "ListItem",
                   position: 1,
                   name: t("header.home"),
-                  item: `https://articleideagenerator.com${
-                    locale === "en" ? "" : `/${locale}`
-                  }`,
+                  item: "https://articleideagenerator.com",
                 },
                 {
                   "@type": "ListItem",
                   position: 2,
                   name: "FAQ",
-                  item: `https://articleideagenerator.com${
-                    locale === "en" ? "" : `/${locale}`
-                  }/faq`,
+                  item: "https://articleideagenerator.com/faq",
                 },
               ],
             }),
