@@ -8,7 +8,11 @@
 
 Generate engaging article ideas instantly using AI. This tool helps content creators, bloggers, and writers overcome writer's block by generating creative, SEO-friendly article titles based on any topic.
 
+**Plus free writing tools** — Word Counter, Character Counter, and more!
+
 ### ✨ Features
+
+**AI Article Generator**
 
 - **AI-Powered Generation**: Uses OpenAI's GPT-4o-mini for intelligent article idea creation
 - **SEO Optimization**: Toggle SEO & Clickbait mode for search engine-friendly titles
@@ -16,13 +20,27 @@ Generate engaging article ideas instantly using AI. This tool helps content crea
 - **Abstract Generation**: Generate detailed abstracts for any title with natural, human-like writing
 - **Recent Searches**: Quick access to your last 5 searches for easy reuse
 - **Social Sharing**: Share generated ideas directly to Twitter or LinkedIn
+
+**Free Writing Tools** _(NEW!)_
+
+- **[Word Counter](https://www.articleideagenerator.com/tools/word-counter)**: Count words, characters, sentences, paragraphs with reading/speaking time estimates
+- **Character Counter**: Track character limits for Twitter, LinkedIn, meta descriptions _(Coming Soon)_
+- **Reading Time Calculator**: Generate "X min read" badges for blogs _(Coming Soon)_
+- **Headline Analyzer**: Score headlines for SEO and engagement _(Coming Soon)_
+
+**Platform Features**
+
 - **Dark Mode**: Comfortable viewing in any lighting condition
 - **Mobile Responsive**: Optimized for all devices
+- **PWA Support**: Install as an app, works offline
 - **Accessibility**: Full keyboard navigation and ARIA labels
+- **LLM-Friendly**: `/llms.txt` for AI assistants
 
 [![Article Idea Generator - I](./public/screenshot.png)](https://www.articleideagenerator.com/)
 
 ## How to use
+
+### Article Idea Generator
 
 1. Visit [https://www.articleideagenerator.com/](https://www.articleideagenerator.com/)
 2. Enter a topic or keyword related to your article idea
@@ -34,6 +52,15 @@ Generate engaging article ideas instantly using AI. This tool helps content crea
 8. Click the document icon to generate a detailed abstract for any title
 9. Access recent searches for quick topic reuse
 10. Paste your chosen title into your content editor and start writing!
+
+### Word Counter Tool
+
+1. Visit [https://www.articleideagenerator.com/tools/word-counter](https://www.articleideagenerator.com/tools/word-counter)
+2. Paste or type your text into the input field
+3. View real-time stats: words, characters, sentences, paragraphs
+4. Check reading time (200 WPM) and speaking time (150 WPM)
+5. Analyze top keywords for SEO optimization
+6. Copy stats to clipboard for easy sharing
 
 ### 💡 Tips
 
