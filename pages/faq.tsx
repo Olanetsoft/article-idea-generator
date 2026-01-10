@@ -43,11 +43,6 @@ export default function FAQ(): JSX.Element {
         />
         <link
           rel="alternate"
-          hrefLang="fr"
-          href="https://articleideagenerator.com/fr/faq"
-        />
-        <link
-          rel="alternate"
           hrefLang="x-default"
           href="https://articleideagenerator.com/faq"
         />
