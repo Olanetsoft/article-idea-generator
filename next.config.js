@@ -39,9 +39,9 @@ module.exports = {
   },
   // Internationalization configuration
   i18n: {
-    locales: ["en", "fr"],
+    locales: ["en"],
     defaultLocale: "en",
-    localeDetection: true,
+    localeDetection: false,
   },
   async headers() {
     return [

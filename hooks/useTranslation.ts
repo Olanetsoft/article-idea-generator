@@ -1,10 +1,8 @@
 import { useRouter } from "next/router";
 import en from "../locales/en.json";
-import fr from "../locales/fr.json";
 
 const translations: Record<string, typeof en> = {
   en,
-  fr,
 };
 
 type TranslationKey = string;
