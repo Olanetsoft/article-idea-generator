@@ -129,7 +129,7 @@
       "stats": "Text Statistics",
       "words": "Words",
       "characters": "Characters",
-      "charactersNoSpaces": "No Spaces",
+      "charactersNoSpaces": "Characters (no spaces)",
       "sentences": "Sentences",
       "paragraphs": "Paragraphs",
       "timeEstimates": "Time Estimates",

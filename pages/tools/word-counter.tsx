@@ -1,11 +1,20 @@
 import { useState, useCallback } from "react";
 import Head from "next/head";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { Space_Grotesk } from "@next/font/google";
 import { Header, Footer } from "@/components";
 import { StatsPanel, type TextStats } from "@/components/tools";
 import { useTranslation } from "@/hooks/useTranslation";
 import { SITE_URL, SITE_NAME } from "@/lib/constants";
+
+// Locale to og:locale format mapping
+const LOCALE_MAP: Record<string, string> = {
+  en: "en_US",
+  fr: "fr_FR",
+  es: "es_ES",
+  de: "de_DE",
+};
 
 const spaceGrotesk = Space_Grotesk({
   weight: "700",
@@ -191,7 +200,6 @@ export default function WordCounterPage(): JSX.Element {
     });
 
     const topKeywords = Object.entries(wordFreq)
-      .filter(([, count]) => count > 1)
       .sort((a, b) => b[1] - a[1])
       .slice(0, 5) as [string, number][];
 
@@ -212,7 +220,18 @@ export default function WordCounterPage(): JSX.Element {
     setStats(DEFAULT_STATS);
   };
 
-  const pageUrl = `${SITE_URL}/tools/word-counter`;
+  const router = useRouter();
+  const currentLocale = router.locale || router.defaultLocale || "en";
+  const locales = router.locales || ["en"];
+  const defaultLocale = router.defaultLocale || "en";
+
+  // Build locale-aware page URL
+  const pageUrl =
+    currentLocale === defaultLocale
+      ? `${SITE_URL}/tools/word-counter`
+      : `${SITE_URL}/${currentLocale}/tools/word-counter`;
+
+  const ogLocale = LOCALE_MAP[currentLocale] || "en_US";
 
   return (
     <div className="flex flex-col items-center m-0 min-h-screen">
@@ -232,12 +251,19 @@ export default function WordCounterPage(): JSX.Element {
         <link rel="icon" href="/favicon.ico" />
         <link rel="canonical" href={pageUrl} />
 
-        {/* Hreflang */}
-        <link
-          rel="alternate"
-          hrefLang="en"
-          href={`${SITE_URL}/tools/word-counter`}
-        />
+        {/* Hreflang - Dynamic based on available locales */}
+        {locales.map((locale) => (
+          <link
+            key={locale}
+            rel="alternate"
+            hrefLang={locale}
+            href={
+              locale === defaultLocale
+                ? `${SITE_URL}/tools/word-counter`
+                : `${SITE_URL}/${locale}/tools/word-counter`
+            }
+          />
+        ))}
         <link
           rel="alternate"
           hrefLang="x-default"
@@ -269,7 +295,7 @@ export default function WordCounterPage(): JSX.Element {
           property="og:image:alt"
           content="Word Counter - Free Online Word Count Tool"
         />
-        <meta property="og:locale" content="en_US" />
+        <meta property="og:locale" content={ogLocale} />
 
         {/* Twitter Card */}
         <meta name="twitter:card" content="summary_large_image" />
