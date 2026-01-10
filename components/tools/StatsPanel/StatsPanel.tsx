@@ -56,7 +56,7 @@ export default function StatsPanel({ stats }: StatsPanelProps) {
         <h3 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-3">
           {t("tools.wordCounter.stats")}
         </h3>
-        <div className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-2 gap-2 sm:gap-3">
+        <div className="grid grid-cols-2 min-[400px]:grid-cols-3 sm:grid-cols-5 lg:grid-cols-2 gap-2 sm:gap-3">
           <StatItem
             label={t("tools.wordCounter.words")}
             value={stats.words.toLocaleString()}
