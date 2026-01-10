@@ -13,7 +13,7 @@ export const tools: Tool[] = [
     descriptionKey: "tools.wordCounter.description",
     href: "/tools/word-counter",
     icon: "document",
-    available: false,
+    available: true,
   },
   {
     id: "character-counter",
