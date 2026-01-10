@@ -343,6 +343,51 @@ export default function WordCounterPage(): JSX.Element {
             }),
           }}
         />
+
+        {/* FAQ Schema */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              mainEntity: [
+                {
+                  "@type": "Question",
+                  name: "How does the word counter work?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Simply paste or type your text into the input field. The tool instantly counts words, characters, sentences, and paragraphs in real-time as you type. No submission required.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "Is this word counter free to use?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Yes, this word counter is completely free with no limits. Count as many words as you need without signing up or paying anything.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "How is reading time calculated?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Reading time is calculated based on an average reading speed of 200 words per minute. Speaking time uses 150 words per minute, which is typical for presentations.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "What are top keywords?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Top keywords shows the most frequently used words in your text, excluding common words like 'the', 'and', 'is'. This helps identify keyword density for SEO optimization.",
+                  },
+                },
+              ],
+            }),
+          }}
+        />
       </Head>
 
       <Header />
@@ -480,6 +525,165 @@ export default function WordCounterPage(): JSX.Element {
                 <li>{t("tools.wordCounter.useCase4")}</li>
               </ul>
             </div>
+          </div>
+        </section>
+
+        {/* FAQ Section */}
+        <section className="w-full max-w-screen-lg mt-12">
+          <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-6">
+            Frequently Asked Questions
+          </h2>
+          <div className="space-y-4">
+            <details className="group bg-zinc-100 dark:bg-darkOffset rounded-lg border border-zinc-200 dark:border-zinc-800">
+              <summary className="flex justify-between items-center cursor-pointer p-4 font-medium text-zinc-900 dark:text-white">
+                How does the word counter work?
+                <svg
+                  className="w-5 h-5 transition-transform group-open:rotate-180"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </summary>
+              <p className="px-4 pb-4 text-zinc-600 dark:text-zinc-400">
+                Simply paste or type your text into the input field. The tool
+                instantly counts words, characters, sentences, and paragraphs in
+                real-time as you type. No submission required.
+              </p>
+            </details>
+
+            <details className="group bg-zinc-100 dark:bg-darkOffset rounded-lg border border-zinc-200 dark:border-zinc-800">
+              <summary className="flex justify-between items-center cursor-pointer p-4 font-medium text-zinc-900 dark:text-white">
+                Is this word counter free to use?
+                <svg
+                  className="w-5 h-5 transition-transform group-open:rotate-180"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </summary>
+              <p className="px-4 pb-4 text-zinc-600 dark:text-zinc-400">
+                Yes, this word counter is completely free with no limits. Count
+                as many words as you need without signing up or paying anything.
+              </p>
+            </details>
+
+            <details className="group bg-zinc-100 dark:bg-darkOffset rounded-lg border border-zinc-200 dark:border-zinc-800">
+              <summary className="flex justify-between items-center cursor-pointer p-4 font-medium text-zinc-900 dark:text-white">
+                How is reading time calculated?
+                <svg
+                  className="w-5 h-5 transition-transform group-open:rotate-180"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </summary>
+              <p className="px-4 pb-4 text-zinc-600 dark:text-zinc-400">
+                Reading time is calculated based on an average reading speed of
+                200 words per minute. Speaking time uses 150 words per minute,
+                which is typical for presentations.
+              </p>
+            </details>
+
+            <details className="group bg-zinc-100 dark:bg-darkOffset rounded-lg border border-zinc-200 dark:border-zinc-800">
+              <summary className="flex justify-between items-center cursor-pointer p-4 font-medium text-zinc-900 dark:text-white">
+                What are top keywords?
+                <svg
+                  className="w-5 h-5 transition-transform group-open:rotate-180"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </summary>
+              <p className="px-4 pb-4 text-zinc-600 dark:text-zinc-400">
+                Top keywords shows the most frequently used words in your text,
+                excluding common words like &quot;the&quot;, &quot;and&quot;,
+                &quot;is&quot;. This helps identify keyword density for SEO
+                optimization.
+              </p>
+            </details>
+          </div>
+        </section>
+
+        {/* Related Tools Section */}
+        <section className="w-full max-w-screen-lg mt-12">
+          <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-6">
+            Related Writing Tools
+          </h2>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <Link
+              href="/tools"
+              className="p-4 bg-zinc-100 dark:bg-darkOffset rounded-lg border border-zinc-200 dark:border-zinc-800 hover:border-indigo-500 dark:hover:border-indigo-500 transition-colors"
+            >
+              <h3 className="font-semibold text-zinc-900 dark:text-white mb-1">
+                Character Counter
+              </h3>
+              <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                Track character limits for Twitter, LinkedIn, and meta
+                descriptions.
+              </p>
+              <span className="text-xs text-indigo-600 dark:text-indigo-400 mt-2 inline-block">
+                Coming Soon
+              </span>
+            </Link>
+
+            <Link
+              href="/tools"
+              className="p-4 bg-zinc-100 dark:bg-darkOffset rounded-lg border border-zinc-200 dark:border-zinc-800 hover:border-indigo-500 dark:hover:border-indigo-500 transition-colors"
+            >
+              <h3 className="font-semibold text-zinc-900 dark:text-white mb-1">
+                Reading Time Calculator
+              </h3>
+              <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                Get &quot;X min read&quot; badges for your blog posts and
+                articles.
+              </p>
+              <span className="text-xs text-indigo-600 dark:text-indigo-400 mt-2 inline-block">
+                Coming Soon
+              </span>
+            </Link>
+
+            <Link
+              href="/tools"
+              className="p-4 bg-zinc-100 dark:bg-darkOffset rounded-lg border border-zinc-200 dark:border-zinc-800 hover:border-indigo-500 dark:hover:border-indigo-500 transition-colors"
+            >
+              <h3 className="font-semibold text-zinc-900 dark:text-white mb-1">
+                Headline Analyzer
+              </h3>
+              <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                Analyze headlines for SEO and emotional impact.
+              </p>
+              <span className="text-xs text-indigo-600 dark:text-indigo-400 mt-2 inline-block">
+                Coming Soon
+              </span>
+            </Link>
           </div>
         </section>
       </main>
