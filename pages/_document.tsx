@@ -105,11 +105,6 @@ export default function Document() {
         />
         <link
           rel="alternate"
-          hrefLang="fr"
-          href="https://articleideagenerator.com/fr"
-        />
-        <link
-          rel="alternate"
           hrefLang="x-default"
           href="https://articleideagenerator.com"
         />

@@ -4,7 +4,6 @@ import { useState, useRef, useEffect } from "react";
 const LANGUAGE_CONFIG: Record<string, { name: string; flag: string }> = {
   en: { name: "English", flag: "🇺🇸" },
   es: { name: "Español", flag: "🇪🇸" },
-  fr: { name: "Français", flag: "🇫🇷" },
   de: { name: "Deutsch", flag: "🇩🇪" },
   pt: { name: "Português", flag: "🇧🇷" },
   zh: { name: "中文", flag: "🇨🇳" },
@@ -12,7 +11,8 @@ const LANGUAGE_CONFIG: Record<string, { name: string; flag: string }> = {
   ko: { name: "한국어", flag: "🇰🇷" },
 };
 
-const SUPPORTED_LOCALES = ["en", "fr"];
+// Fallback locales in case router.locales is undefined
+const SUPPORTED_LOCALES = ["en"];
 
 export default function LanguageSwitcher() {
   const router = useRouter();
@@ -35,6 +35,11 @@ export default function LanguageSwitcher() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // Don't render if only one locale is available
+  if (availableLocales.length <= 1) {
+    return null;
+  }
 
   const changeLanguage = (newLocale: string) => {
     router.push(asPath, asPath, { locale: newLocale });
