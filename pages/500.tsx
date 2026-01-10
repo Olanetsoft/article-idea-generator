@@ -1,28 +1,21 @@
-import Head from "next/head";
 import Link from "next/link";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
-import { useTranslation } from "../hooks/useTranslation";
+import { Header, Footer, ErrorPageLayout } from "@/components";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function Custom500() {
   const { t } = useTranslation();
 
   return (
     <div className="flex flex-col items-center m-0 min-h-screen">
-      <Head>
-        <title>500 - {t("serverError.title")} | Article Idea Generator</title>
-        <meta name="robots" content="noindex, nofollow" />
-        <meta
-          name="description"
-          content="We're experiencing server issues. Please try again later."
-        />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
       <Header />
 
-      <main className="flex-grow flex flex-col items-center justify-center w-full px-4">
+      <ErrorPageLayout
+        statusCode={500}
+        title={t("serverError.title")}
+        description="We're experiencing server issues. Please try again later."
+        noindex={true}
+        nofollow={true}
+      >
         <div className="text-center max-w-lg">
           {/* Server Error Icon */}
           <div className="mb-8">
@@ -111,7 +104,7 @@ export default function Custom500() {
             {t("serverError.orTryLater")}
           </p>
         </div>
-      </main>
+      </ErrorPageLayout>
 
       <Footer />
     </div>

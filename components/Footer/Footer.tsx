@@ -1,5 +1,5 @@
 import { HeartIcon } from "@heroicons/react/solid";
-import { useTranslation } from "../hooks/useTranslation";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -19,7 +19,7 @@ export default function Footer() {
           rel="noopener noreferrer"
           className="font-bold hover:underline underline-offset-2"
         >
-          OpenAI
+          AI
         </a>
       </div>
       <p className="text-xs text-gray-500 dark:text-gray-400">

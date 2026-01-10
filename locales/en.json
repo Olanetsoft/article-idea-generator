@@ -5,6 +5,7 @@
   },
   "header": {
     "home": "Home",
+    "tools": "Tools",
     "faq": "FAQ",
     "darkMode": "Toggle dark mode",
     "starOnGithub": "Star on GitHub"
@@ -23,7 +24,10 @@
     "share": "Share",
     "twitter": "Twitter",
     "linkedin": "LinkedIn",
-    "copyAbstract": "Click to copy abstract"
+    "copyAbstract": "Click to copy abstract",
+    "toolsPromoTitle": "Need more writing tools?",
+    "toolsPromoDesc": "Check out our free word counter, character counter, and more.",
+    "exploreTools": "Explore Tools"
   },
   "howItWorks": {
     "title": "How It Works",
@@ -98,5 +102,33 @@
     "voiceCaptured": "Voice captured!",
     "abstractGenerated": "Abstract generated successfully!",
     "speakNow": "Listening... Speak now!"
+  },
+  "tools": {
+    "pageTitle": "Free Writing Tools",
+    "pageDescription": "Free online writing tools for content creators. Word counter, character counter, reading time calculator, and headline analyzer.",
+    "heroTitle": "Free Writing Tools",
+    "heroDescription": "Boost your content creation with our collection of free writing tools. Count words, analyze headlines, and optimize your content for any platform.",
+    "cta": "Generate Article Ideas",
+    "availableTools": "Writing Tools",
+    "comingSoon": "Coming Soon",
+    "bottomCtaTitle": "Need article ideas?",
+    "bottomCtaDescription": "Use our AI-powered generator to create engaging article titles in seconds.",
+    "tryGenerator": "Try Article Idea Generator",
+    "wordCounter": {
+      "name": "Word Counter",
+      "description": "Count words, characters, sentences, and paragraphs. Get reading time estimates for your content."
+    },
+    "characterCounter": {
+      "name": "Character Counter",
+      "description": "Track character counts with social media limits for Twitter, LinkedIn, meta descriptions, and more."
+    },
+    "readingTime": {
+      "name": "Reading Time Calculator",
+      "description": "Calculate reading and speaking time for your content. Get 'X min read' badges for your blog."
+    },
+    "headlineAnalyzer": {
+      "name": "Headline Analyzer",
+      "description": "Analyze your headlines for SEO, emotional impact, and click-through potential. Get actionable suggestions."
+    }
   }
 }

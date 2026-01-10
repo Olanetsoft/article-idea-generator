@@ -5,6 +5,7 @@
   },
   "header": {
     "home": "Accueil",
+    "tools": "Outils",
     "faq": "FAQ",
     "darkMode": "Basculer le mode sombre",
     "starOnGithub": "Star sur GitHub"
@@ -23,7 +24,10 @@
     "share": "Partager",
     "twitter": "Twitter",
     "linkedin": "LinkedIn",
-    "copyAbstract": "Cliquez pour copier le résumé"
+    "copyAbstract": "Cliquez pour copier le résumé",
+    "toolsPromoTitle": "Besoin de plus d'outils d'écriture ?",
+    "toolsPromoDesc": "Découvrez notre compteur de mots, compteur de caractères gratuits et plus encore.",
+    "exploreTools": "Explorer les Outils"
   },
   "howItWorks": {
     "title": "Comment Ça Marche",
@@ -98,5 +102,33 @@
     "voiceCaptured": "Voix capturée !",
     "abstractGenerated": "Résumé généré avec succès !",
     "speakNow": "Écoute en cours... Parlez maintenant !"
+  },
+  "tools": {
+    "pageTitle": "Outils d'Écriture Gratuits",
+    "pageDescription": "Outils d'écriture en ligne gratuits pour les créateurs de contenu. Compteur de mots, compteur de caractères, calculateur de temps de lecture et analyseur de titres.",
+    "heroTitle": "Outils d'Écriture Gratuits",
+    "heroDescription": "Améliorez votre création de contenu avec notre collection d'outils d'écriture gratuits. Comptez les mots, analysez les titres et optimisez votre contenu pour toutes les plateformes.",
+    "cta": "Générer des Idées d'Articles",
+    "availableTools": "Outils d'Écriture",
+    "comingSoon": "Bientôt Disponible",
+    "bottomCtaTitle": "Besoin d'idées d'articles ?",
+    "bottomCtaDescription": "Utilisez notre générateur alimenté par l'IA pour créer des titres d'articles engageants en quelques secondes.",
+    "tryGenerator": "Essayer le Générateur d'Idées",
+    "wordCounter": {
+      "name": "Compteur de Mots",
+      "description": "Comptez les mots, caractères, phrases et paragraphes. Obtenez des estimations de temps de lecture pour votre contenu."
+    },
+    "characterCounter": {
+      "name": "Compteur de Caractères",
+      "description": "Suivez le nombre de caractères avec les limites des réseaux sociaux pour Twitter, LinkedIn, méta descriptions et plus."
+    },
+    "readingTime": {
+      "name": "Calculateur de Temps de Lecture",
+      "description": "Calculez le temps de lecture et de parole pour votre contenu. Obtenez des badges 'X min de lecture' pour votre blog."
+    },
+    "headlineAnalyzer": {
+      "name": "Analyseur de Titres",
+      "description": "Analysez vos titres pour le SEO, l'impact émotionnel et le potentiel de clics. Obtenez des suggestions actionnables."
+    }
   }
 }
