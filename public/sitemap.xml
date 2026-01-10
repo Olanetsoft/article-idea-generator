@@ -7,7 +7,7 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://articleideagenerator.com"/>
     <xhtml:link rel="alternate" hreflang="fr" href="https://articleideagenerator.com/fr"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://articleideagenerator.com"/>
-    <lastmod>2025-11-28</lastmod>
+    <lastmod>2026-01-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <image:image>
@@ -20,16 +20,34 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://articleideagenerator.com"/>
     <xhtml:link rel="alternate" hreflang="fr" href="https://articleideagenerator.com/fr"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://articleideagenerator.com"/>
-    <lastmod>2025-11-28</lastmod>
+    <lastmod>2026-01-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://articleideagenerator.com/tools</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://articleideagenerator.com/tools"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://articleideagenerator.com/fr/tools"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://articleideagenerator.com/tools"/>
+    <lastmod>2026-01-10</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://articleideagenerator.com/fr/tools</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://articleideagenerator.com/tools"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://articleideagenerator.com/fr/tools"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://articleideagenerator.com/tools"/>
+    <lastmod>2026-01-10</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
   </url>
   <url>
     <loc>https://articleideagenerator.com/faq</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://articleideagenerator.com/faq"/>
     <xhtml:link rel="alternate" hreflang="fr" href="https://articleideagenerator.com/fr/faq"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://articleideagenerator.com/faq"/>
-    <lastmod>2025-11-28</lastmod>
+    <lastmod>2026-01-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -38,13 +56,13 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://articleideagenerator.com/faq"/>
     <xhtml:link rel="alternate" hreflang="fr" href="https://articleideagenerator.com/fr/faq"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://articleideagenerator.com/faq"/>
-    <lastmod>2025-11-28</lastmod>
+    <lastmod>2026-01-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://articleideagenerator.com/llms.txt</loc>
-    <lastmod>2025-11-28</lastmod>
+    <lastmod>2026-01-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>

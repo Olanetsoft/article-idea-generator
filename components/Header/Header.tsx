@@ -2,11 +2,12 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
 import { SunIcon, MoonIcon, StarIcon } from "@heroicons/react/solid";
-import LanguageSwitcher from "./LanguageSwitcher";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { useTranslation } from "@/hooks/useTranslation";
 
-const Header = () => {
+export default function Header() {
   const { systemTheme, theme, setTheme } = useTheme();
-
+  const { t } = useTranslation();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -20,25 +21,26 @@ const Header = () => {
     if (currentTheme === "dark") {
       return (
         <SunIcon
-          className="w-6 h-6 text-yellow-500 "
+          className="w-6 h-6 text-yellow-500 cursor-pointer"
           role="button"
           onClick={() => setTheme("light")}
-        />
-      );
-    } else {
-      return (
-        <MoonIcon
-          className="w-6 h-6 text-gray-900 "
-          role="button"
-          onClick={() => setTheme("dark")}
+          aria-label="Switch to light mode"
         />
       );
     }
+    return (
+      <MoonIcon
+        className="w-6 h-6 text-gray-900 cursor-pointer"
+        role="button"
+        onClick={() => setTheme("dark")}
+        aria-label="Switch to dark mode"
+      />
+    );
   };
 
   return (
     <header className="flex w-full p-4 sm:p-5 py-3 justify-between items-center text-sm text-gray-800 border-b border-zinc-200 dark:border-zinc-800">
-      {/*left section*/}
+      {/* Left section */}
       <div className="flex space-x-4 items-center">
         <Link
           href="/"
@@ -63,8 +65,14 @@ const Header = () => {
         <LanguageSwitcher />
       </div>
 
-      {/*right section*/}
+      {/* Right section */}
       <div className="flex space-x-2 sm:space-x-4 items-center select-none">
+        <Link
+          href="/tools"
+          className="font-semibold dark:text-gray-100 hover:text-indigo-500 dark:hover:text-indigo-400 transition text-sm sm:text-base"
+        >
+          {t("header.tools")}
+        </Link>
         <Link
           href="/faq"
           className="font-semibold dark:text-gray-100 hover:text-indigo-500 dark:hover:text-indigo-400 transition text-sm sm:text-base"
@@ -78,11 +86,8 @@ const Header = () => {
             rel="noreferrer"
             className="flex items-center justify-center gap-1"
           >
-            <span>Star</span>{" "}
-            <StarIcon
-              className="w-5 h-5 text-yellow-400 "
-              onClick={() => setTheme("light")}
-            />
+            <span>Star</span>
+            <StarIcon className="w-5 h-5 text-yellow-400" />
             <span>on GitHub</span>
           </a>
         </span>
@@ -93,7 +98,7 @@ const Header = () => {
           className="flex items-center"
           aria-label="View on GitHub"
         >
-          <p className="sr-only">GitHub</p>
+          <span className="sr-only">GitHub</span>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="20"
@@ -107,6 +112,4 @@ const Header = () => {
       </div>
     </header>
   );
-};
-
-export default Header;
+}

@@ -1,4 +1,5 @@
 import Head from "next/head";
+import Link from "next/link";
 import React, { useState, FormEvent, useEffect, lazy, Suspense } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
@@ -13,13 +14,16 @@ import {
 import { ArrowSmRightIcon } from "@heroicons/react/solid";
 import { AnimatePresence, motion } from "framer-motion";
 
-import ResizablePanel from "../components/ResizablePanel";
-import Header from "../components/Header";
-import { TitleListSkeleton, AbstractSkeleton } from "../components/Skeleton";
-import { useTranslation } from "../hooks/useTranslation";
+import {
+  ResizablePanel,
+  Header,
+  TitleListSkeleton,
+  AbstractSkeleton,
+} from "@/components";
+import { useTranslation } from "@/hooks/useTranslation";
 
 // Lazy load Footer for better initial load performance
-const Footer = dynamic(() => import("../components/Footer"), {
+const Footer = dynamic(() => import("@/components/Footer"), {
   loading: () => (
     <div className="h-16 animate-pulse bg-gray-100 dark:bg-zinc-800" />
   ),
@@ -743,6 +747,27 @@ Format: Just the abstract text, nothing else.`;
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   {t("howItWorks.step3Desc")}
                 </p>
+              </div>
+            </div>
+
+            {/* Tools Promo Section */}
+            <div className="mt-8 p-6 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div>
+                  <h3 className="font-semibold text-gray-900 dark:text-zinc-200 text-lg">
+                    {t("home.toolsPromoTitle")}
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    {t("home.toolsPromoDesc")}
+                  </p>
+                </div>
+                <Link
+                  href="/tools"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors whitespace-nowrap"
+                >
+                  {t("home.exploreTools")}
+                  <ArrowSmRightIcon className="w-4 h-4" />
+                </Link>
               </div>
             </div>
           </section>
