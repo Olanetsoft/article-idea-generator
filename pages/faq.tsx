@@ -1,9 +1,9 @@
 import Head from "next/head";
 import Link from "next/link";
 import { Space_Grotesk } from "@next/font/google";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
-import { useTranslation } from "../hooks/useTranslation";
+import { Header, Footer } from "@/components";
+import { useTranslation } from "@/hooks/useTranslation";
+import { SITE_URL, getLocalePath } from "@/lib/constants";
 
 const spaceGrotesk = Space_Grotesk({
   weight: "700",
@@ -30,27 +30,13 @@ export default function FAQ(): JSX.Element {
         <link rel="icon" href="/favicon.ico" />
         <link
           rel="canonical"
-          href={`https://articleideagenerator.com${
-            locale === "en" ? "" : `/${locale}`
-          }/faq`}
+          href={`${SITE_URL}${getLocalePath("/faq", locale)}`}
         />
 
         {/* Hreflang for FAQ page */}
-        <link
-          rel="alternate"
-          hrefLang="en"
-          href="https://articleideagenerator.com/faq"
-        />
-        <link
-          rel="alternate"
-          hrefLang="fr"
-          href="https://articleideagenerator.com/fr/faq"
-        />
-        <link
-          rel="alternate"
-          hrefLang="x-default"
-          href="https://articleideagenerator.com/faq"
-        />
+        <link rel="alternate" hrefLang="en" href={`${SITE_URL}/faq`} />
+        <link rel="alternate" hrefLang="fr" href={`${SITE_URL}/fr/faq`} />
+        <link rel="alternate" hrefLang="x-default" href={`${SITE_URL}/faq`} />
 
         {/* Robots */}
         <meta

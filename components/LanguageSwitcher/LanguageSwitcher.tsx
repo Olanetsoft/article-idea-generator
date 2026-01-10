@@ -1,42 +1,28 @@
 import { useRouter } from "next/router";
 import { useState, useRef, useEffect } from "react";
 
-const languageNames: Record<string, string> = {
-  en: "English",
-  es: "Español",
-  fr: "Français",
-  de: "Deutsch",
-  pt: "Português",
-  zh: "中文",
-  ja: "日本語",
-  ko: "한국어",
+const LANGUAGE_CONFIG: Record<string, { name: string; flag: string }> = {
+  en: { name: "English", flag: "🇺🇸" },
+  es: { name: "Español", flag: "🇪🇸" },
+  fr: { name: "Français", flag: "🇫🇷" },
+  de: { name: "Deutsch", flag: "🇩🇪" },
+  pt: { name: "Português", flag: "🇧🇷" },
+  zh: { name: "中文", flag: "🇨🇳" },
+  ja: { name: "日本語", flag: "🇯🇵" },
+  ko: { name: "한국어", flag: "🇰🇷" },
 };
 
-const languageFlags: Record<string, string> = {
-  en: "🇺🇸",
-  es: "🇪🇸",
-  fr: "🇫🇷",
-  de: "🇩🇪",
-  pt: "🇧🇷",
-  zh: "🇨🇳",
-  ja: "🇯🇵",
-  ko: "🇰🇷",
-};
-
-// Fallback locales in case router.locales is undefined
 const SUPPORTED_LOCALES = ["en", "fr"];
 
 export default function LanguageSwitcher() {
   const router = useRouter();
-  const { locale, locales, asPath } = router;
+  const { locale = "en", locales, asPath } = router;
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Use router locales or fallback to hardcoded list
   const availableLocales =
     locales && locales.length > 0 ? locales : SUPPORTED_LOCALES;
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
@@ -55,6 +41,8 @@ export default function LanguageSwitcher() {
     setIsOpen(false);
   };
 
+  const currentLang = LANGUAGE_CONFIG[locale] || LANGUAGE_CONFIG.en;
+
   return (
     <div className="relative" ref={dropdownRef}>
       <button
@@ -64,10 +52,8 @@ export default function LanguageSwitcher() {
         aria-expanded={isOpen}
         aria-haspopup="listbox"
       >
-        <span className="text-base">{languageFlags[locale || "en"]}</span>
-        <span className="hidden sm:inline">
-          {languageNames[locale || "en"]}
-        </span>
+        <span className="text-base">{currentLang.flag}</span>
+        <span className="hidden sm:inline">{currentLang.name}</span>
         <svg
           className={`w-4 h-4 transition-transform ${
             isOpen ? "rotate-180" : ""
@@ -91,35 +77,38 @@ export default function LanguageSwitcher() {
           role="listbox"
           aria-label="Available languages"
         >
-          {availableLocales.map((loc) => (
-            <button
-              key={loc}
-              onClick={() => changeLanguage(loc)}
-              className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors ${
-                locale === loc
-                  ? "bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400"
-                  : "text-gray-700 dark:text-gray-300"
-              }`}
-              role="option"
-              aria-selected={locale === loc}
-            >
-              <span className="text-base">{languageFlags[loc]}</span>
-              <span>{languageNames[loc]}</span>
-              {locale === loc && (
-                <svg
-                  className="w-4 h-4 ml-auto"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              )}
-            </button>
-          ))}
+          {availableLocales.map((loc) => {
+            const lang = LANGUAGE_CONFIG[loc] || { name: loc, flag: "🌐" };
+            return (
+              <button
+                key={loc}
+                onClick={() => changeLanguage(loc)}
+                className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors ${
+                  locale === loc
+                    ? "bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400"
+                    : "text-gray-700 dark:text-gray-300"
+                }`}
+                role="option"
+                aria-selected={locale === loc}
+              >
+                <span className="text-base">{lang.flag}</span>
+                <span>{lang.name}</span>
+                {locale === loc && (
+                  <svg
+                    className="w-4 h-4 ml-auto"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                )}
+              </button>
+            );
+          })}
         </div>
       )}
     </div>

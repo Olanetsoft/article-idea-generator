@@ -1,12 +1,9 @@
 import { motion } from "framer-motion";
 import useMeasure from "react-use-measure";
+import type { WithChildrenProps } from "@/types";
 
-export default function ResizablePanel({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  let [ref, { height }] = useMeasure();
+export default function ResizablePanel({ children }: WithChildrenProps) {
+  const [ref, { height }] = useMeasure();
 
   return (
     <motion.div
