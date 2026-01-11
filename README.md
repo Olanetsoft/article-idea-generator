@@ -168,7 +168,7 @@ Thanks for spending your time helping `Article Idea Generator` grow. Happy Hacki
 
 ## Stargazers ⭐️
 
-[![Stargazers](https://git-lister.onrender.com/api/stars/Olanetsoft/article-idea-generator?limit=15)](https://github.com/Olanetsoft/article-idea-generator)
+[![Star History Chart](https://api.star-history.com/svg?repos=Olanetsoft/article-idea-generator&type=Date)](https://star-history.com/#Olanetsoft/article-idea-generator&Date)
 
 ## Acknowledgement
 
