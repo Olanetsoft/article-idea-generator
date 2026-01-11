@@ -19,6 +19,7 @@ import {
   Header,
   TitleListSkeleton,
   AbstractSkeleton,
+  AbstractDisplay,
 } from "@/components";
 import { useTranslation } from "@/hooks/useTranslation";
 
@@ -49,6 +50,7 @@ export default function Home(): JSX.Element {
   const [generatedTitles, setGeneratedTitles] = useState<string>("");
   const [text, setText] = useState<string>("");
   const [abstract, setAbstract] = useState<string>("");
+  const [selectedTitle, setSelectedTitle] = useState<string>("");
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [showShareMenu, setShowShareMenu] = useState<number | null>(null);
   const [isListening, setIsListening] = useState<boolean>(false);
@@ -212,6 +214,8 @@ Format: Return only the 4 numbered titles, one per line.`;
       toast.error(t("errors.generateFirst"));
       return;
     }
+
+    setSelectedTitle(title);
 
     const systemMessage = `You are a seasoned writer with 15 years of experience. Write naturally and conversationally, avoiding corporate jargon and AI-sounding language. Be direct and human.`;
 
@@ -665,38 +669,21 @@ Format: Just the abstract text, nothing else.`;
               )}
 
               {abstract && !abstractLoading && (
-                <>
-                  <p className="text-xs text-center font-bold text-gray-400">
-                    {t("home.copyAbstract")}
-                  </p>
-
-                  <div
-                    className="bg-zinc-100 dark:bg-darkOffset dark:text-gray-100 rounded-md p-3 hover:bg-gray-100 transition cursor-copy border-zinc-200 border dark:border-zinc-800"
-                    onClick={() => {
-                      navigator.clipboard.writeText(
-                        abstract.replace(/[^a-zA-Z\s]/g, "")
-                      );
-                      toast.success(t("success.abstractCopied"));
-                    }}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        navigator.clipboard.writeText(
-                          abstract.replace(/[^a-zA-Z\s]/g, "")
-                        );
-                        toast.success(t("success.abstractCopied"));
-                      }
-                    }}
-                    aria-label={t("home.copyAbstract")}
-                  >
-                    <div className="flex items-center">
-                      <p className="text-zinc-800 dark:text-zinc-300 text-sm break-words">
-                        {abstract.replace(/"/g, "")}
-                      </p>
-                    </div>
-                  </div>
-                </>
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <AbstractDisplay
+                    abstract={abstract}
+                    title={selectedTitle}
+                    onRegenerate={() =>
+                      generateAbstractForArticles(selectedTitle)
+                    }
+                    isRegenerating={abstractLoading}
+                  />
+                </motion.div>
               )}
             </motion.div>
           </AnimatePresence>
