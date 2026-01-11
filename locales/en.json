@@ -96,11 +96,13 @@
     "voiceError": "Voice recognition error",
     "couldNotStart": "Could not start voice recognition",
     "failedGenerate": "An error occurred. Please try again!",
-    "failedAbstract": "Failed to generate abstract. Please try again!"
+    "failedAbstract": "Failed to generate abstract. Please try again!",
+    "copyFailed": "Failed to copy to clipboard"
   },
   "success": {
     "copied": "Title copied to clipboard",
     "abstractCopied": "Abstract copied to clipboard",
+    "markdownCopied": "Markdown copied to clipboard",
     "voiceCaptured": "Voice captured!",
     "abstractGenerated": "Abstract generated successfully!",
     "speakNow": "Listening... Speak now!"

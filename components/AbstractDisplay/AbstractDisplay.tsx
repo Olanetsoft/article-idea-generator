@@ -107,7 +107,7 @@ export default function AbstractDisplay({
       await navigator.clipboard.writeText(cleanAbstract);
       toast.success(t("success.abstractCopied"));
     } catch (err) {
-      toast.error("Failed to copy");
+      toast.error(t("errors.copyFailed"));
     }
   };
 
@@ -115,9 +115,9 @@ export default function AbstractDisplay({
     const markdown = `## Abstract: ${title}\n\n${paragraphs.join("\n\n")}`;
     try {
       await navigator.clipboard.writeText(markdown);
-      toast.success("Markdown copied to clipboard");
+      toast.success(t("success.markdownCopied"));
     } catch (err) {
-      toast.error("Failed to copy");
+      toast.error(t("errors.copyFailed"));
     }
   };
 
