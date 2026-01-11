@@ -6,6 +6,7 @@ import {
   ClockIcon,
 } from "@heroicons/react/outline";
 import { useTranslation } from "@/hooks/useTranslation";
+import { trackToolClick } from "@/lib/gtag";
 import type { ToolCardProps, ToolIcon } from "@/types";
 
 const iconMap: Record<ToolIcon, typeof DocumentTextIcon> = {
@@ -24,6 +25,13 @@ export default function ToolCard({
 }: ToolCardProps) {
   const { t } = useTranslation();
   const Icon = iconMap[icon];
+  const toolName = t(nameKey);
+
+  const handleClick = () => {
+    if (available) {
+      trackToolClick(toolName);
+    }
+  };
 
   const cardContent = (
     <div
@@ -61,7 +69,7 @@ export default function ToolCard({
   }
 
   return (
-    <Link href={href} className="block">
+    <Link href={href} className="block" onClick={handleClick}>
       {cardContent}
     </Link>
   );
