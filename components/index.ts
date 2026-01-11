@@ -8,6 +8,7 @@ export { default as ErrorBoundary } from "./ErrorBoundary";
 export { default as ToolCard } from "./ToolCard";
 export { default as ResizablePanel } from "./ResizablePanel";
 export { default as ErrorPageLayout, ErrorActions } from "./ErrorPageLayout";
+export { default as AbstractDisplay } from "./AbstractDisplay/AbstractDisplay";
 
 // Tool components
 export { StatsPanel, type TextStats } from "./tools";
