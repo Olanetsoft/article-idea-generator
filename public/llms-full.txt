@@ -103,6 +103,50 @@ The generation API uses:
 - Robots.txt configuration
 - Security headers (HSTS, CSP basics)
 
+## Free Writing Tools
+
+Beyond AI generation, Article Idea Generator offers a suite of free writing tools.
+
+### Word Counter Tool
+
+**URL**: https://articleideagenerator.com/tools/word-counter
+
+**Features**:
+- Real-time word count
+- Character count (with and without spaces)
+- Sentence count
+- Paragraph count
+- Reading time (200 WPM average)
+- Speaking time (150 WPM average)
+- Top 5 keyword frequency analysis
+- Copy stats to clipboard
+- Mobile-responsive design
+
+**Use Cases**:
+- Checking article/essay word limits
+- Meeting assignment requirements
+- SEO content length optimization
+- Preparing speeches with time estimates
+- Keyword density analysis
+
+**Technical Details**:
+- Client-side processing (no data sent to server)
+- Instant real-time updates
+- Stop word filtering for keyword analysis
+- Accessible with keyboard navigation
+
+### Tools Landing Page
+
+**URL**: https://articleideagenerator.com/tools
+
+Browse all available writing tools with descriptions and "coming soon" badges for tools in development.
+
+### Planned Tools
+
+- **Character Counter**: Track character limits for Twitter (280), LinkedIn (3000), meta descriptions (160)
+- **Reading Time Calculator**: Generate "X min read" badges for blogs
+- **Headline Analyzer**: Score headlines for emotional impact, power words, and SEO
+
 ## Accessibility
 
 - Semantic HTML structure

@@ -76,7 +76,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     : [{ role: "user", content: prompt }];
 
   const payload: requestPayload = {
-    model: "gpt-4o-mini", // Upgraded from gpt-3.5-turbo
+    model: "gpt-4o-mini",
     messages,
     temperature: 0.7, // Increased for more creative outputs
     max_tokens: 800, // Increased for longer abstracts
