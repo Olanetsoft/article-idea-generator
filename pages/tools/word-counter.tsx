@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -7,6 +7,7 @@ import { Header, Footer } from "@/components";
 import { StatsPanel, type TextStats } from "@/components/tools";
 import { useTranslation } from "@/hooks/useTranslation";
 import { SITE_URL, SITE_NAME } from "@/lib/constants";
+import { trackToolUsage } from "@/lib/gtag";
 
 // Locale to og:locale format mapping
 const LOCALE_MAP: Record<string, string> = {
@@ -156,13 +157,21 @@ export default function WordCounterPage(): JSX.Element {
   const { t } = useTranslation();
   const [text, setText] = useState("");
   const [stats, setStats] = useState<TextStats>(DEFAULT_STATS);
+  const hasTrackedUsage = useRef(false);
 
   const analyzeText = useCallback((inputText: string) => {
     setText(inputText);
 
     if (!inputText.trim()) {
       setStats(DEFAULT_STATS);
+      hasTrackedUsage.current = false;
       return;
+    }
+
+    // Track tool usage once per session (when user starts typing)
+    if (!hasTrackedUsage.current && inputText.length > 10) {
+      trackToolUsage("Word Counter", "analyze");
+      hasTrackedUsage.current = true;
     }
 
     // Word count
