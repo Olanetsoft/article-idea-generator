@@ -8,7 +8,7 @@ export default function Document() {
       <Head>
         <meta charSet="utf-8" />
         <link rel="icon" href="/favicon.ico" />
-        <link rel="canonical" href="https://articleideagenerator.com" />
+        <link rel="canonical" href="https://www.articleideagenerator.com" />
         <link rel="apple-touch-icon" href="/icon-192.png" />
 
         {/* LLM-friendly content */}

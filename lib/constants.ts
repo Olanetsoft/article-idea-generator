@@ -2,7 +2,7 @@
  * Site configuration constants
  */
 
-export const SITE_URL = "https://articleideagenerator.com";
+export const SITE_URL = "https://www.articleideagenerator.com";
 export const SITE_NAME = "Article Idea Generator";
 
 /**
