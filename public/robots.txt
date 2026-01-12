@@ -8,7 +8,7 @@ Allow: /
 Disallow: /api/
 
 # Sitemap location
-Sitemap: https://articleideagenerator.com/sitemap.xml
+Sitemap: https://www.articleideagenerator.com/sitemap.xml
 
 # LLM-friendly content (llms.txt standard)
 # See: https://llmstxt.org/
