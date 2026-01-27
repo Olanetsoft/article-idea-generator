@@ -37,7 +37,15 @@ input:checked + div svg {
 
 @layer base {
   html {
-    font-family: "Product Sans", sans-serif;
+    font-family:
+      "Inter",
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      Roboto,
+      "Helvetica Neue",
+      Arial,
+      sans-serif;
   }
   h1,
   h2,
