@@ -393,7 +393,7 @@ function WiFiForm({ data, updateField, t }: FormProps) {
 function VCardForm({ data, updateField, t }: FormProps) {
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <InputField
           label={t("tools.qrCode.vcardFirstName")}
           value={(data.firstName as string) || ""}
@@ -408,7 +408,7 @@ function VCardForm({ data, updateField, t }: FormProps) {
           placeholder={t("tools.qrCode.vcardLastNamePlaceholder")}
         />
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <InputField
           label={t("tools.qrCode.vcardOrganization")}
           value={(data.organization as string) || ""}
@@ -429,7 +429,7 @@ function VCardForm({ data, updateField, t }: FormProps) {
         placeholder={t("tools.qrCode.emailPlaceholder")}
         type="email"
       />
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <InputField
           label={t("tools.qrCode.vcardPhone")}
           value={(data.phone as string) || ""}
@@ -463,7 +463,7 @@ function VCardForm({ data, updateField, t }: FormProps) {
             onChange={(v) => updateField("street", v)}
             placeholder={t("tools.qrCode.vcardStreetPlaceholder")}
           />
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <InputField
               label={t("tools.qrCode.vcardCity")}
               value={(data.city as string) || ""}
@@ -477,7 +477,7 @@ function VCardForm({ data, updateField, t }: FormProps) {
               placeholder={t("tools.qrCode.vcardStatePlaceholder")}
             />
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <InputField
               label={t("tools.qrCode.vcardZip")}
               value={(data.zip as string) || ""}
@@ -514,7 +514,7 @@ function LocationForm({ data, updateField, t }: FormProps) {
         <span className="text-xs text-zinc-400">{t("tools.qrCode.or")}</span>
         <div className="flex-1 h-px bg-zinc-200 dark:bg-zinc-700" />
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <InputField
           label={t("tools.qrCode.locationLatitude")}
           value={(data.latitude as string) || ""}
@@ -548,7 +548,7 @@ function EventForm({ data, updateField, t }: FormProps) {
         onChange={(v) => updateField("location", v)}
         placeholder={t("tools.qrCode.eventLocationPlaceholder")}
       />
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <InputField
           label={t("tools.qrCode.eventStartDate")}
           value={(data.startDate as string) || ""}
@@ -564,7 +564,7 @@ function EventForm({ data, updateField, t }: FormProps) {
           required
         />
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <InputField
           label={t("tools.qrCode.eventEndDate")}
           value={(data.endDate as string) || ""}
@@ -1056,7 +1056,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                     <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-3">
                       {t("tools.qrCode.colorPresets")}
                     </label>
-                    <div className="grid grid-cols-4 gap-2">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                       {COLOR_PRESETS.map((preset) => (
                         <button
                           key={preset.id}
@@ -1096,7 +1096,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                   </div>
 
                   {/* Custom Colors */}
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
                         {t("tools.qrCode.foregroundColor")}
@@ -1152,7 +1152,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                     <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-3">
                       {t("tools.qrCode.size")}
                     </label>
-                    <div className="grid grid-cols-5 gap-2">
+                    <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
                       {SIZE_OPTIONS.map((option) => (
                         <button
                           key={option.value}
@@ -1174,7 +1174,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                     <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-3">
                       {t("tools.qrCode.errorCorrection")}
                     </label>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {ERROR_CORRECTION_OPTIONS.map((option) => (
                         <button
                           key={option.value}
