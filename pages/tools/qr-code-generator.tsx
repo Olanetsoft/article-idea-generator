@@ -831,6 +831,10 @@ export default function QRCodeGeneratorPage(): JSX.Element {
         <meta property="og:image" content={`${SITE_URL}/og-image.png`} />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
+        <meta
+          property="og:image:alt"
+          content="QR Code Generator - Free Online QR Code Maker Tool"
+        />
         <meta property="og:locale" content={ogLocale} />
 
         {/* Twitter Card */}
@@ -933,6 +937,14 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                   acceptedAnswer: {
                     "@type": "Answer",
                     text: "You can download your QR code as PNG (best for web), SVG (best for print, scalable), or JPG (smaller file size).",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "Can I customize the QR code colors?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Yes! You can choose from 8 pre-designed color presets or create custom colors with our color picker. You can also adjust the size and error correction level for optimal scanning.",
                   },
                 },
               ],
