@@ -16,6 +16,14 @@ export const tools: Tool[] = [
     available: true,
   },
   {
+    id: "qr-code-generator",
+    nameKey: "tools.qrCode.name",
+    descriptionKey: "tools.qrCode.description",
+    href: "/tools/qr-code-generator",
+    icon: "qrcode",
+    available: true,
+  },
+  {
     id: "character-counter",
     nameKey: "tools.characterCounter.name",
     descriptionKey: "tools.characterCounter.description",
