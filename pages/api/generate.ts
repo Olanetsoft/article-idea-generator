@@ -17,6 +17,8 @@ interface requestPayload {
   messages: ChatGPTMessage[];
   temperature: number;
   max_tokens: number;
+  presence_penalty?: number;
+  frequency_penalty?: number;
 }
 
 // Simple in-memory rate limiting (10 requests per minute per IP)
@@ -78,8 +80,10 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const payload: requestPayload = {
     model: "gpt-4o-mini",
     messages,
-    temperature: 0.7, // Increased for more creative outputs
-    max_tokens: 800, // Increased for longer abstracts
+    temperature: 0.8, // Balanced for creativity while maintaining quality
+    max_tokens: 1000, // Increased to support SEO keywords in response
+    presence_penalty: 0.1, // Slightly encourages new topics
+    frequency_penalty: 0.2, // Reduces repetition for more diverse outputs
   };
 
   try {

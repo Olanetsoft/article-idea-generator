@@ -25,6 +25,8 @@
     "twitter": "Twitter",
     "linkedin": "LinkedIn",
     "copyAbstract": "Click to copy abstract",
+    "seoKeywords": "Must-Have SEO Keywords",
+    "clickToCopyKeyword": "Click to copy keyword",
     "toolsPromoTitle": "Need more writing tools?",
     "toolsPromoDesc": "Check out our free word counter, character counter, and more.",
     "exploreTools": "Explore Tools"
@@ -105,7 +107,8 @@
     "markdownCopied": "Markdown copied to clipboard",
     "voiceCaptured": "Voice captured!",
     "abstractGenerated": "Abstract generated successfully!",
-    "speakNow": "Listening... Speak now!"
+    "speakNow": "Listening... Speak now!",
+    "keywordCopied": "Keyword copied to clipboard"
   },
   "tools": {
     "pageTitle": "Free Writing Tools",
