@@ -1426,7 +1426,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
         </div>
 
         {/* Features Section */}
-        <div className="w-full max-w-screen-lg mt-12">
+        <section className="w-full max-w-screen-lg mt-12">
           <div className="bg-zinc-50 dark:bg-darkOffset rounded-xl p-6 sm:p-8 border border-zinc-200 dark:border-zinc-800">
             <h2
               className={`${spaceGrotesk.className} text-2xl font-bold text-zinc-900 dark:text-white mb-6`}
@@ -1509,10 +1509,10 @@ export default function QRCodeGeneratorPage(): JSX.Element {
               </div>
             </div>
           </div>
-        </div>
+        </section>
 
         {/* Use Cases Section */}
-        <div className="w-full max-w-screen-lg mt-8">
+        <section className="w-full max-w-screen-lg mt-12">
           <div className="bg-zinc-50 dark:bg-darkOffset rounded-xl p-6 sm:p-8 border border-zinc-200 dark:border-zinc-800">
             <h2
               className={`${spaceGrotesk.className} text-2xl font-bold text-zinc-900 dark:text-white mb-4`}
@@ -1566,24 +1566,35 @@ export default function QRCodeGeneratorPage(): JSX.Element {
               </div>
             </div>
           </div>
-        </div>
+        </section>
 
         {/* CTA Banner */}
-        <div className="w-full max-w-screen-lg mt-8">
-          <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl p-6 sm:p-8 text-white text-center">
-            <h2 className="text-xl sm:text-2xl font-bold mb-2">
-              {t("tools.bottomCtaTitle")}
-            </h2>
-            <p className="text-indigo-100 mb-4">
-              {t("tools.bottomCtaDescription")}
-            </p>
-            <Link
-              href="/"
-              className="inline-block px-6 py-3 bg-white text-indigo-600 font-semibold rounded-lg hover:bg-indigo-50 transition-colors"
+        <div className="w-full max-w-screen-lg mt-12 p-6 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg text-center border border-indigo-100 dark:border-indigo-800">
+          <h2 className="text-xl font-semibold text-zinc-900 dark:text-white mb-2">
+            {t("tools.bottomCtaTitle")}
+          </h2>
+          <p className="text-zinc-600 dark:text-zinc-400 mb-4">
+            {t("tools.bottomCtaDescription")}
+          </p>
+          <Link
+            href="/"
+            className="inline-flex items-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition-colors"
+          >
+            {t("tools.tryGenerator")}
+            <svg
+              className="w-4 h-4 ml-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              {t("tools.tryGenerator")}
-            </Link>
-          </div>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </Link>
         </div>
       </main>
 
