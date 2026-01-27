@@ -135,6 +135,50 @@ Beyond AI generation, Article Idea Generator offers a suite of free writing tool
 - Stop word filtering for keyword analysis
 - Accessible with keyboard navigation
 
+### QR Code Generator Tool
+
+**URL**: https://articleideagenerator.com/tools/qr-code-generator
+
+**Features**:
+- 9 QR code types supported:
+  - URL/Website links
+  - Plain text
+  - WiFi network credentials
+  - vCard contact information
+  - Email addresses (with subject/body)
+  - Phone numbers
+  - SMS messages
+  - Geographic locations
+  - Calendar events (iCal format)
+- Customization options:
+  - 8 color presets (Classic, Ocean, Forest, Sunset, etc.)
+  - Custom foreground/background colors
+  - 5 size options (128px to 512px)
+  - 4 error correction levels (L, M, Q, H)
+  - Quiet zone margin toggle
+- Multiple download formats:
+  - PNG (best for web)
+  - SVG (best for print, scalable)
+  - JPG (smaller file size)
+- Copy to clipboard functionality
+- Local history storage (last 10 QR codes)
+
+**Use Cases**:
+- Business cards with vCard QR codes
+- Restaurant/cafe WiFi sharing
+- Product packaging links
+- Event marketing with calendar QR codes
+- Contact sharing at conferences
+- Payment links
+- App download links
+
+**Technical Details**:
+- Client-side QR generation using qrcode.react
+- No data sent to server (100% private)
+- Canvas-based rendering for downloads
+- LocalStorage for history persistence
+- Mobile-responsive design
+
 ### Tools Landing Page
 
 **URL**: https://articleideagenerator.com/tools
