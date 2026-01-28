@@ -26,7 +26,7 @@ export default function ToolsPage(): JSX.Element {
         <meta name="description" content={t("tools.pageDescription")} />
         <meta
           name="keywords"
-          content="word counter, character counter, reading time calculator, headline analyzer, free writing tools, content writing tools, SEO tools, blog writing tools, article writing tools, text analyzer"
+          content="word counter, character counter, reading time calculator, headline analyzer, title case converter, case changer, qr code generator, free writing tools, content writing tools, SEO tools, blog writing tools, article writing tools, text analyzer"
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
