@@ -1,6 +1,6 @@
 export function TitleCardSkeleton() {
   return (
-    <div className="w-full p-4 border border-gray-200 dark:border-zinc-700 rounded-xl bg-white dark:bg-zinc-800 animate-pulse">
+    <div className="w-full p-4 border border-gray-200 dark:border-dark-border rounded-xl bg-white dark:bg-dark-card animate-pulse">
       <div className="flex items-start gap-3">
         <div className="w-6 h-6 bg-gray-200 dark:bg-zinc-700 rounded-full flex-shrink-0" />
         <div className="flex-1 space-y-2">

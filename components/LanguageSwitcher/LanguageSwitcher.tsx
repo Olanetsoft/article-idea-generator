@@ -52,7 +52,7 @@ export default function LanguageSwitcher() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-violet-500"
         aria-label="Select language"
         aria-expanded={isOpen}
         aria-haspopup="listbox"
@@ -78,7 +78,7 @@ export default function LanguageSwitcher() {
 
       {isOpen && (
         <div
-          className="absolute right-0 mt-2 w-40 bg-white dark:bg-zinc-800 rounded-lg shadow-lg border border-gray-200 dark:border-zinc-700 py-1 z-50"
+          className="absolute right-0 mt-2 w-40 bg-white dark:bg-dark-card rounded-lg shadow-lg border border-gray-200 dark:border-dark-border py-1 z-50"
           role="listbox"
           aria-label="Available languages"
         >
@@ -90,7 +90,7 @@ export default function LanguageSwitcher() {
                 onClick={() => changeLanguage(loc)}
                 className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors ${
                   locale === loc
-                    ? "bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400"
+                    ? "bg-violet-50 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400"
                     : "text-gray-700 dark:text-gray-300"
                 }`}
                 role="option"

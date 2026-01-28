@@ -432,7 +432,7 @@ export default function WordCounterPage(): JSX.Element {
             <li>
               <Link
                 href="/"
-                className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                className="hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
               >
                 {t("header.home")}
               </Link>
@@ -441,7 +441,7 @@ export default function WordCounterPage(): JSX.Element {
             <li>
               <Link
                 href="/tools"
-                className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                className="hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
               >
                 {t("header.tools")}
               </Link>
@@ -472,7 +472,7 @@ export default function WordCounterPage(): JSX.Element {
             <textarea
               value={text}
               onChange={(e) => analyzeText(e.target.value)}
-              className="w-full h-48 sm:h-64 lg:flex-1 lg:h-auto lg:min-h-[300px] p-4 border rounded-lg bg-white dark:bg-darkOffset border-zinc-200 dark:border-zinc-800 focus:ring-2 focus:ring-indigo-500 focus:border-transparent focus:outline-none text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 resize-none"
+              className="w-full h-48 sm:h-64 lg:flex-1 lg:h-auto lg:min-h-[300px] p-4 border rounded-lg bg-white dark:bg-darkOffset border-zinc-200 dark:border-dark-border focus:ring-2 focus:ring-violet-500 focus:border-transparent focus:outline-none text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 resize-none"
               placeholder={t("tools.wordCounter.placeholder")}
               aria-label={t("tools.wordCounter.placeholder")}
             />
@@ -480,7 +480,7 @@ export default function WordCounterPage(): JSX.Element {
               <button
                 onClick={clearText}
                 disabled={!text}
-                className="px-4 py-2 text-sm font-medium text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 text-sm font-medium text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-dark-card hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {t("tools.wordCounter.clear")}
               </button>
@@ -496,7 +496,7 @@ export default function WordCounterPage(): JSX.Element {
         </div>
 
         {/* CTA Banner */}
-        <div className="w-full max-w-screen-lg mt-12 p-6 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg text-center border border-indigo-100 dark:border-indigo-800">
+        <div className="w-full max-w-screen-lg mt-12 p-6 bg-violet-50 dark:bg-violet-900/20 rounded-lg text-center border border-violet-100 dark:border-violet-800">
           <h2 className="text-xl font-semibold text-zinc-900 dark:text-white mb-2">
             {t("tools.bottomCtaTitle")}
           </h2>
@@ -505,7 +505,7 @@ export default function WordCounterPage(): JSX.Element {
           </p>
           <Link
             href="/"
-            className="inline-flex items-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition-colors"
+            className="inline-flex items-center px-6 py-3 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-lg transition-colors"
           >
             {t("tools.tryGenerator")}
             <svg
@@ -537,10 +537,10 @@ export default function WordCounterPage(): JSX.Element {
         {/* Features & Use Cases Grid */}
         <section className="w-full max-w-screen-lg mt-8">
           <div className="grid md:grid-cols-2 gap-8">
-            <div className="bg-zinc-50 dark:bg-darkOffset p-6 rounded-xl border border-zinc-200 dark:border-zinc-800">
+            <div className="bg-zinc-50 dark:bg-darkOffset p-6 rounded-xl border border-zinc-200 dark:border-dark-border">
               <h3 className="text-xl font-semibold text-zinc-900 dark:text-white mb-4 flex items-center gap-2">
                 <svg
-                  className="w-5 h-5 text-indigo-600"
+                  className="w-5 h-5 text-violet-600"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -556,32 +556,32 @@ export default function WordCounterPage(): JSX.Element {
               </h3>
               <ul className="text-zinc-600 dark:text-zinc-400 space-y-3">
                 <li className="flex items-start gap-2">
-                  <span className="text-indigo-600 mt-1">•</span>
+                  <span className="text-violet-600 mt-1">•</span>
                   {t("tools.wordCounter.feature1")}
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-indigo-600 mt-1">•</span>
+                  <span className="text-violet-600 mt-1">•</span>
                   {t("tools.wordCounter.feature2")}
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-indigo-600 mt-1">•</span>
+                  <span className="text-violet-600 mt-1">•</span>
                   {t("tools.wordCounter.feature3")}
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-indigo-600 mt-1">•</span>
+                  <span className="text-violet-600 mt-1">•</span>
                   {t("tools.wordCounter.feature4")}
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-indigo-600 mt-1">•</span>
+                  <span className="text-violet-600 mt-1">•</span>
                   {t("tools.wordCounter.feature5")}
                 </li>
               </ul>
             </div>
 
-            <div className="bg-zinc-50 dark:bg-darkOffset p-6 rounded-xl border border-zinc-200 dark:border-zinc-800">
+            <div className="bg-zinc-50 dark:bg-darkOffset p-6 rounded-xl border border-zinc-200 dark:border-dark-border">
               <h3 className="text-xl font-semibold text-zinc-900 dark:text-white mb-4 flex items-center gap-2">
                 <svg
-                  className="w-5 h-5 text-indigo-600"
+                  className="w-5 h-5 text-violet-600"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -597,19 +597,19 @@ export default function WordCounterPage(): JSX.Element {
               </h3>
               <ul className="text-zinc-600 dark:text-zinc-400 space-y-3">
                 <li className="flex items-start gap-2">
-                  <span className="text-indigo-600 mt-1">•</span>
+                  <span className="text-violet-600 mt-1">•</span>
                   {t("tools.wordCounter.useCase1")}
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-indigo-600 mt-1">•</span>
+                  <span className="text-violet-600 mt-1">•</span>
                   {t("tools.wordCounter.useCase2")}
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-indigo-600 mt-1">•</span>
+                  <span className="text-violet-600 mt-1">•</span>
                   {t("tools.wordCounter.useCase3")}
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-indigo-600 mt-1">•</span>
+                  <span className="text-violet-600 mt-1">•</span>
                   {t("tools.wordCounter.useCase4")}
                 </li>
               </ul>
@@ -623,7 +623,7 @@ export default function WordCounterPage(): JSX.Element {
             Frequently Asked Questions
           </h2>
           <div className="space-y-4">
-            <details className="group bg-zinc-100 dark:bg-darkOffset rounded-lg border border-zinc-200 dark:border-zinc-800">
+            <details className="group bg-zinc-100 dark:bg-darkOffset rounded-lg border border-zinc-200 dark:border-dark-border">
               <summary className="flex justify-between items-center cursor-pointer p-4 font-medium text-zinc-900 dark:text-white">
                 How does the word counter work?
                 <svg
@@ -647,7 +647,7 @@ export default function WordCounterPage(): JSX.Element {
               </p>
             </details>
 
-            <details className="group bg-zinc-100 dark:bg-darkOffset rounded-lg border border-zinc-200 dark:border-zinc-800">
+            <details className="group bg-zinc-100 dark:bg-darkOffset rounded-lg border border-zinc-200 dark:border-dark-border">
               <summary className="flex justify-between items-center cursor-pointer p-4 font-medium text-zinc-900 dark:text-white">
                 Is this word counter free to use?
                 <svg
@@ -670,7 +670,7 @@ export default function WordCounterPage(): JSX.Element {
               </p>
             </details>
 
-            <details className="group bg-zinc-100 dark:bg-darkOffset rounded-lg border border-zinc-200 dark:border-zinc-800">
+            <details className="group bg-zinc-100 dark:bg-darkOffset rounded-lg border border-zinc-200 dark:border-dark-border">
               <summary className="flex justify-between items-center cursor-pointer p-4 font-medium text-zinc-900 dark:text-white">
                 How is reading time calculated?
                 <svg
@@ -694,7 +694,7 @@ export default function WordCounterPage(): JSX.Element {
               </p>
             </details>
 
-            <details className="group bg-zinc-100 dark:bg-darkOffset rounded-lg border border-zinc-200 dark:border-zinc-800">
+            <details className="group bg-zinc-100 dark:bg-darkOffset rounded-lg border border-zinc-200 dark:border-dark-border">
               <summary className="flex justify-between items-center cursor-pointer p-4 font-medium text-zinc-900 dark:text-white">
                 What are top keywords?
                 <svg
@@ -729,7 +729,7 @@ export default function WordCounterPage(): JSX.Element {
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <Link
               href="/tools"
-              className="p-4 bg-zinc-100 dark:bg-darkOffset rounded-lg border border-zinc-200 dark:border-zinc-800 hover:border-indigo-500 dark:hover:border-indigo-500 transition-colors"
+              className="p-4 bg-zinc-100 dark:bg-darkOffset rounded-lg border border-zinc-200 dark:border-dark-border hover:border-violet-500 dark:hover:border-violet-500 transition-colors"
             >
               <h3 className="font-semibold text-zinc-900 dark:text-white mb-1">
                 Character Counter
@@ -738,14 +738,14 @@ export default function WordCounterPage(): JSX.Element {
                 Track character limits for Twitter, LinkedIn, and meta
                 descriptions.
               </p>
-              <span className="text-xs text-indigo-600 dark:text-indigo-400 mt-2 inline-block">
+              <span className="text-xs text-violet-600 dark:text-violet-400 mt-2 inline-block">
                 Coming Soon
               </span>
             </Link>
 
             <Link
               href="/tools"
-              className="p-4 bg-zinc-100 dark:bg-darkOffset rounded-lg border border-zinc-200 dark:border-zinc-800 hover:border-indigo-500 dark:hover:border-indigo-500 transition-colors"
+              className="p-4 bg-zinc-100 dark:bg-darkOffset rounded-lg border border-zinc-200 dark:border-dark-border hover:border-violet-500 dark:hover:border-violet-500 transition-colors"
             >
               <h3 className="font-semibold text-zinc-900 dark:text-white mb-1">
                 Reading Time Calculator
@@ -754,14 +754,14 @@ export default function WordCounterPage(): JSX.Element {
                 Get &quot;X min read&quot; badges for your blog posts and
                 articles.
               </p>
-              <span className="text-xs text-indigo-600 dark:text-indigo-400 mt-2 inline-block">
+              <span className="text-xs text-violet-600 dark:text-violet-400 mt-2 inline-block">
                 Coming Soon
               </span>
             </Link>
 
             <Link
               href="/tools"
-              className="p-4 bg-zinc-100 dark:bg-darkOffset rounded-lg border border-zinc-200 dark:border-zinc-800 hover:border-indigo-500 dark:hover:border-indigo-500 transition-colors"
+              className="p-4 bg-zinc-100 dark:bg-darkOffset rounded-lg border border-zinc-200 dark:border-dark-border hover:border-violet-500 dark:hover:border-violet-500 transition-colors"
             >
               <h3 className="font-semibold text-zinc-900 dark:text-white mb-1">
                 Headline Analyzer
@@ -769,7 +769,7 @@ export default function WordCounterPage(): JSX.Element {
               <p className="text-sm text-zinc-600 dark:text-zinc-400">
                 Analyze headlines for SEO and emotional impact.
               </p>
-              <span className="text-xs text-indigo-600 dark:text-indigo-400 mt-2 inline-block">
+              <span className="text-xs text-violet-600 dark:text-violet-400 mt-2 inline-block">
                 Coming Soon
               </span>
             </Link>

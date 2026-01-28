@@ -38,7 +38,10 @@ Generate article ideas using GPT-4o-mini. Enter a topic, get 4 title suggestions
 - Keyboard accessible
 - `/llms.txt` for AI assistants
 
-[![Article Idea Generator - I](./public/screenshot.png)](https://www.articleideagenerator.com/)
+<p align="center">
+  <img src="./public/screenshot-light.png" alt="Article Idea Generator - Light Mode" width="48%" />
+  <img src="./public/screenshot-dark.png" alt="Article Idea Generator - Dark Mode" width="48%" />
+</p>
 
 ## Usage
 

@@ -35,7 +35,7 @@ import {
 // Lazy load Footer for better initial load performance
 const Footer = dynamic(() => import("@/components/Footer"), {
   loading: () => (
-    <div className="h-16 animate-pulse bg-gray-100 dark:bg-zinc-800" />
+    <div className="h-16 animate-pulse bg-gray-100 dark:bg-dark-card" />
   ),
   ssr: true,
 });
@@ -258,7 +258,7 @@ KEYWORDS: keyword1, keyword2, keyword3, keyword4`;
         setGeneratedTitles(responseContent.replace(/KEYWORDS:.+/i, "").trim());
       }
     } catch (error) {
-      console.log(error);
+      console.error("Generation error:", error);
       toast.error(t("errors.failedGenerate"));
     } finally {
       setLoading(false);
@@ -464,23 +464,25 @@ Format: Just the abstract text, nothing else.`;
             e.preventDefault();
             generateArticleTitle();
           }}
-          className="flex w-full mt-5 transition-all ease-linear hover:shadow-lg focus-within:shadow-lg focus-within:ring-2 focus-within:ring-indigo-500 rounded-full border border-[#6366f1] dark:border-[#6366f1] p-1.5 pl-5 items-center bg-white dark:bg-zinc-800"
+          className="flex w-full mt-5 transition-all ease-linear hover:shadow-lg focus-within:shadow-lg focus-within:ring-2 focus-within:ring-violet-500 rounded-full border border-[#8b5cf6] dark:border-[#8b5cf6] p-1.5 pl-5 items-center bg-white dark:bg-dark-card"
         >
-          <SearchIcon className="h-5 mr-3 text-[#6366f1] dark:text-gray-100" />
+          <SearchIcon className="h-5 mr-3 text-[#8b5cf6] dark:text-gray-100" />
           <input
             onChange={(e) => setText(e.target.value)}
+            value={text}
             type="text"
-            className="flex-grow focus:outline-none dark:text-white bg-transparent text-gray-700 py-2"
+            className="flex-grow focus:outline-none dark:text-white bg-transparent text-gray-700 py-2 caret-violet-500 dark:caret-violet-400 placeholder:text-gray-400 dark:placeholder:text-gray-500"
             placeholder={t("home.placeholder")}
             id="search-box"
             aria-label={t("home.placeholder")}
+            autoComplete="off"
           />
           {speechSupported && (
             <button
               type="button"
               onClick={startVoiceInput}
               disabled={isListening || loading}
-              className={`mr-2 min-w-[36px] min-h-[36px] rounded-full flex items-center justify-center transition focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+              className={`mr-2 min-w-[36px] min-h-[36px] rounded-full flex items-center justify-center transition focus:outline-none focus:ring-2 focus:ring-violet-500 ${
                 isListening
                   ? "bg-red-500 hover:bg-red-600 animate-pulse"
                   : "hover:bg-gray-100 dark:hover:bg-zinc-700"
@@ -492,13 +494,13 @@ Format: Just the abstract text, nothing else.`;
                 className={`h-5 w-5 ${
                   isListening
                     ? "text-white"
-                    : "text-[#6366f1] dark:text-gray-100"
+                    : "text-[#8b5cf6] dark:text-gray-100"
                 }`}
               />
             </button>
           )}
           <button
-            className="border dark:border-zinc-600 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="border dark:border-zinc-600 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center bg-violet-500 hover:bg-violet-600 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 dark:ring-offset-black transition disabled:opacity-50 disabled:cursor-not-allowed"
             id="submit"
             aria-label="Generate article titles"
             disabled={loading}
@@ -523,7 +525,7 @@ Format: Just the abstract text, nothing else.`;
                     ) as HTMLInputElement;
                     if (inputElement) inputElement.value = search;
                   }}
-                  className="px-3 py-1.5 text-xs sm:text-sm bg-gray-100 dark:bg-zinc-700 hover:bg-gray-200 dark:hover:bg-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-full transition text-gray-700 dark:text-gray-300"
+                  className="px-3 py-1.5 text-xs sm:text-sm bg-gray-100 dark:bg-zinc-700 hover:bg-gray-200 dark:hover:bg-zinc-600 focus:outline-none focus:ring-2 focus:ring-violet-500 rounded-full transition text-gray-700 dark:text-gray-300"
                 >
                   {search}
                 </button>
@@ -552,7 +554,7 @@ Format: Just the abstract text, nothing else.`;
               className="opacity-0 absolute h-8 w-8 cursor-pointer"
               disabled={loading}
             />
-            <div className="bg-transparent border-2 rounded-md border-indigo-400 w-5 h-5 flex justify-center items-center mr-2 cursor-pointer flex-shrink-0">
+            <div className="bg-transparent border-2 rounded-md border-violet-400 w-5 h-5 flex justify-center items-center mr-2 cursor-pointer flex-shrink-0">
               {seoEnabled && (
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -599,7 +601,7 @@ Format: Just the abstract text, nothing else.`;
           reverseOrder={false}
           toastOptions={{ duration: 3000 }}
         />
-        <div className="h-px max-w-screen-md w-full border-b dark:border-zinc-800"></div>
+        <div className="h-px max-w-screen-md w-full border-b dark:border-dark-border"></div>
 
         <ResizablePanel>
           <AnimatePresence mode="wait">
@@ -620,7 +622,7 @@ Format: Just the abstract text, nothing else.`;
                     <motion.div
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="w-full bg-zinc-100 dark:bg-darkOffset rounded-md p-3 sm:p-4 border border-zinc-200 dark:border-zinc-800"
+                      className="w-full bg-zinc-100 dark:bg-darkOffset rounded-md p-3 sm:p-4 border border-zinc-200 dark:border-dark-border"
                     >
                       <div className="flex items-center gap-2 mb-3">
                         <svg
@@ -629,7 +631,7 @@ Format: Just the abstract text, nothing else.`;
                           viewBox="0 0 24 24"
                           strokeWidth={2}
                           stroke="currentColor"
-                          className="w-4 h-4 text-[#6366f1] dark:text-gray-100 flex-shrink-0"
+                          className="w-4 h-4 text-[#8b5cf6] dark:text-gray-100 flex-shrink-0"
                         >
                           <path
                             strokeLinecap="round"
@@ -654,7 +656,7 @@ Format: Just the abstract text, nothing else.`;
                               navigator.clipboard.writeText(keyword);
                               toast.success(t("success.keywordCopied"));
                             }}
-                            className="px-2.5 py-1 sm:px-3 sm:py-1.5 text-xs bg-white dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700 border border-zinc-300 dark:border-zinc-700 rounded-full transition text-zinc-700 dark:text-zinc-300 font-medium cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500 active:scale-95"
+                            className="px-2.5 py-1 sm:px-3 sm:py-1.5 text-xs bg-white dark:bg-dark-card hover:bg-gray-100 dark:hover:bg-zinc-700 border border-zinc-300 dark:border-dark-border rounded-full transition text-zinc-700 dark:text-zinc-300 font-medium cursor-pointer focus:outline-none focus:ring-2 focus:ring-violet-500 active:scale-95"
                             title={t("home.clickToCopyKeyword")}
                           >
                             {keyword}
@@ -675,7 +677,7 @@ Format: Just the abstract text, nothing else.`;
 
                     return (
                       <div className="flex flex-col gap-2" key={index}>
-                        <div className="w-full bg-zinc-100 dark:bg-darkOffset dark:text-gray-100 rounded-md p-3 hover:bg-gray-100 transition border-zinc-200 border dark:border-zinc-800">
+                        <div className="w-full bg-zinc-100 dark:bg-darkOffset dark:text-gray-100 rounded-md p-3 hover:bg-gray-100 transition border-zinc-200 border dark:border-dark-border">
                           <div className="flex justify-between items-start gap-3">
                             <div
                               className="flex-grow cursor-copy"
@@ -721,19 +723,19 @@ Format: Just the abstract text, nothing else.`;
                                       showShareMenu === index ? null : index,
                                     );
                                   }}
-                                  className="min-w-[36px] min-h-[36px] flex items-center justify-center hover:bg-zinc-200 dark:hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md transition"
+                                  className="min-w-[36px] min-h-[36px] flex items-center justify-center hover:bg-zinc-200 dark:hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-violet-500 rounded-md transition"
                                   aria-label="Share title"
                                 >
-                                  <ShareIcon className="h-5 w-5 text-[#6366f1] dark:text-gray-100" />
+                                  <ShareIcon className="h-5 w-5 text-[#8b5cf6] dark:text-gray-100" />
                                 </button>
                                 {showShareMenu === index && (
-                                  <div className="absolute right-0 mt-1 bg-white dark:bg-zinc-800 rounded-md shadow-lg border border-zinc-200 dark:border-zinc-700 z-10 min-w-[140px]">
+                                  <div className="absolute right-0 mt-1 bg-white dark:bg-dark-card rounded-md shadow-lg border border-zinc-200 dark:border-dark-border z-10 min-w-[140px]">
                                     <button
                                       onClick={() => {
                                         shareOnTwitter(cleanTitle);
                                         setShowShareMenu(null);
                                       }}
-                                      className="w-full px-4 py-2 text-left text-sm hover:bg-zinc-100 dark:hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 flex items-center gap-2"
+                                      className="w-full px-4 py-2 text-left text-sm hover:bg-zinc-100 dark:hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-violet-500 flex items-center gap-2"
                                     >
                                       <svg
                                         className="w-4 h-4"
@@ -749,7 +751,7 @@ Format: Just the abstract text, nothing else.`;
                                         shareOnLinkedIn(cleanTitle);
                                         setShowShareMenu(null);
                                       }}
-                                      className="w-full px-4 py-2 text-left text-sm hover:bg-zinc-100 dark:hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 flex items-center gap-2 rounded-b-md"
+                                      className="w-full px-4 py-2 text-left text-sm hover:bg-zinc-100 dark:hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-violet-500 flex items-center gap-2 rounded-b-md"
                                     >
                                       <svg
                                         className="w-4 h-4"
@@ -768,11 +770,11 @@ Format: Just the abstract text, nothing else.`;
                                   e.stopPropagation();
                                   generateAbstractForArticles(cleanTitle);
                                 }}
-                                className="min-w-[36px] min-h-[36px] flex items-center justify-center hover:bg-zinc-200 dark:hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md transition disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="min-w-[36px] min-h-[36px] flex items-center justify-center hover:bg-zinc-200 dark:hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-violet-500 rounded-md transition disabled:opacity-50 disabled:cursor-not-allowed"
                                 aria-label="Generate abstract for this title"
                                 disabled={loading || abstractLoading}
                               >
-                                <DocumentSearchIcon className="h-5 w-5 text-[#6366f1] dark:text-gray-100" />
+                                <DocumentSearchIcon className="h-5 w-5 text-[#8b5cf6] dark:text-gray-100" />
                               </button>
                             </div>
                           </div>
@@ -822,8 +824,8 @@ Format: Just the abstract text, nothing else.`;
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-6 mb-12">
               <div className="text-center">
-                <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <span className="text-indigo-600 dark:text-indigo-300 font-bold text-xl">
+                <div className="w-12 h-12 bg-violet-100 dark:bg-violet-900 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <span className="text-violet-600 dark:text-violet-300 font-bold text-xl">
                     1
                   </span>
                 </div>
@@ -835,8 +837,8 @@ Format: Just the abstract text, nothing else.`;
                 </p>
               </div>
               <div className="text-center">
-                <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <span className="text-indigo-600 dark:text-indigo-300 font-bold text-xl">
+                <div className="w-12 h-12 bg-violet-100 dark:bg-violet-900 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <span className="text-violet-600 dark:text-violet-300 font-bold text-xl">
                     2
                   </span>
                 </div>
@@ -848,8 +850,8 @@ Format: Just the abstract text, nothing else.`;
                 </p>
               </div>
               <div className="text-center">
-                <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <span className="text-indigo-600 dark:text-indigo-300 font-bold text-xl">
+                <div className="w-12 h-12 bg-violet-100 dark:bg-violet-900 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <span className="text-violet-600 dark:text-violet-300 font-bold text-xl">
                     3
                   </span>
                 </div>
@@ -863,7 +865,7 @@ Format: Just the abstract text, nothing else.`;
             </div>
 
             {/* Tools Promo Section */}
-            <div className="mt-8 p-6 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800">
+            <div className="mt-8 p-6 bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 rounded-xl border border-violet-100 dark:border-violet-800">
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div>
                   <h3 className="font-semibold text-gray-900 dark:text-zinc-200 text-lg">
@@ -875,7 +877,7 @@ Format: Just the abstract text, nothing else.`;
                 </div>
                 <Link
                   href="/tools"
-                  className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors whitespace-nowrap"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-violet-600 hover:bg-violet-700 text-white rounded-lg font-medium transition-colors whitespace-nowrap"
                 >
                   {t("home.exploreTools")}
                   <ArrowSmRightIcon className="w-4 h-4" />
