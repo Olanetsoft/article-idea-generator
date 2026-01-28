@@ -20,9 +20,7 @@ export default function ToolsPage(): JSX.Element {
   return (
     <div className="flex flex-col items-center m-0 min-h-screen">
       <Head>
-        <title>
-          {t("tools.pageTitle")} | {SITE_NAME}
-        </title>
+        <title>{`${t("tools.pageTitle")} | ${SITE_NAME}`}</title>
         <meta name="description" content={t("tools.pageDescription")} />
         <meta
           name="keywords"

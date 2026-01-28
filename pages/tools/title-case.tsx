@@ -259,7 +259,7 @@ export default function TitleCasePage(): JSX.Element {
   const ogLocale = LOCALE_MAP[currentLocale] || "en_US";
 
   return (
-    <div className="flex flex-col items-center m-0 min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="flex flex-col items-center m-0 min-h-screen">
       <Head>
         <title>{`${t("tools.titleCase.pageTitle")} | ${SITE_NAME}`}</title>
         <meta
@@ -502,7 +502,7 @@ export default function TitleCasePage(): JSX.Element {
                 {t("tools.titleCase.inputLabel")}
               </label>
 
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2 justify-start sm:justify-end">
                 <AnimatePresence mode="wait">
                   {detectedCase && text.trim() && (
                     <motion.span
@@ -515,7 +515,7 @@ export default function TitleCasePage(): JSX.Element {
                     </motion.span>
                   )}
                 </AnimatePresence>
-                <StatBadge label="Characters" value={stats.inputLength} />
+                <StatBadge label="Chars" value={stats.inputLength} />
                 <StatBadge label="Words" value={stats.wordCount} />
               </div>
             </div>
@@ -528,7 +528,7 @@ export default function TitleCasePage(): JSX.Element {
                 value={text}
                 onChange={handleTextChange}
                 placeholder={t("tools.titleCase.placeholder")}
-                className="w-full h-32 sm:h-36 p-4 text-gray-800 dark:text-gray-200 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-all text-base"
+                className="w-full h-40 sm:h-48 md:h-52 p-4 text-gray-800 dark:text-gray-200 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-all text-base"
                 aria-label="Text input for case conversion"
                 spellCheck={false}
               />
@@ -552,27 +552,29 @@ export default function TitleCasePage(): JSX.Element {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex flex-wrap items-center gap-2 px-4 sm:px-6 py-4 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-700">
-              <button
-                onClick={handlePaste}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
-              >
-                <ClipboardIcon className="w-4 h-4" />
-                {t("tools.titleCase.paste")}
-              </button>
-              <button
-                onClick={clearText}
-                disabled={!text}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <TrashIcon className="w-4 h-4" />
-                {t("tools.titleCase.clear")}
-              </button>
-              <div className="flex-1" />
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-2 px-4 sm:px-6 py-4 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-700">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handlePaste}
+                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 sm:py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+                >
+                  <ClipboardIcon className="w-4 h-4" />
+                  {t("tools.titleCase.paste")}
+                </button>
+                <button
+                  onClick={clearText}
+                  disabled={!text}
+                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 sm:py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <TrashIcon className="w-4 h-4" />
+                  {t("tools.titleCase.clear")}
+                </button>
+              </div>
+              <div className="hidden sm:block flex-1" />
               <button
                 onClick={handleCopyAll}
                 disabled={!text.trim()}
-                className={`flex items-center gap-2 px-5 py-2 text-sm font-semibold rounded-lg transition-all ${
+                className={`w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 sm:py-2 text-sm font-semibold rounded-lg transition-all ${
                   copiedId === "all"
                     ? "bg-green-500 text-white"
                     : "bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"

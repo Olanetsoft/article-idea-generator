@@ -245,9 +245,7 @@ export default function WordCounterPage(): JSX.Element {
   return (
     <div className="flex flex-col items-center m-0 min-h-screen">
       <Head>
-        <title>
-          {t("tools.wordCounter.pageTitle")} | {SITE_NAME}
-        </title>
+        <title>{`${t("tools.wordCounter.pageTitle")} | ${SITE_NAME}`}</title>
         <meta
           name="description"
           content={t("tools.wordCounter.pageDescription")}
