@@ -605,6 +605,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
   );
   const [style, setStyle] = useState<QRStyleSettings>(DEFAULT_STYLE);
   const [isGenerated, setIsGenerated] = useState(false);
+  const [hasInteracted, setHasInteracted] = useState(false);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [showHistory, setShowHistory] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
@@ -651,11 +652,13 @@ export default function QRCodeGeneratorPage(): JSX.Element {
     setContentType(type);
     setData(getInitialData(type));
     setIsGenerated(false);
+    setHasInteracted(false);
     hasTrackedUsage.current = false;
   }, []);
 
   const updateField = useCallback((field: string, value: unknown) => {
     setData((prev) => ({ ...prev, [field]: value }));
+    setHasInteracted(true);
   }, []);
 
   const updateStyle = useCallback(
@@ -1027,7 +1030,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
             <div className="flex border-b border-zinc-200 dark:border-dark-border">
               <button
                 onClick={() => setActiveTab("content")}
-                className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
+                className={`flex-1 px-4 py-3.5 sm:py-3 text-sm font-medium transition-colors ${
                   activeTab === "content"
                     ? "text-violet-600 dark:text-violet-400 border-b-2 border-violet-600 dark:border-violet-400 bg-white dark:bg-dark-card"
                     : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
@@ -1037,7 +1040,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
               </button>
               <button
                 onClick={() => setActiveTab("style")}
-                className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
+                className={`flex-1 px-4 py-3.5 sm:py-3 text-sm font-medium transition-colors ${
                   activeTab === "style"
                     ? "text-violet-600 dark:text-violet-400 border-b-2 border-violet-600 dark:border-violet-400 bg-white dark:bg-dark-card"
                     : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
@@ -1053,8 +1056,8 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                   {/* Form */}
                   {renderForm()}
 
-                  {/* Validation Error */}
-                  {!validation.isValid && validation.error && (
+                  {/* Validation Error - only show after user interaction */}
+                  {hasInteracted && !validation.isValid && validation.error && (
                     <div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-600 dark:text-red-400 text-sm">
                       <ExclamationCircleIcon className="w-5 h-5 flex-shrink-0" />
                       <span>{validation.error}</span>

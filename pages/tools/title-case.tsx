@@ -528,7 +528,7 @@ export default function TitleCasePage(): JSX.Element {
                 value={text}
                 onChange={handleTextChange}
                 placeholder={t("tools.titleCase.placeholder")}
-                className="w-full h-40 sm:h-48 md:h-52 p-4 text-gray-800 dark:text-gray-200 bg-gray-50 dark:bg-dark-card rounded-xl border border-gray-200 dark:border-dark-border focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none transition-all text-base"
+                className="w-full h-64 sm:h-80 md:h-96 lg:h-[26rem] p-4 text-gray-800 dark:text-gray-200 bg-gray-50 dark:bg-dark-card rounded-xl border border-gray-200 dark:border-dark-border focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none transition-all text-base"
                 aria-label="Text input for case conversion"
                 spellCheck={false}
               />

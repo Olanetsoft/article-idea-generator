@@ -258,7 +258,7 @@ KEYWORDS: keyword1, keyword2, keyword3, keyword4`;
         setGeneratedTitles(responseContent.replace(/KEYWORDS:.+/i, "").trim());
       }
     } catch (error) {
-      console.log(error);
+      console.error("Generation error:", error);
       toast.error(t("errors.failedGenerate"));
     } finally {
       setLoading(false);
@@ -469,11 +469,13 @@ Format: Just the abstract text, nothing else.`;
           <SearchIcon className="h-5 mr-3 text-[#8b5cf6] dark:text-gray-100" />
           <input
             onChange={(e) => setText(e.target.value)}
+            value={text}
             type="text"
-            className="flex-grow focus:outline-none dark:text-white bg-transparent text-gray-700 py-2"
+            className="flex-grow focus:outline-none dark:text-white bg-transparent text-gray-700 py-2 caret-violet-500 dark:caret-violet-400 placeholder:text-gray-400 dark:placeholder:text-gray-500"
             placeholder={t("home.placeholder")}
             id="search-box"
             aria-label={t("home.placeholder")}
+            autoComplete="off"
           />
           {speechSupported && (
             <button
