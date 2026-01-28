@@ -16,7 +16,14 @@ module.exports = {
         sansSerif: "sans-serif",
       },
       backgroundColor: {
-        darkOffset: "#202025",
+        darkOffset: "#111111",
+      },
+      colors: {
+        dark: {
+          bg: "#000000",
+          card: "#111111",
+          border: "#222222",
+        },
       },
       boxShadow: {
         lg: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px",

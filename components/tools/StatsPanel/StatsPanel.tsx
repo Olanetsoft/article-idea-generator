@@ -23,7 +23,7 @@ function StatItem({ label, value, highlight = false }: StatItemProps) {
       className={`p-2 sm:p-3 rounded-lg ${
         highlight
           ? "bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800"
-          : "bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700"
+          : "bg-white dark:bg-dark-card border border-zinc-200 dark:border-dark-border"
       }`}
     >
       <p className="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-0.5 sm:mb-1 truncate">
@@ -52,7 +52,7 @@ export default function StatsPanel({ stats }: StatsPanelProps) {
   return (
     <div className="w-full lg:w-80 space-y-4">
       {/* Main Stats Grid */}
-      <div className="bg-zinc-100 dark:bg-darkOffset rounded-lg p-4 border border-zinc-200 dark:border-zinc-800">
+      <div className="bg-zinc-100 dark:bg-darkOffset rounded-lg p-4 border border-zinc-200 dark:border-dark-border">
         <h3 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-3">
           {t("tools.wordCounter.stats")}
         </h3>
@@ -82,7 +82,7 @@ export default function StatsPanel({ stats }: StatsPanelProps) {
       </div>
 
       {/* Time Estimates */}
-      <div className="bg-zinc-100 dark:bg-darkOffset rounded-lg p-3 sm:p-4 border border-zinc-200 dark:border-zinc-800">
+      <div className="bg-zinc-100 dark:bg-darkOffset rounded-lg p-3 sm:p-4 border border-zinc-200 dark:border-dark-border">
         <h3 className="text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-2 sm:mb-3">
           {t("tools.wordCounter.timeEstimates")}
         </h3>
@@ -108,7 +108,7 @@ export default function StatsPanel({ stats }: StatsPanelProps) {
 
       {/* Top Keywords */}
       {stats.topKeywords.length > 0 && (
-        <div className="bg-zinc-100 dark:bg-darkOffset rounded-lg p-3 sm:p-4 border border-zinc-200 dark:border-zinc-800">
+        <div className="bg-zinc-100 dark:bg-darkOffset rounded-lg p-3 sm:p-4 border border-zinc-200 dark:border-dark-border">
           <h3 className="text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-2 sm:mb-3">
             {t("tools.wordCounter.topKeywords")}
           </h3>
@@ -116,7 +116,7 @@ export default function StatsPanel({ stats }: StatsPanelProps) {
             {stats.topKeywords.map(([word, count], index) => (
               <div
                 key={word}
-                className="inline-flex sm:flex items-center justify-between text-xs sm:text-sm bg-white dark:bg-zinc-900 px-2 py-1 sm:px-0 sm:py-0 sm:bg-transparent dark:sm:bg-transparent rounded sm:rounded-none"
+                className="inline-flex sm:flex items-center justify-between text-xs sm:text-sm bg-white dark:bg-dark-card px-2 py-1 sm:px-0 sm:py-0 sm:bg-transparent dark:sm:bg-transparent rounded sm:rounded-none"
               >
                 <span className="text-zinc-600 dark:text-zinc-400">
                   <span className="text-zinc-400 dark:text-zinc-500 mr-1 sm:mr-2">

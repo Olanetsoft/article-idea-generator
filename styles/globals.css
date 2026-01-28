@@ -56,7 +56,7 @@ input:checked + div svg {
     font-family: "Space Grotesk", sans-serif;
   }
   body {
-    @apply bg-gray-50 text-gray-900 dark:bg-zinc-900 dark:text-gray-100;
+    @apply bg-white text-gray-900 dark:bg-black dark:text-gray-100;
     @apply min-h-screen;
   }
 

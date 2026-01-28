@@ -46,7 +46,7 @@ export default function Custom404(): JSX.Element {
             </Link>
             <Link
               href="/faq"
-              className="px-6 py-3 bg-gray-100 dark:bg-zinc-800 hover:bg-gray-200 dark:hover:bg-zinc-700 text-gray-900 dark:text-zinc-300 font-semibold rounded-lg transition focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+              className="px-6 py-3 bg-gray-100 dark:bg-dark-card hover:bg-gray-200 dark:hover:bg-zinc-700 text-gray-900 dark:text-zinc-300 font-semibold rounded-lg transition focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
             >
               {t("notFound.faqButton")}
             </Link>

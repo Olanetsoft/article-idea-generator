@@ -39,7 +39,7 @@ export default function ToolCard({
 
   const cardContent = (
     <div
-      className={`bg-zinc-100 dark:bg-darkOffset rounded-lg p-4 sm:p-6 border border-zinc-200 dark:border-zinc-800 transition-all min-h-[100px] ${
+      className={`bg-zinc-100 dark:bg-darkOffset rounded-lg p-4 sm:p-6 border border-zinc-200 dark:border-dark-border transition-all min-h-[100px] ${
         available
           ? "hover:border-indigo-500 hover:shadow-md cursor-pointer"
           : "opacity-60 cursor-not-allowed"

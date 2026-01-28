@@ -129,9 +129,9 @@ export default function Header() {
       ref={menuRef}
       className={`sticky top-0 z-50 w-full transition-all duration-300 ${
         isScrolled
-          ? "bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md shadow-sm"
-          : "bg-white dark:bg-zinc-900"
-      } border-b border-gray-200 dark:border-zinc-800`}
+          ? "bg-white/90 dark:bg-black/90 backdrop-blur-md shadow-sm"
+          : "bg-white dark:bg-black"
+      } border-b border-gray-200 dark:border-dark-border`}
     >
       <nav className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className="flex justify-between items-center h-16">
@@ -197,14 +197,14 @@ export default function Header() {
 
               {/* Dropdown Menu */}
               {toolsDropdownOpen && (
-                <div className="absolute top-full left-0 mt-1 w-56 bg-white dark:bg-zinc-900 rounded-lg shadow-lg border border-gray-200 dark:border-zinc-700 py-2 z-50">
+                <div className="absolute top-full left-0 mt-1 w-56 bg-white dark:bg-dark-card rounded-lg shadow-lg border border-gray-200 dark:border-dark-border py-2 z-50">
                   <Link
                     href="/tools"
                     className="block px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
                   >
                     All Tools
                   </Link>
-                  <div className="border-t border-gray-200 dark:border-zinc-700 my-1" />
+                  <div className="border-t border-gray-200 dark:border-dark-border my-1" />
                   {availableTools.map((tool) => (
                     <Link
                       key={tool.id}
@@ -281,7 +281,7 @@ export default function Header() {
 
         {/* Menu Panel */}
         <div
-          className={`absolute right-0 top-0 h-full w-full max-w-sm bg-white dark:bg-zinc-900 shadow-xl transform transition-transform duration-300 ease-out overflow-y-auto ${
+          className={`absolute right-0 top-0 h-full w-full max-w-sm bg-white dark:bg-black shadow-xl transform transition-transform duration-300 ease-out overflow-y-auto ${
             mobileMenuOpen ? "translate-x-0" : "translate-x-full"
           }`}
         >
@@ -359,7 +359,7 @@ export default function Header() {
           </div>
 
           {/* Divider */}
-          <div className="mx-4 border-t border-gray-200 dark:border-zinc-800" />
+          <div className="mx-4 border-t border-gray-200 dark:border-dark-border" />
 
           {/* Theme & GitHub Section */}
           <div className="py-3 px-2">
@@ -372,7 +372,7 @@ export default function Header() {
                     setTheme(
                       (theme === "system" ? systemTheme : theme) === "dark"
                         ? "light"
-                        : "dark"
+                        : "dark",
                     )
                   }
                 >

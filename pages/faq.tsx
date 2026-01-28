@@ -216,7 +216,7 @@ export default function FAQ(): JSX.Element {
         </p>
 
         <div className="w-full space-y-4 mb-8">
-          <details className="bg-white dark:bg-zinc-800 p-5 rounded-lg border border-gray-200 dark:border-zinc-700 group">
+          <details className="bg-white dark:bg-dark-card p-5 rounded-lg border border-gray-200 dark:border-dark-border group">
             <summary className="font-semibold text-gray-900 dark:text-zinc-200 cursor-pointer text-lg">
               {t("faq.q1")}
             </summary>
@@ -225,7 +225,7 @@ export default function FAQ(): JSX.Element {
             </p>
           </details>
 
-          <details className="bg-white dark:bg-zinc-800 p-5 rounded-lg border border-gray-200 dark:border-zinc-700 group">
+          <details className="bg-white dark:bg-dark-card p-5 rounded-lg border border-gray-200 dark:border-dark-border group">
             <summary className="font-semibold text-gray-900 dark:text-zinc-200 cursor-pointer text-lg">
               {t("faq.q2")}
             </summary>
@@ -234,7 +234,7 @@ export default function FAQ(): JSX.Element {
             </p>
           </details>
 
-          <details className="bg-white dark:bg-zinc-800 p-5 rounded-lg border border-gray-200 dark:border-zinc-700 group">
+          <details className="bg-white dark:bg-dark-card p-5 rounded-lg border border-gray-200 dark:border-dark-border group">
             <summary className="font-semibold text-gray-900 dark:text-zinc-200 cursor-pointer text-lg">
               {t("faq.q3")}
             </summary>
@@ -243,7 +243,7 @@ export default function FAQ(): JSX.Element {
             </p>
           </details>
 
-          <details className="bg-white dark:bg-zinc-800 p-5 rounded-lg border border-gray-200 dark:border-zinc-700 group">
+          <details className="bg-white dark:bg-dark-card p-5 rounded-lg border border-gray-200 dark:border-dark-border group">
             <summary className="font-semibold text-gray-900 dark:text-zinc-200 cursor-pointer text-lg">
               {t("faq.q4")}
             </summary>
@@ -252,7 +252,7 @@ export default function FAQ(): JSX.Element {
             </p>
           </details>
 
-          <details className="bg-white dark:bg-zinc-800 p-5 rounded-lg border border-gray-200 dark:border-zinc-700 group">
+          <details className="bg-white dark:bg-dark-card p-5 rounded-lg border border-gray-200 dark:border-dark-border group">
             <summary className="font-semibold text-gray-900 dark:text-zinc-200 cursor-pointer text-lg">
               {t("faq.q5")}
             </summary>
@@ -261,7 +261,7 @@ export default function FAQ(): JSX.Element {
             </p>
           </details>
 
-          <details className="bg-white dark:bg-zinc-800 p-5 rounded-lg border border-gray-200 dark:border-zinc-700 group">
+          <details className="bg-white dark:bg-dark-card p-5 rounded-lg border border-gray-200 dark:border-dark-border group">
             <summary className="font-semibold text-gray-900 dark:text-zinc-200 cursor-pointer text-lg">
               {t("faq.q6")}
             </summary>
@@ -270,7 +270,7 @@ export default function FAQ(): JSX.Element {
             </p>
           </details>
 
-          <details className="bg-white dark:bg-zinc-800 p-5 rounded-lg border border-gray-200 dark:border-zinc-700 group">
+          <details className="bg-white dark:bg-dark-card p-5 rounded-lg border border-gray-200 dark:border-dark-border group">
             <summary className="font-semibold text-gray-900 dark:text-zinc-200 cursor-pointer text-lg">
               {t("faq.q7")}
             </summary>
@@ -279,7 +279,7 @@ export default function FAQ(): JSX.Element {
             </p>
           </details>
 
-          <details className="bg-white dark:bg-zinc-800 p-5 rounded-lg border border-gray-200 dark:border-zinc-700 group">
+          <details className="bg-white dark:bg-dark-card p-5 rounded-lg border border-gray-200 dark:border-dark-border group">
             <summary className="font-semibold text-gray-900 dark:text-zinc-200 cursor-pointer text-lg">
               {t("faq.q8")}
             </summary>

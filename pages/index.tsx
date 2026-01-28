@@ -35,7 +35,7 @@ import {
 // Lazy load Footer for better initial load performance
 const Footer = dynamic(() => import("@/components/Footer"), {
   loading: () => (
-    <div className="h-16 animate-pulse bg-gray-100 dark:bg-zinc-800" />
+    <div className="h-16 animate-pulse bg-gray-100 dark:bg-dark-card" />
   ),
   ssr: true,
 });
@@ -464,7 +464,7 @@ Format: Just the abstract text, nothing else.`;
             e.preventDefault();
             generateArticleTitle();
           }}
-          className="flex w-full mt-5 transition-all ease-linear hover:shadow-lg focus-within:shadow-lg focus-within:ring-2 focus-within:ring-indigo-500 rounded-full border border-[#6366f1] dark:border-[#6366f1] p-1.5 pl-5 items-center bg-white dark:bg-zinc-800"
+          className="flex w-full mt-5 transition-all ease-linear hover:shadow-lg focus-within:shadow-lg focus-within:ring-2 focus-within:ring-indigo-500 rounded-full border border-[#6366f1] dark:border-[#6366f1] p-1.5 pl-5 items-center bg-white dark:bg-dark-card"
         >
           <SearchIcon className="h-5 mr-3 text-[#6366f1] dark:text-gray-100" />
           <input
@@ -599,7 +599,7 @@ Format: Just the abstract text, nothing else.`;
           reverseOrder={false}
           toastOptions={{ duration: 3000 }}
         />
-        <div className="h-px max-w-screen-md w-full border-b dark:border-zinc-800"></div>
+        <div className="h-px max-w-screen-md w-full border-b dark:border-dark-border"></div>
 
         <ResizablePanel>
           <AnimatePresence mode="wait">
@@ -620,7 +620,7 @@ Format: Just the abstract text, nothing else.`;
                     <motion.div
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="w-full bg-zinc-100 dark:bg-darkOffset rounded-md p-3 sm:p-4 border border-zinc-200 dark:border-zinc-800"
+                      className="w-full bg-zinc-100 dark:bg-darkOffset rounded-md p-3 sm:p-4 border border-zinc-200 dark:border-dark-border"
                     >
                       <div className="flex items-center gap-2 mb-3">
                         <svg
@@ -654,7 +654,7 @@ Format: Just the abstract text, nothing else.`;
                               navigator.clipboard.writeText(keyword);
                               toast.success(t("success.keywordCopied"));
                             }}
-                            className="px-2.5 py-1 sm:px-3 sm:py-1.5 text-xs bg-white dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700 border border-zinc-300 dark:border-zinc-700 rounded-full transition text-zinc-700 dark:text-zinc-300 font-medium cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500 active:scale-95"
+                            className="px-2.5 py-1 sm:px-3 sm:py-1.5 text-xs bg-white dark:bg-dark-card hover:bg-gray-100 dark:hover:bg-zinc-700 border border-zinc-300 dark:border-dark-border rounded-full transition text-zinc-700 dark:text-zinc-300 font-medium cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500 active:scale-95"
                             title={t("home.clickToCopyKeyword")}
                           >
                             {keyword}
@@ -675,7 +675,7 @@ Format: Just the abstract text, nothing else.`;
 
                     return (
                       <div className="flex flex-col gap-2" key={index}>
-                        <div className="w-full bg-zinc-100 dark:bg-darkOffset dark:text-gray-100 rounded-md p-3 hover:bg-gray-100 transition border-zinc-200 border dark:border-zinc-800">
+                        <div className="w-full bg-zinc-100 dark:bg-darkOffset dark:text-gray-100 rounded-md p-3 hover:bg-gray-100 transition border-zinc-200 border dark:border-dark-border">
                           <div className="flex justify-between items-start gap-3">
                             <div
                               className="flex-grow cursor-copy"
@@ -727,7 +727,7 @@ Format: Just the abstract text, nothing else.`;
                                   <ShareIcon className="h-5 w-5 text-[#6366f1] dark:text-gray-100" />
                                 </button>
                                 {showShareMenu === index && (
-                                  <div className="absolute right-0 mt-1 bg-white dark:bg-zinc-800 rounded-md shadow-lg border border-zinc-200 dark:border-zinc-700 z-10 min-w-[140px]">
+                                  <div className="absolute right-0 mt-1 bg-white dark:bg-dark-card rounded-md shadow-lg border border-zinc-200 dark:border-dark-border z-10 min-w-[140px]">
                                     <button
                                       onClick={() => {
                                         shareOnTwitter(cleanTitle);
