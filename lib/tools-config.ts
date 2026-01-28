@@ -24,6 +24,14 @@ export const tools: Tool[] = [
     available: true,
   },
   {
+    id: "title-case-converter",
+    nameKey: "tools.titleCase.name",
+    descriptionKey: "tools.titleCase.description",
+    href: "/tools/title-case",
+    icon: "text",
+    available: true,
+  },
+  {
     id: "character-counter",
     nameKey: "tools.characterCounter.name",
     descriptionKey: "tools.characterCounter.description",
