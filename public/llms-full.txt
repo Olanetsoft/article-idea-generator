@@ -185,6 +185,35 @@ Beyond AI generation, Article Idea Generator offers a suite of free writing tool
 
 Browse all available writing tools with descriptions and "coming soon" badges for tools in development.
 
+### Title Case Converter Tool
+
+**URL**: https://articleideagenerator.com/tools/title-case
+
+**Features**:
+- 12 case conversion styles:
+  - Writing styles: Title Case (AP), Title Case (Chicago), APA Style, Sentence case, Start Case, UPPERCASE, lowercase
+  - Programming styles: camelCase, PascalCase, snake_case, kebab-case, CONSTANT_CASE
+- Real-time conversion as you type
+- Auto-detects input case style
+- One-click copy for each style
+- Copy all styles at once
+- Character count display
+- Paste from clipboard button
+
+**Use Cases**:
+- Formatting headlines for articles (AP/Chicago style)
+- Academic paper titles (APA style)
+- Variable naming for code (camelCase, snake_case)
+- CSS class names (kebab-case)
+- Constant definitions (CONSTANT_CASE)
+- URL slugs
+
+**Technical Details**:
+- Client-side processing (no data sent to server)
+- Pure TypeScript conversion functions
+- Mobile-responsive grid layout
+- Accessible with keyboard navigation
+
 ### Planned Tools
 
 - **Character Counter**: Track character limits for Twitter (280), LinkedIn (3000), meta descriptions (160)
