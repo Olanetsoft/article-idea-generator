@@ -78,14 +78,14 @@ export function ErrorActions({
       {primaryOnClick ? (
         <button
           onClick={primaryOnClick}
-          className="inline-flex items-center justify-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+          className="inline-flex items-center justify-center px-6 py-3 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 dark:ring-offset-black"
         >
           {primaryLabel}
         </button>
       ) : (
         <Link
           href={primaryHref || "/"}
-          className="inline-flex items-center justify-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+          className="inline-flex items-center justify-center px-6 py-3 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 dark:ring-offset-black"
         >
           {primaryLabel}
         </Link>
@@ -93,7 +93,7 @@ export function ErrorActions({
       {secondaryLabel && secondaryHref && (
         <Link
           href={secondaryHref}
-          className="inline-flex items-center justify-center px-6 py-3 border-2 border-gray-300 dark:border-gray-600 hover:border-indigo-500 dark:hover:border-indigo-400 text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-xl font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+          className="inline-flex items-center justify-center px-6 py-3 border-2 border-gray-300 dark:border-dark-border hover:border-violet-500 dark:hover:border-violet-400 text-gray-700 dark:text-gray-300 hover:text-violet-600 dark:hover:text-violet-400 rounded-xl font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 dark:ring-offset-black"
         >
           {secondaryLabel}
         </Link>

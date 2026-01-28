@@ -58,7 +58,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       result: data.choices[0].message.content.replace(/"/g, ""),
     });
   } catch (error) {
-    console.log(error);
+    console.error("API request error:", error);
   }
 };
 

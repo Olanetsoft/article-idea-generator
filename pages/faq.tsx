@@ -192,7 +192,7 @@ export default function FAQ(): JSX.Element {
             <li>
               <Link
                 href="/"
-                className="hover:text-indigo-500 dark:hover:text-indigo-400 transition"
+                className="hover:text-violet-500 dark:hover:text-violet-400 transition"
               >
                 {t("header.home")}
               </Link>
@@ -216,7 +216,7 @@ export default function FAQ(): JSX.Element {
         </p>
 
         <div className="w-full space-y-4 mb-8">
-          <details className="bg-white dark:bg-zinc-800 p-5 rounded-lg border border-gray-200 dark:border-zinc-700 group">
+          <details className="bg-white dark:bg-dark-card p-5 rounded-lg border border-gray-200 dark:border-dark-border group">
             <summary className="font-semibold text-gray-900 dark:text-zinc-200 cursor-pointer text-lg">
               {t("faq.q1")}
             </summary>
@@ -225,7 +225,7 @@ export default function FAQ(): JSX.Element {
             </p>
           </details>
 
-          <details className="bg-white dark:bg-zinc-800 p-5 rounded-lg border border-gray-200 dark:border-zinc-700 group">
+          <details className="bg-white dark:bg-dark-card p-5 rounded-lg border border-gray-200 dark:border-dark-border group">
             <summary className="font-semibold text-gray-900 dark:text-zinc-200 cursor-pointer text-lg">
               {t("faq.q2")}
             </summary>
@@ -234,7 +234,7 @@ export default function FAQ(): JSX.Element {
             </p>
           </details>
 
-          <details className="bg-white dark:bg-zinc-800 p-5 rounded-lg border border-gray-200 dark:border-zinc-700 group">
+          <details className="bg-white dark:bg-dark-card p-5 rounded-lg border border-gray-200 dark:border-dark-border group">
             <summary className="font-semibold text-gray-900 dark:text-zinc-200 cursor-pointer text-lg">
               {t("faq.q3")}
             </summary>
@@ -243,7 +243,7 @@ export default function FAQ(): JSX.Element {
             </p>
           </details>
 
-          <details className="bg-white dark:bg-zinc-800 p-5 rounded-lg border border-gray-200 dark:border-zinc-700 group">
+          <details className="bg-white dark:bg-dark-card p-5 rounded-lg border border-gray-200 dark:border-dark-border group">
             <summary className="font-semibold text-gray-900 dark:text-zinc-200 cursor-pointer text-lg">
               {t("faq.q4")}
             </summary>
@@ -252,7 +252,7 @@ export default function FAQ(): JSX.Element {
             </p>
           </details>
 
-          <details className="bg-white dark:bg-zinc-800 p-5 rounded-lg border border-gray-200 dark:border-zinc-700 group">
+          <details className="bg-white dark:bg-dark-card p-5 rounded-lg border border-gray-200 dark:border-dark-border group">
             <summary className="font-semibold text-gray-900 dark:text-zinc-200 cursor-pointer text-lg">
               {t("faq.q5")}
             </summary>
@@ -261,7 +261,7 @@ export default function FAQ(): JSX.Element {
             </p>
           </details>
 
-          <details className="bg-white dark:bg-zinc-800 p-5 rounded-lg border border-gray-200 dark:border-zinc-700 group">
+          <details className="bg-white dark:bg-dark-card p-5 rounded-lg border border-gray-200 dark:border-dark-border group">
             <summary className="font-semibold text-gray-900 dark:text-zinc-200 cursor-pointer text-lg">
               {t("faq.q6")}
             </summary>
@@ -270,7 +270,7 @@ export default function FAQ(): JSX.Element {
             </p>
           </details>
 
-          <details className="bg-white dark:bg-zinc-800 p-5 rounded-lg border border-gray-200 dark:border-zinc-700 group">
+          <details className="bg-white dark:bg-dark-card p-5 rounded-lg border border-gray-200 dark:border-dark-border group">
             <summary className="font-semibold text-gray-900 dark:text-zinc-200 cursor-pointer text-lg">
               {t("faq.q7")}
             </summary>
@@ -279,7 +279,7 @@ export default function FAQ(): JSX.Element {
             </p>
           </details>
 
-          <details className="bg-white dark:bg-zinc-800 p-5 rounded-lg border border-gray-200 dark:border-zinc-700 group">
+          <details className="bg-white dark:bg-dark-card p-5 rounded-lg border border-gray-200 dark:border-dark-border group">
             <summary className="font-semibold text-gray-900 dark:text-zinc-200 cursor-pointer text-lg">
               {t("faq.q8")}
             </summary>
@@ -289,7 +289,7 @@ export default function FAQ(): JSX.Element {
           </details>
         </div>
 
-        <div className="w-full bg-indigo-50 dark:bg-indigo-900/20 p-6 rounded-lg border border-indigo-200 dark:border-indigo-800 text-center">
+        <div className="w-full bg-violet-50 dark:bg-violet-900/20 p-6 rounded-lg border border-violet-200 dark:border-violet-800 text-center">
           <h2 className="text-xl font-bold text-gray-900 dark:text-zinc-200 mb-2">
             {t("faq.ctaTitle")}
           </h2>
@@ -298,7 +298,7 @@ export default function FAQ(): JSX.Element {
           </p>
           <Link
             href="/"
-            className="inline-block px-6 py-3 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-lg transition"
+            className="inline-block px-6 py-3 bg-violet-500 hover:bg-violet-600 text-white font-semibold rounded-lg transition"
           >
             {t("faq.ctaButton")}
           </Link>

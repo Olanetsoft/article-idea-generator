@@ -127,7 +127,7 @@ export default function AbstractDisplay({
       cleanAbstract.length > 200 ? "..." : ""
     }`;
     const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
-      text
+      text,
     )}&url=${encodeURIComponent("https://articleideagenerator.com")}`;
     window.open(url, "_blank");
     setShowShareMenu(false);
@@ -135,16 +135,16 @@ export default function AbstractDisplay({
 
   const shareOnLinkedIn = () => {
     const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
-      "https://articleideagenerator.com"
+      "https://articleideagenerator.com",
     )}`;
     window.open(url, "_blank");
     setShowShareMenu(false);
   };
 
   return (
-    <div className="w-full bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm overflow-hidden">
+    <div className="w-full bg-white dark:bg-dark-card rounded-xl border border-zinc-200 dark:border-dark-border shadow-sm overflow-hidden">
       {/* Header */}
-      <div className="px-3 sm:px-4 py-3 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border-b border-zinc-200 dark:border-zinc-800">
+      <div className="px-3 sm:px-4 py-3 bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 border-b border-zinc-200 dark:border-dark-border">
         <div className="flex items-start justify-between gap-2 sm:gap-3">
           <div className="flex items-start gap-2 min-w-0 flex-1">
             <span className="text-base sm:text-lg flex-shrink-0 mt-0.5">
@@ -194,7 +194,7 @@ export default function AbstractDisplay({
         </div>
 
         {/* Stats Bar */}
-        <div className="px-3 sm:px-4 py-2 bg-zinc-50 dark:bg-zinc-800/50 border-t border-zinc-200 dark:border-zinc-800">
+        <div className="px-3 sm:px-4 py-2 bg-zinc-50 dark:bg-dark-card/50 border-t border-zinc-200 dark:border-dark-border">
           <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs text-gray-500 dark:text-gray-400">
             <span className="flex items-center gap-1">
               📊 {stats.wordCount} words
@@ -207,12 +207,12 @@ export default function AbstractDisplay({
         </div>
 
         {/* Action Buttons */}
-        <div className="px-3 sm:px-4 py-3 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-800/30">
+        <div className="px-3 sm:px-4 py-3 border-t border-zinc-200 dark:border-dark-border bg-zinc-50/50 dark:bg-dark-card/30">
           <div className="flex flex-wrap items-center gap-2">
             {/* Copy Text */}
             <button
               onClick={handleCopyText}
-              className="flex items-center justify-center gap-1.5 px-2.5 sm:px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors active:scale-95 min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0"
+              className="flex items-center justify-center gap-1.5 px-2.5 sm:px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-dark-card border border-zinc-200 dark:border-dark-border rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors active:scale-95 min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0"
               aria-label="Copy text"
             >
               <ClipboardCopyIcon className="w-4 h-4 flex-shrink-0" />
@@ -222,7 +222,7 @@ export default function AbstractDisplay({
             {/* Copy Markdown */}
             <button
               onClick={handleCopyMarkdown}
-              className="flex items-center justify-center gap-1.5 px-2.5 sm:px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors active:scale-95 min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0"
+              className="flex items-center justify-center gap-1.5 px-2.5 sm:px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-dark-card border border-zinc-200 dark:border-dark-border rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors active:scale-95 min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0"
               aria-label="Copy as Markdown"
             >
               <DocumentDuplicateIcon className="w-4 h-4 flex-shrink-0" />
@@ -234,7 +234,7 @@ export default function AbstractDisplay({
               <button
                 ref={shareButtonRef}
                 onClick={() => setShowShareMenu(!showShareMenu)}
-                className="flex items-center justify-center gap-1.5 px-2.5 sm:px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors active:scale-95 min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0"
+                className="flex items-center justify-center gap-1.5 px-2.5 sm:px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-dark-card border border-zinc-200 dark:border-dark-border rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors active:scale-95 min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0"
                 aria-label="Share"
                 aria-expanded={showShareMenu}
               >
@@ -245,7 +245,7 @@ export default function AbstractDisplay({
               {showShareMenu && (
                 <div
                   ref={shareMenuRef}
-                  className="absolute bottom-full left-0 sm:left-auto sm:right-0 mb-2 w-44 bg-white dark:bg-zinc-800 rounded-lg shadow-lg border border-zinc-200 dark:border-zinc-700 py-1 z-20"
+                  className="absolute bottom-full left-0 sm:left-auto sm:right-0 mb-2 w-44 bg-white dark:bg-dark-card rounded-lg shadow-lg border border-zinc-200 dark:border-dark-border py-1 z-20"
                 >
                   <button
                     onClick={shareOnTwitter}
@@ -271,7 +271,7 @@ export default function AbstractDisplay({
               <button
                 onClick={onRegenerate}
                 disabled={isRegenerating}
-                className="flex items-center justify-center gap-1.5 px-2.5 sm:px-3 py-2 text-sm font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-800 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0"
+                className="flex items-center justify-center gap-1.5 px-2.5 sm:px-3 py-2 text-sm font-medium text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-900/30 border border-violet-200 dark:border-violet-800 rounded-lg hover:bg-violet-100 dark:hover:bg-violet-900/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0"
                 aria-label={isRegenerating ? "Regenerating" : "Regenerate"}
               >
                 <RefreshIcon
@@ -298,7 +298,7 @@ export default function AbstractDisplay({
           <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 break-words">
             {cleanAbstract}
           </p>
-          <p className="text-xs text-indigo-500 dark:text-indigo-400 mt-2 font-medium">
+          <p className="text-xs text-violet-500 dark:text-violet-400 mt-2 font-medium">
             Tap to expand ↓
           </p>
         </button>

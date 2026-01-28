@@ -130,7 +130,7 @@ export default function ToolsPage(): JSX.Element {
             <li>
               <Link
                 href="/"
-                className="hover:text-indigo-600 dark:hover:text-indigo-400 transition"
+                className="hover:text-violet-600 dark:hover:text-violet-400 transition"
               >
                 {t("header.home")}
               </Link>
@@ -156,7 +156,7 @@ export default function ToolsPage(): JSX.Element {
           {/* CTA to main generator */}
           <Link
             href="/"
-            className="inline-flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition text-sm sm:text-base"
+            className="inline-flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-lg transition text-sm sm:text-base"
           >
             {t("tools.cta")}
             <ArrowRightIcon className="w-4 h-4" />
@@ -183,7 +183,7 @@ export default function ToolsPage(): JSX.Element {
         </section>
 
         {/* Bottom CTA */}
-        <section className="mt-8 sm:mt-12 p-4 sm:p-6 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg text-center">
+        <section className="mt-8 sm:mt-12 p-4 sm:p-6 bg-violet-50 dark:bg-violet-900/20 rounded-lg text-center">
           <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-zinc-100 mb-2">
             {t("tools.bottomCtaTitle")}
           </h3>
@@ -192,7 +192,7 @@ export default function ToolsPage(): JSX.Element {
           </p>
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-semibold hover:underline text-sm sm:text-base"
+            className="inline-flex items-center gap-2 text-violet-600 dark:text-violet-400 font-semibold hover:underline text-sm sm:text-base"
           >
             {t("tools.tryGenerator")}
             <ArrowRightIcon className="w-4 h-4" />
