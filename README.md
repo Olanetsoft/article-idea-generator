@@ -25,6 +25,7 @@ Generate article ideas using GPT-4o-mini. Enter a topic, get 4 title suggestions
 
 - **[Word Counter](https://www.articleideagenerator.com/tools/word-counter)** — Words, characters, sentences, paragraphs, reading/speaking time, keyword density
 - **[QR Code Generator](https://www.articleideagenerator.com/tools/qr-code-generator)** — URL, text, email, phone, SMS, WiFi, vCard, geo location, calendar events. Custom colors, PNG/SVG/JPEG export
+- **[Title Case Converter](https://www.articleideagenerator.com/tools/title-case)** — 16 case styles (AP, Chicago, APA, camelCase, snake_case, kebab-case, etc). Auto-detection, one-click copy
 - **Character Counter** _(Coming Soon)_
 - **Reading Time Calculator** _(Coming Soon)_
 - **Headline Analyzer** _(Coming Soon)_
@@ -62,6 +63,14 @@ Generate article ideas using GPT-4o-mini. Enter a topic, get 4 title suggestions
 3. Fill in the fields
 4. Customize colors (optional)
 5. Download as PNG, SVG, or JPEG
+
+### Title Case Converter
+
+1. Go to [/tools/title-case](https://www.articleideagenerator.com/tools/title-case)
+2. Type or paste your text
+3. View all 16 case conversions instantly
+4. Click any card to copy that style
+5. Use sample texts to test different formats
 
 ## How it works
 

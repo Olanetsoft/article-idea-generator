@@ -190,15 +190,18 @@ Browse all available writing tools with descriptions and "coming soon" badges fo
 **URL**: https://articleideagenerator.com/tools/title-case
 
 **Features**:
-- 12 case conversion styles:
-  - Writing styles: Title Case (AP), Title Case (Chicago), APA Style, Sentence case, Start Case, UPPERCASE, lowercase
-  - Programming styles: camelCase, PascalCase, snake_case, kebab-case, CONSTANT_CASE
+- 16 case conversion styles across 3 categories:
+  - Writing styles (7): Title Case (AP), Title Case (Chicago), APA Style, Sentence case, Start Case, UPPERCASE, lowercase
+  - Programming styles (7): camelCase, PascalCase, snake_case, kebab-case, CONSTANT_CASE, dot.case, path/case
+  - Special styles (2): aLtErNaTiNg CaSe, iNVERSE cASE
 - Real-time conversion as you type
 - Auto-detects input case style
 - One-click copy for each style
 - Copy all styles at once
-- Character count display
+- Sample text quick-select buttons
+- Character and word count display
 - Paste from clipboard button
+- Animated card interactions
 
 **Use Cases**:
 - Formatting headlines for articles (AP/Chicago style)
