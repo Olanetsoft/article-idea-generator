@@ -2,7 +2,13 @@
  * Tool-related types
  */
 
-export type ToolIcon = "document" | "calculator" | "chart" | "clock" | "qrcode";
+export type ToolIcon =
+  | "document"
+  | "calculator"
+  | "chart"
+  | "clock"
+  | "qrcode"
+  | "text";
 
 export interface Tool {
   id: string;

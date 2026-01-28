@@ -17,7 +17,7 @@ export default function FAQ(): JSX.Element {
   return (
     <div className="flex flex-col items-center m-0 min-h-screen">
       <Head>
-        <title>FAQ - Article Idea Generator | {t("faq.pageTitle")}</title>
+        <title>{`FAQ - Article Idea Generator | ${t("faq.pageTitle")}`}</title>
         <meta
           name="description"
           content="Get answers to common questions about our free AI-powered article title generator. Learn how to generate SEO-optimized titles, create abstracts, and maximize your content creation."

@@ -63,6 +63,23 @@ Free online QR code generator that creates:
 
 Perfect for business cards, restaurant WiFi sharing, product packaging, and event marketing.
 
+### Title Case Converter
+URL: https://articleideagenerator.com/tools/title-case
+
+Free online text case converter that supports:
+- 16 case styles across 3 categories:
+  - Writing styles: Title Case (AP/Chicago/APA), Sentence case, Start Case, UPPERCASE, lowercase
+  - Programming formats: camelCase, PascalCase, snake_case, kebab-case, CONSTANT_CASE, dot.case, path/case
+  - Special styles: aLtErNaTiNg CaSe, iNVERSE cASE
+- Real-time conversion as you type
+- One-click copy for any style
+- Copy all styles at once
+- Auto-detects current case style
+- Sample text quick-select buttons
+- Character and word count display
+
+Perfect for writers, developers, journalists, and content creators.
+
 ### Coming Soon
 - Character Counter - Track limits for Twitter, LinkedIn, meta descriptions
 - Reading Time Calculator - Generate "X min read" badges

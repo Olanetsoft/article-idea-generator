@@ -291,6 +291,37 @@
       "useCase3Desc": "Link to product pages, manuals, or registration forms.",
       "useCase4Title": "Event Marketing",
       "useCase4Desc": "Create calendar event QR codes for easy RSVP and scheduling."
+    },
+    "titleCase": {
+      "name": "Title Case Converter",
+      "description": "Convert text to title case, sentence case, UPPERCASE, camelCase, snake_case, and 12 more styles. Free online text case converter.",
+      "pageTitle": "Title Case Converter - Free Online Text Case Changer",
+      "pageDescription": "Free title case converter with 16 styles: AP, Chicago, APA, camelCase, PascalCase, snake_case, kebab-case & more. Auto-detects input format. One-click copy. 100% private.",
+      "title": "Title Case Converter",
+      "subtitle": "Convert text to 16 different case styles instantly. AP, Chicago, APA for writing. camelCase, snake_case, kebab-case for coding. 100% free, no signup.",
+      "inputLabel": "Enter your text",
+      "placeholder": "Type or paste your text here to convert...",
+      "detected": "Detected",
+      "characters": "characters",
+      "paste": "Paste",
+      "clear": "Clear",
+      "copyAll": "Copy All",
+      "copied": "Copied!",
+      "writingStyles": "Writing Styles",
+      "programmingStyles": "Programming Styles",
+      "specialStyles": "Special Styles",
+      "aboutTitle": "About This Title Case Converter",
+      "aboutDescription": "The most comprehensive free text case converter online. 16 conversion styles including professional writing formats (AP, Chicago, APA) and programming conventions (camelCase, snake_case, kebab-case). All processing happens locally - your text never leaves your browser.",
+      "writingStylesTitle": "Writing Formats",
+      "programmingStylesTitle": "Dev Conventions",
+      "apDesc": "News & journalism standard",
+      "chicagoDesc": "Books & publishing",
+      "apaDesc": "Academic papers",
+      "sentenceDesc": "Standard sentence format",
+      "camelDesc": "JS variables & functions",
+      "pascalDesc": "Classes & components",
+      "snakeDesc": "Python, Ruby, databases",
+      "kebabDesc": "URLs, CSS, file names"
     }
   }
 }
