@@ -1,7 +1,7 @@
 {
   "meta": {
-    "title": "Article Idea Generator - Free AI Title Generator for Writers & Bloggers",
-    "description": "Free AI-powered article title generator that creates SEO-optimized, engaging titles instantly. Beat writer's block and generate creative article ideas in seconds."
+    "title": "Article Idea Generator - Free Blog Topic & Content Ideas Generator",
+    "description": "Free AI-powered idea generator for articles, blog topics, and content ideas. Generate 5 engaging, SEO-optimized titles instantly. Perfect topic generator for writers, bloggers & content creators."
   },
   "header": {
     "home": "Home",
@@ -12,7 +12,8 @@
   },
   "home": {
     "title": "Article Idea Generator",
-    "placeholder": "What's on your mind?",
+    "subtitle": "Free Blog Topic & Content Ideas Generator",
+    "placeholder": "Enter your topic (e.g., AI, cooking, fitness)...",
     "generateButton": "Generate Ideas",
     "voiceInput": "Voice input",
     "listening": "Listening...",
@@ -123,11 +124,11 @@
     "tryGenerator": "Try Article Idea Generator",
     "wordCounter": {
       "name": "Word Counter",
-      "description": "Count words, characters, sentences, and paragraphs. Get reading time estimates for your content.",
-      "pageTitle": "Word Counter - Free Online Word Count Tool",
-      "pageDescription": "Free online word counter tool. Count words, characters, sentences, and paragraphs instantly. Get reading time estimates for your content.",
-      "title": "Word Counter",
-      "subtitle": "Count words, characters, sentences, and paragraphs in real-time. Get reading and speaking time estimates for your content.",
+      "description": "Free word count generator - count words, characters, sentences & paragraphs instantly. No signup required.",
+      "pageTitle": "Free Word Counter & Word Count Generator Online",
+      "pageDescription": "Free word counter generator tool - count words, characters, sentences & paragraphs instantly. Article word counter with reading time estimates. No signup, works offline.",
+      "title": "Word Counter & Word Count Generator",
+      "subtitle": "Free word count generator - count words, characters, sentences, and paragraphs in real-time. Get reading and speaking time estimates for articles, essays & blog posts.",
       "placeholder": "Paste or type your text here to count words...",
       "clear": "Clear Text",
       "wordsLabel": "words",
@@ -142,8 +143,8 @@
       "speakingTime": "Speaking Time",
       "minutes": "min",
       "topKeywords": "Top Keywords",
-      "aboutTitle": "About This Word Counter Tool",
-      "aboutDescription": "Our free word counter is the fastest way to count words online. Whether you're writing a blog post, essay, article, or social media content, this tool helps you track your word count, character count, and more in real-time.",
+      "aboutTitle": "About This Free Word Count Generator",
+      "aboutDescription": "Our free word counter generator is the fastest word count tool online. Whether you need an article word counter for your blog post, essay word counter for assignments, or paragraph word counter for social media - this free word count generator helps you track everything in real-time. No signup required.",
       "featuresTitle": "Features",
       "feature1": "Instant word and character counting as you type",
       "feature2": "Sentence and paragraph tracking",

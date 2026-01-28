@@ -333,12 +333,15 @@ Format: Just the abstract text, nothing else.`;
     <div className="flex flex-col items-center m-0 min-h-screen">
       <Head>
         <title>
-          Article Idea Generator - Free AI Title Generator for Writers &
-          Bloggers
+          Article Idea Generator - Free Blog Topic & Content Ideas Generator
         </title>
         <meta
           name="description"
-          content="Free AI-powered article title generator that creates SEO-optimized, engaging titles instantly. Beat writer's block and generate creative article ideas in seconds. Perfect for bloggers, content creators, and writers."
+          content="Free AI-powered idea generator for articles, blog topics & content ideas. Generate 5 engaging titles instantly. Best topic generator for writers, bloggers & content creators. No signup required."
+        />
+        <meta
+          name="keywords"
+          content="article idea generator, idea generator, topic generator, blog topic generator, blog ideas generator, article ideas, content ideas generator, writing topic generator, random topic generator, blog content idea generator, article topic generator"
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
@@ -354,6 +357,11 @@ Format: Just the abstract text, nothing else.`;
                   "@type": "WebApplication",
                   "@id": "https://articleideagenerator.com/#app",
                   name: "Article Idea Generator",
+                  alternateName: [
+                    "Blog Topic Generator",
+                    "Content Ideas Generator",
+                    "Topic Generator",
+                  ],
                   applicationCategory: "UtilityApplication",
                   operatingSystem: "Web Browser",
                   browserRequirements: "Requires JavaScript",
@@ -363,7 +371,7 @@ Format: Just the abstract text, nothing else.`;
                     priceCurrency: "USD",
                   },
                   description:
-                    "Free AI-powered article title generator that creates SEO-optimized, engaging titles instantly. Beat writer's block and generate creative article ideas in seconds.",
+                    "Free AI-powered idea generator for articles, blog topics & content ideas. Generate 5 engaging titles instantly. Best topic generator for writers and bloggers.",
                   url: "https://articleideagenerator.com",
                   author: {
                     "@type": "Organization",
@@ -371,13 +379,15 @@ Format: Just the abstract text, nothing else.`;
                     url: "https://articleideagenerator.com",
                   },
                   featureList: [
-                    "AI-powered title generation",
+                    "AI-powered idea generator",
+                    "Blog topic generator",
+                    "Article ideas generator",
                     "SEO-optimized titles",
-                    "Clickbait mode",
+                    "Content ideas in seconds",
                     "Abstract generation",
                     "Voice input",
                     "Dark mode",
-                    "Free to use",
+                    "Free to use - no signup",
                   ],
                 },
                 {
@@ -419,8 +429,9 @@ Format: Just the abstract text, nothing else.`;
                   "@id": "https://articleideagenerator.com/#website",
                   url: "https://articleideagenerator.com",
                   name: "Article Idea Generator",
+                  alternateName: "Blog Topic Generator",
                   description:
-                    "Free AI article title generator for writers and bloggers",
+                    "Free AI idea generator for blog topics, article ideas & content creation",
                   potentialAction: {
                     "@type": "SearchAction",
                     target: {
@@ -441,10 +452,13 @@ Format: Just the abstract text, nothing else.`;
 
       <div className="flex flex-col items-center pt-8 sm:pt-14 w-full px-4 lg:px-0 max-w-screen-md flex-grow pb-8">
         <h1
-          className={`${spaceGrotesk.className} text-2xl font-bold text-gray-900 dark:text-zinc-300 leading-tight mb-4 text-center sm:text-4xl lg:text-5xl xl:text-6xl`}
+          className={`${spaceGrotesk.className} text-2xl font-bold text-gray-900 dark:text-zinc-300 leading-tight mb-2 text-center sm:text-4xl lg:text-5xl xl:text-6xl`}
         >
           {t("home.title")}
         </h1>
+        <p className="text-base sm:text-lg text-zinc-600 dark:text-zinc-400 mb-6 text-center">
+          {t("home.subtitle")}
+        </p>
         <form
           onSubmit={(e) => {
             e.preventDefault();

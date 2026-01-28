@@ -254,7 +254,7 @@ export default function WordCounterPage(): JSX.Element {
         />
         <meta
           name="keywords"
-          content="word counter, word count, count words online, free word counter, character counter, sentence counter, paragraph counter, reading time calculator, writing tools"
+          content="word counter, word count generator, word counter generator, free word counter, article word counter, word count tool, character counter, sentence counter, paragraph counter, reading time calculator, word count machine, word counter tool online, word counter tool free, essay word counter, blog word counter"
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
