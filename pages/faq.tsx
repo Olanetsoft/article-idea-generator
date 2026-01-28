@@ -192,7 +192,7 @@ export default function FAQ(): JSX.Element {
             <li>
               <Link
                 href="/"
-                className="hover:text-indigo-500 dark:hover:text-indigo-400 transition"
+                className="hover:text-violet-500 dark:hover:text-violet-400 transition"
               >
                 {t("header.home")}
               </Link>
@@ -289,7 +289,7 @@ export default function FAQ(): JSX.Element {
           </details>
         </div>
 
-        <div className="w-full bg-indigo-50 dark:bg-indigo-900/20 p-6 rounded-lg border border-indigo-200 dark:border-indigo-800 text-center">
+        <div className="w-full bg-violet-50 dark:bg-violet-900/20 p-6 rounded-lg border border-violet-200 dark:border-violet-800 text-center">
           <h2 className="text-xl font-bold text-gray-900 dark:text-zinc-200 mb-2">
             {t("faq.ctaTitle")}
           </h2>
@@ -298,7 +298,7 @@ export default function FAQ(): JSX.Element {
           </p>
           <Link
             href="/"
-            className="inline-block px-6 py-3 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-lg transition"
+            className="inline-block px-6 py-3 bg-violet-500 hover:bg-violet-600 text-white font-semibold rounded-lg transition"
           >
             {t("faq.ctaButton")}
           </Link>

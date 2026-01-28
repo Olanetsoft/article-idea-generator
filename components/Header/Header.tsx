@@ -142,7 +142,7 @@ export default function Header() {
             aria-label="Article Idea Generator - Home"
           >
             <svg
-              className="w-8 h-8 text-indigo-500"
+              className="w-8 h-8 text-violet-500"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -167,8 +167,8 @@ export default function Header() {
                 href={link.href}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                   isActiveLink(link.href)
-                    ? "text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30"
-                    : "text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-100 dark:hover:bg-zinc-800"
+                    ? "text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-900/30"
+                    : "text-gray-700 dark:text-gray-300 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-gray-100 dark:hover:bg-zinc-800"
                 }`}
               >
                 {link.label}
@@ -181,8 +181,8 @@ export default function Header() {
                 onClick={() => setToolsDropdownOpen(!toolsDropdownOpen)}
                 className={`flex items-center gap-1 px-4 py-2 rounded-lg font-medium transition-colors ${
                   isActiveLink("/tools")
-                    ? "text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30"
-                    : "text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-100 dark:hover:bg-zinc-800"
+                    ? "text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-900/30"
+                    : "text-gray-700 dark:text-gray-300 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-gray-100 dark:hover:bg-zinc-800"
                 }`}
                 aria-expanded={toolsDropdownOpen}
                 aria-haspopup="true"
@@ -211,7 +211,7 @@ export default function Header() {
                       href={tool.href}
                       className={`block px-4 py-2 text-sm transition-colors ${
                         router.pathname === tool.href
-                          ? "text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30"
+                          ? "text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-900/30"
                           : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800"
                       }`}
                     >
@@ -293,7 +293,7 @@ export default function Header() {
                 href={link.href}
                 className={`flex items-center gap-3 px-4 py-3.5 mx-2 rounded-xl font-medium transition-all ${
                   isActiveLink(link.href)
-                    ? "text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30"
+                    ? "text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-900/30"
                     : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 active:scale-[0.98]"
                 }`}
               >
@@ -307,7 +307,7 @@ export default function Header() {
                 onClick={() => setMobileToolsExpanded(!mobileToolsExpanded)}
                 className={`flex items-center justify-between w-full px-4 py-3.5 rounded-xl font-medium transition-all ${
                   isActiveLink("/tools")
-                    ? "text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30"
+                    ? "text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-900/30"
                     : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 active:scale-[0.98]"
                 }`}
               >
@@ -332,7 +332,7 @@ export default function Header() {
                     href="/tools"
                     className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm transition-all ${
                       router.pathname === "/tools"
-                        ? "text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30"
+                        ? "text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-900/30"
                         : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-zinc-800"
                     }`}
                   >
@@ -345,7 +345,7 @@ export default function Header() {
                       href={tool.href}
                       className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm transition-all ${
                         router.pathname === tool.href
-                          ? "text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30"
+                          ? "text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-900/30"
                           : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-zinc-800"
                       }`}
                     >
@@ -416,7 +416,7 @@ export default function Header() {
           <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-white via-white dark:from-zinc-900 dark:via-zinc-900 to-transparent pt-8">
             <Link
               href="/"
-              className="flex items-center justify-center gap-2 w-full px-4 py-3.5 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl active:scale-[0.98]"
+              className="flex items-center justify-center gap-2 w-full px-4 py-3.5 bg-violet-500 hover:bg-violet-600 text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl active:scale-[0.98]"
             >
               <svg
                 className="w-5 h-5"

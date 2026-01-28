@@ -41,13 +41,13 @@ export default function ToolCard({
     <div
       className={`bg-zinc-100 dark:bg-darkOffset rounded-lg p-4 sm:p-6 border border-zinc-200 dark:border-dark-border transition-all min-h-[100px] ${
         available
-          ? "hover:border-indigo-500 hover:shadow-md cursor-pointer"
+          ? "hover:border-violet-500 hover:shadow-md cursor-pointer"
           : "opacity-60 cursor-not-allowed"
       }`}
     >
       <div className="flex items-start gap-3 sm:gap-4">
-        <div className="p-2 sm:p-3 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex-shrink-0">
-          <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-indigo-600 dark:text-indigo-400" />
+        <div className="p-2 sm:p-3 bg-violet-100 dark:bg-violet-900/30 rounded-lg flex-shrink-0">
+          <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-violet-600 dark:text-violet-400" />
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">

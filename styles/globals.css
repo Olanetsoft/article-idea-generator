@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 input:checked + div {
-  @apply border-indigo-500;
+  @apply border-violet-500;
 }
 input:checked + div svg {
   @apply block;
@@ -61,10 +61,10 @@ input:checked + div svg {
   }
 
   ::selection {
-    @apply text-white bg-indigo-500;
+    @apply text-white bg-violet-500;
   }
 
   .btn {
-    @apply inline-block px-5 py-3 rounded-lg hover:bg-indigo-600 transition duration-300 shadow-lg bg-indigo-500 text-white capitalize tracking-wider font-semibold text-sm sm:text-xl focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:ring-opacity-50 whitespace-nowrap;
+    @apply inline-block px-5 py-3 rounded-lg hover:bg-violet-600 transition duration-300 shadow-lg bg-violet-500 text-white capitalize tracking-wider font-semibold text-sm sm:text-xl focus:outline-none focus:ring-4 focus:ring-violet-500 focus:ring-opacity-50 whitespace-nowrap;
   }
 }

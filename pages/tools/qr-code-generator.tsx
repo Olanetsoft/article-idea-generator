@@ -171,7 +171,7 @@ function InputField({
   rows = 3,
 }: InputFieldProps) {
   const baseClasses =
-    "w-full px-4 py-3 border rounded-lg bg-white dark:bg-dark-card border-zinc-200 dark:border-dark-border focus:ring-2 focus:ring-indigo-500 focus:border-transparent focus:outline-none text-zinc-900 dark:text-white placeholder-zinc-400 text-sm transition-colors";
+    "w-full px-4 py-3 border rounded-lg bg-white dark:bg-dark-card border-zinc-200 dark:border-dark-border focus:ring-2 focus:ring-violet-500 focus:border-transparent focus:outline-none text-zinc-900 dark:text-white placeholder-zinc-400 text-sm transition-colors";
 
   return (
     <div>
@@ -216,7 +216,7 @@ function SelectField({ label, value, onChange, options }: SelectFieldProps) {
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full px-4 py-3 border rounded-lg bg-white dark:bg-dark-card border-zinc-200 dark:border-dark-border focus:ring-2 focus:ring-indigo-500 focus:border-transparent focus:outline-none text-zinc-900 dark:text-white text-sm transition-colors appearance-none cursor-pointer"
+        className="w-full px-4 py-3 border rounded-lg bg-white dark:bg-dark-card border-zinc-200 dark:border-dark-border focus:ring-2 focus:ring-violet-500 focus:border-transparent focus:outline-none text-zinc-900 dark:text-white text-sm transition-colors appearance-none cursor-pointer"
       >
         {options.map((opt) => (
           <option key={opt.value} value={opt.value}>
@@ -240,8 +240,8 @@ function CheckboxField({ label, checked, onChange }: CheckboxFieldProps) {
       <div
         className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
           checked
-            ? "bg-indigo-600 border-indigo-600"
-            : "bg-white dark:bg-dark-card border-zinc-300 dark:border-zinc-600 group-hover:border-indigo-400"
+            ? "bg-violet-600 border-violet-600"
+            : "bg-white dark:bg-dark-card border-zinc-300 dark:border-zinc-600 group-hover:border-violet-400"
         }`}
         onClick={() => onChange(!checked)}
       >
@@ -962,7 +962,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
             <li>
               <Link
                 href="/"
-                className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                className="hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
               >
                 {t("header.home")}
               </Link>
@@ -971,7 +971,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
             <li>
               <Link
                 href="/tools"
-                className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                className="hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
               >
                 {t("header.tools")}
               </Link>
@@ -1004,7 +1004,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                 onClick={() => handleTypeChange(type.id)}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
                   contentType === type.id
-                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-500/20"
+                    ? "bg-violet-600 text-white shadow-md shadow-violet-500/20"
                     : "bg-zinc-100 dark:bg-dark-card text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-dark-border"
                 }`}
               >
@@ -1029,7 +1029,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                 onClick={() => setActiveTab("content")}
                 className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
                   activeTab === "content"
-                    ? "text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 dark:border-indigo-400 bg-white dark:bg-dark-card"
+                    ? "text-violet-600 dark:text-violet-400 border-b-2 border-violet-600 dark:border-violet-400 bg-white dark:bg-dark-card"
                     : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
                 }`}
               >
@@ -1039,7 +1039,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                 onClick={() => setActiveTab("style")}
                 className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
                   activeTab === "style"
-                    ? "text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 dark:border-indigo-400 bg-white dark:bg-dark-card"
+                    ? "text-violet-600 dark:text-violet-400 border-b-2 border-violet-600 dark:border-violet-400 bg-white dark:bg-dark-card"
                     : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
                 }`}
               >
@@ -1082,7 +1082,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                           className={`flex flex-col items-center gap-1.5 p-2 rounded-lg border transition-all ${
                             style.fgColor === preset.fgColor &&
                             style.bgColor === preset.bgColor
-                              ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20"
+                              ? "border-violet-500 bg-violet-50 dark:bg-violet-900/20"
                               : "border-zinc-200 dark:border-dark-border hover:border-zinc-300 dark:hover:border-zinc-600"
                           }`}
                         >
@@ -1128,7 +1128,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                           onChange={(e) =>
                             updateStyle("fgColor", e.target.value)
                           }
-                          className="flex-1 px-3 py-2 text-sm border rounded-lg bg-white dark:bg-dark-card border-zinc-200 dark:border-dark-border focus:ring-2 focus:ring-indigo-500 focus:border-transparent focus:outline-none text-zinc-900 dark:text-white uppercase"
+                          className="flex-1 px-3 py-2 text-sm border rounded-lg bg-white dark:bg-dark-card border-zinc-200 dark:border-dark-border focus:ring-2 focus:ring-violet-500 focus:border-transparent focus:outline-none text-zinc-900 dark:text-white uppercase"
                           maxLength={7}
                         />
                       </div>
@@ -1152,7 +1152,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                           onChange={(e) =>
                             updateStyle("bgColor", e.target.value)
                           }
-                          className="flex-1 px-3 py-2 text-sm border rounded-lg bg-white dark:bg-dark-card border-zinc-200 dark:border-dark-border focus:ring-2 focus:ring-indigo-500 focus:border-transparent focus:outline-none text-zinc-900 dark:text-white uppercase"
+                          className="flex-1 px-3 py-2 text-sm border rounded-lg bg-white dark:bg-dark-card border-zinc-200 dark:border-dark-border focus:ring-2 focus:ring-violet-500 focus:border-transparent focus:outline-none text-zinc-900 dark:text-white uppercase"
                           maxLength={7}
                         />
                       </div>
@@ -1171,8 +1171,8 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                           onClick={() => updateStyle("size", option.value)}
                           className={`px-2 py-2 text-xs font-medium rounded-lg transition-colors ${
                             style.size === option.value
-                              ? "bg-indigo-600 text-white"
-                              : "bg-white dark:bg-dark-card text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-dark-border hover:border-indigo-300 dark:hover:border-indigo-600"
+                              ? "bg-violet-600 text-white"
+                              : "bg-white dark:bg-dark-card text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-dark-border hover:border-violet-300 dark:hover:border-violet-600"
                           }`}
                         >
                           {option.value}px
@@ -1195,8 +1195,8 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                           }
                           className={`flex flex-col items-start px-3 py-2.5 rounded-lg text-left transition-colors ${
                             style.errorCorrection === option.value
-                              ? "bg-indigo-600 text-white"
-                              : "bg-white dark:bg-dark-card text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-dark-border hover:border-indigo-300 dark:hover:border-indigo-600"
+                              ? "bg-violet-600 text-white"
+                              : "bg-white dark:bg-dark-card text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-dark-border hover:border-violet-300 dark:hover:border-violet-600"
                           }`}
                         >
                           <span className="font-medium text-sm">
@@ -1205,7 +1205,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                           <span
                             className={`text-xs mt-0.5 ${
                               style.errorCorrection === option.value
-                                ? "text-indigo-100"
+                                ? "text-violet-100"
                                 : "text-zinc-500 dark:text-zinc-400"
                             }`}
                           >
@@ -1230,7 +1230,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                 <button
                   onClick={handleGenerate}
                   disabled={!validation.isValid}
-                  className="flex-1 px-4 py-3 bg-indigo-600 hover:bg-indigo-700 disabled:bg-zinc-300 dark:disabled:bg-zinc-700 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors shadow-md shadow-indigo-500/20 disabled:shadow-none"
+                  className="flex-1 px-4 py-3 bg-violet-600 hover:bg-violet-700 disabled:bg-zinc-300 dark:disabled:bg-zinc-700 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors shadow-md shadow-violet-500/20 disabled:shadow-none"
                 >
                   {t("tools.qrCode.generate")}
                 </button>
@@ -1304,7 +1304,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                   <div ref={downloadRef} className="relative flex-1">
                     <button
                       onClick={() => setDownloadDropdown(!downloadDropdown)}
-                      className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors text-sm"
+                      className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-violet-600 hover:bg-violet-700 text-white font-medium rounded-lg transition-colors text-sm"
                     >
                       <DownloadIcon className="w-4 h-4" />
                       {t("tools.qrCode.download")}
@@ -1449,7 +1449,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* Feature Cards */}
               <div className="p-4 bg-white dark:bg-dark-card rounded-lg border border-zinc-200 dark:border-dark-border">
-                <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center mb-3">
+                <div className="w-10 h-10 bg-violet-100 dark:bg-violet-900/30 rounded-lg flex items-center justify-center mb-3">
                   <span className="text-xl">🎨</span>
                 </div>
                 <h3 className="font-semibold text-zinc-900 dark:text-white mb-2">
@@ -1581,7 +1581,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
         </section>
 
         {/* CTA Banner */}
-        <div className="w-full max-w-screen-lg mt-12 p-6 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg text-center border border-indigo-100 dark:border-indigo-800">
+        <div className="w-full max-w-screen-lg mt-12 p-6 bg-violet-50 dark:bg-violet-900/20 rounded-lg text-center border border-violet-100 dark:border-violet-800">
           <h2 className="text-xl font-semibold text-zinc-900 dark:text-white mb-2">
             {t("tools.bottomCtaTitle")}
           </h2>
@@ -1590,7 +1590,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
           </p>
           <Link
             href="/"
-            className="inline-flex items-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition-colors"
+            className="inline-flex items-center px-6 py-3 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-lg transition-colors"
           >
             {t("tools.tryGenerator")}
             <svg

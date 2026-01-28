@@ -61,13 +61,13 @@ export default class ErrorBoundary extends Component<
               We encountered an unexpected error. Please try again.
             </p>
             {process.env.NODE_ENV === "development" && this.state.error && (
-              <pre className="text-left text-xs bg-gray-100 dark:bg-gray-800 p-3 rounded-lg mb-4 overflow-auto max-h-32 text-red-600 dark:text-red-400">
+              <pre className="text-left text-xs bg-gray-100 dark:bg-dark-card p-3 rounded-lg mb-4 overflow-auto max-h-32 text-red-600 dark:text-red-400">
                 {this.state.error.message}
               </pre>
             )}
             <button
               onClick={this.handleReset}
-              className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+              className="px-6 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 dark:ring-offset-black"
             >
               Try Again
             </button>

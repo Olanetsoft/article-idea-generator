@@ -80,10 +80,10 @@ function CaseCard({ caseResult, onCopy, isCopied, index }: CaseCardProps) {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2, delay: index * 0.02 }}
-      className="group bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-md transition-all duration-200"
+      className="group bg-white dark:bg-dark-card rounded-xl border border-gray-200 dark:border-dark-border overflow-hidden hover:border-violet-400 dark:hover:border-violet-500 hover:shadow-md transition-all duration-200"
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 bg-gray-50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-700">
+      <div className="flex items-center justify-between px-4 py-3 bg-gray-50 dark:bg-dark-card/50 border-b border-gray-100 dark:border-dark-border">
         <div className="flex items-center gap-2 min-w-0">
           <span className="text-lg flex-shrink-0" role="img" aria-hidden="true">
             {caseResult.icon}
@@ -103,7 +103,7 @@ function CaseCard({ caseResult, onCopy, isCopied, index }: CaseCardProps) {
           className={`p-2 rounded-lg transition-all flex-shrink-0 ${
             isCopied
               ? "bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400"
-              : "bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400 disabled:opacity-40 disabled:cursor-not-allowed"
+              : "bg-gray-100 dark:bg-dark-card text-gray-500 dark:text-gray-400 hover:bg-violet-100 dark:hover:bg-violet-900/30 hover:text-violet-600 dark:hover:text-violet-400 disabled:opacity-40 disabled:cursor-not-allowed"
           }`}
           aria-label={isCopied ? "Copied!" : `Copy ${caseResult.label}`}
         >
@@ -141,7 +141,7 @@ interface StatBadgeProps {
 
 function StatBadge({ label, value, icon }: StatBadgeProps) {
   return (
-    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 dark:bg-gray-700 rounded-full text-xs">
+    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 dark:bg-dark-card rounded-full text-xs">
       {icon}
       <span className="text-gray-500 dark:text-gray-400">{label}:</span>
       <span className="font-medium text-gray-700 dark:text-gray-200">
@@ -456,7 +456,7 @@ export default function TitleCasePage(): JSX.Element {
             <li>
               <Link
                 href="/"
-                className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                className="hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
               >
                 {t("header.home")}
               </Link>
@@ -465,7 +465,7 @@ export default function TitleCasePage(): JSX.Element {
             <li>
               <Link
                 href="/tools"
-                className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                className="hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
               >
                 {t("header.tools")}
               </Link>
@@ -491,14 +491,14 @@ export default function TitleCasePage(): JSX.Element {
 
         {/* Input Section */}
         <section className="w-full mb-6">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-lg overflow-hidden">
+          <div className="bg-white dark:bg-dark-card rounded-2xl border border-gray-200 dark:border-dark-border shadow-lg overflow-hidden">
             {/* Input Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 sm:px-6 py-4 border-b border-gray-100 dark:border-gray-700">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 sm:px-6 py-4 border-b border-gray-100 dark:border-dark-border">
               <label
                 htmlFor="text-input"
                 className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2"
               >
-                <LightningBoltIcon className="w-4 h-4 text-blue-500" />
+                <LightningBoltIcon className="w-4 h-4 text-violet-500" />
                 {t("tools.titleCase.inputLabel")}
               </label>
 
@@ -509,7 +509,7 @@ export default function TitleCasePage(): JSX.Element {
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.9 }}
-                      className="text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2.5 py-1 rounded-full font-medium"
+                      className="text-xs bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 px-2.5 py-1 rounded-full font-medium"
                     >
                       {t("tools.titleCase.detected")}: {detectedCase}
                     </motion.span>
@@ -528,7 +528,7 @@ export default function TitleCasePage(): JSX.Element {
                 value={text}
                 onChange={handleTextChange}
                 placeholder={t("tools.titleCase.placeholder")}
-                className="w-full h-40 sm:h-48 md:h-52 p-4 text-gray-800 dark:text-gray-200 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-all text-base"
+                className="w-full h-40 sm:h-48 md:h-52 p-4 text-gray-800 dark:text-gray-200 bg-gray-50 dark:bg-dark-card rounded-xl border border-gray-200 dark:border-dark-border focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none transition-all text-base"
                 aria-label="Text input for case conversion"
                 spellCheck={false}
               />
@@ -543,7 +543,7 @@ export default function TitleCasePage(): JSX.Element {
                   <button
                     key={i}
                     onClick={() => handleSampleClick(sample.text)}
-                    className="text-xs px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                    className="text-xs px-2.5 py-1 bg-gray-100 dark:bg-dark-card text-gray-600 dark:text-gray-300 rounded-full hover:bg-violet-100 dark:hover:bg-violet-900/30 hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
                   >
                     {sample.label}
                   </button>
@@ -552,11 +552,11 @@ export default function TitleCasePage(): JSX.Element {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-2 px-4 sm:px-6 py-4 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-700">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-2 px-4 sm:px-6 py-4 bg-gray-50 dark:bg-dark-card/50 border-t border-gray-100 dark:border-dark-border">
               <div className="flex items-center gap-2">
                 <button
                   onClick={handlePaste}
-                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 sm:py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 sm:py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-lg hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors"
                 >
                   <ClipboardIcon className="w-4 h-4" />
                   {t("tools.titleCase.paste")}
@@ -564,7 +564,7 @@ export default function TitleCasePage(): JSX.Element {
                 <button
                   onClick={clearText}
                   disabled={!text}
-                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 sm:py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 sm:py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-lg hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <TrashIcon className="w-4 h-4" />
                   {t("tools.titleCase.clear")}
@@ -577,7 +577,7 @@ export default function TitleCasePage(): JSX.Element {
                 className={`w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 sm:py-2 text-sm font-semibold rounded-lg transition-all ${
                   copiedId === "all"
                     ? "bg-green-500 text-white"
-                    : "bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    : "bg-violet-600 text-white hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 }`}
               >
                 {copiedId === "all" ? (
@@ -630,7 +630,7 @@ export default function TitleCasePage(): JSX.Element {
         )}
 
         {/* About Section */}
-        <section className="w-full bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 sm:p-8 mb-8">
+        <section className="w-full bg-white dark:bg-dark-card rounded-2xl border border-gray-200 dark:border-dark-border p-6 sm:p-8 mb-8">
           <h2
             className={`text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-4 ${spaceGrotesk.className}`}
           >
@@ -642,7 +642,7 @@ export default function TitleCasePage(): JSX.Element {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Writing */}
-            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-5">
+            <div className="bg-violet-50 dark:bg-violet-900/20 rounded-xl p-5">
               <h3 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
                 <span className="text-lg">✍️</span>
                 {t("tools.titleCase.writingStylesTitle")}
@@ -696,16 +696,16 @@ export default function TitleCasePage(): JSX.Element {
         </section>
 
         {/* CTA Section */}
-        <section className="w-full bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-6 sm:p-8 text-center">
+        <section className="w-full bg-gradient-to-r from-violet-600 to-purple-600 rounded-2xl p-6 sm:p-8 text-center">
           <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">
             {t("tools.bottomCtaTitle")}
           </h2>
-          <p className="text-blue-100 mb-4">
+          <p className="text-violet-100 mb-4">
             {t("tools.bottomCtaDescription")}
           </p>
           <Link
             href="/"
-            className="inline-block px-6 py-3 bg-white text-blue-600 font-semibold rounded-xl hover:bg-blue-50 transition-colors"
+            className="inline-block px-6 py-3 bg-white text-violet-600 font-semibold rounded-xl hover:bg-violet-50 transition-colors"
           >
             {t("tools.tryGenerator")}
           </Link>

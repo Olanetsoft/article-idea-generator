@@ -22,7 +22,7 @@ function StatItem({ label, value, highlight = false }: StatItemProps) {
     <div
       className={`p-2 sm:p-3 rounded-lg ${
         highlight
-          ? "bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800"
+          ? "bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-800"
           : "bg-white dark:bg-dark-card border border-zinc-200 dark:border-dark-border"
       }`}
     >
@@ -32,7 +32,7 @@ function StatItem({ label, value, highlight = false }: StatItemProps) {
       <p
         className={`text-lg sm:text-2xl font-bold ${
           highlight
-            ? "text-indigo-600 dark:text-indigo-400"
+            ? "text-violet-600 dark:text-violet-400"
             : "text-zinc-900 dark:text-white"
         }`}
       >
