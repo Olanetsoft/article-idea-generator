@@ -18,6 +18,9 @@ import type {
   YouTubeData,
   FacebookData,
   BitcoinData,
+  EthereumData,
+  CardanoData,
+  SolanaData,
   AppStoreData,
   ValidationResult,
 } from "@/types/qr-code";
@@ -304,6 +307,73 @@ export function generateBitcoinValue(data: BitcoinData): string {
 }
 
 /**
+ * Generates an Ethereum payment QR value (EIP-681 format)
+ */
+export function generateEthereumValue(data: EthereumData): string {
+  const { address, amount, tokenAddress, chainId } = data;
+  if (!address) return "";
+
+  // EIP-681: ethereum:[pay-]<address>[@<chain_id>][/<function_name>][?<parameters>]
+  let uri = `ethereum:${address}`;
+
+  if (chainId) {
+    uri += `@${chainId}`;
+  }
+
+  const params: string[] = [];
+  if (amount) params.push(`value=${parseFloat(amount) * 1e18}`); // Convert ETH to Wei
+  if (tokenAddress) params.push(`token=${tokenAddress}`);
+
+  if (params.length > 0) {
+    uri += `?${params.join("&")}`;
+  }
+
+  return uri;
+}
+
+/**
+ * Generates a Cardano payment QR value (CIP-13 format)
+ */
+export function generateCardanoValue(data: CardanoData): string {
+  const { address, amount } = data;
+  if (!address) return "";
+
+  // CIP-13: web+cardano:<address>[?amount=<lovelace>]
+  let uri = `web+cardano:${address}`;
+
+  if (amount) {
+    // Convert ADA to Lovelace (1 ADA = 1,000,000 Lovelace)
+    const lovelace = parseFloat(amount) * 1e6;
+    uri += `?amount=${lovelace}`;
+  }
+
+  return uri;
+}
+
+/**
+ * Generates a Solana payment QR value (Solana Pay format)
+ */
+export function generateSolanaValue(data: SolanaData): string {
+  const { address, amount, reference, label, message } = data;
+  if (!address) return "";
+
+  // Solana Pay: solana:<recipient>[?amount=<amount>][&reference=<reference>][&label=<label>][&message=<message>]
+  let uri = `solana:${address}`;
+  const params: string[] = [];
+
+  if (amount) params.push(`amount=${amount}`);
+  if (reference) params.push(`reference=${reference}`);
+  if (label) params.push(`label=${encodeURIComponent(label)}`);
+  if (message) params.push(`message=${encodeURIComponent(message)}`);
+
+  if (params.length > 0) {
+    uri += `?${params.join("&")}`;
+  }
+
+  return uri;
+}
+
+/**
  * Generates an App Store QR value
  */
 export function generateAppStoreValue(data: AppStoreData): string {
@@ -361,6 +431,12 @@ export function generateQRValue(
       return generateFacebookValue(data as unknown as FacebookData);
     case "bitcoin":
       return generateBitcoinValue(data as unknown as BitcoinData);
+    case "ethereum":
+      return generateEthereumValue(data as unknown as EthereumData);
+    case "cardano":
+      return generateCardanoValue(data as unknown as CardanoData);
+    case "solana":
+      return generateSolanaValue(data as unknown as SolanaData);
     case "appstore":
       return generateAppStoreValue(data as unknown as AppStoreData);
     default:
@@ -563,6 +639,42 @@ export function validateQRContent(
         !/^bc1[a-zA-HJ-NP-Z0-9]{39,59}$/.test(bitcoin.address)
       ) {
         return { isValid: false, error: "Invalid Bitcoin address format" };
+      }
+      return { isValid: true };
+    }
+
+    case "ethereum": {
+      const ethereum = data as unknown as EthereumData;
+      if (!ethereum.address) {
+        return { isValid: false, error: "Ethereum address is required" };
+      }
+      // Ethereum address: 0x followed by 40 hex characters
+      if (!/^0x[a-fA-F0-9]{40}$/.test(ethereum.address)) {
+        return { isValid: false, error: "Invalid Ethereum address format" };
+      }
+      return { isValid: true };
+    }
+
+    case "cardano": {
+      const cardano = data as unknown as CardanoData;
+      if (!cardano.address) {
+        return { isValid: false, error: "Cardano address is required" };
+      }
+      // Cardano Shelley addresses start with addr1
+      if (!/^addr1[a-zA-Z0-9]{50,}$/.test(cardano.address)) {
+        return { isValid: false, error: "Invalid Cardano address format" };
+      }
+      return { isValid: true };
+    }
+
+    case "solana": {
+      const solana = data as unknown as SolanaData;
+      if (!solana.address) {
+        return { isValid: false, error: "Solana address is required" };
+      }
+      // Solana addresses are 32-44 base58 characters
+      if (!/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(solana.address)) {
+        return { isValid: false, error: "Invalid Solana address format" };
       }
       return { isValid: true };
     }

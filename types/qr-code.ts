@@ -21,6 +21,9 @@ export type QRContentType =
   | "youtube"
   | "facebook"
   | "bitcoin"
+  | "ethereum"
+  | "cardano"
+  | "solana"
   | "appstore";
 
 // ============================================================================
@@ -112,6 +115,26 @@ export interface BitcoinData {
   message?: string;
 }
 
+export interface EthereumData {
+  address: string;
+  amount?: string;
+  tokenAddress?: string;
+  chainId?: string;
+}
+
+export interface CardanoData {
+  address: string;
+  amount?: string;
+}
+
+export interface SolanaData {
+  address: string;
+  amount?: string;
+  reference?: string;
+  label?: string;
+  message?: string;
+}
+
 export interface AppStoreData {
   appId: string;
   platform: "ios" | "android" | "both";
@@ -132,6 +155,9 @@ export type QRData =
   | YouTubeData
   | FacebookData
   | BitcoinData
+  | EthereumData
+  | CardanoData
+  | SolanaData
   | AppStoreData;
 
 // ============================================================================

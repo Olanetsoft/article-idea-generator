@@ -86,6 +86,9 @@ const QR_TYPES: {
   { id: "appstore", icon: "📱", category: "social" },
   // Payment types
   { id: "bitcoin", icon: "₿", category: "payment" },
+  { id: "ethereum", icon: "⟠", category: "payment" },
+  { id: "cardano", icon: "🔷", category: "payment" },
+  { id: "solana", icon: "◎", category: "payment" },
 ];
 
 // Default style settings
@@ -149,6 +152,12 @@ const getInitialData = (type: QRContentType): Record<string, unknown> => {
       return { username: "", pageId: "" };
     case "bitcoin":
       return { address: "", amount: "", label: "", message: "" };
+    case "ethereum":
+      return { address: "", amount: "", tokenAddress: "", chainId: "" };
+    case "cardano":
+      return { address: "", amount: "" };
+    case "solana":
+      return { address: "", amount: "", reference: "", label: "", message: "" };
     case "appstore":
       return { appId: "", platform: "ios" };
     default:
@@ -701,6 +710,108 @@ function BitcoinForm({ data, updateField, t }: FormProps) {
   );
 }
 
+function EthereumForm({ data, updateField, t }: FormProps) {
+  return (
+    <div className="space-y-4">
+      <InputField
+        label={t("tools.qrCode.ethereumAddress")}
+        value={(data.address as string) || ""}
+        onChange={(v) => updateField("address", v)}
+        placeholder={t("tools.qrCode.ethereumAddressPlaceholder")}
+        required
+      />
+      <InputField
+        label={t("tools.qrCode.ethereumAmount")}
+        value={(data.amount as string) || ""}
+        onChange={(v) => updateField("amount", v)}
+        placeholder={t("tools.qrCode.ethereumAmountPlaceholder")}
+      />
+      <InputField
+        label={t("tools.qrCode.ethereumToken")}
+        value={(data.tokenAddress as string) || ""}
+        onChange={(v) => updateField("tokenAddress", v)}
+        placeholder={t("tools.qrCode.ethereumTokenPlaceholder")}
+      />
+      <SelectField
+        label={t("tools.qrCode.ethereumNetwork")}
+        value={(data.chainId as string) || ""}
+        onChange={(v) => updateField("chainId", v)}
+        options={[
+          { value: "", label: "Mainnet (default)" },
+          { value: "1", label: "Ethereum Mainnet" },
+          { value: "137", label: "Polygon" },
+          { value: "56", label: "BNB Smart Chain" },
+          { value: "42161", label: "Arbitrum One" },
+          { value: "10", label: "Optimism" },
+        ]}
+      />
+      <p className="text-xs text-zinc-500 dark:text-zinc-400">
+        {t("tools.qrCode.ethereumHint")}
+      </p>
+    </div>
+  );
+}
+
+function CardanoForm({ data, updateField, t }: FormProps) {
+  return (
+    <div className="space-y-4">
+      <InputField
+        label={t("tools.qrCode.cardanoAddress")}
+        value={(data.address as string) || ""}
+        onChange={(v) => updateField("address", v)}
+        placeholder={t("tools.qrCode.cardanoAddressPlaceholder")}
+        required
+      />
+      <InputField
+        label={t("tools.qrCode.cardanoAmount")}
+        value={(data.amount as string) || ""}
+        onChange={(v) => updateField("amount", v)}
+        placeholder={t("tools.qrCode.cardanoAmountPlaceholder")}
+      />
+      <p className="text-xs text-zinc-500 dark:text-zinc-400">
+        {t("tools.qrCode.cardanoHint")}
+      </p>
+    </div>
+  );
+}
+
+function SolanaForm({ data, updateField, t }: FormProps) {
+  return (
+    <div className="space-y-4">
+      <InputField
+        label={t("tools.qrCode.solanaAddress")}
+        value={(data.address as string) || ""}
+        onChange={(v) => updateField("address", v)}
+        placeholder={t("tools.qrCode.solanaAddressPlaceholder")}
+        required
+      />
+      <InputField
+        label={t("tools.qrCode.solanaAmount")}
+        value={(data.amount as string) || ""}
+        onChange={(v) => updateField("amount", v)}
+        placeholder={t("tools.qrCode.solanaAmountPlaceholder")}
+      />
+      <InputField
+        label={t("tools.qrCode.solanaLabel")}
+        value={(data.label as string) || ""}
+        onChange={(v) => updateField("label", v)}
+        placeholder={t("tools.qrCode.solanaLabelPlaceholder")}
+      />
+      <InputField
+        label={t("tools.qrCode.solanaMessage")}
+        value={(data.message as string) || ""}
+        onChange={(v) => updateField("message", v)}
+        placeholder={t("tools.qrCode.solanaMessagePlaceholder")}
+        multiline
+        rows={2}
+      />
+      <p className="text-xs text-zinc-500 dark:text-zinc-400">
+        {t("tools.qrCode.solanaHint")}
+      </p>
+    </div>
+  );
+}
+
 function AppStoreForm({ data, updateField, t }: FormProps) {
   return (
     <div className="space-y-4">
@@ -964,6 +1075,12 @@ export default function QRCodeGeneratorPage(): JSX.Element {
         return <FacebookForm {...formProps} />;
       case "bitcoin":
         return <BitcoinForm {...formProps} />;
+      case "ethereum":
+        return <EthereumForm {...formProps} />;
+      case "cardano":
+        return <CardanoForm {...formProps} />;
+      case "solana":
+        return <SolanaForm {...formProps} />;
       case "appstore":
         return <AppStoreForm {...formProps} />;
       default:
@@ -990,7 +1107,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
         <meta name="description" content={t("tools.qrCode.pageDescription")} />
         <meta
           name="keywords"
-          content="qr code generator, free qr code, create qr code, qr code maker, custom qr code, wifi qr code, vcard qr code, url qr code, qr code online, business qr code"
+          content="qr code generator, free qr code, create qr code, qr code maker, custom qr code, wifi qr code, vcard qr code, bitcoin qr code, ethereum qr code, crypto payment qr, twitter qr code, youtube qr code, qr code with logo, qr code online"
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
@@ -1122,7 +1239,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                   name: "What types of QR codes can I create?",
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "You can create QR codes for URLs/websites, plain text, WiFi networks, vCard contacts, email addresses, phone numbers, SMS messages, geographic locations, and calendar events.",
+                    text: "You can create 17+ types of QR codes: Basic (URLs, text, WiFi, vCard, email, phone, SMS, location, calendar), Social Media (Twitter/X, YouTube, Facebook, App Store), and Crypto Payments (Bitcoin, Ethereum, Cardano, Solana).",
                   },
                 },
                 {
@@ -1135,18 +1252,18 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                 },
                 {
                   "@type": "Question",
-                  name: "What download formats are available?",
+                  name: "Can I add a logo to my QR code?",
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "You can download your QR code as PNG (best for web), SVG (best for print, scalable), or JPG (smaller file size).",
+                    text: "Yes! You can upload your own logo (PNG, JPG, SVG up to 2MB) and it will be centered in the QR code. The error correction is automatically increased for reliable scanning.",
                   },
                 },
                 {
                   "@type": "Question",
-                  name: "Can I customize the QR code colors?",
+                  name: "What crypto payments are supported?",
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "Yes! You can choose from 8 pre-designed color presets or create custom colors with our color picker. You can also adjust the size and error correction level for optimal scanning.",
+                    text: "We support Bitcoin (BIP21), Ethereum (EIP-681 with multi-chain support), Cardano (CIP-13), and Solana Pay. You can include amount, labels, and messages in payment QR codes.",
                   },
                 },
               ],
