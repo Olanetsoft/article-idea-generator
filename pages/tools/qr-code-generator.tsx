@@ -807,6 +807,21 @@ export default function QRCodeGeneratorPage(): JSX.Element {
     setHistory(getHistory());
   }, []);
 
+  // Handle URL query parameter (for integration with URL shortener)
+  useEffect(() => {
+    const { url } = router.query;
+    if (url && typeof url === "string") {
+      // Set content type to URL and pre-fill the URL
+      setContentType("url");
+      setData({ url: url });
+      setHasInteracted(true);
+      // Auto-generate the QR code
+      setIsGenerated(true);
+      // Clear the query param from URL without reload
+      router.replace("/tools/qr-code-generator", undefined, { shallow: true });
+    }
+  }, [router.query]);
+
   // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
