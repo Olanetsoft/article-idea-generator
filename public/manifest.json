@@ -4,9 +4,10 @@
   "display": "standalone",
   "scope": "/",
   "start_url": "/",
-  "name": "Article Idea Generator",
-  "short_name": "AIG",
-  "description": "Free AI-powered article title generator. Create SEO-optimized, engaging titles instantly. Beat writer's block with GPT-4o-mini.",
+  "name": "Article Idea Generator & Free Writing Tools",
+  "short_name": "AIG Tools",
+  "description": "Free AI-powered article title generator plus writing tools: Cover Image Generator, QR Code Generator, JSON Formatter, URL Shortener, Title Case Converter, and Word Counter. All tools are free, no signup required.",
+  "categories": ["productivity", "utilities", "developer tools"],
   "icons": [
     {
       "src": "/icon-192x192.png",
@@ -27,6 +28,29 @@
       "src": "/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Cover Image Generator",
+      "short_name": "Covers",
+      "description": "Create stunning blog cover images",
+      "url": "/tools/cover-image-generator",
+      "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "QR Code Generator",
+      "short_name": "QR Codes",
+      "description": "Generate QR codes for any content",
+      "url": "/tools/qr-code-generator",
+      "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "JSON Formatter",
+      "short_name": "JSON",
+      "description": "Format and validate JSON",
+      "url": "/tools/json-formatter",
+      "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
     }
   ]
 }

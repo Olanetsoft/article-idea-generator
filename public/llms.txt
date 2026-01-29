@@ -117,16 +117,39 @@ Perfect for social media, marketing campaigns, print materials, and messaging.
 ### Cover Image Generator
 URL: https://articleideagenerator.com/tools/cover-image-generator
 
-Free online cover image generator for blog posts and social media:
-- Beautiful gradient backgrounds (12+ presets)
-- Pre-configured sizes for Twitter, LinkedIn, Dev.to, Medium, Hashnode
-- Multiple font styles (Inter, Space Grotesk, Playfair, Roboto Mono, Poppins)
-- Pattern overlays (dots, grid, diagonal, circuit, noise)
-- Custom text alignment and font sizes
-- Real-time preview
-- High-quality PNG download
+The most feature-rich free cover image generator for blog posts and social media:
 
-Perfect for bloggers, developers, and content creators who need professional cover images.
+**24+ Gradient Presets** organized by mood:
+- Vibrant: Purple Dream, Sunset Glow, Ocean Wave, Flamingo, Aurora, Citrus Punch, Neon Lights, Cotton Candy
+- Dark & Professional: Midnight, Deep Sea, Noir, Charcoal, Space, Dark Violet
+- Nature: Forest, Clear Sky, Sunrise, Meadow, Autumn Leaves, Ocean Deep
+- Minimal: Clean White, Soft Gray, Cream, Misty Rose
+- Custom color picker for your own gradients
+
+**16 Platform Size Presets**:
+- Social Media: Twitter/X (1200×675), LinkedIn (1200×627), Facebook (1200×630), Instagram Landscape/Square/Story, Pinterest (1000×1500), YouTube Thumbnail (1280×720)
+- Blogging: Dev.to (1000×420), Medium (1400×787), Hashnode (1600×840), Substack (1456×816), Ghost (2000×1200), WordPress (1200×628)
+- General: Open Graph (1200×630), Custom dimensions
+
+**12 Pattern Overlays**: Dots, Grid, Diagonal Lines, Waves, Circuit Board, Topography, Hexagons, Triangles, Crosses, Noise/Grain, Confetti
+
+**8 Theme Layouts**: Centered, Modern Split, Minimal, Bold, Card, Corner Badge, Gradient Text, Outlined
+
+**30+ Dev Icons** via devicon CDN: React, Next.js, TypeScript, JavaScript, Node.js, Python, Rust, Go, Docker, Kubernetes, AWS, Firebase, PostgreSQL, MongoDB, GraphQL, Tailwind CSS, Vue, Angular, Svelte, and more
+
+**8 Quick-Start Templates**: Tech Blog, Tutorial, Announcement, Dark Minimal, Professional, Vibrant, Code Focused, Clean Light
+
+**Key Features**:
+- Download all 15 sizes at once with one click
+- Custom logo upload (up to 5MB)
+- Gradient angle control (0-360°)
+- Pattern opacity slider
+- Settings saved to localStorage
+- Copy settings as JSON
+- Real-time preview
+- High-quality PNG export
+
+Perfect for bloggers, developers, content creators, and marketers who need professional cover images without design skills.
 
 ### Coming Soon
 - Character Counter - Track limits for Twitter, LinkedIn, meta descriptions

@@ -8,11 +8,11 @@ export type { Tool, ToolIcon };
 
 export const tools: Tool[] = [
   {
-    id: "word-counter",
-    nameKey: "tools.wordCounter.name",
-    descriptionKey: "tools.wordCounter.description",
-    href: "/tools/word-counter",
-    icon: "document",
+    id: "cover-image-generator",
+    nameKey: "tools.coverImage.name",
+    descriptionKey: "tools.coverImage.description",
+    href: "/tools/cover-image-generator",
+    icon: "photograph",
     available: true,
   },
   {
@@ -21,14 +21,6 @@ export const tools: Tool[] = [
     descriptionKey: "tools.qrCode.description",
     href: "/tools/qr-code-generator",
     icon: "qrcode",
-    available: true,
-  },
-  {
-    id: "title-case-converter",
-    nameKey: "tools.titleCase.name",
-    descriptionKey: "tools.titleCase.description",
-    href: "/tools/title-case",
-    icon: "text",
     available: true,
   },
   {
@@ -48,11 +40,19 @@ export const tools: Tool[] = [
     available: true,
   },
   {
-    id: "cover-image-generator",
-    nameKey: "tools.coverImage.name",
-    descriptionKey: "tools.coverImage.description",
-    href: "/tools/cover-image-generator",
-    icon: "photograph",
+    id: "title-case-converter",
+    nameKey: "tools.titleCase.name",
+    descriptionKey: "tools.titleCase.description",
+    href: "/tools/title-case",
+    icon: "text",
+    available: true,
+  },
+  {
+    id: "word-counter",
+    nameKey: "tools.wordCounter.name",
+    descriptionKey: "tools.wordCounter.description",
+    href: "/tools/word-counter",
+    icon: "document",
     available: true,
   },
   {
