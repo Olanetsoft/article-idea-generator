@@ -23,11 +23,15 @@ import type {
   QRContentType,
   QRStyleSettings,
   ErrorCorrectionLevel,
+  FrameStyle,
 } from "@/types/qr-code";
 import {
   COLOR_PRESETS,
   SIZE_OPTIONS,
   ERROR_CORRECTION_OPTIONS,
+  FRAME_TEMPLATES,
+  FRAME_TEXT_PRESETS,
+  STYLE_PRESETS,
 } from "@/types/qr-code";
 import {
   generateQRValue,
@@ -63,16 +67,28 @@ const spaceGrotesk = Space_Grotesk({
 const QR_TYPES: {
   id: QRContentType;
   icon: string;
+  category?: "basic" | "social" | "payment";
 }[] = [
-  { id: "url", icon: "🔗" },
-  { id: "text", icon: "📝" },
-  { id: "wifi", icon: "📶" },
-  { id: "vcard", icon: "👤" },
-  { id: "email", icon: "✉️" },
-  { id: "phone", icon: "📞" },
-  { id: "sms", icon: "💬" },
-  { id: "location", icon: "📍" },
-  { id: "event", icon: "📅" },
+  // Basic types
+  { id: "url", icon: "🔗", category: "basic" },
+  { id: "text", icon: "📝", category: "basic" },
+  { id: "wifi", icon: "📶", category: "basic" },
+  { id: "vcard", icon: "👤", category: "basic" },
+  { id: "email", icon: "✉️", category: "basic" },
+  { id: "phone", icon: "📞", category: "basic" },
+  { id: "sms", icon: "💬", category: "basic" },
+  { id: "location", icon: "📍", category: "basic" },
+  { id: "event", icon: "📅", category: "basic" },
+  // Social types
+  { id: "twitter", icon: "🐦", category: "social" },
+  { id: "youtube", icon: "▶️", category: "social" },
+  { id: "facebook", icon: "👍", category: "social" },
+  { id: "appstore", icon: "📱", category: "social" },
+  // Payment types
+  { id: "bitcoin", icon: "₿", category: "payment" },
+  { id: "ethereum", icon: "⟠", category: "payment" },
+  { id: "cardano", icon: "🔷", category: "payment" },
+  { id: "solana", icon: "◎", category: "payment" },
 ];
 
 // Default style settings
@@ -128,6 +144,22 @@ const getInitialData = (type: QRContentType): Record<string, unknown> => {
         endTime: "",
         description: "",
       };
+    case "twitter":
+      return { username: "" };
+    case "youtube":
+      return { videoId: "", channelId: "" };
+    case "facebook":
+      return { username: "", pageId: "" };
+    case "bitcoin":
+      return { address: "", amount: "", label: "", message: "" };
+    case "ethereum":
+      return { address: "", amount: "", tokenAddress: "", chainId: "" };
+    case "cardano":
+      return { address: "", amount: "" };
+    case "solana":
+      return { address: "", amount: "", reference: "", label: "", message: "" };
+    case "appstore":
+      return { appId: "", platform: "ios" };
     default:
       return {};
   }
@@ -592,6 +624,226 @@ function EventForm({ data, updateField, t }: FormProps) {
   );
 }
 
+function TwitterForm({ data, updateField, t }: FormProps) {
+  return (
+    <InputField
+      label={t("tools.qrCode.twitterUsername")}
+      value={(data.username as string) || ""}
+      onChange={(v) => updateField("username", v)}
+      placeholder={t("tools.qrCode.twitterPlaceholder")}
+      required
+    />
+  );
+}
+
+function YouTubeForm({ data, updateField, t }: FormProps) {
+  return (
+    <div className="space-y-4">
+      <InputField
+        label={t("tools.qrCode.youtubeVideo")}
+        value={(data.videoId as string) || ""}
+        onChange={(v) => updateField("videoId", v)}
+        placeholder={t("tools.qrCode.youtubeVideoPlaceholder")}
+      />
+      <div className="flex items-center gap-4 my-3">
+        <div className="flex-1 h-px bg-zinc-200 dark:bg-zinc-700" />
+        <span className="text-xs text-zinc-400">{t("tools.qrCode.or")}</span>
+        <div className="flex-1 h-px bg-zinc-200 dark:bg-zinc-700" />
+      </div>
+      <InputField
+        label={t("tools.qrCode.youtubeChannel")}
+        value={(data.channelId as string) || ""}
+        onChange={(v) => updateField("channelId", v)}
+        placeholder={t("tools.qrCode.youtubeChannelPlaceholder")}
+      />
+    </div>
+  );
+}
+
+function FacebookForm({ data, updateField, t }: FormProps) {
+  return (
+    <div className="space-y-4">
+      <InputField
+        label={t("tools.qrCode.facebookUsername")}
+        value={(data.username as string) || ""}
+        onChange={(v) => updateField("username", v)}
+        placeholder={t("tools.qrCode.facebookPlaceholder")}
+      />
+      <p className="text-xs text-zinc-500 dark:text-zinc-400">
+        {t("tools.qrCode.facebookHint")}
+      </p>
+    </div>
+  );
+}
+
+function BitcoinForm({ data, updateField, t }: FormProps) {
+  return (
+    <div className="space-y-4">
+      <InputField
+        label={t("tools.qrCode.bitcoinAddress")}
+        value={(data.address as string) || ""}
+        onChange={(v) => updateField("address", v)}
+        placeholder={t("tools.qrCode.bitcoinAddressPlaceholder")}
+        required
+      />
+      <InputField
+        label={t("tools.qrCode.bitcoinAmount")}
+        value={(data.amount as string) || ""}
+        onChange={(v) => updateField("amount", v)}
+        placeholder={t("tools.qrCode.bitcoinAmountPlaceholder")}
+      />
+      <InputField
+        label={t("tools.qrCode.bitcoinLabel")}
+        value={(data.label as string) || ""}
+        onChange={(v) => updateField("label", v)}
+        placeholder={t("tools.qrCode.bitcoinLabelPlaceholder")}
+      />
+      <InputField
+        label={t("tools.qrCode.bitcoinMessage")}
+        value={(data.message as string) || ""}
+        onChange={(v) => updateField("message", v)}
+        placeholder={t("tools.qrCode.bitcoinMessagePlaceholder")}
+        multiline
+        rows={2}
+      />
+    </div>
+  );
+}
+
+function EthereumForm({ data, updateField, t }: FormProps) {
+  return (
+    <div className="space-y-4">
+      <InputField
+        label={t("tools.qrCode.ethereumAddress")}
+        value={(data.address as string) || ""}
+        onChange={(v) => updateField("address", v)}
+        placeholder={t("tools.qrCode.ethereumAddressPlaceholder")}
+        required
+      />
+      <InputField
+        label={t("tools.qrCode.ethereumAmount")}
+        value={(data.amount as string) || ""}
+        onChange={(v) => updateField("amount", v)}
+        placeholder={t("tools.qrCode.ethereumAmountPlaceholder")}
+      />
+      <InputField
+        label={t("tools.qrCode.ethereumToken")}
+        value={(data.tokenAddress as string) || ""}
+        onChange={(v) => updateField("tokenAddress", v)}
+        placeholder={t("tools.qrCode.ethereumTokenPlaceholder")}
+      />
+      <SelectField
+        label={t("tools.qrCode.ethereumNetwork")}
+        value={(data.chainId as string) || ""}
+        onChange={(v) => updateField("chainId", v)}
+        options={[
+          { value: "", label: "Mainnet (default)" },
+          { value: "1", label: "Ethereum Mainnet" },
+          { value: "137", label: "Polygon" },
+          { value: "56", label: "BNB Smart Chain" },
+          { value: "42161", label: "Arbitrum One" },
+          { value: "10", label: "Optimism" },
+        ]}
+      />
+      <p className="text-xs text-zinc-500 dark:text-zinc-400">
+        {t("tools.qrCode.ethereumHint")}
+      </p>
+    </div>
+  );
+}
+
+function CardanoForm({ data, updateField, t }: FormProps) {
+  return (
+    <div className="space-y-4">
+      <InputField
+        label={t("tools.qrCode.cardanoAddress")}
+        value={(data.address as string) || ""}
+        onChange={(v) => updateField("address", v)}
+        placeholder={t("tools.qrCode.cardanoAddressPlaceholder")}
+        required
+      />
+      <InputField
+        label={t("tools.qrCode.cardanoAmount")}
+        value={(data.amount as string) || ""}
+        onChange={(v) => updateField("amount", v)}
+        placeholder={t("tools.qrCode.cardanoAmountPlaceholder")}
+      />
+      <p className="text-xs text-zinc-500 dark:text-zinc-400">
+        {t("tools.qrCode.cardanoHint")}
+      </p>
+    </div>
+  );
+}
+
+function SolanaForm({ data, updateField, t }: FormProps) {
+  return (
+    <div className="space-y-4">
+      <InputField
+        label={t("tools.qrCode.solanaAddress")}
+        value={(data.address as string) || ""}
+        onChange={(v) => updateField("address", v)}
+        placeholder={t("tools.qrCode.solanaAddressPlaceholder")}
+        required
+      />
+      <InputField
+        label={t("tools.qrCode.solanaAmount")}
+        value={(data.amount as string) || ""}
+        onChange={(v) => updateField("amount", v)}
+        placeholder={t("tools.qrCode.solanaAmountPlaceholder")}
+      />
+      <InputField
+        label={t("tools.qrCode.solanaLabel")}
+        value={(data.label as string) || ""}
+        onChange={(v) => updateField("label", v)}
+        placeholder={t("tools.qrCode.solanaLabelPlaceholder")}
+      />
+      <InputField
+        label={t("tools.qrCode.solanaMessage")}
+        value={(data.message as string) || ""}
+        onChange={(v) => updateField("message", v)}
+        placeholder={t("tools.qrCode.solanaMessagePlaceholder")}
+        multiline
+        rows={2}
+      />
+      <p className="text-xs text-zinc-500 dark:text-zinc-400">
+        {t("tools.qrCode.solanaHint")}
+      </p>
+    </div>
+  );
+}
+
+function AppStoreForm({ data, updateField, t }: FormProps) {
+  return (
+    <div className="space-y-4">
+      <SelectField
+        label={t("tools.qrCode.appstorePlatform")}
+        value={(data.platform as string) || "ios"}
+        onChange={(v) => updateField("platform", v)}
+        options={[
+          { value: "ios", label: "iOS (App Store)" },
+          { value: "android", label: "Android (Google Play)" },
+        ]}
+      />
+      <InputField
+        label={t("tools.qrCode.appstoreId")}
+        value={(data.appId as string) || ""}
+        onChange={(v) => updateField("appId", v)}
+        placeholder={
+          (data.platform as string) === "android"
+            ? t("tools.qrCode.appstoreAndroidPlaceholder")
+            : t("tools.qrCode.appstoreIosPlaceholder")
+        }
+        required
+      />
+      <p className="text-xs text-zinc-500 dark:text-zinc-400">
+        {(data.platform as string) === "android"
+          ? t("tools.qrCode.appstoreAndroidHint")
+          : t("tools.qrCode.appstoreIosHint")}
+      </p>
+    </div>
+  );
+}
+
 // ============================================================================
 // Main Component
 // ============================================================================
@@ -614,6 +866,10 @@ export default function QRCodeGeneratorPage(): JSX.Element {
   const [downloadDropdown, setDownloadDropdown] = useState(false);
   const [activeTab, setActiveTab] = useState<"content" | "style">("content");
   const [logoDataUrl, setLogoDataUrl] = useState<string | null>(null);
+  const [frameStyle, setFrameStyle] = useState<FrameStyle>("none");
+  const [frameText, setFrameText] = useState("SCAN ME");
+  const [showTypeCategories, setShowTypeCategories] = useState(false);
+  const [showAdvancedStyle, setShowAdvancedStyle] = useState(false);
 
   // Refs
   const qrRef = useRef<HTMLDivElement>(null);
@@ -737,6 +993,8 @@ export default function QRCodeGeneratorPage(): JSX.Element {
     setStyle(DEFAULT_STYLE);
     setIsGenerated(false);
     setLogoDataUrl(null);
+    setFrameStyle("none");
+    setFrameText("SCAN ME");
     if (logoInputRef.current) {
       logoInputRef.current.value = "";
     }
@@ -810,6 +1068,22 @@ export default function QRCodeGeneratorPage(): JSX.Element {
         return <LocationForm {...formProps} />;
       case "event":
         return <EventForm {...formProps} />;
+      case "twitter":
+        return <TwitterForm {...formProps} />;
+      case "youtube":
+        return <YouTubeForm {...formProps} />;
+      case "facebook":
+        return <FacebookForm {...formProps} />;
+      case "bitcoin":
+        return <BitcoinForm {...formProps} />;
+      case "ethereum":
+        return <EthereumForm {...formProps} />;
+      case "cardano":
+        return <CardanoForm {...formProps} />;
+      case "solana":
+        return <SolanaForm {...formProps} />;
+      case "appstore":
+        return <AppStoreForm {...formProps} />;
       default:
         return null;
     }
@@ -834,7 +1108,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
         <meta name="description" content={t("tools.qrCode.pageDescription")} />
         <meta
           name="keywords"
-          content="qr code generator, free qr code, create qr code, qr code maker, custom qr code, wifi qr code, vcard qr code, url qr code, qr code online, business qr code"
+          content="qr code generator, free qr code, create qr code, qr code maker, custom qr code, wifi qr code, vcard qr code, bitcoin qr code, ethereum qr code, crypto payment qr, twitter qr code, youtube qr code, qr code with logo, qr code online"
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
@@ -966,7 +1240,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                   name: "What types of QR codes can I create?",
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "You can create QR codes for URLs/websites, plain text, WiFi networks, vCard contacts, email addresses, phone numbers, SMS messages, geographic locations, and calendar events.",
+                    text: "You can create 17+ types of QR codes: Basic (URLs, text, WiFi, vCard, email, phone, SMS, location, calendar), Social Media (Twitter/X, YouTube, Facebook, App Store), and Crypto Payments (Bitcoin, Ethereum, Cardano, Solana).",
                   },
                 },
                 {
@@ -979,18 +1253,18 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                 },
                 {
                   "@type": "Question",
-                  name: "What download formats are available?",
+                  name: "Can I add a logo to my QR code?",
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "You can download your QR code as PNG (best for web), SVG (best for print, scalable), or JPG (smaller file size).",
+                    text: "Yes! You can upload your own logo (PNG, JPG, SVG up to 2MB) and it will be centered in the QR code. The error correction is automatically increased for reliable scanning.",
                   },
                 },
                 {
                   "@type": "Question",
-                  name: "Can I customize the QR code colors?",
+                  name: "What crypto payments are supported?",
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "Yes! You can choose from 8 pre-designed color presets or create custom colors with our color picker. You can also adjust the size and error correction level for optimal scanning.",
+                    text: "We support Bitcoin (BIP21), Ethereum (EIP-681 with multi-chain support), Cardano (CIP-13), and Solana Pay. You can include amount, labels, and messages in payment QR codes.",
                   },
                 },
               ],
@@ -1043,26 +1317,140 @@ export default function QRCodeGeneratorPage(): JSX.Element {
 
         {/* QR Type Selector */}
         <div className="w-full max-w-screen-lg mb-6">
-          <div className="flex flex-wrap justify-center gap-2">
-            {QR_TYPES.map((type) => (
-              <button
-                key={type.id}
-                onClick={() => handleTypeChange(type.id)}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
-                  contentType === type.id
-                    ? "bg-violet-600 text-white shadow-md shadow-violet-500/20"
-                    : "bg-zinc-100 dark:bg-dark-card text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-dark-border"
-                }`}
-              >
-                <span>{type.icon}</span>
-                <span>
-                  {t(
-                    `tools.qrCode.type${type.id.charAt(0).toUpperCase() + type.id.slice(1)}`,
-                  )}
-                </span>
-              </button>
-            ))}
+          {/* Main types - always visible */}
+          <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2">
+            {QR_TYPES.filter((t) => t.category === "basic")
+              .slice(0, 6)
+              .map((type) => (
+                <button
+                  key={type.id}
+                  onClick={() => handleTypeChange(type.id)}
+                  className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg text-sm font-medium transition-all ${
+                    contentType === type.id
+                      ? "bg-violet-600 text-white shadow-md shadow-violet-500/20"
+                      : "bg-zinc-100 dark:bg-dark-card text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-dark-border"
+                  }`}
+                >
+                  <span>{type.icon}</span>
+                  <span className="hidden sm:inline">
+                    {t(
+                      `tools.qrCode.type${type.id.charAt(0).toUpperCase() + type.id.slice(1)}`,
+                    )}
+                  </span>
+                </button>
+              ))}
+            <button
+              onClick={() => setShowTypeCategories(!showTypeCategories)}
+              className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg text-sm font-medium transition-all ${
+                showTypeCategories ||
+                QR_TYPES.filter(
+                  (t) =>
+                    t.category !== "basic" ||
+                    QR_TYPES.filter((x) => x.category === "basic").indexOf(t) >=
+                      6,
+                ).some((t) => t.id === contentType)
+                  ? "bg-violet-600 text-white"
+                  : "bg-zinc-100 dark:bg-dark-card text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-dark-border"
+              }`}
+            >
+              <span>+</span>
+              <span>{t("tools.qrCode.moreTypes")}</span>
+            </button>
           </div>
+
+          {/* Expanded types */}
+          {showTypeCategories && (
+            <div className="mt-4 p-4 bg-zinc-50 dark:bg-darkOffset rounded-xl border border-zinc-200 dark:border-dark-border">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                {/* More Basic */}
+                <div>
+                  <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-2">
+                    {t("tools.qrCode.categoryBasic")}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {QR_TYPES.filter((t) => t.category === "basic")
+                      .slice(6)
+                      .map((type) => (
+                        <button
+                          key={type.id}
+                          onClick={() => handleTypeChange(type.id)}
+                          className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                            contentType === type.id
+                              ? "bg-violet-600 text-white"
+                              : "bg-white dark:bg-dark-card text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-dark-border"
+                          }`}
+                        >
+                          <span>{type.icon}</span>
+                          <span>
+                            {t(
+                              `tools.qrCode.type${type.id.charAt(0).toUpperCase() + type.id.slice(1)}`,
+                            )}
+                          </span>
+                        </button>
+                      ))}
+                  </div>
+                </div>
+
+                {/* Social */}
+                <div>
+                  <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-2">
+                    {t("tools.qrCode.categorySocial")}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {QR_TYPES.filter((t) => t.category === "social").map(
+                      (type) => (
+                        <button
+                          key={type.id}
+                          onClick={() => handleTypeChange(type.id)}
+                          className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                            contentType === type.id
+                              ? "bg-violet-600 text-white"
+                              : "bg-white dark:bg-dark-card text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-dark-border"
+                          }`}
+                        >
+                          <span>{type.icon}</span>
+                          <span>
+                            {t(
+                              `tools.qrCode.type${type.id.charAt(0).toUpperCase() + type.id.slice(1)}`,
+                            )}
+                          </span>
+                        </button>
+                      ),
+                    )}
+                  </div>
+                </div>
+
+                {/* Payment */}
+                <div>
+                  <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-2">
+                    {t("tools.qrCode.categoryPayment")}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {QR_TYPES.filter((t) => t.category === "payment").map(
+                      (type) => (
+                        <button
+                          key={type.id}
+                          onClick={() => handleTypeChange(type.id)}
+                          className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                            contentType === type.id
+                              ? "bg-violet-600 text-white"
+                              : "bg-white dark:bg-dark-card text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-dark-border"
+                          }`}
+                        >
+                          <span>{type.icon}</span>
+                          <span>
+                            {t(
+                              `tools.qrCode.type${type.id.charAt(0).toUpperCase() + type.id.slice(1)}`,
+                            )}
+                          </span>
+                        </button>
+                      ),
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Main Content */}
@@ -1117,44 +1505,40 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                   )}
                 </div>
               ) : (
-                <div className="space-y-6">
-                  {/* Color Presets */}
+                <div className="space-y-5">
+                  {/* Quick Style Presets - Most impactful, show first */}
                   <div>
                     <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-3">
-                      {t("tools.qrCode.colorPresets")}
+                      {t("tools.qrCode.quickPresets")}
                     </label>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                      {COLOR_PRESETS.map((preset) => (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                      {STYLE_PRESETS.map((preset) => (
                         <button
                           key={preset.id}
-                          onClick={() =>
+                          onClick={() => {
                             setStyle((s) => ({
                               ...s,
                               fgColor: preset.fgColor,
                               bgColor: preset.bgColor,
-                            }))
-                          }
-                          className={`flex flex-col items-center gap-1.5 p-2 rounded-lg border transition-all ${
-                            style.fgColor === preset.fgColor &&
-                            style.bgColor === preset.bgColor
-                              ? "border-violet-500 bg-violet-50 dark:bg-violet-900/20"
-                              : "border-zinc-200 dark:border-dark-border hover:border-zinc-300 dark:hover:border-zinc-600"
-                          }`}
+                            }));
+                            setFrameStyle(preset.frameStyle);
+                            if (preset.frameText) {
+                              setFrameText(preset.frameText);
+                            }
+                          }}
+                          className="flex items-center gap-2 p-2 bg-white dark:bg-dark-card rounded-lg border border-zinc-200 dark:border-dark-border hover:border-violet-300 dark:hover:border-violet-600 transition-colors text-left"
                         >
                           <div
-                            className="w-8 h-8 rounded-md border border-zinc-300 dark:border-zinc-600"
-                            style={{ backgroundColor: preset.bgColor }}
+                            className="w-8 h-8 rounded flex items-center justify-center text-xs border"
+                            style={{
+                              backgroundColor: preset.bgColor,
+                              color: preset.fgColor,
+                              borderColor: preset.fgColor + "40",
+                            }}
                           >
-                            <div
-                              className="w-full h-full rounded-md"
-                              style={{
-                                backgroundColor: preset.fgColor,
-                                clipPath:
-                                  "polygon(20% 20%, 40% 20%, 40% 40%, 20% 40%, 20% 60%, 40% 60%, 40% 80%, 60% 80%, 60% 60%, 80% 60%, 80% 40%, 60% 40%, 60% 20%, 80% 20%, 80% 40%, 60% 40%)",
-                              }}
-                            />
+                            ▣
                           </div>
-                          <span className="text-xs text-zinc-600 dark:text-zinc-400">
+                          <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
                             {preset.name}
                           </span>
                         </button>
@@ -1162,125 +1546,9 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                     </div>
                   </div>
 
-                  {/* Custom Colors */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-                        {t("tools.qrCode.foregroundColor")}
-                      </label>
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="color"
-                          value={style.fgColor}
-                          onChange={(e) =>
-                            updateStyle("fgColor", e.target.value)
-                          }
-                          className="w-10 h-10 rounded-lg cursor-pointer border border-zinc-300 dark:border-zinc-600"
-                        />
-                        <input
-                          type="text"
-                          value={style.fgColor}
-                          onChange={(e) =>
-                            updateStyle("fgColor", e.target.value)
-                          }
-                          className="flex-1 px-3 py-2 text-sm border rounded-lg bg-white dark:bg-dark-card border-zinc-200 dark:border-dark-border focus:ring-2 focus:ring-violet-500 focus:border-transparent focus:outline-none text-zinc-900 dark:text-white uppercase"
-                          maxLength={7}
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-                        {t("tools.qrCode.backgroundColor")}
-                      </label>
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="color"
-                          value={style.bgColor}
-                          onChange={(e) =>
-                            updateStyle("bgColor", e.target.value)
-                          }
-                          className="w-10 h-10 rounded-lg cursor-pointer border border-zinc-300 dark:border-zinc-600"
-                        />
-                        <input
-                          type="text"
-                          value={style.bgColor}
-                          onChange={(e) =>
-                            updateStyle("bgColor", e.target.value)
-                          }
-                          className="flex-1 px-3 py-2 text-sm border rounded-lg bg-white dark:bg-dark-card border-zinc-200 dark:border-dark-border focus:ring-2 focus:ring-violet-500 focus:border-transparent focus:outline-none text-zinc-900 dark:text-white uppercase"
-                          maxLength={7}
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Size */}
+                  {/* Logo Upload - High value feature */}
                   <div>
-                    <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-3">
-                      {t("tools.qrCode.size")}
-                    </label>
-                    <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
-                      {SIZE_OPTIONS.map((option) => (
-                        <button
-                          key={option.value}
-                          onClick={() => updateStyle("size", option.value)}
-                          className={`px-2 py-2 text-xs font-medium rounded-lg transition-colors ${
-                            style.size === option.value
-                              ? "bg-violet-600 text-white"
-                              : "bg-white dark:bg-dark-card text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-dark-border hover:border-violet-300 dark:hover:border-violet-600"
-                          }`}
-                        >
-                          {option.value}px
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Error Correction */}
-                  <div>
-                    <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-3">
-                      {t("tools.qrCode.errorCorrection")}
-                    </label>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      {ERROR_CORRECTION_OPTIONS.map((option) => (
-                        <button
-                          key={option.value}
-                          onClick={() =>
-                            updateStyle("errorCorrection", option.value)
-                          }
-                          className={`flex flex-col items-start px-3 py-2.5 rounded-lg text-left transition-colors ${
-                            style.errorCorrection === option.value
-                              ? "bg-violet-600 text-white"
-                              : "bg-white dark:bg-dark-card text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-dark-border hover:border-violet-300 dark:hover:border-violet-600"
-                          }`}
-                        >
-                          <span className="font-medium text-sm">
-                            {option.label} ({option.recovery})
-                          </span>
-                          <span
-                            className={`text-xs mt-0.5 ${
-                              style.errorCorrection === option.value
-                                ? "text-violet-100"
-                                : "text-zinc-500 dark:text-zinc-400"
-                            }`}
-                          >
-                            {option.description}
-                          </span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Include Margin */}
-                  <CheckboxField
-                    label={t("tools.qrCode.includeMargin")}
-                    checked={style.includeMargin}
-                    onChange={(v) => updateStyle("includeMargin", v)}
-                  />
-
-                  {/* Logo Upload */}
-                  <div>
-                    <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-3">
+                    <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
                       {t("tools.qrCode.addLogo")}
                     </label>
                     <input
@@ -1317,16 +1585,246 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                     ) : (
                       <label
                         htmlFor="logo-upload"
-                        className="flex flex-col items-center gap-2 p-4 bg-white dark:bg-dark-card rounded-lg border-2 border-dashed border-zinc-300 dark:border-zinc-600 hover:border-violet-400 dark:hover:border-violet-500 cursor-pointer transition-colors"
+                        className="flex items-center gap-3 p-3 bg-white dark:bg-dark-card rounded-lg border-2 border-dashed border-zinc-300 dark:border-zinc-600 hover:border-violet-400 dark:hover:border-violet-500 cursor-pointer transition-colors"
                       >
                         <PhotographIcon className="w-8 h-8 text-zinc-400 dark:text-zinc-500" />
-                        <span className="text-sm text-zinc-600 dark:text-zinc-400">
-                          {t("tools.qrCode.uploadLogo")}
-                        </span>
-                        <span className="text-xs text-zinc-400 dark:text-zinc-500">
-                          PNG, JPG, SVG (max 2MB)
-                        </span>
+                        <div>
+                          <span className="text-sm text-zinc-600 dark:text-zinc-400 block">
+                            {t("tools.qrCode.uploadLogo")}
+                          </span>
+                          <span className="text-xs text-zinc-400 dark:text-zinc-500">
+                            PNG, JPG, SVG (max 2MB)
+                          </span>
+                        </div>
                       </label>
+                    )}
+                  </div>
+
+                  {/* Frame Style - Visible customization */}
+                  <div>
+                    <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+                      {t("tools.qrCode.frameStyle")}
+                    </label>
+                    <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5 mb-3">
+                      {FRAME_TEMPLATES.map((frame) => (
+                        <button
+                          key={frame.id}
+                          onClick={() => setFrameStyle(frame.id)}
+                          className={`px-2 py-2 text-xs font-medium rounded-lg transition-colors ${
+                            frameStyle === frame.id
+                              ? "bg-violet-600 text-white"
+                              : "bg-white dark:bg-dark-card text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-dark-border hover:border-violet-300 dark:hover:border-violet-600"
+                          }`}
+                        >
+                          {t(
+                            `tools.qrCode.frame${frame.id.charAt(0).toUpperCase() + frame.id.slice(1)}`,
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                    {frameStyle !== "none" && (
+                      <div className="space-y-2">
+                        <InputField
+                          label={t("tools.qrCode.frameTextLabel")}
+                          value={frameText}
+                          onChange={setFrameText}
+                          placeholder={t("tools.qrCode.frameTextPlaceholder")}
+                        />
+                        <div className="flex flex-wrap gap-1.5">
+                          {FRAME_TEXT_PRESETS.map((text) => (
+                            <button
+                              key={text}
+                              onClick={() => setFrameText(text)}
+                              className={`px-2 py-1 text-xs rounded transition-colors ${
+                                frameText === text
+                                  ? "bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300"
+                                  : "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700"
+                              }`}
+                            >
+                              {text}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Advanced Options - Collapsible */}
+                  <div className="border-t border-zinc-200 dark:border-dark-border pt-4">
+                    <button
+                      onClick={() => setShowAdvancedStyle(!showAdvancedStyle)}
+                      className="flex items-center justify-between w-full text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
+                    >
+                      <span>{t("tools.qrCode.advancedOptions")}</span>
+                      <ChevronDownIcon
+                        className={`w-5 h-5 transition-transform ${showAdvancedStyle ? "rotate-180" : ""}`}
+                      />
+                    </button>
+
+                    {showAdvancedStyle && (
+                      <div className="mt-4 space-y-5">
+                        {/* Color Presets */}
+                        <div>
+                          <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+                            {t("tools.qrCode.colorPresets")}
+                          </label>
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                            {COLOR_PRESETS.map((preset) => (
+                              <button
+                                key={preset.id}
+                                onClick={() =>
+                                  setStyle((s) => ({
+                                    ...s,
+                                    fgColor: preset.fgColor,
+                                    bgColor: preset.bgColor,
+                                  }))
+                                }
+                                className={`flex flex-col items-center gap-1 p-2 rounded-lg border transition-all ${
+                                  style.fgColor === preset.fgColor &&
+                                  style.bgColor === preset.bgColor
+                                    ? "border-violet-500 bg-violet-50 dark:bg-violet-900/20"
+                                    : "border-zinc-200 dark:border-dark-border hover:border-zinc-300 dark:hover:border-zinc-600"
+                                }`}
+                              >
+                                <div
+                                  className="w-8 h-8 rounded-md border border-zinc-300 dark:border-zinc-600"
+                                  style={{ backgroundColor: preset.bgColor }}
+                                >
+                                  <div
+                                    className="w-full h-full rounded-md"
+                                    style={{
+                                      backgroundColor: preset.fgColor,
+                                      clipPath:
+                                        "polygon(20% 20%, 40% 20%, 40% 40%, 20% 40%, 20% 60%, 40% 60%, 40% 80%, 60% 80%, 60% 60%, 80% 60%, 80% 40%, 60% 40%, 60% 20%, 80% 20%, 80% 40%, 60% 40%)",
+                                    }}
+                                  />
+                                </div>
+                                <span className="text-xs text-zinc-600 dark:text-zinc-400">
+                                  {preset.name}
+                                </span>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Custom Colors */}
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1.5">
+                              {t("tools.qrCode.foregroundColor")}
+                            </label>
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="color"
+                                value={style.fgColor}
+                                onChange={(e) =>
+                                  updateStyle("fgColor", e.target.value)
+                                }
+                                className="w-8 h-8 rounded cursor-pointer border border-zinc-300 dark:border-zinc-600"
+                              />
+                              <input
+                                type="text"
+                                value={style.fgColor}
+                                onChange={(e) =>
+                                  updateStyle("fgColor", e.target.value)
+                                }
+                                className="flex-1 px-2 py-1.5 text-xs border rounded bg-white dark:bg-dark-card border-zinc-200 dark:border-dark-border focus:ring-1 focus:ring-violet-500 focus:border-transparent focus:outline-none text-zinc-900 dark:text-white uppercase"
+                                maxLength={7}
+                              />
+                            </div>
+                          </div>
+                          <div>
+                            <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1.5">
+                              {t("tools.qrCode.backgroundColor")}
+                            </label>
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="color"
+                                value={style.bgColor}
+                                onChange={(e) =>
+                                  updateStyle("bgColor", e.target.value)
+                                }
+                                className="w-8 h-8 rounded cursor-pointer border border-zinc-300 dark:border-zinc-600"
+                              />
+                              <input
+                                type="text"
+                                value={style.bgColor}
+                                onChange={(e) =>
+                                  updateStyle("bgColor", e.target.value)
+                                }
+                                className="flex-1 px-2 py-1.5 text-xs border rounded bg-white dark:bg-dark-card border-zinc-200 dark:border-dark-border focus:ring-1 focus:ring-violet-500 focus:border-transparent focus:outline-none text-zinc-900 dark:text-white uppercase"
+                                maxLength={7}
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Size */}
+                        <div>
+                          <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-2">
+                            {t("tools.qrCode.size")}
+                          </label>
+                          <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5">
+                            {SIZE_OPTIONS.map((option) => (
+                              <button
+                                key={option.value}
+                                onClick={() =>
+                                  updateStyle("size", option.value)
+                                }
+                                className={`px-2 py-1.5 text-xs font-medium rounded transition-colors ${
+                                  style.size === option.value
+                                    ? "bg-violet-600 text-white"
+                                    : "bg-white dark:bg-dark-card text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-dark-border hover:border-violet-300 dark:hover:border-violet-600"
+                                }`}
+                              >
+                                {option.value}px
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Error Correction */}
+                        <div>
+                          <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-2">
+                            {t("tools.qrCode.errorCorrection")}
+                          </label>
+                          <div className="grid grid-cols-2 gap-2">
+                            {ERROR_CORRECTION_OPTIONS.map((option) => (
+                              <button
+                                key={option.value}
+                                onClick={() =>
+                                  updateStyle("errorCorrection", option.value)
+                                }
+                                className={`flex flex-col items-start px-3 py-2 rounded-lg text-left transition-colors ${
+                                  style.errorCorrection === option.value
+                                    ? "bg-violet-600 text-white"
+                                    : "bg-white dark:bg-dark-card text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-dark-border hover:border-violet-300 dark:hover:border-violet-600"
+                                }`}
+                              >
+                                <span className="font-medium text-xs">
+                                  {option.label} ({option.recovery})
+                                </span>
+                                <span
+                                  className={`text-[10px] mt-0.5 ${
+                                    style.errorCorrection === option.value
+                                      ? "text-violet-100"
+                                      : "text-zinc-500 dark:text-zinc-400"
+                                  }`}
+                                >
+                                  {option.description}
+                                </span>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Include Margin */}
+                        <CheckboxField
+                          label={t("tools.qrCode.includeMargin")}
+                          checked={style.includeMargin}
+                          onChange={(v) => updateStyle("includeMargin", v)}
+                        />
+                      </div>
                     )}
                   </div>
                 </div>
@@ -1353,7 +1851,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
           </div>
 
           {/* Right Panel - Preview */}
-          <div className="lg:w-[380px] bg-zinc-50 dark:bg-darkOffset rounded-xl border border-zinc-200 dark:border-dark-border overflow-hidden">
+          <div className="w-full lg:w-[380px] lg:flex-shrink-0 bg-zinc-50 dark:bg-darkOffset rounded-xl border border-zinc-200 dark:border-dark-border overflow-hidden">
             <div className="p-4 border-b border-zinc-200 dark:border-dark-border">
               <h3 className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
                 {t("tools.qrCode.preview")}
@@ -1363,29 +1861,98 @@ export default function QRCodeGeneratorPage(): JSX.Element {
             <div className="p-4 sm:p-6">
               <div
                 ref={qrRef}
-                className="flex items-center justify-center bg-white dark:bg-dark-card rounded-xl p-6 min-h-[280px] border border-zinc-200 dark:border-dark-border"
-                style={{ backgroundColor: style.bgColor }}
+                className="flex flex-col items-center justify-center bg-white dark:bg-dark-card rounded-xl p-4 sm:p-6 min-h-[240px] sm:min-h-[280px] border border-zinc-200 dark:border-dark-border"
+                style={{
+                  backgroundColor:
+                    frameStyle !== "none" ? "#FFFFFF" : style.bgColor,
+                }}
               >
                 {isGenerated && qrValue ? (
-                  <QRCodeCanvas
-                    value={qrValue}
-                    size={Math.min(style.size, 280)}
-                    fgColor={style.fgColor}
-                    bgColor={style.bgColor}
-                    level={style.errorCorrection}
-                    includeMargin={style.includeMargin}
-                    imageSettings={
-                      logoDataUrl
-                        ? {
-                            src: logoDataUrl,
-                            height: Math.round(Math.min(style.size, 280) * 0.2),
-                            width: Math.round(Math.min(style.size, 280) * 0.2),
-                            excavate: true,
-                          }
-                        : undefined
-                    }
-                    style={{ maxWidth: "100%", height: "auto" }}
-                  />
+                  <div
+                    className={`flex flex-col items-center ${
+                      frameStyle === "simple"
+                        ? "border-2 p-3"
+                        : frameStyle === "rounded"
+                          ? "border-2 rounded-xl p-4"
+                          : frameStyle === "badge"
+                            ? "border-2 rounded-2xl p-4 pb-2"
+                            : frameStyle === "banner"
+                              ? "border-2 rounded-lg overflow-hidden"
+                              : ""
+                    }`}
+                    style={{
+                      borderColor:
+                        frameStyle !== "none" ? style.fgColor : "transparent",
+                      backgroundColor: style.bgColor,
+                    }}
+                  >
+                    {frameStyle === "banner" && (
+                      <div
+                        className="w-full py-1.5 px-3 text-center text-xs font-bold uppercase tracking-wider"
+                        style={{
+                          backgroundColor: style.fgColor,
+                          color: style.bgColor,
+                        }}
+                      >
+                        {frameText}
+                      </div>
+                    )}
+                    <div className={frameStyle === "banner" ? "p-3" : ""}>
+                      <QRCodeCanvas
+                        value={qrValue}
+                        size={Math.min(
+                          style.size,
+                          frameStyle !== "none" ? 220 : 280,
+                        )}
+                        fgColor={style.fgColor}
+                        bgColor={style.bgColor}
+                        level={style.errorCorrection}
+                        includeMargin={style.includeMargin}
+                        imageSettings={
+                          logoDataUrl
+                            ? {
+                                src: logoDataUrl,
+                                height: Math.round(
+                                  Math.min(
+                                    style.size,
+                                    frameStyle !== "none" ? 220 : 280,
+                                  ) * 0.2,
+                                ),
+                                width: Math.round(
+                                  Math.min(
+                                    style.size,
+                                    frameStyle !== "none" ? 220 : 280,
+                                  ) * 0.2,
+                                ),
+                                excavate: true,
+                              }
+                            : undefined
+                        }
+                        style={{ maxWidth: "100%", height: "auto" }}
+                      />
+                    </div>
+                    {frameStyle !== "none" && frameStyle !== "banner" && (
+                      <p
+                        className={`text-center font-bold uppercase tracking-wide mt-2 ${
+                          frameStyle === "badge"
+                            ? "text-xs px-3 py-1 rounded-full"
+                            : "text-xs"
+                        }`}
+                        style={{
+                          color:
+                            frameStyle === "badge"
+                              ? style.bgColor
+                              : style.fgColor,
+                          backgroundColor:
+                            frameStyle === "badge"
+                              ? style.fgColor
+                              : "transparent",
+                        }}
+                      >
+                        {frameText}
+                      </p>
+                    )}
+                  </div>
                 ) : (
                   <div className="text-center text-zinc-400 dark:text-zinc-500">
                     <svg
@@ -1555,15 +2122,15 @@ export default function QRCodeGeneratorPage(): JSX.Element {
         </div>
 
         {/* Features Section */}
-        <section className="w-full max-w-screen-lg mt-12">
-          <div className="bg-zinc-50 dark:bg-darkOffset rounded-xl p-6 sm:p-8 border border-zinc-200 dark:border-dark-border">
+        <section className="w-full max-w-screen-lg mt-8 sm:mt-12">
+          <div className="bg-zinc-50 dark:bg-darkOffset rounded-xl p-4 sm:p-6 lg:p-8 border border-zinc-200 dark:border-dark-border">
             <h2
               className={`${spaceGrotesk.className} text-2xl font-bold text-zinc-900 dark:text-white mb-6`}
             >
               {t("tools.qrCode.aboutTitle")}
             </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {/* Feature Cards */}
               <div className="p-4 bg-white dark:bg-dark-card rounded-lg border border-zinc-200 dark:border-dark-border">
                 <div className="w-10 h-10 bg-violet-100 dark:bg-violet-900/30 rounded-lg flex items-center justify-center mb-3">

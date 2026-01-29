@@ -24,7 +24,7 @@ Generate article ideas using GPT-4o-mini. Enter a topic, get 4 title suggestions
 **Free Tools**
 
 - **[Word Counter](https://www.articleideagenerator.com/tools/word-counter)** — Words, characters, sentences, paragraphs, reading/speaking time, keyword density
-- **[QR Code Generator](https://www.articleideagenerator.com/tools/qr-code-generator)** — URL, text, email, phone, SMS, WiFi, vCard, geo location, calendar events. Custom colors, **logo support**, PNG/SVG/JPEG export. UTM tracking compatible
+- **[QR Code Generator](https://www.articleideagenerator.com/tools/qr-code-generator)** — 17+ QR types: URL, WiFi, vCard, social media (Twitter, YouTube, Facebook), crypto payments (Bitcoin, Ethereum, Cardano, Solana), App Store links. Custom colors, **logo support**, frames, style presets. PNG/SVG/JPEG export. UTM tracking compatible
 - **[Title Case Converter](https://www.articleideagenerator.com/tools/title-case)** — 16 case styles (AP, Chicago, APA, camelCase, snake_case, kebab-case, etc). Auto-detection, one-click copy
 - **Character Counter** _(Coming Soon)_
 - **Reading Time Calculator** _(Coming Soon)_
@@ -62,9 +62,12 @@ Generate article ideas using GPT-4o-mini. Enter a topic, get 4 title suggestions
 ### QR Code Generator
 
 1. Go to [/tools/qr-code-generator](https://www.articleideagenerator.com/tools/qr-code-generator)
-2. Select QR type (URL, text, email, phone, SMS, WiFi, vCard, location, calendar)
+2. Select QR type:
+   - **Basic**: URL, text, email, phone, SMS, WiFi, vCard, location, calendar
+   - **Social**: Twitter/X, YouTube, Facebook, App Store
+   - **Payments**: Bitcoin, Ethereum, Cardano, Solana
 3. Fill in the fields
-4. Customize colors (optional)
+4. Customize colors, add logo, choose frame style (optional)
 5. Download as PNG, SVG, or JPEG
 
 ### Title Case Converter
