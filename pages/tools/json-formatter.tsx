@@ -626,7 +626,7 @@ export default function JsonFormatterPage(): JSX.Element {
                   onChange={handleInputChange}
                   placeholder={t("tools.jsonFormatter.placeholder")}
                   spellCheck={false}
-                  className="w-full h-80 lg:h-[500px] pt-10 px-4 pb-4 bg-transparent text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none resize-none font-mono text-sm"
+                  className="w-full h-64 sm:h-80 lg:h-[500px] pt-10 px-4 pb-4 bg-transparent text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none resize-none font-mono text-sm"
                 />
 
                 {/* Validation indicator */}
@@ -665,14 +665,14 @@ export default function JsonFormatterPage(): JSX.Element {
                   readOnly
                   placeholder={t("tools.jsonFormatter.outputPlaceholder")}
                   spellCheck={false}
-                  className="w-full h-80 lg:h-[500px] pt-10 px-4 pb-4 bg-transparent text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none resize-none font-mono text-sm"
+                  className="w-full h-64 sm:h-80 lg:h-[500px] pt-10 px-4 pb-4 bg-transparent text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none resize-none font-mono text-sm"
                 />
               </div>
             </div>
 
             {/* Stats bar */}
             {stats && input.trim() && (
-              <div className="flex flex-wrap items-center gap-2 p-4 border-t border-gray-200 dark:border-dark-border bg-gray-50 dark:bg-dark-card/50">
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 p-3 sm:p-4 border-t border-gray-200 dark:border-dark-border bg-gray-50 dark:bg-dark-card/50">
                 <StatBadge
                   label={t("tools.jsonFormatter.statKeys")}
                   value={stats.keys}
