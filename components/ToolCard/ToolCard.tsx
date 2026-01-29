@@ -8,6 +8,7 @@ import {
   MenuAlt2Icon,
   CodeIcon,
   LinkIcon,
+  PhotographIcon,
 } from "@heroicons/react/outline";
 import { useTranslation } from "@/hooks/useTranslation";
 import { trackToolClick } from "@/lib/gtag";
@@ -22,6 +23,7 @@ const iconMap: Record<ToolIcon, typeof DocumentTextIcon> = {
   text: MenuAlt2Icon,
   code: CodeIcon,
   link: LinkIcon,
+  photograph: PhotographIcon,
 };
 
 export default function ToolCard({

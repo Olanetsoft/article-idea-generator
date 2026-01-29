@@ -48,6 +48,14 @@ export const tools: Tool[] = [
     available: true,
   },
   {
+    id: "cover-image-generator",
+    nameKey: "tools.coverImage.name",
+    descriptionKey: "tools.coverImage.description",
+    href: "/tools/cover-image-generator",
+    icon: "photograph",
+    available: true,
+  },
+  {
     id: "character-counter",
     nameKey: "tools.characterCounter.name",
     descriptionKey: "tools.characterCounter.description",

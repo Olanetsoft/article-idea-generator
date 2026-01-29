@@ -114,6 +114,20 @@ Free online URL shortener that provides:
 
 Perfect for social media, marketing campaigns, print materials, and messaging.
 
+### Cover Image Generator
+URL: https://articleideagenerator.com/tools/cover-image-generator
+
+Free online cover image generator for blog posts and social media:
+- Beautiful gradient backgrounds (12+ presets)
+- Pre-configured sizes for Twitter, LinkedIn, Dev.to, Medium, Hashnode
+- Multiple font styles (Inter, Space Grotesk, Playfair, Roboto Mono, Poppins)
+- Pattern overlays (dots, grid, diagonal, circuit, noise)
+- Custom text alignment and font sizes
+- Real-time preview
+- High-quality PNG download
+
+Perfect for bloggers, developers, and content creators who need professional cover images.
+
 ### Coming Soon
 - Character Counter - Track limits for Twitter, LinkedIn, meta descriptions
 - Reading Time Calculator - Generate "X min read" badges

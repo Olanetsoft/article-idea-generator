@@ -28,6 +28,7 @@ Generate article ideas using GPT-4o-mini. Enter a topic, get 4 title suggestions
 - **[Title Case Converter](https://www.articleideagenerator.com/tools/title-case)** — 16 case styles (AP, Chicago, APA, camelCase, snake_case, kebab-case, etc). Auto-detection, one-click copy
 - **[JSON Formatter](https://www.articleideagenerator.com/tools/json-formatter)** — Format, minify, validate JSON. Customizable indentation (2/4/8 spaces, tabs). Real-time validation with line/column error positions. Structure analysis (keys, objects, arrays, depth). File upload/download support
 - **[URL Shortener](https://www.articleideagenerator.com/tools/url-shortener)** — Free URL shortener, no signup required. QR code generation for short links. Link history saved locally. Perfect for social media and marketing
+- **[Cover Image Generator](https://www.articleideagenerator.com/tools/cover-image-generator)** — Create stunning cover images for blog posts. 12+ gradient presets, pattern overlays, multiple fonts. Pre-sized for Twitter, LinkedIn, Dev.to, Medium, Hashnode. Instant PNG download
 - **Character Counter** _(Coming Soon)_
 - **Reading Time Calculator** _(Coming Soon)_
 - **Headline Analyzer** _(Coming Soon)_
@@ -104,6 +105,15 @@ Generate article ideas using GPT-4o-mini. Enter a topic, get 4 title suggestions
 3. Click **Shorten URL**
 4. Copy the short link or generate a QR code
 5. Recent links are saved locally for quick access
+
+### Cover Image Generator
+
+1. Go to [/tools/cover-image-generator](https://www.articleideagenerator.com/tools/cover-image-generator)
+2. Enter your article title and optional subtitle
+3. Choose size (Twitter, LinkedIn, Dev.to, etc.)
+4. Pick a gradient background and pattern
+5. Customize font, alignment, and size
+6. Click **Download PNG**
 
 ## How it works
 
