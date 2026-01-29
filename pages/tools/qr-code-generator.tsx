@@ -807,6 +807,21 @@ export default function QRCodeGeneratorPage(): JSX.Element {
     setHistory(getHistory());
   }, []);
 
+  // Handle URL query parameter (for integration with URL shortener)
+  useEffect(() => {
+    const { url } = router.query;
+    if (url && typeof url === "string") {
+      // Set content type to URL and pre-fill the URL
+      setContentType("url");
+      setData({ url: url });
+      setHasInteracted(true);
+      // Auto-generate the QR code
+      setIsGenerated(true);
+      // Clear the query param from URL without reload
+      router.replace("/tools/qr-code-generator", undefined, { shallow: true });
+    }
+  }, [router.query]);
+
   // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -1775,20 +1790,14 @@ export default function QRCodeGeneratorPage(): JSX.Element {
               </button>
               <button
                 onClick={() => setActiveTab("style")}
-                className={`flex-1 px-4 py-3.5 sm:py-3 text-sm font-medium transition-colors flex items-center justify-center gap-1.5 ${
+                className={`flex-1 px-4 py-3.5 sm:py-3 text-sm font-medium transition-colors flex items-center justify-center gap-1 sm:gap-1.5 ${
                   activeTab === "style"
                     ? "text-violet-600 dark:text-violet-400 border-b-2 border-violet-600 dark:border-violet-400 bg-white dark:bg-dark-card"
                     : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
                 }`}
               >
-                <span className="relative">
-                  {t("tools.qrCode.tabStyle")}
-                  <span className="absolute -top-1.5 -right-4 flex h-3 w-3">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-500 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-violet-600 dark:bg-violet-400"></span>
-                  </span>
-                </span>
-                <span className="ml-2 text-[10px] px-1.5 py-0.5 bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400 rounded-full font-semibold uppercase tracking-wide">
+                {t("tools.qrCode.tabStyle")}
+                <span className="hidden sm:inline-flex text-[10px] px-1.5 py-0.5 bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400 rounded-full font-semibold uppercase tracking-wide">
                   + Logo
                 </span>
               </button>

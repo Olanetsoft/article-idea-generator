@@ -27,6 +27,7 @@ Generate article ideas using GPT-4o-mini. Enter a topic, get 4 title suggestions
 - **[QR Code Generator](https://www.articleideagenerator.com/tools/qr-code-generator)** — 17+ QR types: URL, WiFi, vCard, social media (Twitter, YouTube, Facebook), crypto payments (Bitcoin, Ethereum, Cardano, Solana), App Store links. Custom colors, **logo support**, frames, style presets, **batch generation** (multiple QR codes at once with ZIP download). PNG/SVG/JPEG export. UTM tracking compatible
 - **[Title Case Converter](https://www.articleideagenerator.com/tools/title-case)** — 16 case styles (AP, Chicago, APA, camelCase, snake_case, kebab-case, etc). Auto-detection, one-click copy
 - **[JSON Formatter](https://www.articleideagenerator.com/tools/json-formatter)** — Format, minify, validate JSON. Customizable indentation (2/4/8 spaces, tabs). Real-time validation with line/column error positions. Structure analysis (keys, objects, arrays, depth). File upload/download support
+- **[URL Shortener](https://www.articleideagenerator.com/tools/url-shortener)** — Free URL shortener, no signup required. QR code generation for short links. Link history saved locally. Perfect for social media and marketing
 - **Character Counter** _(Coming Soon)_
 - **Reading Time Calculator** _(Coming Soon)_
 - **Headline Analyzer** _(Coming Soon)_
@@ -95,6 +96,14 @@ Generate article ideas using GPT-4o-mini. Enter a topic, get 4 title suggestions
 4. Click **Minify** to compress for production
 5. View real-time validation and structure stats (keys, depth, types)
 6. Download or copy the result
+
+### URL Shortener
+
+1. Go to [/tools/url-shortener](https://www.articleideagenerator.com/tools/url-shortener)
+2. Paste any long URL
+3. Click **Shorten URL**
+4. Copy the short link or generate a QR code
+5. Recent links are saved locally for quick access
 
 ## How it works
 

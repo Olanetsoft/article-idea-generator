@@ -7,6 +7,7 @@ import {
   QrcodeIcon,
   MenuAlt2Icon,
   CodeIcon,
+  LinkIcon,
 } from "@heroicons/react/outline";
 import { useTranslation } from "@/hooks/useTranslation";
 import { trackToolClick } from "@/lib/gtag";
@@ -20,6 +21,7 @@ const iconMap: Record<ToolIcon, typeof DocumentTextIcon> = {
   qrcode: QrcodeIcon,
   text: MenuAlt2Icon,
   code: CodeIcon,
+  link: LinkIcon,
 };
 
 export default function ToolCard({

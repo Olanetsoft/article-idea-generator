@@ -9,7 +9,8 @@ export type ToolIcon =
   | "clock"
   | "qrcode"
   | "text"
-  | "code";
+  | "code"
+  | "link";
 
 export interface Tool {
   id: string;
