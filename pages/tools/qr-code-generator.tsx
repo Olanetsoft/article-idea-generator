@@ -1768,7 +1768,9 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                             {SIZE_OPTIONS.map((option) => (
                               <button
                                 key={option.value}
-                                onClick={() => updateStyle("size", option.value)}
+                                onClick={() =>
+                                  updateStyle("size", option.value)
+                                }
                                 className={`px-2 py-1.5 text-xs font-medium rounded transition-colors ${
                                   style.size === option.value
                                     ? "bg-violet-600 text-white"
