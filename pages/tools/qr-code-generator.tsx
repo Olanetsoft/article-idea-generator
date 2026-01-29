@@ -1318,14 +1318,14 @@ export default function QRCodeGeneratorPage(): JSX.Element {
         {/* QR Type Selector */}
         <div className="w-full max-w-screen-lg mb-6">
           {/* Main types - always visible */}
-          <div className="flex flex-wrap justify-center gap-2">
+          <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2">
             {QR_TYPES.filter((t) => t.category === "basic")
               .slice(0, 6)
               .map((type) => (
                 <button
                   key={type.id}
                   onClick={() => handleTypeChange(type.id)}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                  className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg text-sm font-medium transition-all ${
                     contentType === type.id
                       ? "bg-violet-600 text-white shadow-md shadow-violet-500/20"
                       : "bg-zinc-100 dark:bg-dark-card text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-dark-border"
@@ -1341,7 +1341,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
               ))}
             <button
               onClick={() => setShowTypeCategories(!showTypeCategories)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
+              className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg text-sm font-medium transition-all ${
                 showTypeCategories ||
                 QR_TYPES.filter(
                   (t) =>
@@ -1361,7 +1361,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
           {/* Expanded types */}
           {showTypeCategories && (
             <div className="mt-4 p-4 bg-zinc-50 dark:bg-darkOffset rounded-xl border border-zinc-200 dark:border-dark-border">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 {/* More Basic */}
                 <div>
                   <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-2">
@@ -1605,7 +1605,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                     <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
                       {t("tools.qrCode.frameStyle")}
                     </label>
-                    <div className="grid grid-cols-5 gap-1.5 mb-3">
+                    <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5 mb-3">
                       {FRAME_TEMPLATES.map((frame) => (
                         <button
                           key={frame.id}
@@ -1668,7 +1668,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                           <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
                             {t("tools.qrCode.colorPresets")}
                           </label>
-                          <div className="grid grid-cols-4 gap-2">
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                             {COLOR_PRESETS.map((preset) => (
                               <button
                                 key={preset.id}
@@ -1764,7 +1764,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                           <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-2">
                             {t("tools.qrCode.size")}
                           </label>
-                          <div className="grid grid-cols-5 gap-1.5">
+                          <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5">
                             {SIZE_OPTIONS.map((option) => (
                               <button
                                 key={option.value}
@@ -1851,7 +1851,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
           </div>
 
           {/* Right Panel - Preview */}
-          <div className="lg:w-[380px] bg-zinc-50 dark:bg-darkOffset rounded-xl border border-zinc-200 dark:border-dark-border overflow-hidden">
+          <div className="w-full lg:w-[380px] lg:flex-shrink-0 bg-zinc-50 dark:bg-darkOffset rounded-xl border border-zinc-200 dark:border-dark-border overflow-hidden">
             <div className="p-4 border-b border-zinc-200 dark:border-dark-border">
               <h3 className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
                 {t("tools.qrCode.preview")}
@@ -1861,7 +1861,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
             <div className="p-4 sm:p-6">
               <div
                 ref={qrRef}
-                className="flex flex-col items-center justify-center bg-white dark:bg-dark-card rounded-xl p-6 min-h-[280px] border border-zinc-200 dark:border-dark-border"
+                className="flex flex-col items-center justify-center bg-white dark:bg-dark-card rounded-xl p-4 sm:p-6 min-h-[240px] sm:min-h-[280px] border border-zinc-200 dark:border-dark-border"
                 style={{
                   backgroundColor:
                     frameStyle !== "none" ? "#FFFFFF" : style.bgColor,
@@ -2122,15 +2122,15 @@ export default function QRCodeGeneratorPage(): JSX.Element {
         </div>
 
         {/* Features Section */}
-        <section className="w-full max-w-screen-lg mt-12">
-          <div className="bg-zinc-50 dark:bg-darkOffset rounded-xl p-6 sm:p-8 border border-zinc-200 dark:border-dark-border">
+        <section className="w-full max-w-screen-lg mt-8 sm:mt-12">
+          <div className="bg-zinc-50 dark:bg-darkOffset rounded-xl p-4 sm:p-6 lg:p-8 border border-zinc-200 dark:border-dark-border">
             <h2
               className={`${spaceGrotesk.className} text-2xl font-bold text-zinc-900 dark:text-white mb-6`}
             >
               {t("tools.qrCode.aboutTitle")}
             </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {/* Feature Cards */}
               <div className="p-4 bg-white dark:bg-dark-card rounded-lg border border-zinc-200 dark:border-dark-border">
                 <div className="w-10 h-10 bg-violet-100 dark:bg-violet-900/30 rounded-lg flex items-center justify-center mb-3">
