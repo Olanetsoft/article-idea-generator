@@ -16,7 +16,12 @@ export type QRContentType =
   | "wifi"
   | "vcard"
   | "location"
-  | "event";
+  | "event"
+  | "twitter"
+  | "youtube"
+  | "facebook"
+  | "bitcoin"
+  | "appstore";
 
 // ============================================================================
 // Input Data Types for Each QR Content Type
@@ -86,6 +91,32 @@ export interface EventData {
   description?: string;
 }
 
+export interface TwitterData {
+  username: string;
+}
+
+export interface YouTubeData {
+  videoId: string;
+  channelId?: string;
+}
+
+export interface FacebookData {
+  username: string;
+  pageId?: string;
+}
+
+export interface BitcoinData {
+  address: string;
+  amount?: string;
+  label?: string;
+  message?: string;
+}
+
+export interface AppStoreData {
+  appId: string;
+  platform: "ios" | "android" | "both";
+}
+
 // Union type for all QR data types
 export type QRData =
   | TextData
@@ -96,7 +127,12 @@ export type QRData =
   | WifiData
   | VCardData
   | LocationData
-  | EventData;
+  | EventData
+  | TwitterData
+  | YouTubeData
+  | FacebookData
+  | BitcoinData
+  | AppStoreData;
 
 // ============================================================================
 // QR Code Styling & Settings
@@ -217,6 +253,98 @@ export const DOWNLOAD_OPTIONS: DownloadOption[] = [
   { format: "png", label: "PNG", description: "Best for web & sharing" },
   { format: "svg", label: "SVG", description: "Vector - Best for print" },
   { format: "jpg", label: "JPG", description: "Smaller file size" },
+];
+
+// ============================================================================
+// Frame Templates
+// ============================================================================
+
+export type FrameStyle = "none" | "simple" | "rounded" | "badge" | "banner";
+
+export interface FrameTemplate {
+  id: FrameStyle;
+  name: string;
+  hasText: boolean;
+}
+
+export const FRAME_TEMPLATES: FrameTemplate[] = [
+  { id: "none", name: "No Frame", hasText: false },
+  { id: "simple", name: "Simple Border", hasText: true },
+  { id: "rounded", name: "Rounded", hasText: true },
+  { id: "badge", name: "Badge", hasText: true },
+  { id: "banner", name: "Banner", hasText: true },
+];
+
+export const FRAME_TEXT_PRESETS = [
+  "SCAN ME",
+  "Scan to connect",
+  "Scan for details",
+  "Scan to order",
+  "Scan for menu",
+  "Scan to pay",
+];
+
+// ============================================================================
+// Style Presets (Quick Templates)
+// ============================================================================
+
+export interface StylePreset {
+  id: string;
+  name: string;
+  fgColor: string;
+  bgColor: string;
+  frameStyle: FrameStyle;
+  frameText?: string;
+}
+
+export const STYLE_PRESETS: StylePreset[] = [
+  {
+    id: "clean",
+    name: "Clean",
+    fgColor: "#000000",
+    bgColor: "#FFFFFF",
+    frameStyle: "none",
+  },
+  {
+    id: "scanme",
+    name: "Scan Me",
+    fgColor: "#000000",
+    bgColor: "#FFFFFF",
+    frameStyle: "badge",
+    frameText: "SCAN ME",
+  },
+  {
+    id: "business",
+    name: "Business",
+    fgColor: "#1E3A5F",
+    bgColor: "#FFFFFF",
+    frameStyle: "simple",
+    frameText: "Scan to connect",
+  },
+  {
+    id: "restaurant",
+    name: "Restaurant",
+    fgColor: "#8B4513",
+    bgColor: "#FFF8DC",
+    frameStyle: "banner",
+    frameText: "Scan for menu",
+  },
+  {
+    id: "modern",
+    name: "Modern",
+    fgColor: "#6366F1",
+    bgColor: "#F5F3FF",
+    frameStyle: "rounded",
+    frameText: "SCAN ME",
+  },
+  {
+    id: "dark",
+    name: "Dark Mode",
+    fgColor: "#FFFFFF",
+    bgColor: "#18181B",
+    frameStyle: "simple",
+    frameText: "Scan to connect",
+  },
 ];
 
 // ============================================================================

@@ -14,6 +14,11 @@ import type {
   VCardData,
   LocationData,
   EventData,
+  TwitterData,
+  YouTubeData,
+  FacebookData,
+  BitcoinData,
+  AppStoreData,
   ValidationResult,
 } from "@/types/qr-code";
 
@@ -222,6 +227,102 @@ export function generateEventValue(data: EventData): string {
   return lines.join("\n");
 }
 
+/**
+ * Generates a Twitter profile QR value
+ */
+export function generateTwitterValue(data: TwitterData): string {
+  const { username } = data;
+  if (!username) return "";
+
+  // Remove @ if present
+  const cleanUsername = username.replace(/^@/, "");
+  return `https://twitter.com/${cleanUsername}`;
+}
+
+/**
+ * Generates a YouTube QR value (video or channel)
+ */
+export function generateYouTubeValue(data: YouTubeData): string {
+  const { videoId, channelId } = data;
+
+  if (videoId) {
+    // Extract video ID if full URL provided
+    const match = videoId.match(
+      /(?:youtube\.com\/(?:watch\?v=|embed\/|v\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/,
+    );
+    const id = match ? match[1] : videoId;
+    return `https://www.youtube.com/watch?v=${id}`;
+  }
+
+  if (channelId) {
+    // Handle channel URLs or IDs
+    if (channelId.startsWith("@")) {
+      return `https://www.youtube.com/${channelId}`;
+    }
+    return `https://www.youtube.com/channel/${channelId}`;
+  }
+
+  return "";
+}
+
+/**
+ * Generates a Facebook profile/page QR value
+ */
+export function generateFacebookValue(data: FacebookData): string {
+  const { username, pageId } = data;
+
+  if (pageId) {
+    return `https://www.facebook.com/${pageId}`;
+  }
+
+  if (username) {
+    return `https://www.facebook.com/${username}`;
+  }
+
+  return "";
+}
+
+/**
+ * Generates a Bitcoin payment QR value (BIP21 format)
+ */
+export function generateBitcoinValue(data: BitcoinData): string {
+  const { address, amount, label, message } = data;
+  if (!address) return "";
+
+  let uri = `bitcoin:${address}`;
+  const params: string[] = [];
+
+  if (amount) params.push(`amount=${amount}`);
+  if (label) params.push(`label=${encodeURIComponent(label)}`);
+  if (message) params.push(`message=${encodeURIComponent(message)}`);
+
+  if (params.length > 0) {
+    uri += `?${params.join("&")}`;
+  }
+
+  return uri;
+}
+
+/**
+ * Generates an App Store QR value
+ */
+export function generateAppStoreValue(data: AppStoreData): string {
+  const { appId, platform } = data;
+  if (!appId) return "";
+
+  switch (platform) {
+    case "ios":
+      return `https://apps.apple.com/app/id${appId}`;
+    case "android":
+      return `https://play.google.com/store/apps/details?id=${appId}`;
+    case "both":
+      // Default to iOS for "both" - user can create separate codes
+      return `https://apps.apple.com/app/id${appId}`;
+    default:
+      return "";
+  }
+}
+
 // ============================================================================
 // Main QR Value Generator
 // ============================================================================
@@ -252,6 +353,16 @@ export function generateQRValue(
       return generateLocationValue(data as unknown as LocationData);
     case "event":
       return generateEventValue(data as unknown as EventData);
+    case "twitter":
+      return generateTwitterValue(data as unknown as TwitterData);
+    case "youtube":
+      return generateYouTubeValue(data as unknown as YouTubeData);
+    case "facebook":
+      return generateFacebookValue(data as unknown as FacebookData);
+    case "bitcoin":
+      return generateBitcoinValue(data as unknown as BitcoinData);
+    case "appstore":
+      return generateAppStoreValue(data as unknown as AppStoreData);
     default:
       return "";
   }
@@ -413,6 +524,53 @@ export function validateQRContent(
       }
       if (!event.startDate || !event.startTime) {
         return { isValid: false, error: "Start date and time are required" };
+      }
+      return { isValid: true };
+    }
+
+    case "twitter": {
+      const twitter = data as unknown as TwitterData;
+      if (!twitter.username) {
+        return { isValid: false, error: "Twitter username is required" };
+      }
+      return { isValid: true };
+    }
+
+    case "youtube": {
+      const youtube = data as unknown as YouTubeData;
+      if (!youtube.videoId && !youtube.channelId) {
+        return { isValid: false, error: "Video ID or Channel is required" };
+      }
+      return { isValid: true };
+    }
+
+    case "facebook": {
+      const facebook = data as unknown as FacebookData;
+      if (!facebook.username && !facebook.pageId) {
+        return { isValid: false, error: "Username or Page ID is required" };
+      }
+      return { isValid: true };
+    }
+
+    case "bitcoin": {
+      const bitcoin = data as unknown as BitcoinData;
+      if (!bitcoin.address) {
+        return { isValid: false, error: "Bitcoin address is required" };
+      }
+      // Basic Bitcoin address validation (26-35 alphanumeric characters)
+      if (
+        !/^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$/.test(bitcoin.address) &&
+        !/^bc1[a-zA-HJ-NP-Z0-9]{39,59}$/.test(bitcoin.address)
+      ) {
+        return { isValid: false, error: "Invalid Bitcoin address format" };
+      }
+      return { isValid: true };
+    }
+
+    case "appstore": {
+      const appstore = data as unknown as AppStoreData;
+      if (!appstore.appId) {
+        return { isValid: false, error: "App ID is required" };
       }
       return { isValid: true };
     }

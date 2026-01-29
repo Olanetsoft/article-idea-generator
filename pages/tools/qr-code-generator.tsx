@@ -23,11 +23,15 @@ import type {
   QRContentType,
   QRStyleSettings,
   ErrorCorrectionLevel,
+  FrameStyle,
 } from "@/types/qr-code";
 import {
   COLOR_PRESETS,
   SIZE_OPTIONS,
   ERROR_CORRECTION_OPTIONS,
+  FRAME_TEMPLATES,
+  FRAME_TEXT_PRESETS,
+  STYLE_PRESETS,
 } from "@/types/qr-code";
 import {
   generateQRValue,
@@ -63,16 +67,25 @@ const spaceGrotesk = Space_Grotesk({
 const QR_TYPES: {
   id: QRContentType;
   icon: string;
+  category?: "basic" | "social" | "payment";
 }[] = [
-  { id: "url", icon: "🔗" },
-  { id: "text", icon: "📝" },
-  { id: "wifi", icon: "📶" },
-  { id: "vcard", icon: "👤" },
-  { id: "email", icon: "✉️" },
-  { id: "phone", icon: "📞" },
-  { id: "sms", icon: "💬" },
-  { id: "location", icon: "📍" },
-  { id: "event", icon: "📅" },
+  // Basic types
+  { id: "url", icon: "🔗", category: "basic" },
+  { id: "text", icon: "📝", category: "basic" },
+  { id: "wifi", icon: "📶", category: "basic" },
+  { id: "vcard", icon: "👤", category: "basic" },
+  { id: "email", icon: "✉️", category: "basic" },
+  { id: "phone", icon: "📞", category: "basic" },
+  { id: "sms", icon: "💬", category: "basic" },
+  { id: "location", icon: "📍", category: "basic" },
+  { id: "event", icon: "📅", category: "basic" },
+  // Social types
+  { id: "twitter", icon: "🐦", category: "social" },
+  { id: "youtube", icon: "▶️", category: "social" },
+  { id: "facebook", icon: "👍", category: "social" },
+  { id: "appstore", icon: "📱", category: "social" },
+  // Payment types
+  { id: "bitcoin", icon: "₿", category: "payment" },
 ];
 
 // Default style settings
@@ -128,6 +141,16 @@ const getInitialData = (type: QRContentType): Record<string, unknown> => {
         endTime: "",
         description: "",
       };
+    case "twitter":
+      return { username: "" };
+    case "youtube":
+      return { videoId: "", channelId: "" };
+    case "facebook":
+      return { username: "", pageId: "" };
+    case "bitcoin":
+      return { address: "", amount: "", label: "", message: "" };
+    case "appstore":
+      return { appId: "", platform: "ios" };
     default:
       return {};
   }
@@ -592,6 +615,124 @@ function EventForm({ data, updateField, t }: FormProps) {
   );
 }
 
+function TwitterForm({ data, updateField, t }: FormProps) {
+  return (
+    <InputField
+      label={t("tools.qrCode.twitterUsername")}
+      value={(data.username as string) || ""}
+      onChange={(v) => updateField("username", v)}
+      placeholder={t("tools.qrCode.twitterPlaceholder")}
+      required
+    />
+  );
+}
+
+function YouTubeForm({ data, updateField, t }: FormProps) {
+  return (
+    <div className="space-y-4">
+      <InputField
+        label={t("tools.qrCode.youtubeVideo")}
+        value={(data.videoId as string) || ""}
+        onChange={(v) => updateField("videoId", v)}
+        placeholder={t("tools.qrCode.youtubeVideoPlaceholder")}
+      />
+      <div className="flex items-center gap-4 my-3">
+        <div className="flex-1 h-px bg-zinc-200 dark:bg-zinc-700" />
+        <span className="text-xs text-zinc-400">{t("tools.qrCode.or")}</span>
+        <div className="flex-1 h-px bg-zinc-200 dark:bg-zinc-700" />
+      </div>
+      <InputField
+        label={t("tools.qrCode.youtubeChannel")}
+        value={(data.channelId as string) || ""}
+        onChange={(v) => updateField("channelId", v)}
+        placeholder={t("tools.qrCode.youtubeChannelPlaceholder")}
+      />
+    </div>
+  );
+}
+
+function FacebookForm({ data, updateField, t }: FormProps) {
+  return (
+    <div className="space-y-4">
+      <InputField
+        label={t("tools.qrCode.facebookUsername")}
+        value={(data.username as string) || ""}
+        onChange={(v) => updateField("username", v)}
+        placeholder={t("tools.qrCode.facebookPlaceholder")}
+      />
+      <p className="text-xs text-zinc-500 dark:text-zinc-400">
+        {t("tools.qrCode.facebookHint")}
+      </p>
+    </div>
+  );
+}
+
+function BitcoinForm({ data, updateField, t }: FormProps) {
+  return (
+    <div className="space-y-4">
+      <InputField
+        label={t("tools.qrCode.bitcoinAddress")}
+        value={(data.address as string) || ""}
+        onChange={(v) => updateField("address", v)}
+        placeholder={t("tools.qrCode.bitcoinAddressPlaceholder")}
+        required
+      />
+      <InputField
+        label={t("tools.qrCode.bitcoinAmount")}
+        value={(data.amount as string) || ""}
+        onChange={(v) => updateField("amount", v)}
+        placeholder={t("tools.qrCode.bitcoinAmountPlaceholder")}
+      />
+      <InputField
+        label={t("tools.qrCode.bitcoinLabel")}
+        value={(data.label as string) || ""}
+        onChange={(v) => updateField("label", v)}
+        placeholder={t("tools.qrCode.bitcoinLabelPlaceholder")}
+      />
+      <InputField
+        label={t("tools.qrCode.bitcoinMessage")}
+        value={(data.message as string) || ""}
+        onChange={(v) => updateField("message", v)}
+        placeholder={t("tools.qrCode.bitcoinMessagePlaceholder")}
+        multiline
+        rows={2}
+      />
+    </div>
+  );
+}
+
+function AppStoreForm({ data, updateField, t }: FormProps) {
+  return (
+    <div className="space-y-4">
+      <SelectField
+        label={t("tools.qrCode.appstorePlatform")}
+        value={(data.platform as string) || "ios"}
+        onChange={(v) => updateField("platform", v)}
+        options={[
+          { value: "ios", label: "iOS (App Store)" },
+          { value: "android", label: "Android (Google Play)" },
+        ]}
+      />
+      <InputField
+        label={t("tools.qrCode.appstoreId")}
+        value={(data.appId as string) || ""}
+        onChange={(v) => updateField("appId", v)}
+        placeholder={
+          (data.platform as string) === "android"
+            ? t("tools.qrCode.appstoreAndroidPlaceholder")
+            : t("tools.qrCode.appstoreIosPlaceholder")
+        }
+        required
+      />
+      <p className="text-xs text-zinc-500 dark:text-zinc-400">
+        {(data.platform as string) === "android"
+          ? t("tools.qrCode.appstoreAndroidHint")
+          : t("tools.qrCode.appstoreIosHint")}
+      </p>
+    </div>
+  );
+}
+
 // ============================================================================
 // Main Component
 // ============================================================================
@@ -614,6 +755,9 @@ export default function QRCodeGeneratorPage(): JSX.Element {
   const [downloadDropdown, setDownloadDropdown] = useState(false);
   const [activeTab, setActiveTab] = useState<"content" | "style">("content");
   const [logoDataUrl, setLogoDataUrl] = useState<string | null>(null);
+  const [frameStyle, setFrameStyle] = useState<FrameStyle>("none");
+  const [frameText, setFrameText] = useState("SCAN ME");
+  const [showTypeCategories, setShowTypeCategories] = useState(false);
 
   // Refs
   const qrRef = useRef<HTMLDivElement>(null);
@@ -737,6 +881,8 @@ export default function QRCodeGeneratorPage(): JSX.Element {
     setStyle(DEFAULT_STYLE);
     setIsGenerated(false);
     setLogoDataUrl(null);
+    setFrameStyle("none");
+    setFrameText("SCAN ME");
     if (logoInputRef.current) {
       logoInputRef.current.value = "";
     }
@@ -810,6 +956,16 @@ export default function QRCodeGeneratorPage(): JSX.Element {
         return <LocationForm {...formProps} />;
       case "event":
         return <EventForm {...formProps} />;
+      case "twitter":
+        return <TwitterForm {...formProps} />;
+      case "youtube":
+        return <YouTubeForm {...formProps} />;
+      case "facebook":
+        return <FacebookForm {...formProps} />;
+      case "bitcoin":
+        return <BitcoinForm {...formProps} />;
+      case "appstore":
+        return <AppStoreForm {...formProps} />;
       default:
         return null;
     }
@@ -1043,26 +1199,140 @@ export default function QRCodeGeneratorPage(): JSX.Element {
 
         {/* QR Type Selector */}
         <div className="w-full max-w-screen-lg mb-6">
+          {/* Main types - always visible */}
           <div className="flex flex-wrap justify-center gap-2">
-            {QR_TYPES.map((type) => (
-              <button
-                key={type.id}
-                onClick={() => handleTypeChange(type.id)}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
-                  contentType === type.id
-                    ? "bg-violet-600 text-white shadow-md shadow-violet-500/20"
-                    : "bg-zinc-100 dark:bg-dark-card text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-dark-border"
-                }`}
-              >
-                <span>{type.icon}</span>
-                <span>
-                  {t(
-                    `tools.qrCode.type${type.id.charAt(0).toUpperCase() + type.id.slice(1)}`,
-                  )}
-                </span>
-              </button>
-            ))}
+            {QR_TYPES.filter((t) => t.category === "basic")
+              .slice(0, 6)
+              .map((type) => (
+                <button
+                  key={type.id}
+                  onClick={() => handleTypeChange(type.id)}
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                    contentType === type.id
+                      ? "bg-violet-600 text-white shadow-md shadow-violet-500/20"
+                      : "bg-zinc-100 dark:bg-dark-card text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-dark-border"
+                  }`}
+                >
+                  <span>{type.icon}</span>
+                  <span className="hidden sm:inline">
+                    {t(
+                      `tools.qrCode.type${type.id.charAt(0).toUpperCase() + type.id.slice(1)}`,
+                    )}
+                  </span>
+                </button>
+              ))}
+            <button
+              onClick={() => setShowTypeCategories(!showTypeCategories)}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                showTypeCategories ||
+                QR_TYPES.filter(
+                  (t) =>
+                    t.category !== "basic" ||
+                    QR_TYPES.filter((x) => x.category === "basic").indexOf(t) >=
+                      6,
+                ).some((t) => t.id === contentType)
+                  ? "bg-violet-600 text-white"
+                  : "bg-zinc-100 dark:bg-dark-card text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-dark-border"
+              }`}
+            >
+              <span>+</span>
+              <span>{t("tools.qrCode.moreTypes")}</span>
+            </button>
           </div>
+
+          {/* Expanded types */}
+          {showTypeCategories && (
+            <div className="mt-4 p-4 bg-zinc-50 dark:bg-darkOffset rounded-xl border border-zinc-200 dark:border-dark-border">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {/* More Basic */}
+                <div>
+                  <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-2">
+                    {t("tools.qrCode.categoryBasic")}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {QR_TYPES.filter((t) => t.category === "basic")
+                      .slice(6)
+                      .map((type) => (
+                        <button
+                          key={type.id}
+                          onClick={() => handleTypeChange(type.id)}
+                          className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                            contentType === type.id
+                              ? "bg-violet-600 text-white"
+                              : "bg-white dark:bg-dark-card text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-dark-border"
+                          }`}
+                        >
+                          <span>{type.icon}</span>
+                          <span>
+                            {t(
+                              `tools.qrCode.type${type.id.charAt(0).toUpperCase() + type.id.slice(1)}`,
+                            )}
+                          </span>
+                        </button>
+                      ))}
+                  </div>
+                </div>
+
+                {/* Social */}
+                <div>
+                  <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-2">
+                    {t("tools.qrCode.categorySocial")}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {QR_TYPES.filter((t) => t.category === "social").map(
+                      (type) => (
+                        <button
+                          key={type.id}
+                          onClick={() => handleTypeChange(type.id)}
+                          className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                            contentType === type.id
+                              ? "bg-violet-600 text-white"
+                              : "bg-white dark:bg-dark-card text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-dark-border"
+                          }`}
+                        >
+                          <span>{type.icon}</span>
+                          <span>
+                            {t(
+                              `tools.qrCode.type${type.id.charAt(0).toUpperCase() + type.id.slice(1)}`,
+                            )}
+                          </span>
+                        </button>
+                      ),
+                    )}
+                  </div>
+                </div>
+
+                {/* Payment */}
+                <div>
+                  <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-2">
+                    {t("tools.qrCode.categoryPayment")}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {QR_TYPES.filter((t) => t.category === "payment").map(
+                      (type) => (
+                        <button
+                          key={type.id}
+                          onClick={() => handleTypeChange(type.id)}
+                          className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                            contentType === type.id
+                              ? "bg-violet-600 text-white"
+                              : "bg-white dark:bg-dark-card text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-dark-border"
+                          }`}
+                        >
+                          <span>{type.icon}</span>
+                          <span>
+                            {t(
+                              `tools.qrCode.type${type.id.charAt(0).toUpperCase() + type.id.slice(1)}`,
+                            )}
+                          </span>
+                        </button>
+                      ),
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Main Content */}
@@ -1329,6 +1599,95 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                       </label>
                     )}
                   </div>
+
+                  {/* Frame Style */}
+                  <div>
+                    <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-3">
+                      {t("tools.qrCode.frameStyle")}
+                    </label>
+                    <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mb-3">
+                      {FRAME_TEMPLATES.map((frame) => (
+                        <button
+                          key={frame.id}
+                          onClick={() => setFrameStyle(frame.id)}
+                          className={`px-2 py-2 text-xs font-medium rounded-lg transition-colors ${
+                            frameStyle === frame.id
+                              ? "bg-violet-600 text-white"
+                              : "bg-white dark:bg-dark-card text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-dark-border hover:border-violet-300 dark:hover:border-violet-600"
+                          }`}
+                        >
+                          {t(
+                            `tools.qrCode.frame${frame.id.charAt(0).toUpperCase() + frame.id.slice(1)}`,
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                    {frameStyle !== "none" && (
+                      <div className="space-y-3">
+                        <InputField
+                          label={t("tools.qrCode.frameTextLabel")}
+                          value={frameText}
+                          onChange={setFrameText}
+                          placeholder={t("tools.qrCode.frameTextPlaceholder")}
+                        />
+                        <div className="flex flex-wrap gap-1.5">
+                          {FRAME_TEXT_PRESETS.map((text) => (
+                            <button
+                              key={text}
+                              onClick={() => setFrameText(text)}
+                              className={`px-2 py-1 text-xs rounded transition-colors ${
+                                frameText === text
+                                  ? "bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300"
+                                  : "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700"
+                              }`}
+                            >
+                              {text}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Quick Style Presets */}
+                  <div className="border-t border-zinc-200 dark:border-dark-border pt-4">
+                    <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-3">
+                      {t("tools.qrCode.quickPresets")}
+                    </label>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                      {STYLE_PRESETS.map((preset) => (
+                        <button
+                          key={preset.id}
+                          onClick={() => {
+                            setStyle((s) => ({
+                              ...s,
+                              fgColor: preset.fgColor,
+                              bgColor: preset.bgColor,
+                            }));
+                            setFrameStyle(preset.frameStyle);
+                            if (preset.frameText) {
+                              setFrameText(preset.frameText);
+                            }
+                          }}
+                          className="flex items-center gap-2 p-2 bg-white dark:bg-dark-card rounded-lg border border-zinc-200 dark:border-dark-border hover:border-violet-300 dark:hover:border-violet-600 transition-colors text-left"
+                        >
+                          <div
+                            className="w-8 h-8 rounded flex items-center justify-center text-xs border"
+                            style={{
+                              backgroundColor: preset.bgColor,
+                              color: preset.fgColor,
+                              borderColor: preset.fgColor + "40",
+                            }}
+                          >
+                            ▣
+                          </div>
+                          <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                            {preset.name}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               )}
 
@@ -1363,29 +1722,98 @@ export default function QRCodeGeneratorPage(): JSX.Element {
             <div className="p-4 sm:p-6">
               <div
                 ref={qrRef}
-                className="flex items-center justify-center bg-white dark:bg-dark-card rounded-xl p-6 min-h-[280px] border border-zinc-200 dark:border-dark-border"
-                style={{ backgroundColor: style.bgColor }}
+                className="flex flex-col items-center justify-center bg-white dark:bg-dark-card rounded-xl p-6 min-h-[280px] border border-zinc-200 dark:border-dark-border"
+                style={{
+                  backgroundColor:
+                    frameStyle !== "none" ? "#FFFFFF" : style.bgColor,
+                }}
               >
                 {isGenerated && qrValue ? (
-                  <QRCodeCanvas
-                    value={qrValue}
-                    size={Math.min(style.size, 280)}
-                    fgColor={style.fgColor}
-                    bgColor={style.bgColor}
-                    level={style.errorCorrection}
-                    includeMargin={style.includeMargin}
-                    imageSettings={
-                      logoDataUrl
-                        ? {
-                            src: logoDataUrl,
-                            height: Math.round(Math.min(style.size, 280) * 0.2),
-                            width: Math.round(Math.min(style.size, 280) * 0.2),
-                            excavate: true,
-                          }
-                        : undefined
-                    }
-                    style={{ maxWidth: "100%", height: "auto" }}
-                  />
+                  <div
+                    className={`flex flex-col items-center ${
+                      frameStyle === "simple"
+                        ? "border-2 p-3"
+                        : frameStyle === "rounded"
+                          ? "border-2 rounded-xl p-4"
+                          : frameStyle === "badge"
+                            ? "border-2 rounded-2xl p-4 pb-2"
+                            : frameStyle === "banner"
+                              ? "border-2 rounded-lg overflow-hidden"
+                              : ""
+                    }`}
+                    style={{
+                      borderColor:
+                        frameStyle !== "none" ? style.fgColor : "transparent",
+                      backgroundColor: style.bgColor,
+                    }}
+                  >
+                    {frameStyle === "banner" && (
+                      <div
+                        className="w-full py-1.5 px-3 text-center text-xs font-bold uppercase tracking-wider"
+                        style={{
+                          backgroundColor: style.fgColor,
+                          color: style.bgColor,
+                        }}
+                      >
+                        {frameText}
+                      </div>
+                    )}
+                    <div className={frameStyle === "banner" ? "p-3" : ""}>
+                      <QRCodeCanvas
+                        value={qrValue}
+                        size={Math.min(
+                          style.size,
+                          frameStyle !== "none" ? 220 : 280,
+                        )}
+                        fgColor={style.fgColor}
+                        bgColor={style.bgColor}
+                        level={style.errorCorrection}
+                        includeMargin={style.includeMargin}
+                        imageSettings={
+                          logoDataUrl
+                            ? {
+                                src: logoDataUrl,
+                                height: Math.round(
+                                  Math.min(
+                                    style.size,
+                                    frameStyle !== "none" ? 220 : 280,
+                                  ) * 0.2,
+                                ),
+                                width: Math.round(
+                                  Math.min(
+                                    style.size,
+                                    frameStyle !== "none" ? 220 : 280,
+                                  ) * 0.2,
+                                ),
+                                excavate: true,
+                              }
+                            : undefined
+                        }
+                        style={{ maxWidth: "100%", height: "auto" }}
+                      />
+                    </div>
+                    {frameStyle !== "none" && frameStyle !== "banner" && (
+                      <p
+                        className={`text-center font-bold uppercase tracking-wide mt-2 ${
+                          frameStyle === "badge"
+                            ? "text-xs px-3 py-1 rounded-full"
+                            : "text-xs"
+                        }`}
+                        style={{
+                          color:
+                            frameStyle === "badge"
+                              ? style.bgColor
+                              : style.fgColor,
+                          backgroundColor:
+                            frameStyle === "badge"
+                              ? style.fgColor
+                              : "transparent",
+                        }}
+                      >
+                        {frameText}
+                      </p>
+                    )}
+                  </div>
                 ) : (
                   <div className="text-center text-zinc-400 dark:text-zinc-500">
                     <svg
