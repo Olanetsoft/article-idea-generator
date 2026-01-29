@@ -10,7 +10,8 @@ export type ToolIcon =
   | "qrcode"
   | "text"
   | "code"
-  | "link";
+  | "link"
+  | "photograph";
 
 export interface Tool {
   id: string;

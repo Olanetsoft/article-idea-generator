@@ -28,6 +28,7 @@ Generate article ideas using GPT-4o-mini. Enter a topic, get 4 title suggestions
 - **[Title Case Converter](https://www.articleideagenerator.com/tools/title-case)** — 16 case styles (AP, Chicago, APA, camelCase, snake_case, kebab-case, etc). Auto-detection, one-click copy
 - **[JSON Formatter](https://www.articleideagenerator.com/tools/json-formatter)** — Format, minify, validate JSON. Customizable indentation (2/4/8 spaces, tabs). Real-time validation with line/column error positions. Structure analysis (keys, objects, arrays, depth). File upload/download support
 - **[URL Shortener](https://www.articleideagenerator.com/tools/url-shortener)** — Free URL shortener, no signup required. QR code generation for short links. Link history saved locally. Perfect for social media and marketing
+- **[Cover Image Generator](https://www.articleideagenerator.com/tools/cover-image-generator)** — The most feature-rich free cover image maker. **24+ gradient presets** (vibrant, dark, nature, minimal), **16 platform sizes** (Twitter, LinkedIn, Dev.to, Medium, Hashnode, Instagram, Pinterest, YouTube & more), **12 pattern overlays**, **8 theme layouts**, **30+ dev icons** (React, TypeScript, Python, etc.), **8 quick-start templates**. Custom logo upload, download all sizes at once, settings persistence. No signup required
 - **Character Counter** _(Coming Soon)_
 - **Reading Time Calculator** _(Coming Soon)_
 - **Headline Analyzer** _(Coming Soon)_
@@ -104,6 +105,17 @@ Generate article ideas using GPT-4o-mini. Enter a topic, get 4 title suggestions
 3. Click **Shorten URL**
 4. Copy the short link or generate a QR code
 5. Recent links are saved locally for quick access
+
+### Cover Image Generator
+
+1. Go to [/tools/cover-image-generator](https://www.articleideagenerator.com/tools/cover-image-generator)
+2. Enter your article title and optional subtitle/author
+3. **Content Tab**: Add title, subtitle, author name, upload logo or choose dev icon
+4. **Style Tab**: Pick gradient (24+ presets or custom colors), pattern overlay, text color, font
+5. **Layout Tab**: Choose theme layout, text alignment, padding, border radius
+6. **Export Tab**: Select size preset (16 platforms) or custom dimensions
+7. Click **Download** for single size or **Download All Sizes** for all 15 images at once
+8. Use **Quick Templates** button for pre-configured styles
 
 ## How it works
 
