@@ -140,43 +140,52 @@ Beyond AI generation, Article Idea Generator offers a suite of free writing tool
 **URL**: https://articleideagenerator.com/tools/qr-code-generator
 
 **Features**:
-- 9 QR code types supported:
-  - URL/Website links
-  - Plain text
-  - WiFi network credentials
-  - vCard contact information
-  - Email addresses (with subject/body)
-  - Phone numbers
-  - SMS messages
-  - Geographic locations
-  - Calendar events (iCal format)
+- 17+ QR code types supported:
+  - **Basic**: URL/Website links, Plain text, WiFi credentials, vCard contacts, Email, Phone, SMS, Location, Calendar events
+  - **Social**: Twitter/X profiles, YouTube videos/channels, Facebook profiles, App Store links
+  - **Payments**: Bitcoin (BIP21), Ethereum (EIP-681), Cardano (CIP-13), Solana Pay
 - Customization options:
-  - 8 color presets (Classic, Ocean, Forest, Sunset, etc.)
+  - 8 color presets (Classic, Ocean, Forest, Sunset, Coral, Lavender, Midnight, Monochrome)
   - Custom foreground/background colors
+  - Logo upload support (auto-adjusts error correction)
+  - 5 frame styles: None, Simple Border, Rounded, Badge, Banner
+  - Custom frame text (e.g., "SCAN ME")
+  - 6 style presets: Clean, Scan Me, Business, Restaurant, Modern, Dark Mode
   - 5 size options (128px to 512px)
   - 4 error correction levels (L, M, Q, H)
   - Quiet zone margin toggle
 - Multiple download formats:
-  - PNG (best for web)
+  - PNG (high resolution, best for web)
   - SVG (best for print, scalable)
   - JPG (smaller file size)
 - Copy to clipboard functionality
 - Local history storage (last 10 QR codes)
+- **Batch Generation Mode**:
+  - Generate multiple QR codes at once (URL type)
+  - Input: one URL per line, optional label prefix (e.g., "My Site,https://example.com")
+  - Upload CSV/TXT files
+  - Apply styles to all batch QR codes
+  - Download all as ZIP file
+  - Preview all generated codes
 
 **Use Cases**:
 - Business cards with vCard QR codes
-- Restaurant/cafe WiFi sharing
-- Product packaging links
+- Restaurant/cafe WiFi sharing with custom branding
+- Product packaging links with company logo
 - Event marketing with calendar QR codes
 - Contact sharing at conferences
-- Payment links
-- App download links
+- Cryptocurrency payment links
+- App download links (iOS/Android)
+- Bulk QR code generation for marketing campaigns
+- Social media profile sharing
 
 **Technical Details**:
-- Client-side QR generation using qrcode.react
+- Client-side QR generation using qrcode.react (preview) and qrcode (high-res)
 - No data sent to server (100% private)
 - Canvas-based rendering for downloads
+- High-resolution output (2048x2048 for batch)
 - LocalStorage for history persistence
+- JSZip for batch ZIP downloads
 - Mobile-responsive design
 
 ### Tools Landing Page

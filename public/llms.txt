@@ -53,15 +53,22 @@ Perfect for writers checking article length, students meeting word count require
 URL: https://articleideagenerator.com/tools/qr-code-generator
 
 Free online QR code generator that creates:
-- 9 QR code types: URL, text, WiFi, vCard, email, phone, SMS, location, calendar events
+- 17+ QR code types:
+  - Basic: URL, text, WiFi, vCard, email, phone, SMS, location, calendar events
+  - Social: Twitter/X, YouTube, Facebook, App Store
+  - Payments: Bitcoin, Ethereum, Cardano, Solana
 - Custom colors with 8 presets or custom picker
+- Logo support (upload your own logo)
+- 5 frame styles (none, simple, rounded, badge, banner) with custom text
+- 6 style presets (Clean, Scan Me, Business, Restaurant, Modern, Dark Mode)
 - Multiple sizes (128px to 512px)
 - 4 error correction levels
-- Downloads in PNG, SVG, or JPG formats
+- Downloads in PNG, SVG, or JPG formats (high resolution)
 - Copy to clipboard functionality
 - Local history storage
+- **Batch mode**: Generate multiple QR codes at once, download as ZIP
 
-Perfect for business cards, restaurant WiFi sharing, product packaging, and event marketing.
+Perfect for business cards, restaurant WiFi sharing, product packaging, event marketing, and bulk QR code generation.
 
 ### Title Case Converter
 URL: https://articleideagenerator.com/tools/title-case
