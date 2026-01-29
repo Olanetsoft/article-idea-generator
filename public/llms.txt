@@ -101,6 +101,19 @@ Free online JSON formatter and validator that provides:
 
 Perfect for developers, API testers, and anyone working with JSON data.
 
+### URL Shortener
+URL: https://articleideagenerator.com/tools/url-shortener
+
+Free online URL shortener that provides:
+- Instant URL shortening with no signup required
+- QR code generation for shortened links
+- Link history saved locally
+- One-click copy to clipboard
+- Clean, shareable short links
+- Works with any valid URL
+
+Perfect for social media, marketing campaigns, print materials, and messaging.
+
 ### Coming Soon
 - Character Counter - Track limits for Twitter, LinkedIn, meta descriptions
 - Reading Time Calculator - Generate "X min read" badges
