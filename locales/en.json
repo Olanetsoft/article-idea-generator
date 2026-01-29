@@ -371,7 +371,37 @@
       "useCase3Title": "Product Packaging",
       "useCase3Desc": "Link to product pages, manuals, or registration forms.",
       "useCase4Title": "Event Marketing",
-      "useCase4Desc": "Create calendar event QR codes for easy RSVP and scheduling."
+      "useCase4Desc": "Create calendar event QR codes for easy RSVP and scheduling.",
+      "tabBatch": "Batch",
+      "batchTitle": "Generate Multiple QR Codes at Once",
+      "batchDescription": "Enter multiple URLs, text, or data - one per line. Optionally prefix with a label using comma or pipe separator (e.g., 'My Site,https://example.com').",
+      "batchInputLabel": "Enter your content (one per line)",
+      "batchInputPlaceholder": "https://example.com\nMy Website,https://mysite.com\nContact|https://contact.me\nhttps://another-url.com",
+      "batchFormatHint": "Format: 'value' or 'label,value' or 'label|value' - one entry per line",
+      "batchUploadCSV": "Upload CSV/TXT",
+      "batchUploadHint": "or upload a file with one entry per line",
+      "batchItemsCount": "Total items",
+      "batchValidCount": "Valid",
+      "batchGenerate": "Generate All QR Codes",
+      "batchClear": "Clear batch",
+      "batchDownloadAll": "Download All as ZIP",
+      "batchDownloading": "Creating ZIP",
+      "batchFilesZip": "files",
+      "batchPreview": "Batch Preview",
+      "batchPreviewPlaceholder": "Enter content in the Batch tab and click Generate to create multiple QR codes",
+      "batchStyleOptions": "Style Options",
+      "errorLogoTooLarge": "Logo file is too large. Maximum size is 2MB.",
+      "errorLogoInvalidType": "Invalid file type. Please upload an image (PNG, JPG, GIF, etc.).",
+      "errorDownloadFailed": "Failed to download QR code. Please try again.",
+      "errorCopyFailed": "Failed to copy QR code to clipboard.",
+      "errorBatchGenerateFailed": "Failed to generate some QR codes.",
+      "successQrCopied": "QR code copied to clipboard!",
+      "successDownloaded": "QR code downloaded successfully!",
+      "successBatchDownloaded": "All QR codes downloaded as ZIP!",
+      "successLogoAdded": "Logo added to QR code",
+      "successLogoRemoved": "Logo removed",
+      "successHistoryCleared": "History cleared",
+      "successBatchGenerated": "QR codes generated successfully!"
     },
     "titleCase": {
       "name": "Title Case Converter",
@@ -402,7 +432,11 @@
       "camelDesc": "JS variables & functions",
       "pascalDesc": "Classes & components",
       "snakeDesc": "Python, Ruby, databases",
-      "kebabDesc": "URLs, CSS, file names"
+      "kebabDesc": "URLs, CSS, file names",
+      "successCopied": "Text copied to clipboard!",
+      "successAllCopied": "All styles copied to clipboard!",
+      "successPasted": "Text pasted from clipboard!",
+      "errorPasteFailed": "Unable to access clipboard. Please paste manually."
     }
   }
 }
