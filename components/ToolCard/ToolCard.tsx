@@ -6,6 +6,7 @@ import {
   ClockIcon,
   QrcodeIcon,
   MenuAlt2Icon,
+  CodeIcon,
 } from "@heroicons/react/outline";
 import { useTranslation } from "@/hooks/useTranslation";
 import { trackToolClick } from "@/lib/gtag";
@@ -18,6 +19,7 @@ const iconMap: Record<ToolIcon, typeof DocumentTextIcon> = {
   clock: ClockIcon,
   qrcode: QrcodeIcon,
   text: MenuAlt2Icon,
+  code: CodeIcon,
 };
 
 export default function ToolCard({

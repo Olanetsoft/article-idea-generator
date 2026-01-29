@@ -8,7 +8,8 @@ export type ToolIcon =
   | "chart"
   | "clock"
   | "qrcode"
-  | "text";
+  | "text"
+  | "code";
 
 export interface Tool {
   id: string;

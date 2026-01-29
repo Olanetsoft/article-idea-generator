@@ -87,6 +87,20 @@ Free online text case converter that supports:
 
 Perfect for writers, developers, journalists, and content creators.
 
+### JSON Formatter
+URL: https://articleideagenerator.com/tools/json-formatter
+
+Free online JSON formatter and validator that provides:
+- JSON beautification with customizable indentation (2, 4, 8 spaces or tabs)
+- JSON minification for production use
+- Real-time syntax validation with line/column error positions
+- JSON structure analysis (keys, objects, arrays, depth, data types)
+- File upload and download support
+- Copy to clipboard functionality
+- Sample JSON templates
+
+Perfect for developers, API testers, and anyone working with JSON data.
+
 ### Coming Soon
 - Character Counter - Track limits for Twitter, LinkedIn, meta descriptions
 - Reading Time Calculator - Generate "X min read" badges
