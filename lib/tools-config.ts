@@ -40,6 +40,14 @@ export const tools: Tool[] = [
     available: true,
   },
   {
+    id: "url-shortener",
+    nameKey: "tools.urlShortener.name",
+    descriptionKey: "tools.urlShortener.description",
+    href: "/tools/url-shortener",
+    icon: "link",
+    available: true,
+  },
+  {
     id: "character-counter",
     nameKey: "tools.characterCounter.name",
     descriptionKey: "tools.characterCounter.description",
