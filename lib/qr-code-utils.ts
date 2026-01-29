@@ -276,15 +276,15 @@ export function validateEmail(email: string): ValidationResult {
 }
 
 /**
- * Validate URL
+ * Validate URL (supports query parameters like UTM tracking)
  */
 export function validateURL(url: string): ValidationResult {
   if (!url) {
     return { isValid: false, error: "URL is required" };
   }
-  // Basic URL validation - allow with or without protocol
+  // URL validation - supports protocols, paths, query params (UTM), and fragments
   const urlRegex =
-    /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/i;
+    /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})(:\d+)?(\/[^\s?#]*)?(\?[^\s#]*)?(#[^\s]*)?$/i;
   if (!urlRegex.test(url)) {
     return { isValid: false, error: "Invalid URL format" };
   }

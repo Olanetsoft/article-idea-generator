@@ -16,6 +16,8 @@ import {
   ChevronDownIcon,
   CheckIcon,
   ExclamationCircleIcon,
+  PhotographIcon,
+  XIcon,
 } from "@heroicons/react/outline";
 import type {
   QRContentType,
@@ -611,11 +613,13 @@ export default function QRCodeGeneratorPage(): JSX.Element {
   const [copySuccess, setCopySuccess] = useState(false);
   const [downloadDropdown, setDownloadDropdown] = useState(false);
   const [activeTab, setActiveTab] = useState<"content" | "style">("content");
+  const [logoDataUrl, setLogoDataUrl] = useState<string | null>(null);
 
   // Refs
   const qrRef = useRef<HTMLDivElement>(null);
   const hasTrackedUsage = useRef(false);
   const downloadRef = useRef<HTMLDivElement>(null);
+  const logoInputRef = useRef<HTMLInputElement>(null);
 
   // Load history on mount
   useEffect(() => {
@@ -732,8 +736,47 @@ export default function QRCodeGeneratorPage(): JSX.Element {
     setData(getInitialData(contentType));
     setStyle(DEFAULT_STYLE);
     setIsGenerated(false);
+    setLogoDataUrl(null);
+    if (logoInputRef.current) {
+      logoInputRef.current.value = "";
+    }
     hasTrackedUsage.current = false;
   }, [contentType]);
+
+  const handleLogoUpload = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      // Validate file type
+      if (!file.type.startsWith("image/")) {
+        return;
+      }
+
+      // Validate file size (max 2MB)
+      if (file.size > 2 * 1024 * 1024) {
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setLogoDataUrl(event.target?.result as string);
+        // Auto-increase error correction for better logo visibility
+        if (style.errorCorrection === "L" || style.errorCorrection === "M") {
+          updateStyle("errorCorrection", "H");
+        }
+      };
+      reader.readAsDataURL(file);
+    },
+    [style.errorCorrection, updateStyle],
+  );
+
+  const handleRemoveLogo = useCallback(() => {
+    setLogoDataUrl(null);
+    if (logoInputRef.current) {
+      logoInputRef.current.value = "";
+    }
+  }, []);
 
   const handleClearHistory = useCallback(() => {
     clearHistory();
@@ -1040,13 +1083,22 @@ export default function QRCodeGeneratorPage(): JSX.Element {
               </button>
               <button
                 onClick={() => setActiveTab("style")}
-                className={`flex-1 px-4 py-3.5 sm:py-3 text-sm font-medium transition-colors ${
+                className={`flex-1 px-4 py-3.5 sm:py-3 text-sm font-medium transition-colors flex items-center justify-center gap-1.5 ${
                   activeTab === "style"
                     ? "text-violet-600 dark:text-violet-400 border-b-2 border-violet-600 dark:border-violet-400 bg-white dark:bg-dark-card"
                     : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
                 }`}
               >
-                {t("tools.qrCode.tabStyle")}
+                <span className="relative">
+                  {t("tools.qrCode.tabStyle")}
+                  <span className="absolute -top-1.5 -right-4 flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-500 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-violet-600 dark:bg-violet-400"></span>
+                  </span>
+                </span>
+                <span className="ml-2 text-[10px] px-1.5 py-0.5 bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400 rounded-full font-semibold uppercase tracking-wide">
+                  + Logo
+                </span>
               </button>
             </div>
 
@@ -1225,6 +1277,58 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                     checked={style.includeMargin}
                     onChange={(v) => updateStyle("includeMargin", v)}
                   />
+
+                  {/* Logo Upload */}
+                  <div>
+                    <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-3">
+                      {t("tools.qrCode.addLogo")}
+                    </label>
+                    <input
+                      ref={logoInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleLogoUpload}
+                      className="hidden"
+                      id="logo-upload"
+                    />
+                    {logoDataUrl ? (
+                      <div className="flex items-center gap-3 p-3 bg-white dark:bg-dark-card rounded-lg border border-zinc-200 dark:border-dark-border">
+                        <img
+                          src={logoDataUrl}
+                          alt="Logo preview"
+                          className="w-12 h-12 object-contain rounded"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300 truncate">
+                            {t("tools.qrCode.logoUploaded")}
+                          </p>
+                          <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                            {t("tools.qrCode.logoHint")}
+                          </p>
+                        </div>
+                        <button
+                          onClick={handleRemoveLogo}
+                          className="p-1.5 text-zinc-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+                          title={t("tools.qrCode.removeLogo")}
+                        >
+                          <XIcon className="w-5 h-5" />
+                        </button>
+                      </div>
+                    ) : (
+                      <label
+                        htmlFor="logo-upload"
+                        className="flex flex-col items-center gap-2 p-4 bg-white dark:bg-dark-card rounded-lg border-2 border-dashed border-zinc-300 dark:border-zinc-600 hover:border-violet-400 dark:hover:border-violet-500 cursor-pointer transition-colors"
+                      >
+                        <PhotographIcon className="w-8 h-8 text-zinc-400 dark:text-zinc-500" />
+                        <span className="text-sm text-zinc-600 dark:text-zinc-400">
+                          {t("tools.qrCode.uploadLogo")}
+                        </span>
+                        <span className="text-xs text-zinc-400 dark:text-zinc-500">
+                          PNG, JPG, SVG (max 2MB)
+                        </span>
+                      </label>
+                    )}
+                  </div>
                 </div>
               )}
 
@@ -1270,6 +1374,16 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                     bgColor={style.bgColor}
                     level={style.errorCorrection}
                     includeMargin={style.includeMargin}
+                    imageSettings={
+                      logoDataUrl
+                        ? {
+                            src: logoDataUrl,
+                            height: Math.round(Math.min(style.size, 280) * 0.2),
+                            width: Math.round(Math.min(style.size, 280) * 0.2),
+                            excavate: true,
+                          }
+                        : undefined
+                    }
                     style={{ maxWidth: "100%", height: "auto" }}
                   />
                 ) : (

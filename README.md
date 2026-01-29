@@ -24,7 +24,7 @@ Generate article ideas using GPT-4o-mini. Enter a topic, get 4 title suggestions
 **Free Tools**
 
 - **[Word Counter](https://www.articleideagenerator.com/tools/word-counter)** — Words, characters, sentences, paragraphs, reading/speaking time, keyword density
-- **[QR Code Generator](https://www.articleideagenerator.com/tools/qr-code-generator)** — URL, text, email, phone, SMS, WiFi, vCard, geo location, calendar events. Custom colors, PNG/SVG/JPEG export
+- **[QR Code Generator](https://www.articleideagenerator.com/tools/qr-code-generator)** — URL, text, email, phone, SMS, WiFi, vCard, geo location, calendar events. Custom colors, **logo support**, PNG/SVG/JPEG export. UTM tracking compatible
 - **[Title Case Converter](https://www.articleideagenerator.com/tools/title-case)** — 16 case styles (AP, Chicago, APA, camelCase, snake_case, kebab-case, etc). Auto-detection, one-click copy
 - **Character Counter** _(Coming Soon)_
 - **Reading Time Calculator** _(Coming Soon)_
