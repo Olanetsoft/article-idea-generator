@@ -14,6 +14,14 @@ import type {
   VCardData,
   LocationData,
   EventData,
+  TwitterData,
+  YouTubeData,
+  FacebookData,
+  BitcoinData,
+  EthereumData,
+  CardanoData,
+  SolanaData,
+  AppStoreData,
   ValidationResult,
 } from "@/types/qr-code";
 
@@ -222,6 +230,169 @@ export function generateEventValue(data: EventData): string {
   return lines.join("\n");
 }
 
+/**
+ * Generates a Twitter profile QR value
+ */
+export function generateTwitterValue(data: TwitterData): string {
+  const { username } = data;
+  if (!username) return "";
+
+  // Remove @ if present
+  const cleanUsername = username.replace(/^@/, "");
+  return `https://twitter.com/${cleanUsername}`;
+}
+
+/**
+ * Generates a YouTube QR value (video or channel)
+ */
+export function generateYouTubeValue(data: YouTubeData): string {
+  const { videoId, channelId } = data;
+
+  if (videoId) {
+    // Extract video ID if full URL provided
+    const match = videoId.match(
+      /(?:youtube\.com\/(?:watch\?v=|embed\/|v\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/,
+    );
+    const id = match ? match[1] : videoId;
+    return `https://www.youtube.com/watch?v=${id}`;
+  }
+
+  if (channelId) {
+    // Handle channel URLs or IDs
+    if (channelId.startsWith("@")) {
+      return `https://www.youtube.com/${channelId}`;
+    }
+    return `https://www.youtube.com/channel/${channelId}`;
+  }
+
+  return "";
+}
+
+/**
+ * Generates a Facebook profile/page QR value
+ */
+export function generateFacebookValue(data: FacebookData): string {
+  const { username, pageId } = data;
+
+  if (pageId) {
+    return `https://www.facebook.com/${pageId}`;
+  }
+
+  if (username) {
+    return `https://www.facebook.com/${username}`;
+  }
+
+  return "";
+}
+
+/**
+ * Generates a Bitcoin payment QR value (BIP21 format)
+ */
+export function generateBitcoinValue(data: BitcoinData): string {
+  const { address, amount, label, message } = data;
+  if (!address) return "";
+
+  let uri = `bitcoin:${address}`;
+  const params: string[] = [];
+
+  if (amount) params.push(`amount=${amount}`);
+  if (label) params.push(`label=${encodeURIComponent(label)}`);
+  if (message) params.push(`message=${encodeURIComponent(message)}`);
+
+  if (params.length > 0) {
+    uri += `?${params.join("&")}`;
+  }
+
+  return uri;
+}
+
+/**
+ * Generates an Ethereum payment QR value (EIP-681 format)
+ */
+export function generateEthereumValue(data: EthereumData): string {
+  const { address, amount, tokenAddress, chainId } = data;
+  if (!address) return "";
+
+  // EIP-681: ethereum:[pay-]<address>[@<chain_id>][/<function_name>][?<parameters>]
+  let uri = `ethereum:${address}`;
+
+  if (chainId) {
+    uri += `@${chainId}`;
+  }
+
+  const params: string[] = [];
+  if (amount) params.push(`value=${parseFloat(amount) * 1e18}`); // Convert ETH to Wei
+  if (tokenAddress) params.push(`token=${tokenAddress}`);
+
+  if (params.length > 0) {
+    uri += `?${params.join("&")}`;
+  }
+
+  return uri;
+}
+
+/**
+ * Generates a Cardano payment QR value (CIP-13 format)
+ */
+export function generateCardanoValue(data: CardanoData): string {
+  const { address, amount } = data;
+  if (!address) return "";
+
+  // CIP-13: web+cardano:<address>[?amount=<lovelace>]
+  let uri = `web+cardano:${address}`;
+
+  if (amount) {
+    // Convert ADA to Lovelace (1 ADA = 1,000,000 Lovelace)
+    const lovelace = parseFloat(amount) * 1e6;
+    uri += `?amount=${lovelace}`;
+  }
+
+  return uri;
+}
+
+/**
+ * Generates a Solana payment QR value (Solana Pay format)
+ */
+export function generateSolanaValue(data: SolanaData): string {
+  const { address, amount, reference, label, message } = data;
+  if (!address) return "";
+
+  // Solana Pay: solana:<recipient>[?amount=<amount>][&reference=<reference>][&label=<label>][&message=<message>]
+  let uri = `solana:${address}`;
+  const params: string[] = [];
+
+  if (amount) params.push(`amount=${amount}`);
+  if (reference) params.push(`reference=${reference}`);
+  if (label) params.push(`label=${encodeURIComponent(label)}`);
+  if (message) params.push(`message=${encodeURIComponent(message)}`);
+
+  if (params.length > 0) {
+    uri += `?${params.join("&")}`;
+  }
+
+  return uri;
+}
+
+/**
+ * Generates an App Store QR value
+ */
+export function generateAppStoreValue(data: AppStoreData): string {
+  const { appId, platform } = data;
+  if (!appId) return "";
+
+  switch (platform) {
+    case "ios":
+      return `https://apps.apple.com/app/id${appId}`;
+    case "android":
+      return `https://play.google.com/store/apps/details?id=${appId}`;
+    case "both":
+      // Default to iOS for "both" - user can create separate codes
+      return `https://apps.apple.com/app/id${appId}`;
+    default:
+      return "";
+  }
+}
+
 // ============================================================================
 // Main QR Value Generator
 // ============================================================================
@@ -252,6 +423,22 @@ export function generateQRValue(
       return generateLocationValue(data as unknown as LocationData);
     case "event":
       return generateEventValue(data as unknown as EventData);
+    case "twitter":
+      return generateTwitterValue(data as unknown as TwitterData);
+    case "youtube":
+      return generateYouTubeValue(data as unknown as YouTubeData);
+    case "facebook":
+      return generateFacebookValue(data as unknown as FacebookData);
+    case "bitcoin":
+      return generateBitcoinValue(data as unknown as BitcoinData);
+    case "ethereum":
+      return generateEthereumValue(data as unknown as EthereumData);
+    case "cardano":
+      return generateCardanoValue(data as unknown as CardanoData);
+    case "solana":
+      return generateSolanaValue(data as unknown as SolanaData);
+    case "appstore":
+      return generateAppStoreValue(data as unknown as AppStoreData);
     default:
       return "";
   }
@@ -413,6 +600,89 @@ export function validateQRContent(
       }
       if (!event.startDate || !event.startTime) {
         return { isValid: false, error: "Start date and time are required" };
+      }
+      return { isValid: true };
+    }
+
+    case "twitter": {
+      const twitter = data as unknown as TwitterData;
+      if (!twitter.username) {
+        return { isValid: false, error: "Twitter username is required" };
+      }
+      return { isValid: true };
+    }
+
+    case "youtube": {
+      const youtube = data as unknown as YouTubeData;
+      if (!youtube.videoId && !youtube.channelId) {
+        return { isValid: false, error: "Video ID or Channel is required" };
+      }
+      return { isValid: true };
+    }
+
+    case "facebook": {
+      const facebook = data as unknown as FacebookData;
+      if (!facebook.username && !facebook.pageId) {
+        return { isValid: false, error: "Username or Page ID is required" };
+      }
+      return { isValid: true };
+    }
+
+    case "bitcoin": {
+      const bitcoin = data as unknown as BitcoinData;
+      if (!bitcoin.address) {
+        return { isValid: false, error: "Bitcoin address is required" };
+      }
+      // Basic Bitcoin address validation (26-35 alphanumeric characters)
+      if (
+        !/^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$/.test(bitcoin.address) &&
+        !/^bc1[a-zA-HJ-NP-Z0-9]{39,59}$/.test(bitcoin.address)
+      ) {
+        return { isValid: false, error: "Invalid Bitcoin address format" };
+      }
+      return { isValid: true };
+    }
+
+    case "ethereum": {
+      const ethereum = data as unknown as EthereumData;
+      if (!ethereum.address) {
+        return { isValid: false, error: "Ethereum address is required" };
+      }
+      // Ethereum address: 0x followed by 40 hex characters
+      if (!/^0x[a-fA-F0-9]{40}$/.test(ethereum.address)) {
+        return { isValid: false, error: "Invalid Ethereum address format" };
+      }
+      return { isValid: true };
+    }
+
+    case "cardano": {
+      const cardano = data as unknown as CardanoData;
+      if (!cardano.address) {
+        return { isValid: false, error: "Cardano address is required" };
+      }
+      // Cardano Shelley addresses start with addr1
+      if (!/^addr1[a-zA-Z0-9]{50,}$/.test(cardano.address)) {
+        return { isValid: false, error: "Invalid Cardano address format" };
+      }
+      return { isValid: true };
+    }
+
+    case "solana": {
+      const solana = data as unknown as SolanaData;
+      if (!solana.address) {
+        return { isValid: false, error: "Solana address is required" };
+      }
+      // Solana addresses are 32-44 base58 characters
+      if (!/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(solana.address)) {
+        return { isValid: false, error: "Invalid Solana address format" };
+      }
+      return { isValid: true };
+    }
+
+    case "appstore": {
+      const appstore = data as unknown as AppStoreData;
+      if (!appstore.appId) {
+        return { isValid: false, error: "App ID is required" };
       }
       return { isValid: true };
     }
