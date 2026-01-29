@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { Space_Grotesk } from "@next/font/google";
 import { motion, AnimatePresence } from "framer-motion";
+import { Toaster, toast } from "react-hot-toast";
 import { Header, Footer } from "@/components";
 import { useTranslation } from "@/hooks/useTranslation";
 import { SITE_URL, SITE_NAME } from "@/lib/constants";
@@ -192,15 +193,19 @@ export default function TitleCasePage(): JSX.Element {
     [],
   );
 
-  const handleCopy = useCallback((id: string, text: string) => {
-    if (!text.trim()) return;
+  const handleCopy = useCallback(
+    (id: string, text: string) => {
+      if (!text.trim()) return;
 
-    navigator.clipboard.writeText(text).then(() => {
-      setCopiedId(id);
-      trackToolUsage("Title Case Converter", `copy_${id}`);
-      setTimeout(() => setCopiedId(null), 2000);
-    });
-  }, []);
+      navigator.clipboard.writeText(text).then(() => {
+        setCopiedId(id);
+        toast.success(t("tools.titleCase.successCopied"));
+        trackToolUsage("Title Case Converter", `copy_${id}`);
+        setTimeout(() => setCopiedId(null), 2000);
+      });
+    },
+    [t],
+  );
 
   const handleCopyAll = useCallback(() => {
     if (!text.trim()) return;
@@ -211,24 +216,28 @@ export default function TitleCasePage(): JSX.Element {
 
     navigator.clipboard.writeText(allResults).then(() => {
       setCopiedId("all");
+      toast.success(t("tools.titleCase.successAllCopied"));
       trackToolUsage("Title Case Converter", "copy_all");
       setTimeout(() => setCopiedId(null), 2000);
     });
-  }, [text, results]);
+  }, [text, results, t]);
 
   const handlePaste = useCallback(async () => {
     try {
       const clipboardText = await navigator.clipboard.readText();
       setText(clipboardText);
       textareaRef.current?.focus();
+      if (clipboardText) {
+        toast.success(t("tools.titleCase.successPasted"));
+      }
       if (!hasTrackedUsage.current && clipboardText.length > 10) {
         trackToolUsage("Title Case Converter", "paste");
         hasTrackedUsage.current = true;
       }
     } catch {
-      // Clipboard access denied
+      toast.error(t("tools.titleCase.errorPasteFailed"));
     }
-  }, []);
+  }, [t]);
 
   const handleSampleClick = useCallback((sampleText: string) => {
     setText(sampleText);
@@ -446,6 +455,8 @@ export default function TitleCasePage(): JSX.Element {
           }}
         />
       </Head>
+
+      <Toaster position="top-center" toastOptions={{ duration: 3000 }} />
 
       <Header />
 

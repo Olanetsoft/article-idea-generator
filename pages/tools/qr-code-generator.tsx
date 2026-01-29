@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { Space_Grotesk } from "@next/font/google";
 import { QRCodeCanvas } from "qrcode.react";
+import { Toaster, toast } from "react-hot-toast";
 import { Header, Footer } from "@/components";
 import { useTranslation } from "@/hooks/useTranslation";
 import { SITE_URL, SITE_NAME } from "@/lib/constants";
@@ -47,6 +48,16 @@ import {
   clearHistory,
   deleteHistoryItem,
 } from "@/lib/qr-code-utils";
+import {
+  StylePresetsSection,
+  LogoUploadSection,
+  FrameStyleSection,
+  ColorPickerSection,
+  BatchStylePanel,
+  InputField,
+  SelectField,
+  CheckboxField,
+} from "@/components/qr-code";
 
 // ============================================================================
 // Constants
@@ -182,113 +193,6 @@ interface HistoryItem {
 type DownloadFormat = "png" | "svg" | "jpg";
 
 // ============================================================================
-// Sub-Components
-// ============================================================================
-
-interface InputFieldProps {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  placeholder?: string;
-  type?: string;
-  required?: boolean;
-  multiline?: boolean;
-  rows?: number;
-}
-
-function InputField({
-  label,
-  value,
-  onChange,
-  placeholder,
-  type = "text",
-  required = false,
-  multiline = false,
-  rows = 3,
-}: InputFieldProps) {
-  const baseClasses =
-    "w-full px-4 py-3 border rounded-lg bg-white dark:bg-dark-card border-zinc-200 dark:border-dark-border focus:ring-2 focus:ring-violet-500 focus:border-transparent focus:outline-none text-zinc-900 dark:text-white placeholder-zinc-400 text-sm transition-colors";
-
-  return (
-    <div>
-      <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">
-        {label}
-        {required && <span className="text-red-500 ml-1">*</span>}
-      </label>
-      {multiline ? (
-        <textarea
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder}
-          rows={rows}
-          className={`${baseClasses} resize-none`}
-        />
-      ) : (
-        <input
-          type={type}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder}
-          className={baseClasses}
-        />
-      )}
-    </div>
-  );
-}
-
-interface SelectFieldProps {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  options: { value: string; label: string }[];
-}
-
-function SelectField({ label, value, onChange, options }: SelectFieldProps) {
-  return (
-    <div>
-      <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">
-        {label}
-      </label>
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full px-4 py-3 border rounded-lg bg-white dark:bg-dark-card border-zinc-200 dark:border-dark-border focus:ring-2 focus:ring-violet-500 focus:border-transparent focus:outline-none text-zinc-900 dark:text-white text-sm transition-colors appearance-none cursor-pointer"
-      >
-        {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
-    </div>
-  );
-}
-
-interface CheckboxFieldProps {
-  label: string;
-  checked: boolean;
-  onChange: (checked: boolean) => void;
-}
-
-function CheckboxField({ label, checked, onChange }: CheckboxFieldProps) {
-  return (
-    <label className="flex items-center gap-2 cursor-pointer group">
-      <div
-        className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
-          checked
-            ? "bg-violet-600 border-violet-600"
-            : "bg-white dark:bg-dark-card border-zinc-300 dark:border-zinc-600 group-hover:border-violet-400"
-        }`}
-        onClick={() => onChange(!checked)}
-      >
-        {checked && <CheckIcon className="w-3.5 h-3.5 text-white" />}
-      </div>
-      <span className="text-sm text-zinc-700 dark:text-zinc-300">{label}</span>
-    </label>
-  );
-}
-
-// ============================================================================
 // Input Form Components by Type
 // ============================================================================
 
@@ -303,7 +207,7 @@ function URLForm({ data, updateField, t }: FormProps) {
     <InputField
       label={t("tools.qrCode.urlLabel")}
       value={(data.url as string) || ""}
-      onChange={(v) => updateField("url", v)}
+      onChange={(v: string) => updateField("url", v)}
       placeholder={t("tools.qrCode.urlPlaceholder")}
       type="url"
       required
@@ -316,7 +220,7 @@ function TextForm({ data, updateField, t }: FormProps) {
     <InputField
       label={t("tools.qrCode.textLabel")}
       value={(data.text as string) || ""}
-      onChange={(v) => updateField("text", v)}
+      onChange={(v: string) => updateField("text", v)}
       placeholder={t("tools.qrCode.textPlaceholder")}
       multiline
       rows={4}
@@ -331,7 +235,7 @@ function EmailForm({ data, updateField, t }: FormProps) {
       <InputField
         label={t("tools.qrCode.emailLabel")}
         value={(data.email as string) || ""}
-        onChange={(v) => updateField("email", v)}
+        onChange={(v: string) => updateField("email", v)}
         placeholder={t("tools.qrCode.emailPlaceholder")}
         type="email"
         required
@@ -339,13 +243,13 @@ function EmailForm({ data, updateField, t }: FormProps) {
       <InputField
         label={t("tools.qrCode.emailSubject")}
         value={(data.subject as string) || ""}
-        onChange={(v) => updateField("subject", v)}
+        onChange={(v: string) => updateField("subject", v)}
         placeholder={t("tools.qrCode.emailSubjectPlaceholder")}
       />
       <InputField
         label={t("tools.qrCode.emailBody")}
         value={(data.body as string) || ""}
-        onChange={(v) => updateField("body", v)}
+        onChange={(v: string) => updateField("body", v)}
         placeholder={t("tools.qrCode.emailBodyPlaceholder")}
         multiline
         rows={3}
@@ -359,7 +263,7 @@ function PhoneForm({ data, updateField, t }: FormProps) {
     <InputField
       label={t("tools.qrCode.phoneLabel")}
       value={(data.phone as string) || ""}
-      onChange={(v) => updateField("phone", v)}
+      onChange={(v: string) => updateField("phone", v)}
       placeholder={t("tools.qrCode.phonePlaceholder")}
       type="tel"
       required
@@ -373,7 +277,7 @@ function SMSForm({ data, updateField, t }: FormProps) {
       <InputField
         label={t("tools.qrCode.smsPhone")}
         value={(data.phone as string) || ""}
-        onChange={(v) => updateField("phone", v)}
+        onChange={(v: string) => updateField("phone", v)}
         placeholder={t("tools.qrCode.phonePlaceholder")}
         type="tel"
         required
@@ -381,7 +285,7 @@ function SMSForm({ data, updateField, t }: FormProps) {
       <InputField
         label={t("tools.qrCode.smsMessage")}
         value={(data.message as string) || ""}
-        onChange={(v) => updateField("message", v)}
+        onChange={(v: string) => updateField("message", v)}
         placeholder={t("tools.qrCode.smsMessagePlaceholder")}
         multiline
         rows={3}
@@ -396,21 +300,21 @@ function WiFiForm({ data, updateField, t }: FormProps) {
       <InputField
         label={t("tools.qrCode.wifiSSID")}
         value={(data.ssid as string) || ""}
-        onChange={(v) => updateField("ssid", v)}
+        onChange={(v: string) => updateField("ssid", v)}
         placeholder={t("tools.qrCode.wifiSSIDPlaceholder")}
         required
       />
       <InputField
         label={t("tools.qrCode.wifiPassword")}
         value={(data.password as string) || ""}
-        onChange={(v) => updateField("password", v)}
+        onChange={(v: string) => updateField("password", v)}
         placeholder={t("tools.qrCode.wifiPasswordPlaceholder")}
         type="password"
       />
       <SelectField
         label={t("tools.qrCode.wifiEncryption")}
         value={(data.encryption as string) || "WPA"}
-        onChange={(v) => updateField("encryption", v)}
+        onChange={(v: string) => updateField("encryption", v)}
         options={[
           { value: "WPA", label: "WPA/WPA2/WPA3" },
           { value: "WEP", label: "WEP" },
@@ -420,7 +324,7 @@ function WiFiForm({ data, updateField, t }: FormProps) {
       <CheckboxField
         label={t("tools.qrCode.wifiHidden")}
         checked={(data.hidden as boolean) || false}
-        onChange={(v) => updateField("hidden", v)}
+        onChange={(v: boolean) => updateField("hidden", v)}
       />
     </div>
   );
@@ -433,14 +337,14 @@ function VCardForm({ data, updateField, t }: FormProps) {
         <InputField
           label={t("tools.qrCode.vcardFirstName")}
           value={(data.firstName as string) || ""}
-          onChange={(v) => updateField("firstName", v)}
+          onChange={(v: string) => updateField("firstName", v)}
           placeholder={t("tools.qrCode.vcardFirstNamePlaceholder")}
           required
         />
         <InputField
           label={t("tools.qrCode.vcardLastName")}
           value={(data.lastName as string) || ""}
-          onChange={(v) => updateField("lastName", v)}
+          onChange={(v: string) => updateField("lastName", v)}
           placeholder={t("tools.qrCode.vcardLastNamePlaceholder")}
         />
       </div>
@@ -448,20 +352,20 @@ function VCardForm({ data, updateField, t }: FormProps) {
         <InputField
           label={t("tools.qrCode.vcardOrganization")}
           value={(data.organization as string) || ""}
-          onChange={(v) => updateField("organization", v)}
+          onChange={(v: string) => updateField("organization", v)}
           placeholder={t("tools.qrCode.vcardOrganizationPlaceholder")}
         />
         <InputField
           label={t("tools.qrCode.vcardTitle")}
           value={(data.title as string) || ""}
-          onChange={(v) => updateField("title", v)}
+          onChange={(v: string) => updateField("title", v)}
           placeholder={t("tools.qrCode.vcardTitlePlaceholder")}
         />
       </div>
       <InputField
         label={t("tools.qrCode.vcardEmail")}
         value={(data.email as string) || ""}
-        onChange={(v) => updateField("email", v)}
+        onChange={(v: string) => updateField("email", v)}
         placeholder={t("tools.qrCode.emailPlaceholder")}
         type="email"
       />
@@ -469,14 +373,14 @@ function VCardForm({ data, updateField, t }: FormProps) {
         <InputField
           label={t("tools.qrCode.vcardPhone")}
           value={(data.phone as string) || ""}
-          onChange={(v) => updateField("phone", v)}
+          onChange={(v: string) => updateField("phone", v)}
           placeholder={t("tools.qrCode.phonePlaceholder")}
           type="tel"
         />
         <InputField
           label={t("tools.qrCode.vcardMobile")}
           value={(data.mobile as string) || ""}
-          onChange={(v) => updateField("mobile", v)}
+          onChange={(v: string) => updateField("mobile", v)}
           placeholder={t("tools.qrCode.vcardMobilePlaceholder")}
           type="tel"
         />
@@ -484,7 +388,7 @@ function VCardForm({ data, updateField, t }: FormProps) {
       <InputField
         label={t("tools.qrCode.vcardWebsite")}
         value={(data.website as string) || ""}
-        onChange={(v) => updateField("website", v)}
+        onChange={(v: string) => updateField("website", v)}
         placeholder={t("tools.qrCode.urlPlaceholder")}
         type="url"
       />
@@ -496,20 +400,20 @@ function VCardForm({ data, updateField, t }: FormProps) {
           <InputField
             label={t("tools.qrCode.vcardStreet")}
             value={(data.street as string) || ""}
-            onChange={(v) => updateField("street", v)}
+            onChange={(v: string) => updateField("street", v)}
             placeholder={t("tools.qrCode.vcardStreetPlaceholder")}
           />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <InputField
               label={t("tools.qrCode.vcardCity")}
               value={(data.city as string) || ""}
-              onChange={(v) => updateField("city", v)}
+              onChange={(v: string) => updateField("city", v)}
               placeholder={t("tools.qrCode.vcardCityPlaceholder")}
             />
             <InputField
               label={t("tools.qrCode.vcardState")}
               value={(data.state as string) || ""}
-              onChange={(v) => updateField("state", v)}
+              onChange={(v: string) => updateField("state", v)}
               placeholder={t("tools.qrCode.vcardStatePlaceholder")}
             />
           </div>
@@ -517,13 +421,13 @@ function VCardForm({ data, updateField, t }: FormProps) {
             <InputField
               label={t("tools.qrCode.vcardZip")}
               value={(data.zip as string) || ""}
-              onChange={(v) => updateField("zip", v)}
+              onChange={(v: string) => updateField("zip", v)}
               placeholder={t("tools.qrCode.vcardZipPlaceholder")}
             />
             <InputField
               label={t("tools.qrCode.vcardCountry")}
               value={(data.country as string) || ""}
-              onChange={(v) => updateField("country", v)}
+              onChange={(v: string) => updateField("country", v)}
               placeholder={t("tools.qrCode.vcardCountryPlaceholder")}
             />
           </div>
@@ -542,7 +446,7 @@ function LocationForm({ data, updateField, t }: FormProps) {
       <InputField
         label={t("tools.qrCode.locationQuery")}
         value={(data.query as string) || ""}
-        onChange={(v) => updateField("query", v)}
+        onChange={(v: string) => updateField("query", v)}
         placeholder={t("tools.qrCode.locationQueryPlaceholder")}
       />
       <div className="flex items-center gap-4 my-3">
@@ -554,13 +458,13 @@ function LocationForm({ data, updateField, t }: FormProps) {
         <InputField
           label={t("tools.qrCode.locationLatitude")}
           value={(data.latitude as string) || ""}
-          onChange={(v) => updateField("latitude", v)}
+          onChange={(v: string) => updateField("latitude", v)}
           placeholder="e.g., 40.7128"
         />
         <InputField
           label={t("tools.qrCode.locationLongitude")}
           value={(data.longitude as string) || ""}
-          onChange={(v) => updateField("longitude", v)}
+          onChange={(v: string) => updateField("longitude", v)}
           placeholder="e.g., -74.0060"
         />
       </div>
@@ -574,28 +478,28 @@ function EventForm({ data, updateField, t }: FormProps) {
       <InputField
         label={t("tools.qrCode.eventTitle")}
         value={(data.title as string) || ""}
-        onChange={(v) => updateField("title", v)}
+        onChange={(v: string) => updateField("title", v)}
         placeholder={t("tools.qrCode.eventTitlePlaceholder")}
         required
       />
       <InputField
         label={t("tools.qrCode.eventLocation")}
         value={(data.location as string) || ""}
-        onChange={(v) => updateField("location", v)}
+        onChange={(v: string) => updateField("location", v)}
         placeholder={t("tools.qrCode.eventLocationPlaceholder")}
       />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <InputField
           label={t("tools.qrCode.eventStartDate")}
           value={(data.startDate as string) || ""}
-          onChange={(v) => updateField("startDate", v)}
+          onChange={(v: string) => updateField("startDate", v)}
           type="date"
           required
         />
         <InputField
           label={t("tools.qrCode.eventStartTime")}
           value={(data.startTime as string) || ""}
-          onChange={(v) => updateField("startTime", v)}
+          onChange={(v: string) => updateField("startTime", v)}
           type="time"
           required
         />
@@ -604,20 +508,20 @@ function EventForm({ data, updateField, t }: FormProps) {
         <InputField
           label={t("tools.qrCode.eventEndDate")}
           value={(data.endDate as string) || ""}
-          onChange={(v) => updateField("endDate", v)}
+          onChange={(v: string) => updateField("endDate", v)}
           type="date"
         />
         <InputField
           label={t("tools.qrCode.eventEndTime")}
           value={(data.endTime as string) || ""}
-          onChange={(v) => updateField("endTime", v)}
+          onChange={(v: string) => updateField("endTime", v)}
           type="time"
         />
       </div>
       <InputField
         label={t("tools.qrCode.eventDescription")}
         value={(data.description as string) || ""}
-        onChange={(v) => updateField("description", v)}
+        onChange={(v: string) => updateField("description", v)}
         placeholder={t("tools.qrCode.eventDescriptionPlaceholder")}
         multiline
         rows={3}
@@ -631,7 +535,7 @@ function TwitterForm({ data, updateField, t }: FormProps) {
     <InputField
       label={t("tools.qrCode.twitterUsername")}
       value={(data.username as string) || ""}
-      onChange={(v) => updateField("username", v)}
+      onChange={(v: string) => updateField("username", v)}
       placeholder={t("tools.qrCode.twitterPlaceholder")}
       required
     />
@@ -644,7 +548,7 @@ function YouTubeForm({ data, updateField, t }: FormProps) {
       <InputField
         label={t("tools.qrCode.youtubeVideo")}
         value={(data.videoId as string) || ""}
-        onChange={(v) => updateField("videoId", v)}
+        onChange={(v: string) => updateField("videoId", v)}
         placeholder={t("tools.qrCode.youtubeVideoPlaceholder")}
       />
       <div className="flex items-center gap-4 my-3">
@@ -655,7 +559,7 @@ function YouTubeForm({ data, updateField, t }: FormProps) {
       <InputField
         label={t("tools.qrCode.youtubeChannel")}
         value={(data.channelId as string) || ""}
-        onChange={(v) => updateField("channelId", v)}
+        onChange={(v: string) => updateField("channelId", v)}
         placeholder={t("tools.qrCode.youtubeChannelPlaceholder")}
       />
     </div>
@@ -668,7 +572,7 @@ function FacebookForm({ data, updateField, t }: FormProps) {
       <InputField
         label={t("tools.qrCode.facebookUsername")}
         value={(data.username as string) || ""}
-        onChange={(v) => updateField("username", v)}
+        onChange={(v: string) => updateField("username", v)}
         placeholder={t("tools.qrCode.facebookPlaceholder")}
       />
       <p className="text-xs text-zinc-500 dark:text-zinc-400">
@@ -684,26 +588,26 @@ function BitcoinForm({ data, updateField, t }: FormProps) {
       <InputField
         label={t("tools.qrCode.bitcoinAddress")}
         value={(data.address as string) || ""}
-        onChange={(v) => updateField("address", v)}
+        onChange={(v: string) => updateField("address", v)}
         placeholder={t("tools.qrCode.bitcoinAddressPlaceholder")}
         required
       />
       <InputField
         label={t("tools.qrCode.bitcoinAmount")}
         value={(data.amount as string) || ""}
-        onChange={(v) => updateField("amount", v)}
+        onChange={(v: string) => updateField("amount", v)}
         placeholder={t("tools.qrCode.bitcoinAmountPlaceholder")}
       />
       <InputField
         label={t("tools.qrCode.bitcoinLabel")}
         value={(data.label as string) || ""}
-        onChange={(v) => updateField("label", v)}
+        onChange={(v: string) => updateField("label", v)}
         placeholder={t("tools.qrCode.bitcoinLabelPlaceholder")}
       />
       <InputField
         label={t("tools.qrCode.bitcoinMessage")}
         value={(data.message as string) || ""}
-        onChange={(v) => updateField("message", v)}
+        onChange={(v: string) => updateField("message", v)}
         placeholder={t("tools.qrCode.bitcoinMessagePlaceholder")}
         multiline
         rows={2}
@@ -718,26 +622,26 @@ function EthereumForm({ data, updateField, t }: FormProps) {
       <InputField
         label={t("tools.qrCode.ethereumAddress")}
         value={(data.address as string) || ""}
-        onChange={(v) => updateField("address", v)}
+        onChange={(v: string) => updateField("address", v)}
         placeholder={t("tools.qrCode.ethereumAddressPlaceholder")}
         required
       />
       <InputField
         label={t("tools.qrCode.ethereumAmount")}
         value={(data.amount as string) || ""}
-        onChange={(v) => updateField("amount", v)}
+        onChange={(v: string) => updateField("amount", v)}
         placeholder={t("tools.qrCode.ethereumAmountPlaceholder")}
       />
       <InputField
         label={t("tools.qrCode.ethereumToken")}
         value={(data.tokenAddress as string) || ""}
-        onChange={(v) => updateField("tokenAddress", v)}
+        onChange={(v: string) => updateField("tokenAddress", v)}
         placeholder={t("tools.qrCode.ethereumTokenPlaceholder")}
       />
       <SelectField
         label={t("tools.qrCode.ethereumNetwork")}
         value={(data.chainId as string) || ""}
-        onChange={(v) => updateField("chainId", v)}
+        onChange={(v: string) => updateField("chainId", v)}
         options={[
           { value: "", label: "Mainnet (default)" },
           { value: "1", label: "Ethereum Mainnet" },
@@ -760,14 +664,14 @@ function CardanoForm({ data, updateField, t }: FormProps) {
       <InputField
         label={t("tools.qrCode.cardanoAddress")}
         value={(data.address as string) || ""}
-        onChange={(v) => updateField("address", v)}
+        onChange={(v: string) => updateField("address", v)}
         placeholder={t("tools.qrCode.cardanoAddressPlaceholder")}
         required
       />
       <InputField
         label={t("tools.qrCode.cardanoAmount")}
         value={(data.amount as string) || ""}
-        onChange={(v) => updateField("amount", v)}
+        onChange={(v: string) => updateField("amount", v)}
         placeholder={t("tools.qrCode.cardanoAmountPlaceholder")}
       />
       <p className="text-xs text-zinc-500 dark:text-zinc-400">
@@ -783,26 +687,26 @@ function SolanaForm({ data, updateField, t }: FormProps) {
       <InputField
         label={t("tools.qrCode.solanaAddress")}
         value={(data.address as string) || ""}
-        onChange={(v) => updateField("address", v)}
+        onChange={(v: string) => updateField("address", v)}
         placeholder={t("tools.qrCode.solanaAddressPlaceholder")}
         required
       />
       <InputField
         label={t("tools.qrCode.solanaAmount")}
         value={(data.amount as string) || ""}
-        onChange={(v) => updateField("amount", v)}
+        onChange={(v: string) => updateField("amount", v)}
         placeholder={t("tools.qrCode.solanaAmountPlaceholder")}
       />
       <InputField
         label={t("tools.qrCode.solanaLabel")}
         value={(data.label as string) || ""}
-        onChange={(v) => updateField("label", v)}
+        onChange={(v: string) => updateField("label", v)}
         placeholder={t("tools.qrCode.solanaLabelPlaceholder")}
       />
       <InputField
         label={t("tools.qrCode.solanaMessage")}
         value={(data.message as string) || ""}
-        onChange={(v) => updateField("message", v)}
+        onChange={(v: string) => updateField("message", v)}
         placeholder={t("tools.qrCode.solanaMessagePlaceholder")}
         multiline
         rows={2}
@@ -820,7 +724,7 @@ function AppStoreForm({ data, updateField, t }: FormProps) {
       <SelectField
         label={t("tools.qrCode.appstorePlatform")}
         value={(data.platform as string) || "ios"}
-        onChange={(v) => updateField("platform", v)}
+        onChange={(v: string) => updateField("platform", v)}
         options={[
           { value: "ios", label: "iOS (App Store)" },
           { value: "android", label: "Android (Google Play)" },
@@ -829,7 +733,7 @@ function AppStoreForm({ data, updateField, t }: FormProps) {
       <InputField
         label={t("tools.qrCode.appstoreId")}
         value={(data.appId as string) || ""}
-        onChange={(v) => updateField("appId", v)}
+        onChange={(v: string) => updateField("appId", v)}
         placeholder={
           (data.platform as string) === "android"
             ? t("tools.qrCode.appstoreAndroidPlaceholder")
@@ -929,13 +833,20 @@ export default function QRCodeGeneratorPage(): JSX.Element {
   );
 
   // Handlers
-  const handleTypeChange = useCallback((type: QRContentType) => {
-    setContentType(type);
-    setData(getInitialData(type));
-    setIsGenerated(false);
-    setHasInteracted(false);
-    hasTrackedUsage.current = false;
-  }, []);
+  const handleTypeChange = useCallback(
+    (type: QRContentType) => {
+      setContentType(type);
+      setData(getInitialData(type));
+      setIsGenerated(false);
+      setHasInteracted(false);
+      hasTrackedUsage.current = false;
+      // Switch away from batch tab if changing to non-URL type
+      if (type !== "url" && activeTab === "batch") {
+        setActiveTab("content");
+      }
+    },
+    [activeTab],
+  );
 
   const updateField = useCallback((field: string, value: unknown) => {
     setData((prev) => ({ ...prev, [field]: value }));
@@ -966,48 +877,249 @@ export default function QRCodeGeneratorPage(): JSX.Element {
     }
   }, [validation.isValid, contentType, qrValue, style.fgColor, style.bgColor]);
 
+  // Helper function to generate a styled QR code canvas with frames and logo
+  const generateStyledQRCanvas = useCallback(
+    async (value: string, size: number): Promise<HTMLCanvasElement> => {
+      const QRCode = (await import("qrcode")).default;
+
+      // Calculate dimensions based on frame style
+      const hasFrame = frameStyle !== "none";
+      const padding = hasFrame ? 20 : 0;
+      const textHeight = hasFrame && frameStyle !== "banner" ? 24 : 0;
+      const bannerHeight = frameStyle === "banner" ? 28 : 0;
+      const qrSize = size;
+      const totalWidth = qrSize + padding * 2;
+      const totalHeight = qrSize + padding * 2 + textHeight + bannerHeight;
+
+      // Create the final canvas
+      const finalCanvas = document.createElement("canvas");
+      finalCanvas.width = totalWidth;
+      finalCanvas.height = totalHeight;
+      const ctx = finalCanvas.getContext("2d")!;
+
+      // Fill background
+      ctx.fillStyle = style.bgColor;
+      ctx.fillRect(0, 0, totalWidth, totalHeight);
+
+      // Draw frame border if needed
+      if (hasFrame) {
+        ctx.strokeStyle = style.fgColor;
+        ctx.lineWidth = 2;
+
+        if (frameStyle === "simple") {
+          ctx.strokeRect(1, 1, totalWidth - 2, totalHeight - 2);
+        } else if (frameStyle === "rounded" || frameStyle === "badge") {
+          const radius = frameStyle === "badge" ? 16 : 12;
+          ctx.beginPath();
+          ctx.roundRect(1, 1, totalWidth - 2, totalHeight - 2, radius);
+          ctx.stroke();
+        } else if (frameStyle === "banner") {
+          ctx.strokeRect(1, 1, totalWidth - 2, totalHeight - 2);
+          // Draw banner background
+          ctx.fillStyle = style.fgColor;
+          ctx.fillRect(1, 1, totalWidth - 2, bannerHeight);
+          // Draw banner text
+          ctx.fillStyle = style.bgColor;
+          ctx.font = "bold 10px Arial";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(
+            frameText.toUpperCase(),
+            totalWidth / 2,
+            bannerHeight / 2 + 1,
+          );
+        }
+      }
+
+      // Generate QR code
+      const qrCanvas = document.createElement("canvas");
+      await QRCode.toCanvas(qrCanvas, value, {
+        width: qrSize,
+        margin: style.includeMargin ? 2 : 0,
+        color: {
+          dark: style.fgColor,
+          light: style.bgColor,
+        },
+        errorCorrectionLevel: style.errorCorrection,
+      });
+
+      // Position QR code
+      const qrX = padding;
+      const qrY = padding + bannerHeight;
+      ctx.drawImage(qrCanvas, qrX, qrY);
+
+      // Draw logo if present
+      if (logoDataUrl) {
+        const logoSize = Math.round(qrSize * 0.2);
+        const logoX = qrX + (qrSize - logoSize) / 2;
+        const logoY = qrY + (qrSize - logoSize) / 2;
+
+        // Create white background for logo
+        ctx.fillStyle = style.bgColor;
+        ctx.fillRect(logoX - 2, logoY - 2, logoSize + 4, logoSize + 4);
+
+        // Load and draw logo
+        const logoImg = new Image();
+        logoImg.crossOrigin = "anonymous";
+        await new Promise<void>((resolve) => {
+          logoImg.onload = () => {
+            ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
+            resolve();
+          };
+          logoImg.onerror = () => resolve();
+          logoImg.src = logoDataUrl;
+        });
+      }
+
+      // Draw frame text (except for banner which has text in header)
+      if (hasFrame && frameStyle !== "banner" && frameText) {
+        const textY = totalHeight - textHeight / 2 - padding / 2;
+
+        if (frameStyle === "badge") {
+          // Badge style: pill-shaped background
+          ctx.font = "bold 10px Arial";
+          const textWidth = ctx.measureText(frameText.toUpperCase()).width;
+          const pillWidth = textWidth + 16;
+          const pillHeight = 18;
+          const pillX = (totalWidth - pillWidth) / 2;
+          const pillY = textY - pillHeight / 2;
+
+          ctx.fillStyle = style.fgColor;
+          ctx.beginPath();
+          ctx.roundRect(pillX, pillY, pillWidth, pillHeight, pillHeight / 2);
+          ctx.fill();
+
+          ctx.fillStyle = style.bgColor;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(frameText.toUpperCase(), totalWidth / 2, textY);
+        } else {
+          ctx.fillStyle = style.fgColor;
+          ctx.font = "bold 10px Arial";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(frameText.toUpperCase(), totalWidth / 2, textY);
+        }
+      }
+
+      return finalCanvas;
+    },
+    [
+      frameStyle,
+      frameText,
+      logoDataUrl,
+      style.bgColor,
+      style.fgColor,
+      style.errorCorrection,
+      style.includeMargin,
+    ],
+  );
+
   const handleDownload = useCallback(
-    (format: DownloadFormat) => {
-      const canvas = qrRef.current?.querySelector("canvas");
-      if (!canvas) return;
+    async (format: DownloadFormat) => {
+      if (!qrValue) return;
 
       trackToolUsage("QR Code Generator", `download_${format}`);
       const filename = `qrcode-${contentType}-${Date.now()}`;
 
-      switch (format) {
-        case "png":
-          downloadAsPNG(canvas, filename);
-          break;
-        case "jpg":
-          downloadAsJPG(canvas, filename, style.bgColor);
-          break;
-        case "svg":
-          downloadAsSVG(
-            canvas,
-            style.size,
-            style.fgColor,
-            style.bgColor,
-            filename,
-          );
-          break;
+      try {
+        // Generate high-resolution QR code (2048px) for download
+        const highResSize = 2048;
+        const canvas = await generateStyledQRCanvas(qrValue, highResSize);
+
+        switch (format) {
+          case "png":
+            downloadAsPNG(canvas, filename);
+            break;
+          case "jpg":
+            downloadAsJPG(canvas, filename, style.bgColor);
+            break;
+          case "svg":
+            downloadAsSVG(
+              canvas,
+              highResSize,
+              style.fgColor,
+              style.bgColor,
+              filename,
+            );
+            break;
+        }
+        toast.success(t("tools.qrCode.successDownloaded"));
+      } catch (error) {
+        console.error("Failed to generate high-res QR:", error);
+        // Fallback to preview canvas if high-res fails
+        const previewCanvas = qrRef.current?.querySelector("canvas");
+        if (previewCanvas) {
+          switch (format) {
+            case "png":
+              downloadAsPNG(previewCanvas, filename);
+              break;
+            case "jpg":
+              downloadAsJPG(previewCanvas, filename, style.bgColor);
+              break;
+            case "svg":
+              downloadAsSVG(
+                previewCanvas,
+                style.size,
+                style.fgColor,
+                style.bgColor,
+                filename,
+              );
+              break;
+          }
+          toast.success(t("tools.qrCode.successDownloaded"));
+        } else {
+          toast.error(t("tools.qrCode.errorDownloadFailed"));
+        }
       }
 
       setDownloadDropdown(false);
     },
-    [contentType, style.size, style.fgColor, style.bgColor],
+    [
+      contentType,
+      qrValue,
+      style.size,
+      style.fgColor,
+      style.bgColor,
+      generateStyledQRCanvas,
+      t,
+    ],
   );
 
   const handleCopy = useCallback(async () => {
-    const canvas = qrRef.current?.querySelector("canvas");
-    if (!canvas) return;
+    if (!qrValue) return;
 
     trackToolUsage("QR Code Generator", "copy_to_clipboard");
-    const success = await copyQRToClipboard(canvas);
-    if (success) {
-      setCopySuccess(true);
-      setTimeout(() => setCopySuccess(false), 2000);
+
+    try {
+      // Generate high-resolution QR code for clipboard
+      const highResSize = 1024;
+      const canvas = await generateStyledQRCanvas(qrValue, highResSize);
+      const success = await copyQRToClipboard(canvas);
+      if (success) {
+        setCopySuccess(true);
+        toast.success(t("tools.qrCode.successQrCopied"));
+        setTimeout(() => setCopySuccess(false), 2000);
+      } else {
+        toast.error(t("tools.qrCode.errorCopyFailed"));
+      }
+    } catch (error) {
+      // Fallback to preview canvas
+      const previewCanvas = qrRef.current?.querySelector("canvas");
+      if (previewCanvas) {
+        const success = await copyQRToClipboard(previewCanvas);
+        if (success) {
+          setCopySuccess(true);
+          toast.success(t("tools.qrCode.successQrCopied"));
+          setTimeout(() => setCopySuccess(false), 2000);
+        } else {
+          toast.error(t("tools.qrCode.errorCopyFailed"));
+        }
+      } else {
+        toast.error(t("tools.qrCode.errorCopyFailed"));
+      }
     }
-  }, []);
+  }, [qrValue, generateStyledQRCanvas, t]);
 
   const handleReset = useCallback(() => {
     setData(getInitialData(contentType));
@@ -1029,11 +1141,13 @@ export default function QRCodeGeneratorPage(): JSX.Element {
 
       // Validate file type
       if (!file.type.startsWith("image/")) {
+        toast.error(t("tools.qrCode.errorLogoInvalidType"));
         return;
       }
 
       // Validate file size (max 2MB)
       if (file.size > 2 * 1024 * 1024) {
+        toast.error(t("tools.qrCode.errorLogoTooLarge"));
         return;
       }
 
@@ -1044,10 +1158,11 @@ export default function QRCodeGeneratorPage(): JSX.Element {
         if (style.errorCorrection === "L" || style.errorCorrection === "M") {
           updateStyle("errorCorrection", "H");
         }
+        toast.success(t("tools.qrCode.successLogoAdded"));
       };
       reader.readAsDataURL(file);
     },
-    [style.errorCorrection, updateStyle],
+    [style.errorCorrection, updateStyle, t],
   );
 
   const handleRemoveLogo = useCallback(() => {
@@ -1055,12 +1170,14 @@ export default function QRCodeGeneratorPage(): JSX.Element {
     if (logoInputRef.current) {
       logoInputRef.current.value = "";
     }
-  }, []);
+    toast.success(t("tools.qrCode.successLogoRemoved"));
+  }, [t]);
 
   const handleClearHistory = useCallback(() => {
     clearHistory();
     setHistory([]);
-  }, []);
+    toast.success(t("tools.qrCode.successHistoryCleared"));
+  }, [t]);
 
   const handleDeleteHistoryItem = useCallback((id: string) => {
     deleteHistoryItem(id);
@@ -1097,6 +1214,12 @@ export default function QRCodeGeneratorPage(): JSX.Element {
     });
   }, []);
 
+  // Memoized batch preview items (defined after parseBatchInput)
+  const batchPreviewItems = useMemo(
+    () => parseBatchInput(batchInput),
+    [batchInput, parseBatchInput],
+  );
+
   const handleBatchInputChange = useCallback((input: string) => {
     setBatchInput(input);
     setBatchGenerated(false);
@@ -1107,7 +1230,11 @@ export default function QRCodeGeneratorPage(): JSX.Element {
     setBatchItems(items);
     setBatchGenerated(true);
     trackToolUsage("QR Code Generator", `batch_generate_${items.length}`);
-  }, [batchInput, parseBatchInput]);
+    const validCount = items.filter((item) => item.isValid).length;
+    if (validCount > 0) {
+      toast.success(t("tools.qrCode.successBatchGenerated"));
+    }
+  }, [batchInput, parseBatchInput, t]);
 
   const handleCSVUpload = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1132,18 +1259,23 @@ export default function QRCodeGeneratorPage(): JSX.Element {
 
   const handleBatchDownloadSingle = useCallback(
     async (item: BatchQRItem, format: "png" | "jpg" = "png") => {
-      const refElement = batchQrRefs.current.get(item.id);
-      const canvas = refElement?.querySelector("canvas");
-      if (!canvas) return;
-
+      // Generate high-resolution styled QR code for download
       const filename = `qr-${item.label.replace(/[^a-zA-Z0-9]/g, "-")}-${Date.now()}`;
-      if (format === "png") {
-        downloadAsPNG(canvas, filename);
-      } else {
-        downloadAsJPG(canvas, filename, style.bgColor);
+
+      try {
+        const canvas = await generateStyledQRCanvas(item.value, style.size);
+
+        if (format === "png") {
+          downloadAsPNG(canvas, filename);
+        } else {
+          downloadAsJPG(canvas, filename, style.bgColor);
+        }
+      } catch (error) {
+        console.error("Single batch download error:", error);
+        toast.error(t("tools.qrCode.errorDownloadFailed"));
       }
     },
-    [style.bgColor],
+    [generateStyledQRCanvas, style.size, style.bgColor, t],
   );
 
   const handleBatchDownloadAll = useCallback(async () => {
@@ -1153,7 +1285,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
     setBatchDownloadProgress(0);
 
     try {
-      // Dynamically import JSZip
+      // Dynamically import JSZip for ZIP creation
       const JSZip = (await import("jszip")).default;
       const zip = new JSZip();
 
@@ -1161,18 +1293,17 @@ export default function QRCodeGeneratorPage(): JSX.Element {
 
       for (let i = 0; i < validItems.length; i++) {
         const item = validItems[i];
-        const refElement = batchQrRefs.current.get(item.id);
-        const canvas = refElement?.querySelector("canvas");
 
-        if (canvas) {
-          const blob = await new Promise<Blob | null>((resolve) => {
-            canvas.toBlob(resolve, "image/png");
-          });
+        // Generate high-resolution styled QR code with frames and logo
+        const canvas = await generateStyledQRCanvas(item.value, style.size);
 
-          if (blob) {
-            const filename = `${item.label.replace(/[^a-zA-Z0-9]/g, "-")}.png`;
-            zip.file(filename, blob);
-          }
+        const blob = await new Promise<Blob | null>((resolve) => {
+          canvas.toBlob(resolve, "image/png");
+        });
+
+        if (blob) {
+          const filename = `${item.label.replace(/[^a-zA-Z0-9]/g, "-")}.png`;
+          zip.file(filename, blob);
         }
 
         setBatchDownloadProgress(
@@ -1195,13 +1326,15 @@ export default function QRCodeGeneratorPage(): JSX.Element {
         "QR Code Generator",
         `batch_download_zip_${validItems.length}`,
       );
+      toast.success(t("tools.qrCode.successBatchDownloaded"));
     } catch (error) {
       console.error("Batch download error:", error);
+      toast.error(t("tools.qrCode.errorDownloadFailed"));
     } finally {
       setIsDownloadingBatch(false);
       setBatchDownloadProgress(0);
     }
-  }, [batchItems]);
+  }, [batchItems, generateStyledQRCanvas, style.size, t]);
 
   const handleBatchClear = useCallback(() => {
     setBatchInput("");
@@ -1442,6 +1575,8 @@ export default function QRCodeGeneratorPage(): JSX.Element {
         />
       </Head>
 
+      <Toaster position="top-center" toastOptions={{ duration: 3000 }} />
+
       <Header />
 
       <main className="flex flex-col items-center justify-center w-full flex-1 px-4 py-8 sm:py-12">
@@ -1623,7 +1758,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
         </div>
 
         {/* Main Content */}
-        <div className="flex flex-col lg:flex-row gap-6 w-full max-w-screen-lg">
+        <div className="flex flex-col lg:flex-row lg:items-stretch gap-6 w-full max-w-screen-lg">
           {/* Left Panel - Input & Settings */}
           <div className="flex-1 bg-zinc-50 dark:bg-darkOffset rounded-xl border border-zinc-200 dark:border-dark-border overflow-hidden">
             {/* Tabs */}
@@ -1657,20 +1792,23 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                   + Logo
                 </span>
               </button>
-              <button
-                onClick={() => setActiveTab("batch")}
-                className={`flex-1 px-4 py-3.5 sm:py-3 text-sm font-medium transition-colors flex items-center justify-center gap-1.5 ${
-                  activeTab === "batch"
-                    ? "text-violet-600 dark:text-violet-400 border-b-2 border-violet-600 dark:border-violet-400 bg-white dark:bg-dark-card"
-                    : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
-                }`}
-              >
-                <CollectionIcon className="w-4 h-4" />
-                <span>{t("tools.qrCode.tabBatch")}</span>
-                <span className="text-[10px] px-1.5 py-0.5 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 rounded-full font-semibold uppercase tracking-wide">
-                  New
-                </span>
-              </button>
+              {/* Batch tab - only show for URL content type */}
+              {contentType === "url" && (
+                <button
+                  onClick={() => setActiveTab("batch")}
+                  className={`flex-1 px-4 py-3.5 sm:py-3 text-sm font-medium transition-colors flex items-center justify-center gap-1.5 ${
+                    activeTab === "batch"
+                      ? "text-violet-600 dark:text-violet-400 border-b-2 border-violet-600 dark:border-violet-400 bg-white dark:bg-dark-card"
+                      : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
+                  }`}
+                >
+                  <CollectionIcon className="w-4 h-4" />
+                  <span>{t("tools.qrCode.tabBatch")}</span>
+                  <span className="text-[10px] px-1.5 py-0.5 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 rounded-full font-semibold uppercase tracking-wide">
+                    New
+                  </span>
+                </button>
+              )}
             </div>
 
             <div className="p-4 sm:p-6">
@@ -1690,147 +1828,42 @@ export default function QRCodeGeneratorPage(): JSX.Element {
               ) : activeTab === "style" ? (
                 <div className="space-y-5">
                   {/* Quick Style Presets - Most impactful, show first */}
-                  <div>
-                    <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-3">
-                      {t("tools.qrCode.quickPresets")}
-                    </label>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                      {STYLE_PRESETS.map((preset) => (
-                        <button
-                          key={preset.id}
-                          onClick={() => {
-                            setStyle((s) => ({
-                              ...s,
-                              fgColor: preset.fgColor,
-                              bgColor: preset.bgColor,
-                            }));
-                            setFrameStyle(preset.frameStyle);
-                            if (preset.frameText) {
-                              setFrameText(preset.frameText);
-                            }
-                          }}
-                          className="flex items-center gap-2 p-2 bg-white dark:bg-dark-card rounded-lg border border-zinc-200 dark:border-dark-border hover:border-violet-300 dark:hover:border-violet-600 transition-colors text-left"
-                        >
-                          <div
-                            className="w-8 h-8 rounded flex items-center justify-center text-xs border"
-                            style={{
-                              backgroundColor: preset.bgColor,
-                              color: preset.fgColor,
-                              borderColor: preset.fgColor + "40",
-                            }}
-                          >
-                            ▣
-                          </div>
-                          <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
-                            {preset.name}
-                          </span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+                  <StylePresetsSection
+                    onSelect={(preset: {
+                      fgColor: string;
+                      bgColor: string;
+                      frameStyle: FrameStyle;
+                      frameText?: string;
+                    }) => {
+                      setStyle((s) => ({
+                        ...s,
+                        fgColor: preset.fgColor,
+                        bgColor: preset.bgColor,
+                      }));
+                      setFrameStyle(preset.frameStyle);
+                      if (preset.frameText) {
+                        setFrameText(preset.frameText);
+                      }
+                    }}
+                    t={t}
+                  />
 
                   {/* Logo Upload - High value feature */}
-                  <div>
-                    <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-                      {t("tools.qrCode.addLogo")}
-                    </label>
-                    <input
-                      ref={logoInputRef}
-                      type="file"
-                      accept="image/*"
-                      onChange={handleLogoUpload}
-                      className="hidden"
-                      id="logo-upload"
-                    />
-                    {logoDataUrl ? (
-                      <div className="flex items-center gap-3 p-3 bg-white dark:bg-dark-card rounded-lg border border-zinc-200 dark:border-dark-border">
-                        <img
-                          src={logoDataUrl}
-                          alt="Logo preview"
-                          className="w-12 h-12 object-contain rounded"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300 truncate">
-                            {t("tools.qrCode.logoUploaded")}
-                          </p>
-                          <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                            {t("tools.qrCode.logoHint")}
-                          </p>
-                        </div>
-                        <button
-                          onClick={handleRemoveLogo}
-                          className="p-1.5 text-zinc-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
-                          title={t("tools.qrCode.removeLogo")}
-                        >
-                          <XIcon className="w-5 h-5" />
-                        </button>
-                      </div>
-                    ) : (
-                      <label
-                        htmlFor="logo-upload"
-                        className="flex items-center gap-3 p-3 bg-white dark:bg-dark-card rounded-lg border-2 border-dashed border-zinc-300 dark:border-zinc-600 hover:border-violet-400 dark:hover:border-violet-500 cursor-pointer transition-colors"
-                      >
-                        <PhotographIcon className="w-8 h-8 text-zinc-400 dark:text-zinc-500" />
-                        <div>
-                          <span className="text-sm text-zinc-600 dark:text-zinc-400 block">
-                            {t("tools.qrCode.uploadLogo")}
-                          </span>
-                          <span className="text-xs text-zinc-400 dark:text-zinc-500">
-                            PNG, JPG, SVG (max 2MB)
-                          </span>
-                        </div>
-                      </label>
-                    )}
-                  </div>
+                  <LogoUploadSection
+                    logoDataUrl={logoDataUrl}
+                    onUpload={handleLogoUpload}
+                    onRemove={handleRemoveLogo}
+                    t={t}
+                  />
 
                   {/* Frame Style - Visible customization */}
-                  <div>
-                    <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-                      {t("tools.qrCode.frameStyle")}
-                    </label>
-                    <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5 mb-3">
-                      {FRAME_TEMPLATES.map((frame) => (
-                        <button
-                          key={frame.id}
-                          onClick={() => setFrameStyle(frame.id)}
-                          className={`px-2 py-2 text-xs font-medium rounded-lg transition-colors ${
-                            frameStyle === frame.id
-                              ? "bg-violet-600 text-white"
-                              : "bg-white dark:bg-dark-card text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-dark-border hover:border-violet-300 dark:hover:border-violet-600"
-                          }`}
-                        >
-                          {t(
-                            `tools.qrCode.frame${frame.id.charAt(0).toUpperCase() + frame.id.slice(1)}`,
-                          )}
-                        </button>
-                      ))}
-                    </div>
-                    {frameStyle !== "none" && (
-                      <div className="space-y-2">
-                        <InputField
-                          label={t("tools.qrCode.frameTextLabel")}
-                          value={frameText}
-                          onChange={setFrameText}
-                          placeholder={t("tools.qrCode.frameTextPlaceholder")}
-                        />
-                        <div className="flex flex-wrap gap-1.5">
-                          {FRAME_TEXT_PRESETS.map((text) => (
-                            <button
-                              key={text}
-                              onClick={() => setFrameText(text)}
-                              className={`px-2 py-1 text-xs rounded transition-colors ${
-                                frameText === text
-                                  ? "bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300"
-                                  : "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700"
-                              }`}
-                            >
-                              {text}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
+                  <FrameStyleSection
+                    frameStyle={frameStyle}
+                    frameText={frameText}
+                    onFrameStyleChange={setFrameStyle}
+                    onFrameTextChange={setFrameText}
+                    t={t}
+                  />
 
                   {/* Advanced Options - Collapsible */}
                   <div className="border-t border-zinc-200 dark:border-dark-border pt-4">
@@ -1846,101 +1879,15 @@ export default function QRCodeGeneratorPage(): JSX.Element {
 
                     {showAdvancedStyle && (
                       <div className="mt-4 space-y-5">
-                        {/* Color Presets */}
-                        <div>
-                          <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-                            {t("tools.qrCode.colorPresets")}
-                          </label>
-                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                            {COLOR_PRESETS.map((preset) => (
-                              <button
-                                key={preset.id}
-                                onClick={() =>
-                                  setStyle((s) => ({
-                                    ...s,
-                                    fgColor: preset.fgColor,
-                                    bgColor: preset.bgColor,
-                                  }))
-                                }
-                                className={`flex flex-col items-center gap-1 p-2 rounded-lg border transition-all ${
-                                  style.fgColor === preset.fgColor &&
-                                  style.bgColor === preset.bgColor
-                                    ? "border-violet-500 bg-violet-50 dark:bg-violet-900/20"
-                                    : "border-zinc-200 dark:border-dark-border hover:border-zinc-300 dark:hover:border-zinc-600"
-                                }`}
-                              >
-                                <div
-                                  className="w-8 h-8 rounded-md border border-zinc-300 dark:border-zinc-600"
-                                  style={{ backgroundColor: preset.bgColor }}
-                                >
-                                  <div
-                                    className="w-full h-full rounded-md"
-                                    style={{
-                                      backgroundColor: preset.fgColor,
-                                      clipPath:
-                                        "polygon(20% 20%, 40% 20%, 40% 40%, 20% 40%, 20% 60%, 40% 60%, 40% 80%, 60% 80%, 60% 60%, 80% 60%, 80% 40%, 60% 40%, 60% 20%, 80% 20%, 80% 40%, 60% 40%)",
-                                    }}
-                                  />
-                                </div>
-                                <span className="text-xs text-zinc-600 dark:text-zinc-400">
-                                  {preset.name}
-                                </span>
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Custom Colors */}
-                        <div className="grid grid-cols-2 gap-3">
-                          <div>
-                            <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1.5">
-                              {t("tools.qrCode.foregroundColor")}
-                            </label>
-                            <div className="flex items-center gap-2">
-                              <input
-                                type="color"
-                                value={style.fgColor}
-                                onChange={(e) =>
-                                  updateStyle("fgColor", e.target.value)
-                                }
-                                className="w-8 h-8 rounded cursor-pointer border border-zinc-300 dark:border-zinc-600"
-                              />
-                              <input
-                                type="text"
-                                value={style.fgColor}
-                                onChange={(e) =>
-                                  updateStyle("fgColor", e.target.value)
-                                }
-                                className="flex-1 px-2 py-1.5 text-xs border rounded bg-white dark:bg-dark-card border-zinc-200 dark:border-dark-border focus:ring-1 focus:ring-violet-500 focus:border-transparent focus:outline-none text-zinc-900 dark:text-white uppercase"
-                                maxLength={7}
-                              />
-                            </div>
-                          </div>
-                          <div>
-                            <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1.5">
-                              {t("tools.qrCode.backgroundColor")}
-                            </label>
-                            <div className="flex items-center gap-2">
-                              <input
-                                type="color"
-                                value={style.bgColor}
-                                onChange={(e) =>
-                                  updateStyle("bgColor", e.target.value)
-                                }
-                                className="w-8 h-8 rounded cursor-pointer border border-zinc-300 dark:border-zinc-600"
-                              />
-                              <input
-                                type="text"
-                                value={style.bgColor}
-                                onChange={(e) =>
-                                  updateStyle("bgColor", e.target.value)
-                                }
-                                className="flex-1 px-2 py-1.5 text-xs border rounded bg-white dark:bg-dark-card border-zinc-200 dark:border-dark-border focus:ring-1 focus:ring-violet-500 focus:border-transparent focus:outline-none text-zinc-900 dark:text-white uppercase"
-                                maxLength={7}
-                              />
-                            </div>
-                          </div>
-                        </div>
+                        {/* Color Presets & Custom Colors */}
+                        <ColorPickerSection
+                          style={style}
+                          onColorChange={(
+                            type: "fgColor" | "bgColor",
+                            color: string,
+                          ) => updateStyle(type, color)}
+                          t={t}
+                        />
 
                         {/* Size */}
                         <div>
@@ -2005,7 +1952,9 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                         <CheckboxField
                           label={t("tools.qrCode.includeMargin")}
                           checked={style.includeMargin}
-                          onChange={(v) => updateStyle("includeMargin", v)}
+                          onChange={(v: boolean) =>
+                            updateStyle("includeMargin", v)
+                          }
                         />
                       </div>
                     )}
@@ -2033,8 +1982,8 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                       value={batchInput}
                       onChange={(e) => handleBatchInputChange(e.target.value)}
                       placeholder={t("tools.qrCode.batchInputPlaceholder")}
-                      rows={8}
-                      className="w-full px-4 py-3 border rounded-lg bg-white dark:bg-dark-card border-zinc-200 dark:border-dark-border focus:ring-2 focus:ring-violet-500 focus:border-transparent focus:outline-none text-zinc-900 dark:text-white placeholder-zinc-400 text-sm transition-colors resize-none font-mono"
+                      rows={10}
+                      className="w-full px-3 py-2.5 border rounded-lg bg-white dark:bg-dark-card border-zinc-200 dark:border-dark-border focus:ring-2 focus:ring-violet-500 focus:border-transparent focus:outline-none text-zinc-900 dark:text-white placeholder-zinc-400 text-sm transition-colors resize-y font-mono"
                     />
                     <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1.5">
                       {t("tools.qrCode.batchFormatHint")}
@@ -2042,7 +1991,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                   </div>
 
                   {/* CSV Upload */}
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                     <input
                       ref={csvInputRef}
                       type="file"
@@ -2053,7 +2002,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                     />
                     <label
                       htmlFor="csv-upload"
-                      className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-dark-card border border-zinc-200 dark:border-dark-border rounded-lg text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 cursor-pointer transition-colors"
+                      className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-dark-card border border-zinc-200 dark:border-dark-border rounded-lg text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 cursor-pointer transition-colors"
                     >
                       <UploadIcon className="w-4 h-4" />
                       {t("tools.qrCode.batchUploadCSV")}
@@ -2065,24 +2014,21 @@ export default function QRCodeGeneratorPage(): JSX.Element {
 
                   {/* Batch Stats */}
                   {batchInput && (
-                    <div className="flex items-center gap-4 p-3 bg-zinc-100 dark:bg-zinc-800 rounded-lg">
-                      <div className="text-sm">
+                    <div className="flex flex-wrap items-center gap-3 sm:gap-4 p-3 bg-zinc-100 dark:bg-zinc-800 rounded-lg text-sm">
+                      <div>
                         <span className="text-zinc-500 dark:text-zinc-400">
                           {t("tools.qrCode.batchItemsCount")}:{" "}
                         </span>
                         <span className="font-medium text-zinc-900 dark:text-white">
-                          {parseBatchInput(batchInput).length}
+                          {batchPreviewItems.length}
                         </span>
                       </div>
-                      <div className="text-sm">
+                      <div>
                         <span className="text-zinc-500 dark:text-zinc-400">
                           {t("tools.qrCode.batchValidCount")}:{" "}
                         </span>
                         <span className="font-medium text-emerald-600 dark:text-emerald-400">
-                          {
-                            parseBatchInput(batchInput).filter((i) => i.isValid)
-                              .length
-                          }
+                          {batchPreviewItems.filter((i) => i.isValid).length}
                         </span>
                       </div>
                     </div>
@@ -2151,6 +2097,22 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                       )}
                     </button>
                   )}
+
+                  {/* Batch Style Options */}
+                  <BatchStylePanel
+                    style={style}
+                    frameStyle={frameStyle}
+                    frameText={frameText}
+                    logoDataUrl={logoDataUrl}
+                    onStyleChange={(updates: Partial<QRStyleSettings>) =>
+                      setStyle((s) => ({ ...s, ...updates }))
+                    }
+                    onFrameStyleChange={setFrameStyle}
+                    onFrameTextChange={setFrameText}
+                    onLogoUpload={handleLogoUpload}
+                    onLogoRemove={handleRemoveLogo}
+                    t={t}
+                  />
                 </div>
               )}
 
@@ -2448,8 +2410,8 @@ export default function QRCodeGeneratorPage(): JSX.Element {
             </div>
           ) : (
             /* Batch Preview Panel */
-            <div className="w-full lg:flex-1 bg-zinc-50 dark:bg-darkOffset rounded-xl border border-zinc-200 dark:border-dark-border overflow-hidden">
-              <div className="p-4 border-b border-zinc-200 dark:border-dark-border flex items-center justify-between">
+            <div className="w-full lg:w-[380px] lg:flex-shrink-0 lg:self-stretch bg-zinc-50 dark:bg-darkOffset rounded-xl border border-zinc-200 dark:border-dark-border overflow-hidden flex flex-col">
+              <div className="p-4 border-b border-zinc-200 dark:border-dark-border flex items-center justify-between flex-shrink-0">
                 <h3 className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
                   {t("tools.qrCode.batchPreview")}{" "}
                   {batchItems.length > 0 &&
@@ -2457,41 +2419,122 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                 </h3>
               </div>
 
-              <div className="p-4 sm:p-6">
+              <div className="p-4 sm:p-6 flex-1 overflow-y-auto max-h-[700px] sm:max-h-[1000px] lg:max-h-[1300px]">
                 {batchGenerated && batchItems.length > 0 ? (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 gap-4 max-h-[600px] overflow-y-auto">
+                  <div className="grid grid-cols-2 gap-2 sm:gap-3">
                     {batchItems
                       .filter((item) => item.isValid)
                       .map((item) => (
                         <div
                           key={item.id}
-                          className="bg-white dark:bg-dark-card rounded-lg border border-zinc-200 dark:border-dark-border p-3 group relative"
+                          className="bg-white dark:bg-dark-card rounded-lg border border-zinc-200 dark:border-dark-border p-2 sm:p-3 group relative"
                         >
                           {/* Delete button */}
                           <button
                             onClick={() => handleRemoveBatchItem(item.id)}
-                            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 p-1 bg-red-100 dark:bg-red-900/30 text-red-500 rounded-full transition-opacity"
+                            className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 opacity-0 group-hover:opacity-100 p-1 bg-red-100 dark:bg-red-900/30 text-red-500 rounded-full transition-opacity z-10"
                           >
                             <XIcon className="w-3 h-3" />
                           </button>
 
-                          {/* QR Code */}
+                          {/* QR Code with Frame Styling */}
                           <div
                             ref={(el) => {
                               if (el) batchQrRefs.current.set(item.id, el);
                             }}
-                            className="flex items-center justify-center mb-2"
-                            style={{ backgroundColor: style.bgColor }}
+                            className="flex items-center justify-center mb-2 rounded overflow-hidden"
+                            style={{
+                              backgroundColor:
+                                frameStyle !== "none"
+                                  ? "#FFFFFF"
+                                  : style.bgColor,
+                            }}
                           >
-                            <QRCodeCanvas
-                              value={item.value}
-                              size={120}
-                              fgColor={style.fgColor}
-                              bgColor={style.bgColor}
-                              level={style.errorCorrection}
-                              includeMargin={style.includeMargin}
-                              style={{ maxWidth: "100%", height: "auto" }}
-                            />
+                            <div
+                              className={`flex flex-col items-center ${
+                                frameStyle === "simple"
+                                  ? "border-2 p-1.5"
+                                  : frameStyle === "rounded"
+                                    ? "border-2 rounded-lg p-2"
+                                    : frameStyle === "badge"
+                                      ? "border-2 rounded-xl p-2 pb-1"
+                                      : frameStyle === "banner"
+                                        ? "border-2 rounded-md overflow-hidden"
+                                        : ""
+                              }`}
+                              style={{
+                                borderColor:
+                                  frameStyle !== "none"
+                                    ? style.fgColor
+                                    : "transparent",
+                                backgroundColor: style.bgColor,
+                              }}
+                            >
+                              {frameStyle === "banner" && (
+                                <div
+                                  className="w-full py-0.5 px-1.5 text-center font-bold uppercase tracking-wider"
+                                  style={{
+                                    backgroundColor: style.fgColor,
+                                    color: style.bgColor,
+                                    fontSize: "6px",
+                                  }}
+                                >
+                                  {frameText}
+                                </div>
+                              )}
+                              <div
+                                className={frameStyle === "banner" ? "p-1" : ""}
+                              >
+                                <QRCodeCanvas
+                                  value={item.value}
+                                  size={frameStyle !== "none" ? 70 : 90}
+                                  fgColor={style.fgColor}
+                                  bgColor={style.bgColor}
+                                  level={style.errorCorrection}
+                                  includeMargin={style.includeMargin}
+                                  imageSettings={
+                                    logoDataUrl
+                                      ? {
+                                          src: logoDataUrl,
+                                          height: Math.round(
+                                            (frameStyle !== "none" ? 70 : 90) *
+                                              0.2,
+                                          ),
+                                          width: Math.round(
+                                            (frameStyle !== "none" ? 70 : 90) *
+                                              0.2,
+                                          ),
+                                          excavate: true,
+                                        }
+                                      : undefined
+                                  }
+                                  style={{ maxWidth: "100%", height: "auto" }}
+                                />
+                              </div>
+                              {frameStyle !== "none" &&
+                                frameStyle !== "banner" && (
+                                  <p
+                                    className={`text-center font-bold uppercase tracking-wide mt-0.5 ${
+                                      frameStyle === "badge"
+                                        ? "px-1.5 py-0.5 rounded-full"
+                                        : ""
+                                    }`}
+                                    style={{
+                                      color:
+                                        frameStyle === "badge"
+                                          ? style.bgColor
+                                          : style.fgColor,
+                                      backgroundColor:
+                                        frameStyle === "badge"
+                                          ? style.fgColor
+                                          : "transparent",
+                                      fontSize: "6px",
+                                    }}
+                                  >
+                                    {frameText}
+                                  </p>
+                                )}
+                            </div>
                           </div>
 
                           {/* Label */}
@@ -2511,9 +2554,9 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                       ))}
                   </div>
                 ) : (
-                  <div className="text-center text-zinc-400 dark:text-zinc-500 py-12">
-                    <CollectionIcon className="w-16 h-16 mx-auto mb-3 opacity-30" />
-                    <p className="text-sm">
+                  <div className="text-center text-zinc-400 dark:text-zinc-500 py-8 sm:py-12">
+                    <CollectionIcon className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 opacity-30" />
+                    <p className="text-xs sm:text-sm px-4">
                       {t("tools.qrCode.batchPreviewPlaceholder")}
                     </p>
                   </div>

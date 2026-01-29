@@ -24,7 +24,7 @@ Generate article ideas using GPT-4o-mini. Enter a topic, get 4 title suggestions
 **Free Tools**
 
 - **[Word Counter](https://www.articleideagenerator.com/tools/word-counter)** — Words, characters, sentences, paragraphs, reading/speaking time, keyword density
-- **[QR Code Generator](https://www.articleideagenerator.com/tools/qr-code-generator)** — 17+ QR types: URL, WiFi, vCard, social media (Twitter, YouTube, Facebook), crypto payments (Bitcoin, Ethereum, Cardano, Solana), App Store links. Custom colors, **logo support**, frames, style presets. PNG/SVG/JPEG export. UTM tracking compatible
+- **[QR Code Generator](https://www.articleideagenerator.com/tools/qr-code-generator)** — 17+ QR types: URL, WiFi, vCard, social media (Twitter, YouTube, Facebook), crypto payments (Bitcoin, Ethereum, Cardano, Solana), App Store links. Custom colors, **logo support**, frames, style presets, **batch generation** (multiple QR codes at once with ZIP download). PNG/SVG/JPEG export. UTM tracking compatible
 - **[Title Case Converter](https://www.articleideagenerator.com/tools/title-case)** — 16 case styles (AP, Chicago, APA, camelCase, snake_case, kebab-case, etc). Auto-detection, one-click copy
 - **Character Counter** _(Coming Soon)_
 - **Reading Time Calculator** _(Coming Soon)_
@@ -69,6 +69,14 @@ Generate article ideas using GPT-4o-mini. Enter a topic, get 4 title suggestions
 3. Fill in the fields
 4. Customize colors, add logo, choose frame style (optional)
 5. Download as PNG, SVG, or JPEG
+
+**Batch Mode** (URL type):
+
+- Switch to Batch tab
+- Enter multiple URLs (one per line), optionally with labels: `My Site,https://example.com`
+- Or upload a CSV/TXT file
+- Customize styles for all QR codes
+- Download all as ZIP
 
 ### Title Case Converter
 
