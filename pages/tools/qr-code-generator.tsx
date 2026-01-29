@@ -18,6 +18,8 @@ import {
   ExclamationCircleIcon,
   PhotographIcon,
   XIcon,
+  CollectionIcon,
+  UploadIcon,
 } from "@heroicons/react/outline";
 import type {
   QRContentType,
@@ -848,6 +850,14 @@ function AppStoreForm({ data, updateField, t }: FormProps) {
 // Main Component
 // ============================================================================
 
+// Batch QR item type
+interface BatchQRItem {
+  id: string;
+  value: string;
+  label: string;
+  isValid: boolean;
+}
+
 export default function QRCodeGeneratorPage(): JSX.Element {
   const { t } = useTranslation();
   const router = useRouter();
@@ -864,18 +874,29 @@ export default function QRCodeGeneratorPage(): JSX.Element {
   const [showHistory, setShowHistory] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
   const [downloadDropdown, setDownloadDropdown] = useState(false);
-  const [activeTab, setActiveTab] = useState<"content" | "style">("content");
+  const [activeTab, setActiveTab] = useState<"content" | "style" | "batch">(
+    "content",
+  );
   const [logoDataUrl, setLogoDataUrl] = useState<string | null>(null);
   const [frameStyle, setFrameStyle] = useState<FrameStyle>("none");
   const [frameText, setFrameText] = useState("SCAN ME");
   const [showTypeCategories, setShowTypeCategories] = useState(false);
   const [showAdvancedStyle, setShowAdvancedStyle] = useState(false);
 
+  // Batch mode state
+  const [batchInput, setBatchInput] = useState("");
+  const [batchItems, setBatchItems] = useState<BatchQRItem[]>([]);
+  const [batchGenerated, setBatchGenerated] = useState(false);
+  const [isDownloadingBatch, setIsDownloadingBatch] = useState(false);
+  const [batchDownloadProgress, setBatchDownloadProgress] = useState(0);
+  const batchQrRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+
   // Refs
   const qrRef = useRef<HTMLDivElement>(null);
   const hasTrackedUsage = useRef(false);
   const downloadRef = useRef<HTMLDivElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
+  const csvInputRef = useRef<HTMLInputElement>(null);
 
   // Load history on mount
   useEffect(() => {
@@ -1044,6 +1065,154 @@ export default function QRCodeGeneratorPage(): JSX.Element {
   const handleDeleteHistoryItem = useCallback((id: string) => {
     deleteHistoryItem(id);
     setHistory(getHistory());
+  }, []);
+
+  // Batch mode handlers
+  const parseBatchInput = useCallback((input: string): BatchQRItem[] => {
+    const lines = input
+      .split(/[\n\r]+/)
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0);
+
+    return lines.map((line, index) => {
+      // Check if line has a label format: "label,value" or "label|value"
+      const separatorMatch = line.match(/^([^,|]+)[,|](.+)$/);
+      let label = `QR ${index + 1}`;
+      let value = line;
+
+      if (separatorMatch) {
+        label = separatorMatch[1].trim();
+        value = separatorMatch[2].trim();
+      }
+
+      // Validate the value
+      const isValid = value.length > 0 && value.length <= 2953; // QR code max capacity
+
+      return {
+        id: `batch-${Date.now()}-${index}`,
+        value,
+        label,
+        isValid,
+      };
+    });
+  }, []);
+
+  const handleBatchInputChange = useCallback((input: string) => {
+    setBatchInput(input);
+    setBatchGenerated(false);
+  }, []);
+
+  const handleBatchGenerate = useCallback(() => {
+    const items = parseBatchInput(batchInput);
+    setBatchItems(items);
+    setBatchGenerated(true);
+    trackToolUsage("QR Code Generator", `batch_generate_${items.length}`);
+  }, [batchInput, parseBatchInput]);
+
+  const handleCSVUpload = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const text = event.target?.result as string;
+        setBatchInput(text);
+        setBatchGenerated(false);
+      };
+      reader.readAsText(file);
+
+      // Reset input
+      if (csvInputRef.current) {
+        csvInputRef.current.value = "";
+      }
+    },
+    [],
+  );
+
+  const handleBatchDownloadSingle = useCallback(
+    async (item: BatchQRItem, format: "png" | "jpg" = "png") => {
+      const refElement = batchQrRefs.current.get(item.id);
+      const canvas = refElement?.querySelector("canvas");
+      if (!canvas) return;
+
+      const filename = `qr-${item.label.replace(/[^a-zA-Z0-9]/g, "-")}-${Date.now()}`;
+      if (format === "png") {
+        downloadAsPNG(canvas, filename);
+      } else {
+        downloadAsJPG(canvas, filename, style.bgColor);
+      }
+    },
+    [style.bgColor],
+  );
+
+  const handleBatchDownloadAll = useCallback(async () => {
+    if (batchItems.length === 0) return;
+
+    setIsDownloadingBatch(true);
+    setBatchDownloadProgress(0);
+
+    try {
+      // Dynamically import JSZip
+      const JSZip = (await import("jszip")).default;
+      const zip = new JSZip();
+
+      const validItems = batchItems.filter((item) => item.isValid);
+
+      for (let i = 0; i < validItems.length; i++) {
+        const item = validItems[i];
+        const refElement = batchQrRefs.current.get(item.id);
+        const canvas = refElement?.querySelector("canvas");
+
+        if (canvas) {
+          const blob = await new Promise<Blob | null>((resolve) => {
+            canvas.toBlob(resolve, "image/png");
+          });
+
+          if (blob) {
+            const filename = `${item.label.replace(/[^a-zA-Z0-9]/g, "-")}.png`;
+            zip.file(filename, blob);
+          }
+        }
+
+        setBatchDownloadProgress(
+          Math.round(((i + 1) / validItems.length) * 100),
+        );
+      }
+
+      // Generate and download ZIP
+      const zipBlob = await zip.generateAsync({ type: "blob" });
+      const url = URL.createObjectURL(zipBlob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `qr-codes-batch-${Date.now()}.zip`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      trackToolUsage(
+        "QR Code Generator",
+        `batch_download_zip_${validItems.length}`,
+      );
+    } catch (error) {
+      console.error("Batch download error:", error);
+    } finally {
+      setIsDownloadingBatch(false);
+      setBatchDownloadProgress(0);
+    }
+  }, [batchItems]);
+
+  const handleBatchClear = useCallback(() => {
+    setBatchInput("");
+    setBatchItems([]);
+    setBatchGenerated(false);
+    batchQrRefs.current.clear();
+  }, []);
+
+  const handleRemoveBatchItem = useCallback((itemId: string) => {
+    setBatchItems((prev) => prev.filter((item) => item.id !== itemId));
+    batchQrRefs.current.delete(itemId);
   }, []);
 
   // Render form based on type
@@ -1488,6 +1657,20 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                   + Logo
                 </span>
               </button>
+              <button
+                onClick={() => setActiveTab("batch")}
+                className={`flex-1 px-4 py-3.5 sm:py-3 text-sm font-medium transition-colors flex items-center justify-center gap-1.5 ${
+                  activeTab === "batch"
+                    ? "text-violet-600 dark:text-violet-400 border-b-2 border-violet-600 dark:border-violet-400 bg-white dark:bg-dark-card"
+                    : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
+                }`}
+              >
+                <CollectionIcon className="w-4 h-4" />
+                <span>{t("tools.qrCode.tabBatch")}</span>
+                <span className="text-[10px] px-1.5 py-0.5 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 rounded-full font-semibold uppercase tracking-wide">
+                  New
+                </span>
+              </button>
             </div>
 
             <div className="p-4 sm:p-6">
@@ -1504,7 +1687,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                     </div>
                   )}
                 </div>
-              ) : (
+              ) : activeTab === "style" ? (
                 <div className="space-y-5">
                   {/* Quick Style Presets - Most impactful, show first */}
                   <div>
@@ -1828,297 +2011,516 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                     )}
                   </div>
                 </div>
+              ) : (
+                /* Batch Tab Content */
+                <div className="space-y-5">
+                  {/* Batch Instructions */}
+                  <div className="p-4 bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-800 rounded-lg">
+                    <h4 className="text-sm font-medium text-violet-800 dark:text-violet-300 mb-2">
+                      {t("tools.qrCode.batchTitle")}
+                    </h4>
+                    <p className="text-xs text-violet-600 dark:text-violet-400">
+                      {t("tools.qrCode.batchDescription")}
+                    </p>
+                  </div>
+
+                  {/* Batch Input */}
+                  <div>
+                    <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+                      {t("tools.qrCode.batchInputLabel")}
+                    </label>
+                    <textarea
+                      value={batchInput}
+                      onChange={(e) => handleBatchInputChange(e.target.value)}
+                      placeholder={t("tools.qrCode.batchInputPlaceholder")}
+                      rows={8}
+                      className="w-full px-4 py-3 border rounded-lg bg-white dark:bg-dark-card border-zinc-200 dark:border-dark-border focus:ring-2 focus:ring-violet-500 focus:border-transparent focus:outline-none text-zinc-900 dark:text-white placeholder-zinc-400 text-sm transition-colors resize-none font-mono"
+                    />
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1.5">
+                      {t("tools.qrCode.batchFormatHint")}
+                    </p>
+                  </div>
+
+                  {/* CSV Upload */}
+                  <div className="flex items-center gap-3">
+                    <input
+                      ref={csvInputRef}
+                      type="file"
+                      accept=".csv,.txt"
+                      onChange={handleCSVUpload}
+                      className="hidden"
+                      id="csv-upload"
+                    />
+                    <label
+                      htmlFor="csv-upload"
+                      className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-dark-card border border-zinc-200 dark:border-dark-border rounded-lg text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 cursor-pointer transition-colors"
+                    >
+                      <UploadIcon className="w-4 h-4" />
+                      {t("tools.qrCode.batchUploadCSV")}
+                    </label>
+                    <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                      {t("tools.qrCode.batchUploadHint")}
+                    </span>
+                  </div>
+
+                  {/* Batch Stats */}
+                  {batchInput && (
+                    <div className="flex items-center gap-4 p-3 bg-zinc-100 dark:bg-zinc-800 rounded-lg">
+                      <div className="text-sm">
+                        <span className="text-zinc-500 dark:text-zinc-400">
+                          {t("tools.qrCode.batchItemsCount")}:{" "}
+                        </span>
+                        <span className="font-medium text-zinc-900 dark:text-white">
+                          {parseBatchInput(batchInput).length}
+                        </span>
+                      </div>
+                      <div className="text-sm">
+                        <span className="text-zinc-500 dark:text-zinc-400">
+                          {t("tools.qrCode.batchValidCount")}:{" "}
+                        </span>
+                        <span className="font-medium text-emerald-600 dark:text-emerald-400">
+                          {
+                            parseBatchInput(batchInput).filter((i) => i.isValid)
+                              .length
+                          }
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Batch Action Buttons */}
+                  <div className="flex gap-3 pt-2">
+                    <button
+                      onClick={handleBatchGenerate}
+                      disabled={!batchInput.trim()}
+                      className="flex-1 px-4 py-3 bg-violet-600 hover:bg-violet-700 disabled:bg-zinc-300 dark:disabled:bg-zinc-700 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors shadow-md shadow-violet-500/20 disabled:shadow-none flex items-center justify-center gap-2"
+                    >
+                      <CollectionIcon className="w-5 h-5" />
+                      {t("tools.qrCode.batchGenerate")}
+                    </button>
+                    <button
+                      onClick={handleBatchClear}
+                      disabled={!batchInput && batchItems.length === 0}
+                      className="px-4 py-3 bg-zinc-200 dark:bg-zinc-700 hover:bg-zinc-300 dark:hover:bg-zinc-600 disabled:opacity-50 disabled:cursor-not-allowed text-zinc-700 dark:text-zinc-300 font-medium rounded-lg transition-colors"
+                      title={t("tools.qrCode.batchClear")}
+                    >
+                      <TrashIcon className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  {/* Download All Button */}
+                  {batchGenerated && batchItems.length > 0 && (
+                    <button
+                      onClick={handleBatchDownloadAll}
+                      disabled={isDownloadingBatch}
+                      className="w-full px-4 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 text-white font-medium rounded-lg transition-colors shadow-md shadow-emerald-500/20 flex items-center justify-center gap-2"
+                    >
+                      {isDownloadingBatch ? (
+                        <>
+                          <svg
+                            className="animate-spin h-5 w-5"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                              fill="none"
+                            />
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            />
+                          </svg>
+                          <span>
+                            {t("tools.qrCode.batchDownloading")} (
+                            {batchDownloadProgress}%)
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <DownloadIcon className="w-5 h-5" />
+                          {t("tools.qrCode.batchDownloadAll")} (
+                          {batchItems.filter((i) => i.isValid).length}{" "}
+                          {t("tools.qrCode.batchFilesZip")})
+                        </>
+                      )}
+                    </button>
+                  )}
+                </div>
               )}
 
-              {/* Action Buttons */}
-              <div className="flex gap-3 mt-6 pt-6 border-t border-zinc-200 dark:border-dark-border">
-                <button
-                  onClick={handleGenerate}
-                  disabled={!validation.isValid}
-                  className="flex-1 px-4 py-3 bg-violet-600 hover:bg-violet-700 disabled:bg-zinc-300 dark:disabled:bg-zinc-700 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors shadow-md shadow-violet-500/20 disabled:shadow-none"
-                >
-                  {t("tools.qrCode.generate")}
-                </button>
-                <button
-                  onClick={handleReset}
-                  className="px-4 py-3 bg-zinc-200 dark:bg-zinc-700 hover:bg-zinc-300 dark:hover:bg-zinc-600 text-zinc-700 dark:text-zinc-300 font-medium rounded-lg transition-colors"
-                  title={t("tools.qrCode.reset")}
-                >
-                  <RefreshIcon className="w-5 h-5" />
-                </button>
-              </div>
+              {/* Action Buttons - Only show for Content and Style tabs */}
+              {activeTab !== "batch" && (
+                <div className="flex gap-3 mt-6 pt-6 border-t border-zinc-200 dark:border-dark-border">
+                  <button
+                    onClick={handleGenerate}
+                    disabled={!validation.isValid}
+                    className="flex-1 px-4 py-3 bg-violet-600 hover:bg-violet-700 disabled:bg-zinc-300 dark:disabled:bg-zinc-700 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors shadow-md shadow-violet-500/20 disabled:shadow-none"
+                  >
+                    {t("tools.qrCode.generate")}
+                  </button>
+                  <button
+                    onClick={handleReset}
+                    className="px-4 py-3 bg-zinc-200 dark:bg-zinc-700 hover:bg-zinc-300 dark:hover:bg-zinc-600 text-zinc-700 dark:text-zinc-300 font-medium rounded-lg transition-colors"
+                    title={t("tools.qrCode.reset")}
+                  >
+                    <RefreshIcon className="w-5 h-5" />
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Right Panel - Preview */}
-          <div className="w-full lg:w-[380px] lg:flex-shrink-0 bg-zinc-50 dark:bg-darkOffset rounded-xl border border-zinc-200 dark:border-dark-border overflow-hidden">
-            <div className="p-4 border-b border-zinc-200 dark:border-dark-border">
-              <h3 className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                {t("tools.qrCode.preview")}
-              </h3>
-            </div>
+          {/* Right Panel - Preview (Single Mode) or Batch Preview */}
+          {activeTab !== "batch" ? (
+            <div className="w-full lg:w-[380px] lg:flex-shrink-0 bg-zinc-50 dark:bg-darkOffset rounded-xl border border-zinc-200 dark:border-dark-border overflow-hidden">
+              <div className="p-4 border-b border-zinc-200 dark:border-dark-border">
+                <h3 className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                  {t("tools.qrCode.preview")}
+                </h3>
+              </div>
 
-            <div className="p-4 sm:p-6">
-              <div
-                ref={qrRef}
-                className="flex flex-col items-center justify-center bg-white dark:bg-dark-card rounded-xl p-4 sm:p-6 min-h-[240px] sm:min-h-[280px] border border-zinc-200 dark:border-dark-border"
-                style={{
-                  backgroundColor:
-                    frameStyle !== "none" ? "#FFFFFF" : style.bgColor,
-                }}
-              >
-                {isGenerated && qrValue ? (
-                  <div
-                    className={`flex flex-col items-center ${
-                      frameStyle === "simple"
-                        ? "border-2 p-3"
-                        : frameStyle === "rounded"
-                          ? "border-2 rounded-xl p-4"
-                          : frameStyle === "badge"
-                            ? "border-2 rounded-2xl p-4 pb-2"
-                            : frameStyle === "banner"
-                              ? "border-2 rounded-lg overflow-hidden"
-                              : ""
-                    }`}
-                    style={{
-                      borderColor:
-                        frameStyle !== "none" ? style.fgColor : "transparent",
-                      backgroundColor: style.bgColor,
-                    }}
-                  >
-                    {frameStyle === "banner" && (
-                      <div
-                        className="w-full py-1.5 px-3 text-center text-xs font-bold uppercase tracking-wider"
-                        style={{
-                          backgroundColor: style.fgColor,
-                          color: style.bgColor,
-                        }}
-                      >
-                        {frameText}
-                      </div>
-                    )}
-                    <div className={frameStyle === "banner" ? "p-3" : ""}>
-                      <QRCodeCanvas
-                        value={qrValue}
-                        size={Math.min(
-                          style.size,
-                          frameStyle !== "none" ? 220 : 280,
-                        )}
-                        fgColor={style.fgColor}
-                        bgColor={style.bgColor}
-                        level={style.errorCorrection}
-                        includeMargin={style.includeMargin}
-                        imageSettings={
-                          logoDataUrl
-                            ? {
-                                src: logoDataUrl,
-                                height: Math.round(
-                                  Math.min(
-                                    style.size,
-                                    frameStyle !== "none" ? 220 : 280,
-                                  ) * 0.2,
-                                ),
-                                width: Math.round(
-                                  Math.min(
-                                    style.size,
-                                    frameStyle !== "none" ? 220 : 280,
-                                  ) * 0.2,
-                                ),
-                                excavate: true,
-                              }
-                            : undefined
-                        }
-                        style={{ maxWidth: "100%", height: "auto" }}
-                      />
-                    </div>
-                    {frameStyle !== "none" && frameStyle !== "banner" && (
-                      <p
-                        className={`text-center font-bold uppercase tracking-wide mt-2 ${
-                          frameStyle === "badge"
-                            ? "text-xs px-3 py-1 rounded-full"
-                            : "text-xs"
-                        }`}
-                        style={{
-                          color:
-                            frameStyle === "badge"
-                              ? style.bgColor
-                              : style.fgColor,
-                          backgroundColor:
-                            frameStyle === "badge"
-                              ? style.fgColor
-                              : "transparent",
-                        }}
-                      >
-                        {frameText}
-                      </p>
-                    )}
-                  </div>
-                ) : (
-                  <div className="text-center text-zinc-400 dark:text-zinc-500">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth={1}
-                      stroke="currentColor"
-                      className="w-20 h-20 mx-auto mb-3 opacity-30"
+              <div className="p-4 sm:p-6">
+                <div
+                  ref={qrRef}
+                  className="flex flex-col items-center justify-center bg-white dark:bg-dark-card rounded-xl p-4 sm:p-6 min-h-[240px] sm:min-h-[280px] border border-zinc-200 dark:border-dark-border"
+                  style={{
+                    backgroundColor:
+                      frameStyle !== "none" ? "#FFFFFF" : style.bgColor,
+                  }}
+                >
+                  {isGenerated && qrValue ? (
+                    <div
+                      className={`flex flex-col items-center ${
+                        frameStyle === "simple"
+                          ? "border-2 p-3"
+                          : frameStyle === "rounded"
+                            ? "border-2 rounded-xl p-4"
+                            : frameStyle === "badge"
+                              ? "border-2 rounded-2xl p-4 pb-2"
+                              : frameStyle === "banner"
+                                ? "border-2 rounded-lg overflow-hidden"
+                                : ""
+                      }`}
+                      style={{
+                        borderColor:
+                          frameStyle !== "none" ? style.fgColor : "transparent",
+                        backgroundColor: style.bgColor,
+                      }}
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75zM13.5 13.5h.75v.75h-.75v-.75zM13.5 19.5h.75v.75h-.75v-.75zM19.5 13.5h.75v.75h-.75v-.75zM19.5 19.5h.75v.75h-.75v-.75zM16.5 16.5h.75v.75h-.75v-.75z"
-                      />
-                    </svg>
-                    <p className="text-sm">
-                      {t("tools.qrCode.previewPlaceholder")}
+                      {frameStyle === "banner" && (
+                        <div
+                          className="w-full py-1.5 px-3 text-center text-xs font-bold uppercase tracking-wider"
+                          style={{
+                            backgroundColor: style.fgColor,
+                            color: style.bgColor,
+                          }}
+                        >
+                          {frameText}
+                        </div>
+                      )}
+                      <div className={frameStyle === "banner" ? "p-3" : ""}>
+                        <QRCodeCanvas
+                          value={qrValue}
+                          size={Math.min(
+                            style.size,
+                            frameStyle !== "none" ? 220 : 280,
+                          )}
+                          fgColor={style.fgColor}
+                          bgColor={style.bgColor}
+                          level={style.errorCorrection}
+                          includeMargin={style.includeMargin}
+                          imageSettings={
+                            logoDataUrl
+                              ? {
+                                  src: logoDataUrl,
+                                  height: Math.round(
+                                    Math.min(
+                                      style.size,
+                                      frameStyle !== "none" ? 220 : 280,
+                                    ) * 0.2,
+                                  ),
+                                  width: Math.round(
+                                    Math.min(
+                                      style.size,
+                                      frameStyle !== "none" ? 220 : 280,
+                                    ) * 0.2,
+                                  ),
+                                  excavate: true,
+                                }
+                              : undefined
+                          }
+                          style={{ maxWidth: "100%", height: "auto" }}
+                        />
+                      </div>
+                      {frameStyle !== "none" && frameStyle !== "banner" && (
+                        <p
+                          className={`text-center font-bold uppercase tracking-wide mt-2 ${
+                            frameStyle === "badge"
+                              ? "text-xs px-3 py-1 rounded-full"
+                              : "text-xs"
+                          }`}
+                          style={{
+                            color:
+                              frameStyle === "badge"
+                                ? style.bgColor
+                                : style.fgColor,
+                            backgroundColor:
+                              frameStyle === "badge"
+                                ? style.fgColor
+                                : "transparent",
+                          }}
+                        >
+                          {frameText}
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-center text-zinc-400 dark:text-zinc-500">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={1}
+                        stroke="currentColor"
+                        className="w-20 h-20 mx-auto mb-3 opacity-30"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75zM13.5 13.5h.75v.75h-.75v-.75zM13.5 19.5h.75v.75h-.75v-.75zM19.5 13.5h.75v.75h-.75v-.75zM19.5 19.5h.75v.75h-.75v-.75zM16.5 16.5h.75v.75h-.75v-.75z"
+                        />
+                      </svg>
+                      <p className="text-sm">
+                        {t("tools.qrCode.previewPlaceholder")}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Download & Copy Buttons */}
+                {isGenerated && qrValue && (
+                  <div className="flex gap-2 mt-4">
+                    {/* Download Dropdown */}
+                    <div ref={downloadRef} className="relative flex-1">
+                      <button
+                        onClick={() => setDownloadDropdown(!downloadDropdown)}
+                        className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-violet-600 hover:bg-violet-700 text-white font-medium rounded-lg transition-colors text-sm"
+                      >
+                        <DownloadIcon className="w-4 h-4" />
+                        {t("tools.qrCode.download")}
+                        <ChevronDownIcon
+                          className={`w-4 h-4 transition-transform ${downloadDropdown ? "rotate-180" : ""}`}
+                        />
+                      </button>
+                      {downloadDropdown && (
+                        <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-dark-card border border-zinc-200 dark:border-dark-border rounded-lg shadow-lg overflow-hidden z-10">
+                          <button
+                            onClick={() => handleDownload("png")}
+                            className="w-full px-4 py-2.5 text-left text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors"
+                          >
+                            <span className="font-medium">PNG</span>
+                            <span className="text-zinc-500 dark:text-zinc-400 ml-2">
+                              - {t("tools.qrCode.formatPngDesc")}
+                            </span>
+                          </button>
+                          <button
+                            onClick={() => handleDownload("svg")}
+                            className="w-full px-4 py-2.5 text-left text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors"
+                          >
+                            <span className="font-medium">SVG</span>
+                            <span className="text-zinc-500 dark:text-zinc-400 ml-2">
+                              - {t("tools.qrCode.formatSvgDesc")}
+                            </span>
+                          </button>
+                          <button
+                            onClick={() => handleDownload("jpg")}
+                            className="w-full px-4 py-2.5 text-left text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors"
+                          >
+                            <span className="font-medium">JPG</span>
+                            <span className="text-zinc-500 dark:text-zinc-400 ml-2">
+                              - {t("tools.qrCode.formatJpgDesc")}
+                            </span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Copy Button */}
+                    <button
+                      onClick={handleCopy}
+                      className={`flex items-center justify-center gap-2 px-4 py-2.5 font-medium rounded-lg transition-colors text-sm ${
+                        copySuccess
+                          ? "bg-green-500 text-white"
+                          : "bg-zinc-200 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-300 dark:hover:bg-zinc-600"
+                      }`}
+                      title={t("tools.qrCode.copyToClipboard")}
+                    >
+                      {copySuccess ? (
+                        <CheckIcon className="w-4 h-4" />
+                      ) : (
+                        <ClipboardCopyIcon className="w-4 h-4" />
+                      )}
+                    </button>
+                  </div>
+                )}
+
+                {/* QR Code Info */}
+                {isGenerated && qrValue && (
+                  <div className="mt-4 p-3 bg-zinc-100 dark:bg-dark-card rounded-lg">
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-1">
+                      {t("tools.qrCode.encodedData")}
+                    </p>
+                    <p className="text-sm text-zinc-700 dark:text-zinc-300 break-all line-clamp-2">
+                      {qrValue}
                     </p>
                   </div>
                 )}
               </div>
 
-              {/* Download & Copy Buttons */}
-              {isGenerated && qrValue && (
-                <div className="flex gap-2 mt-4">
-                  {/* Download Dropdown */}
-                  <div ref={downloadRef} className="relative flex-1">
-                    <button
-                      onClick={() => setDownloadDropdown(!downloadDropdown)}
-                      className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-violet-600 hover:bg-violet-700 text-white font-medium rounded-lg transition-colors text-sm"
-                    >
-                      <DownloadIcon className="w-4 h-4" />
-                      {t("tools.qrCode.download")}
-                      <ChevronDownIcon
-                        className={`w-4 h-4 transition-transform ${downloadDropdown ? "rotate-180" : ""}`}
-                      />
-                    </button>
-                    {downloadDropdown && (
-                      <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-dark-card border border-zinc-200 dark:border-dark-border rounded-lg shadow-lg overflow-hidden z-10">
-                        <button
-                          onClick={() => handleDownload("png")}
-                          className="w-full px-4 py-2.5 text-left text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors"
-                        >
-                          <span className="font-medium">PNG</span>
-                          <span className="text-zinc-500 dark:text-zinc-400 ml-2">
-                            - {t("tools.qrCode.formatPngDesc")}
-                          </span>
-                        </button>
-                        <button
-                          onClick={() => handleDownload("svg")}
-                          className="w-full px-4 py-2.5 text-left text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors"
-                        >
-                          <span className="font-medium">SVG</span>
-                          <span className="text-zinc-500 dark:text-zinc-400 ml-2">
-                            - {t("tools.qrCode.formatSvgDesc")}
-                          </span>
-                        </button>
-                        <button
-                          onClick={() => handleDownload("jpg")}
-                          className="w-full px-4 py-2.5 text-left text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors"
-                        >
-                          <span className="font-medium">JPG</span>
-                          <span className="text-zinc-500 dark:text-zinc-400 ml-2">
-                            - {t("tools.qrCode.formatJpgDesc")}
-                          </span>
-                        </button>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Copy Button */}
+              {/* History Section */}
+              {history.length > 0 && (
+                <div className="border-t border-zinc-200 dark:border-dark-border">
                   <button
-                    onClick={handleCopy}
-                    className={`flex items-center justify-center gap-2 px-4 py-2.5 font-medium rounded-lg transition-colors text-sm ${
-                      copySuccess
-                        ? "bg-green-500 text-white"
-                        : "bg-zinc-200 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-300 dark:hover:bg-zinc-600"
-                    }`}
-                    title={t("tools.qrCode.copyToClipboard")}
+                    onClick={() => setShowHistory(!showHistory)}
+                    className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
                   >
-                    {copySuccess ? (
-                      <CheckIcon className="w-4 h-4" />
-                    ) : (
-                      <ClipboardCopyIcon className="w-4 h-4" />
-                    )}
+                    <span>{t("tools.qrCode.recentHistory")}</span>
+                    <ChevronDownIcon
+                      className={`w-4 h-4 transition-transform ${showHistory ? "rotate-180" : ""}`}
+                    />
                   </button>
-                </div>
-              )}
 
-              {/* QR Code Info */}
-              {isGenerated && qrValue && (
-                <div className="mt-4 p-3 bg-zinc-100 dark:bg-dark-card rounded-lg">
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-1">
-                    {t("tools.qrCode.encodedData")}
-                  </p>
-                  <p className="text-sm text-zinc-700 dark:text-zinc-300 break-all line-clamp-2">
-                    {qrValue}
-                  </p>
+                  {showHistory && (
+                    <div className="px-4 pb-4">
+                      <div className="space-y-2 max-h-48 overflow-y-auto">
+                        {history.slice(0, 5).map((item) => (
+                          <div
+                            key={item.id}
+                            className="flex items-center gap-3 p-2 bg-zinc-100 dark:bg-dark-card rounded-lg group"
+                          >
+                            <div
+                              className="w-8 h-8 rounded flex items-center justify-center text-xs"
+                              style={{
+                                backgroundColor: item.style.bgColor,
+                                color: item.style.fgColor,
+                              }}
+                            >
+                              {QR_TYPES.find((t) => t.id === item.type)?.icon}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-medium text-zinc-700 dark:text-zinc-300 truncate">
+                                {item.value}
+                              </p>
+                              <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                                {new Date(item.timestamp).toLocaleDateString()}
+                              </p>
+                            </div>
+                            <button
+                              onClick={() => handleDeleteHistoryItem(item.id)}
+                              className="opacity-0 group-hover:opacity-100 p-1 text-zinc-400 hover:text-red-500 transition-all"
+                            >
+                              <TrashIcon className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                      <button
+                        onClick={handleClearHistory}
+                        className="w-full mt-3 px-3 py-2 text-xs text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                      >
+                        {t("tools.qrCode.clearHistory")}
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
+          ) : (
+            /* Batch Preview Panel */
+            <div className="w-full lg:flex-1 bg-zinc-50 dark:bg-darkOffset rounded-xl border border-zinc-200 dark:border-dark-border overflow-hidden">
+              <div className="p-4 border-b border-zinc-200 dark:border-dark-border flex items-center justify-between">
+                <h3 className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                  {t("tools.qrCode.batchPreview")}{" "}
+                  {batchItems.length > 0 &&
+                    `(${batchItems.filter((i) => i.isValid).length})`}
+                </h3>
+              </div>
 
-            {/* History Section */}
-            {history.length > 0 && (
-              <div className="border-t border-zinc-200 dark:border-dark-border">
-                <button
-                  onClick={() => setShowHistory(!showHistory)}
-                  className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-                >
-                  <span>{t("tools.qrCode.recentHistory")}</span>
-                  <ChevronDownIcon
-                    className={`w-4 h-4 transition-transform ${showHistory ? "rotate-180" : ""}`}
-                  />
-                </button>
-
-                {showHistory && (
-                  <div className="px-4 pb-4">
-                    <div className="space-y-2 max-h-48 overflow-y-auto">
-                      {history.slice(0, 5).map((item) => (
+              <div className="p-4 sm:p-6">
+                {batchGenerated && batchItems.length > 0 ? (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 gap-4 max-h-[600px] overflow-y-auto">
+                    {batchItems
+                      .filter((item) => item.isValid)
+                      .map((item) => (
                         <div
                           key={item.id}
-                          className="flex items-center gap-3 p-2 bg-zinc-100 dark:bg-dark-card rounded-lg group"
+                          className="bg-white dark:bg-dark-card rounded-lg border border-zinc-200 dark:border-dark-border p-3 group relative"
                         >
-                          <div
-                            className="w-8 h-8 rounded flex items-center justify-center text-xs"
-                            style={{
-                              backgroundColor: item.style.bgColor,
-                              color: item.style.fgColor,
-                            }}
-                          >
-                            {QR_TYPES.find((t) => t.id === item.type)?.icon}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs font-medium text-zinc-700 dark:text-zinc-300 truncate">
-                              {item.value}
-                            </p>
-                            <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                              {new Date(item.timestamp).toLocaleDateString()}
-                            </p>
-                          </div>
+                          {/* Delete button */}
                           <button
-                            onClick={() => handleDeleteHistoryItem(item.id)}
-                            className="opacity-0 group-hover:opacity-100 p-1 text-zinc-400 hover:text-red-500 transition-all"
+                            onClick={() => handleRemoveBatchItem(item.id)}
+                            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 p-1 bg-red-100 dark:bg-red-900/30 text-red-500 rounded-full transition-opacity"
                           >
-                            <TrashIcon className="w-4 h-4" />
+                            <XIcon className="w-3 h-3" />
+                          </button>
+
+                          {/* QR Code */}
+                          <div
+                            ref={(el) => {
+                              if (el) batchQrRefs.current.set(item.id, el);
+                            }}
+                            className="flex items-center justify-center mb-2"
+                            style={{ backgroundColor: style.bgColor }}
+                          >
+                            <QRCodeCanvas
+                              value={item.value}
+                              size={120}
+                              fgColor={style.fgColor}
+                              bgColor={style.bgColor}
+                              level={style.errorCorrection}
+                              includeMargin={style.includeMargin}
+                              style={{ maxWidth: "100%", height: "auto" }}
+                            />
+                          </div>
+
+                          {/* Label */}
+                          <p className="text-xs font-medium text-zinc-700 dark:text-zinc-300 text-center truncate mb-2">
+                            {item.label}
+                          </p>
+
+                          {/* Download Button */}
+                          <button
+                            onClick={() => handleBatchDownloadSingle(item)}
+                            className="w-full flex items-center justify-center gap-1 px-2 py-1.5 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-400 rounded text-xs transition-colors"
+                          >
+                            <DownloadIcon className="w-3 h-3" />
+                            PNG
                           </button>
                         </div>
                       ))}
-                    </div>
-                    <button
-                      onClick={handleClearHistory}
-                      className="w-full mt-3 px-3 py-2 text-xs text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                    >
-                      {t("tools.qrCode.clearHistory")}
-                    </button>
+                  </div>
+                ) : (
+                  <div className="text-center text-zinc-400 dark:text-zinc-500 py-12">
+                    <CollectionIcon className="w-16 h-16 mx-auto mb-3 opacity-30" />
+                    <p className="text-sm">
+                      {t("tools.qrCode.batchPreviewPlaceholder")}
+                    </p>
                   </div>
                 )}
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
         {/* Features Section */}
