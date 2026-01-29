@@ -32,6 +32,14 @@ export const tools: Tool[] = [
     available: true,
   },
   {
+    id: "json-formatter",
+    nameKey: "tools.jsonFormatter.name",
+    descriptionKey: "tools.jsonFormatter.description",
+    href: "/tools/json-formatter",
+    icon: "code",
+    available: true,
+  },
+  {
     id: "character-counter",
     nameKey: "tools.characterCounter.name",
     descriptionKey: "tools.characterCounter.description",
