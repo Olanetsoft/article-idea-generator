@@ -19,6 +19,12 @@ export default function Document() {
         <link rel="preconnect" href="https://api.openai.com" />
         <link rel="dns-prefetch" href="https://api.openai.com" />
 
+        {/* Dev Icons for Cover Image Generator */}
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css"
+        />
+
         <meta
           name="description"
           content="Free AI-powered article title generator that creates SEO-optimized, engaging titles instantly. Beat writer's block and generate creative article ideas in seconds."
