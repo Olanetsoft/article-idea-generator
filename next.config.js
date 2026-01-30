@@ -51,6 +51,23 @@ module.exports = {
       },
     ];
   },
+  // Webpack configuration for @huggingface/transformers compatibility
+  webpack: (config, { isServer }) => {
+    // Ignore the import.meta warnings from @huggingface/transformers
+    config.module.exprContextCritical = false;
+    
+    // Ensure ONNX runtime works correctly
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        path: false,
+        crypto: false,
+      };
+    }
+    
+    return config;
+  },
   ...withPWA({
     dest: "public",
     register: true,
