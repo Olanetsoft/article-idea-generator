@@ -226,6 +226,66 @@ Browse all available writing tools with descriptions and "coming soon" badges fo
 - Mobile-responsive grid layout
 - Accessible with keyboard navigation
 
+### PDF Signer Tool
+
+**URL**: https://articleideagenerator.com/tools/pdf-signer
+
+**Features**:
+- **Signature Creation Methods**:
+  - Draw: Use mouse, trackpad, or touch to draw signature
+  - Type: Choose from 5 handwriting fonts (Dancing Script, Great Vibes, Pacifico, Caveat, Satisfy)
+  - Upload: Use existing signature image
+
+- **Form Filling Tools**:
+  - Full Name field (auto-populates from input)
+  - Initials (auto-derived from name, e.g., "John Smith" → "JS")
+  - Text fields (editable in-place)
+  - Date stamps (auto-fills current date)
+  - Checkboxes
+
+- **Annotation Tools**:
+  - Highlight with 5 colors (yellow, green, red, blue, orange)
+  - Circle shapes with customizable color and stroke width
+  - Rectangle shapes with customizable color and stroke width
+  - Lines with customizable color and stroke width
+  - Arrows with customizable color and stroke width
+  - Strikethrough with customizable color
+  - Image stamps (logos, custom graphics up to 5MB)
+
+- **Element Manipulation**:
+  - Drag and drop positioning
+  - Resize handles (8-point: corners and edges)
+  - Delete individual elements
+  - Select and edit elements
+
+- **PDF Features**:
+  - Multi-page navigation
+  - Zoom controls (50% to 300%)
+  - Page thumbnails
+  - Instant download with embedded annotations
+
+- **Privacy**:
+  - 100% client-side processing
+  - Files never uploaded to servers
+  - No data collection
+
+**Use Cases**:
+- Signing contracts and agreements remotely
+- Filling PDF forms without printing
+- Adding approval stamps to documents
+- Annotating PDFs for review
+- Adding company logos to documents
+- Highlighting important sections
+- Striking through outdated information
+
+**Technical Details**:
+- PDF.js for rendering
+- pdf-lib for PDF modification
+- Canvas-based element rendering
+- Client-side only (no server uploads)
+- Supports PDFs up to 50MB
+- Touch-friendly for mobile/tablet
+
 ### Planned Tools
 
 - **Character Counter**: Track character limits for Twitter (280), LinkedIn (3000), meta descriptions (160)

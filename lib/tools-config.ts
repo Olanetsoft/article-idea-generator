@@ -24,6 +24,14 @@ export const tools: Tool[] = [
     available: true,
   },
   {
+    id: "pdf-signer",
+    nameKey: "tools.pdfSigner.name",
+    descriptionKey: "tools.pdfSigner.description",
+    href: "/tools/pdf-signer",
+    icon: "pencil",
+    available: true,
+  },
+  {
     id: "json-formatter",
     nameKey: "tools.jsonFormatter.name",
     descriptionKey: "tools.jsonFormatter.description",
