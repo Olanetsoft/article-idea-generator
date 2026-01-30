@@ -1190,42 +1190,42 @@ const PDFViewer = ({
   return (
     <div className="flex flex-col h-full">
       {/* Toolbar */}
-      <div className="flex items-center justify-between p-2 bg-gray-100 dark:bg-dark-border border-b border-gray-200 dark:border-dark-border">
-        <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between p-2 bg-gray-100 dark:bg-dark-border border-b border-gray-200 dark:border-dark-border flex-wrap gap-2">
+        <div className="flex items-center gap-1 sm:gap-2">
           <button
             onClick={() => onPageChange(Math.max(1, currentPage - 1))}
             disabled={currentPage <= 1}
-            className="p-2 hover:bg-gray-200 dark:hover:bg-dark-card rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="p-1.5 sm:p-2 hover:bg-gray-200 dark:hover:bg-dark-card rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            <ChevronLeftIcon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            <ChevronLeftIcon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600 dark:text-gray-400" />
           </button>
-          <span className="text-sm text-gray-600 dark:text-gray-400">
-            Page {currentPage} of {totalPages}
+          <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">
+            {currentPage}/{totalPages}
           </span>
           <button
             onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
             disabled={currentPage >= totalPages}
-            className="p-2 hover:bg-gray-200 dark:hover:bg-dark-card rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="p-1.5 sm:p-2 hover:bg-gray-200 dark:hover:bg-dark-card rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            <ChevronRightIcon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            <ChevronRightIcon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600 dark:text-gray-400" />
           </button>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 sm:gap-2">
           <button
             onClick={() => onZoomChange(Math.max(0.5, zoom - 0.25))}
-            className="p-2 hover:bg-gray-200 dark:hover:bg-dark-card rounded-lg transition-colors"
+            className="p-1.5 sm:p-2 hover:bg-gray-200 dark:hover:bg-dark-card rounded-lg transition-colors"
           >
-            <ZoomOutIcon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            <ZoomOutIcon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600 dark:text-gray-400" />
           </button>
-          <span className="text-sm text-gray-600 dark:text-gray-400 min-w-[60px] text-center">
+          <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 min-w-[45px] sm:min-w-[60px] text-center">
             {Math.round(zoom * 100)}%
           </span>
           <button
             onClick={() => onZoomChange(Math.min(2, zoom + 0.25))}
-            className="p-2 hover:bg-gray-200 dark:hover:bg-dark-card rounded-lg transition-colors"
+            className="p-1.5 sm:p-2 hover:bg-gray-200 dark:hover:bg-dark-card rounded-lg transition-colors"
           >
-            <ZoomInIcon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            <ZoomInIcon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600 dark:text-gray-400" />
           </button>
         </div>
       </div>
@@ -2565,16 +2565,20 @@ export default function PDFSigner() {
 
                   {/* Keyboard Shortcuts Hint */}
                   <div className="mt-4 pt-3 border-t border-gray-200 dark:border-dark-border">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">
                       <span className="font-medium">Shortcuts:</span> Del to
                       delete, Arrow keys to move, Esc to deselect
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 sm:hidden">
+                      <span className="font-medium">Tip:</span> Tap element to
+                      select, drag to move
                     </p>
                   </div>
                 </div>
               </div>
 
               {/* PDF Viewer */}
-              <div className="flex-1 bg-white dark:bg-dark-card rounded-2xl border border-gray-200 dark:border-dark-border overflow-hidden min-h-[600px]">
+              <div className="flex-1 bg-white dark:bg-dark-card rounded-2xl border border-gray-200 dark:border-dark-border overflow-hidden min-h-[400px] sm:min-h-[500px] lg:min-h-[600px]">
                 <PDFViewer
                   pdfUrl={pdfUrl}
                   currentPage={currentPage}
