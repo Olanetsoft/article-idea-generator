@@ -329,9 +329,9 @@ export default function BackgroundRemover() {
       const file = e.target.files?.[0];
       if (!file) return;
       // Validate file size
-      if (file.size > MAX_IMAGE_SIZE) {
+      if (file.size > MAX_FILE_SIZE) {
         toast.error(
-          `Background image too large. Max size is ${MAX_IMAGE_SIZE / 1024 / 1024}MB`,
+          `Background image too large. Max size is ${MAX_FILE_SIZE / 1024 / 1024}MB`,
         );
         return;
       }
