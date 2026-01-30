@@ -55,7 +55,7 @@ module.exports = {
   webpack: (config, { isServer }) => {
     // Ignore the import.meta warnings from @huggingface/transformers
     config.module.exprContextCritical = false;
-    
+
     // Ensure ONNX runtime works correctly
     if (!isServer) {
       config.resolve.fallback = {
@@ -65,7 +65,7 @@ module.exports = {
         crypto: false,
       };
     }
-    
+
     return config;
   },
   ...withPWA({
