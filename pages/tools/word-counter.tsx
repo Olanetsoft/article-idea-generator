@@ -334,13 +334,16 @@ export default function WordCounterPage(): JSX.Element {
                 priceCurrency: "USD",
               },
               featureList: [
-                "Word count",
-                "Character count",
-                "Sentence count",
-                "Paragraph count",
-                "Reading time estimate",
-                "Speaking time estimate",
-                "Keyword density analysis",
+                "Real-time word count",
+                "Character count (with and without spaces)",
+                "Sentence and paragraph count",
+                "Reading time estimate (200 wpm)",
+                "Speaking time estimate (150 wpm)",
+                "Top keyword analysis with frequency",
+                "Keyword density for SEO",
+                "Works offline - no server uploads",
+                "Privacy-focused (text never leaves your device)",
+                "Mobile-friendly responsive design",
               ],
             }),
           }}
@@ -390,7 +393,7 @@ export default function WordCounterPage(): JSX.Element {
                   name: "How does the word counter work?",
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "Simply paste or type your text into the input field. The tool instantly counts words, characters, sentences, and paragraphs in real-time as you type. No submission required.",
+                    text: "Simply paste or type your text into the input field. The tool instantly counts words, characters, sentences, and paragraphs in real-time as you type. No submission or button click required.",
                   },
                 },
                 {
@@ -398,7 +401,7 @@ export default function WordCounterPage(): JSX.Element {
                   name: "Is this word counter free to use?",
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "Yes, this word counter is completely free with no limits. Count as many words as you need without signing up or paying anything.",
+                    text: "Yes, this word counter is completely free with no limits. Count as many words as you need without signing up or paying anything. There are no premium features locked behind a paywall.",
                   },
                 },
                 {
@@ -406,7 +409,7 @@ export default function WordCounterPage(): JSX.Element {
                   name: "How is reading time calculated?",
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "Reading time is calculated based on an average reading speed of 200 words per minute. Speaking time uses 150 words per minute, which is typical for presentations.",
+                    text: "Reading time is calculated based on an average reading speed of 200 words per minute. Speaking time uses 150 words per minute, which is typical for presentations and speeches.",
                   },
                 },
                 {
@@ -414,8 +417,80 @@ export default function WordCounterPage(): JSX.Element {
                   name: "What are top keywords?",
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "Top keywords shows the most frequently used words in your text, excluding common words like 'the', 'and', 'is'. This helps identify keyword density for SEO optimization.",
+                    text: "Top keywords shows the most frequently used words in your text, excluding common words like 'the', 'and', 'is'. This helps identify keyword density for SEO optimization and content analysis.",
                   },
+                },
+                {
+                  "@type": "Question",
+                  name: "Does this count characters with or without spaces?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Both! The tool displays both character counts: total characters including spaces, and characters excluding spaces. This is useful for platforms with different character limits.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "Is my text private?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Absolutely. All text processing happens directly in your browser. Your text is never sent to any server, making it safe for sensitive documents, manuscripts, and confidential content.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "What is a good word count for blog posts?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "For SEO, long-form content (1,500-2,500+ words) often performs better in search rankings. However, the ideal length depends on your topic and audience. Our reading time estimate helps gauge article length.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "Can I use this for academic papers?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Yes! Students and academics use our tool to check word counts for essays, dissertations, and assignments. The paragraph count is especially useful for structured writing requirements.",
+                  },
+                },
+              ],
+            }),
+          }}
+        />
+
+        {/* HowTo Schema */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "HowTo",
+              name: "How to Count Words Online",
+              description:
+                "Learn how to count words, characters, and analyze your text using our free word counter tool.",
+              step: [
+                {
+                  "@type": "HowToStep",
+                  name: "Enter your text",
+                  text: "Type directly into the text area or paste content from any source. The tool processes text instantly as you type.",
+                  position: 1,
+                },
+                {
+                  "@type": "HowToStep",
+                  name: "View statistics",
+                  text: "See real-time counts for words, characters (with/without spaces), sentences, and paragraphs in the stats panel.",
+                  position: 2,
+                },
+                {
+                  "@type": "HowToStep",
+                  name: "Check reading time",
+                  text: "Review the estimated reading time (at 200 wpm) and speaking time (at 150 wpm) to gauge content length.",
+                  position: 3,
+                },
+                {
+                  "@type": "HowToStep",
+                  name: "Analyze keywords",
+                  text: "Scroll down to see your top keywords and their frequency, helping optimize content for SEO.",
+                  position: 4,
                 },
               ],
             }),
@@ -622,102 +697,66 @@ export default function WordCounterPage(): JSX.Element {
           <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-6">
             Frequently Asked Questions
           </h2>
-          <div className="space-y-4">
-            <details className="group bg-zinc-100 dark:bg-darkOffset rounded-lg border border-zinc-200 dark:border-dark-border">
-              <summary className="flex justify-between items-center cursor-pointer p-4 font-medium text-zinc-900 dark:text-white">
-                How does the word counter work?
-                <svg
-                  className="w-5 h-5 transition-transform group-open:rotate-180"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-              </summary>
-              <p className="px-4 pb-4 text-zinc-600 dark:text-zinc-400">
-                Simply paste or type your text into the input field. The tool
-                instantly counts words, characters, sentences, and paragraphs in
-                real-time as you type. No submission required.
-              </p>
-            </details>
-
-            <details className="group bg-zinc-100 dark:bg-darkOffset rounded-lg border border-zinc-200 dark:border-dark-border">
-              <summary className="flex justify-between items-center cursor-pointer p-4 font-medium text-zinc-900 dark:text-white">
-                Is this word counter free to use?
-                <svg
-                  className="w-5 h-5 transition-transform group-open:rotate-180"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-              </summary>
-              <p className="px-4 pb-4 text-zinc-600 dark:text-zinc-400">
-                Yes, this word counter is completely free with no limits. Count
-                as many words as you need without signing up or paying anything.
-              </p>
-            </details>
-
-            <details className="group bg-zinc-100 dark:bg-darkOffset rounded-lg border border-zinc-200 dark:border-dark-border">
-              <summary className="flex justify-between items-center cursor-pointer p-4 font-medium text-zinc-900 dark:text-white">
-                How is reading time calculated?
-                <svg
-                  className="w-5 h-5 transition-transform group-open:rotate-180"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-              </summary>
-              <p className="px-4 pb-4 text-zinc-600 dark:text-zinc-400">
-                Reading time is calculated based on an average reading speed of
-                200 words per minute. Speaking time uses 150 words per minute,
-                which is typical for presentations.
-              </p>
-            </details>
-
-            <details className="group bg-zinc-100 dark:bg-darkOffset rounded-lg border border-zinc-200 dark:border-dark-border">
-              <summary className="flex justify-between items-center cursor-pointer p-4 font-medium text-zinc-900 dark:text-white">
-                What are top keywords?
-                <svg
-                  className="w-5 h-5 transition-transform group-open:rotate-180"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-              </summary>
-              <p className="px-4 pb-4 text-zinc-600 dark:text-zinc-400">
-                Top keywords shows the most frequently used words in your text,
-                excluding common words like &quot;the&quot;, &quot;and&quot;,
-                &quot;is&quot;. This helps identify keyword density for SEO
-                optimization.
-              </p>
-            </details>
+          <div className="space-y-3 max-w-3xl">
+            {[
+              {
+                q: "How does the word counter work?",
+                a: "Simply paste or type your text into the input field. The tool instantly counts words, characters, sentences, and paragraphs in real-time as you type. No submission required.",
+              },
+              {
+                q: "Is this word counter free to use?",
+                a: "Yes, this word counter is completely free with no limits. Count as many words as you need without signing up or paying anything.",
+              },
+              {
+                q: "How is reading time calculated?",
+                a: "Reading time is calculated based on an average reading speed of 200 words per minute. Speaking time uses 150 words per minute, which is typical for presentations.",
+              },
+              {
+                q: "What are top keywords?",
+                a: 'Top keywords shows the most frequently used words in your text, excluding common words like "the", "and", "is". This helps identify keyword density for SEO optimization.',
+              },
+              {
+                q: "Does this count characters with or without spaces?",
+                a: "Both! The tool displays both character counts: total characters including spaces, and characters excluding spaces. This is useful for platforms with different character limits.",
+              },
+              {
+                q: "Is my text private?",
+                a: "Absolutely. All text processing happens directly in your browser. Your text is never sent to any server, making it safe for sensitive documents and confidential content.",
+              },
+              {
+                q: "What is a good word count for blog posts?",
+                a: "For SEO, long-form content (1,500-2,500+ words) often performs better in search rankings. However, the ideal length depends on your topic and audience.",
+              },
+              {
+                q: "Can I use this for academic papers?",
+                a: "Yes! Students and academics use our tool to check word counts for essays, dissertations, and assignments. The paragraph count is especially useful for structured writing requirements.",
+              },
+            ].map((faq, index) => (
+              <details
+                key={index}
+                className="group bg-zinc-100 dark:bg-darkOffset rounded-lg border border-zinc-200 dark:border-dark-border"
+              >
+                <summary className="flex justify-between items-center cursor-pointer p-4 font-medium text-zinc-900 dark:text-white">
+                  {faq.q}
+                  <svg
+                    className="w-5 h-5 transition-transform group-open:rotate-180 flex-shrink-0 ml-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </summary>
+                <p className="px-4 pb-4 text-zinc-600 dark:text-zinc-400">
+                  {faq.a}
+                </p>
+              </details>
+            ))}
           </div>
         </section>
 
