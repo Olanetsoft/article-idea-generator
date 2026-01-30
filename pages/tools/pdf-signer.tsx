@@ -1521,6 +1521,7 @@ export default function PDFSigner() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
+  const pdfUrlRef = useRef<string>(""); // Track current PDF URL for cleanup
 
   // Load saved data from localStorage on mount
   useEffect(() => {
@@ -1651,25 +1652,24 @@ export default function PDFSigner() {
         ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)
       ) {
         e.preventDefault();
+        const el = elements.find((el) => el.id === selectedElement);
+        if (!el) return; // Guard against element no longer existing
+
         const moveAmount = e.shiftKey ? 10 : 1;
         const updates: Partial<PlacedElement> = {};
 
         switch (e.key) {
           case "ArrowUp":
-            updates.y =
-              elements.find((el) => el.id === selectedElement)!.y - moveAmount;
+            updates.y = el.y - moveAmount;
             break;
           case "ArrowDown":
-            updates.y =
-              elements.find((el) => el.id === selectedElement)!.y + moveAmount;
+            updates.y = el.y + moveAmount;
             break;
           case "ArrowLeft":
-            updates.x =
-              elements.find((el) => el.id === selectedElement)!.x - moveAmount;
+            updates.x = el.x - moveAmount;
             break;
           case "ArrowRight":
-            updates.x =
-              elements.find((el) => el.id === selectedElement)!.x + moveAmount;
+            updates.x = el.x + moveAmount;
             break;
         }
 
@@ -1738,8 +1738,14 @@ export default function PDFSigner() {
       return;
     }
 
+    // Revoke previous blob URL to prevent memory leak
+    if (pdfUrlRef.current) {
+      URL.revokeObjectURL(pdfUrlRef.current);
+    }
+
     setPdfFile(file);
     const url = URL.createObjectURL(file);
+    pdfUrlRef.current = url; // Track for cleanup
     setPdfUrl(url);
     setCurrentPage(1);
     setElements([]);
@@ -2015,6 +2021,11 @@ export default function PDFSigner() {
 
   // Clear all
   const handleClear = () => {
+    // Revoke blob URL to prevent memory leak
+    if (pdfUrlRef.current) {
+      URL.revokeObjectURL(pdfUrlRef.current);
+      pdfUrlRef.current = "";
+    }
     setPdfFile(null);
     setPdfUrl("");
     setElements([]);
