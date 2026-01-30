@@ -11,7 +11,8 @@ export type ToolIcon =
   | "text"
   | "code"
   | "link"
-  | "photograph";
+  | "photograph"
+  | "pencil";
 
 export interface Tool {
   id: string;

@@ -54,9 +54,21 @@
     <loc>https://www.articleideagenerator.com/tools/url-shortener</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://www.articleideagenerator.com/tools/url-shortener"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://www.articleideagenerator.com/tools/url-shortener"/>
-    <lastmod>2026-01-29</lastmod>
+    <lastmod>2026-01-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.articleideagenerator.com/tools/pdf-signer</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.articleideagenerator.com/tools/pdf-signer"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.articleideagenerator.com/tools/pdf-signer"/>
+    <lastmod>2026-01-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://www.articleideagenerator.com/og-pdf-signer.png</image:loc>
+      <image:title>PDF Signer - Sign, Fill, and Annotate PDFs Online</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.articleideagenerator.com/tools/title-case</loc>
