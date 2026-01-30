@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@heroicons/react": "^1.0.6",
+    "@imgly/background-removal": "^1.7.0",
     "@next/font": "13.1.5",
     "@tailwindcss/line-clamp": "^0.4.2",
     "@types/node": "18.11.18",

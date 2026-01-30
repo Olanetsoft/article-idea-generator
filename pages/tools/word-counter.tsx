@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { Space_Grotesk } from "@next/font/google";
 import { Header, Footer } from "@/components";
+import { RelatedTools } from "@/components/tools";
 import { StatsPanel, type TextStats } from "@/components/tools";
 import { useTranslation } from "@/hooks/useTranslation";
 import { SITE_URL, SITE_NAME } from "@/lib/constants";
@@ -764,62 +765,11 @@ export default function WordCounterPage(): JSX.Element {
           </div>
         </section>
 
-        {/* Related Tools Section */}
-        <section className="w-full max-w-screen-lg mt-12">
-          <h2
-            className={`text-2xl font-bold text-zinc-900 dark:text-white mb-6 ${spaceGrotesk.className}`}
-          >
-            Related Writing Tools
-          </h2>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <Link
-              href="/tools"
-              className="p-4 bg-zinc-100 dark:bg-darkOffset rounded-lg border border-zinc-200 dark:border-dark-border hover:border-violet-500 dark:hover:border-violet-500 transition-colors"
-            >
-              <h3 className="font-semibold text-zinc-900 dark:text-white mb-1">
-                Character Counter
-              </h3>
-              <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                Track character limits for Twitter, LinkedIn, and meta
-                descriptions.
-              </p>
-              <span className="text-xs text-violet-600 dark:text-violet-400 mt-2 inline-block">
-                Coming Soon
-              </span>
-            </Link>
-
-            <Link
-              href="/tools"
-              className="p-4 bg-zinc-100 dark:bg-darkOffset rounded-lg border border-zinc-200 dark:border-dark-border hover:border-violet-500 dark:hover:border-violet-500 transition-colors"
-            >
-              <h3 className="font-semibold text-zinc-900 dark:text-white mb-1">
-                Reading Time Calculator
-              </h3>
-              <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                Get &quot;X min read&quot; badges for your blog posts and
-                articles.
-              </p>
-              <span className="text-xs text-violet-600 dark:text-violet-400 mt-2 inline-block">
-                Coming Soon
-              </span>
-            </Link>
-
-            <Link
-              href="/tools"
-              className="p-4 bg-zinc-100 dark:bg-darkOffset rounded-lg border border-zinc-200 dark:border-dark-border hover:border-violet-500 dark:hover:border-violet-500 transition-colors"
-            >
-              <h3 className="font-semibold text-zinc-900 dark:text-white mb-1">
-                Headline Analyzer
-              </h3>
-              <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                Analyze headlines for SEO and emotional impact.
-              </p>
-              <span className="text-xs text-violet-600 dark:text-violet-400 mt-2 inline-block">
-                Coming Soon
-              </span>
-            </Link>
-          </div>
-        </section>
+        {/* Related Tools */}
+        <RelatedTools
+          currentToolId="word-counter"
+          title="Related Writing Tools"
+        />
       </main>
 
       <Footer />

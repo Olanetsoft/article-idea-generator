@@ -184,6 +184,34 @@ The most feature-rich free cover image generator for blog posts and social media
 
 Perfect for bloggers, developers, content creators, and marketers who need professional cover images without design skills.
 
+### Background Remover
+URL: https://articleideagenerator.com/tools/background-remover
+
+Free AI-powered background remover that works entirely in your browser:
+
+**AI Background Removal**:
+- One-click automatic background removal
+- U²-Net model for high-quality edge detection
+- Handles complex edges (hair, fur, transparent objects)
+- Works with people, products, objects, and more
+
+**Background Options**:
+- Transparent PNG export
+- Solid color backgrounds (preset colors + custom picker)
+- Custom background image upload
+- Blur original background with adjustable intensity
+
+**Key Features**:
+- 100% private: All processing happens in browser using AI
+- No file uploads to servers ever
+- Supports PNG, JPG, WebP up to 20MB
+- Before/after comparison slider
+- Recent colors saved locally
+- Download as PNG or JPG
+- No watermarks or signup required
+
+Perfect for e-commerce product photos, profile pictures, marketing materials, and creative projects requiring transparent backgrounds.
+
 ### Coming Soon
 - Character Counter - Track limits for Twitter, LinkedIn, meta descriptions
 - Reading Time Calculator - Generate "X min read" badges

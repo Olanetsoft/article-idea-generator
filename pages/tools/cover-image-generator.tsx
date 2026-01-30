@@ -11,6 +11,7 @@ import { Space_Grotesk } from "@next/font/google";
 import { motion, AnimatePresence } from "framer-motion";
 import { Toaster } from "react-hot-toast";
 import { Header, Footer } from "@/components";
+import { RelatedTools } from "@/components/tools";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useCoverImage } from "@/hooks/useCoverImage";
 import { SITE_URL, SITE_NAME } from "@/lib/constants";
@@ -1603,6 +1604,9 @@ export default function CoverImageGeneratorPage(): JSX.Element {
               ))}
             </div>
           </motion.section>
+
+          {/* Related Tools */}
+          <RelatedTools currentToolId="cover-image-generator" />
         </div>
       </main>
 
