@@ -301,9 +301,12 @@ export default function BackgroundRemover() {
       const blob = await compositeImage();
       if (!blob) return;
       const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
+      const url = URL.createObjectURL(blob);
+      a.href = url;
       a.download = `background-removed.${format}`;
       a.click();
+      // Revoke object URL after a short delay to prevent memory leak
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
       trackToolUsage("background-remover", `download-${format}`);
       toast.success(`Downloaded as ${format.toUpperCase()}`);
     },
@@ -325,6 +328,13 @@ export default function BackgroundRemover() {
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (!file) return;
+      // Validate file size
+      if (file.size > MAX_IMAGE_SIZE) {
+        toast.error(
+          `Background image too large. Max size is ${MAX_IMAGE_SIZE / 1024 / 1024}MB`,
+        );
+        return;
+      }
       const reader = new FileReader();
       reader.onload = (e) => {
         setBackgroundImage(e.target?.result as string);
@@ -488,7 +498,7 @@ export default function BackgroundRemover() {
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-full">
             <ShieldCheckIcon className="w-4 h-4 text-green-600 dark:text-green-400" />
             <span className="text-sm font-medium text-green-700 dark:text-green-300">
-              100% Private — Images never leave your device
+              {t("tools.backgroundRemover.privacyBadge")}
             </span>
           </div>
         </motion.div>
