@@ -75,7 +75,7 @@ export interface CoverSettings {
   borderRadius: number;
 }
 
-export type TabId = "content" | "style" | "layout" | "export";
+export type TabId = "content" | "style" | "layout" | "editor" | "export";
 
 // Storage key for localStorage
 export const STORAGE_KEY = "cover-image-generator-settings";

@@ -3,7 +3,7 @@
 // Refactored with DRY principles and clean code architecture
 // ============================================================================
 
-import { useRef } from "react";
+import { useRef, useState, useCallback } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -27,6 +27,8 @@ import {
   SaveIcon,
   SparklesIcon,
   CollectionIcon,
+  PencilIcon,
+  ReplyIcon,
 } from "@heroicons/react/outline";
 
 // Import constants and utilities
@@ -60,7 +62,16 @@ import {
   CardButton,
   LoadingSpinner,
   FeatureCard,
+  ElementToolbar,
+  BackgroundControls,
 } from "@/components/cover-image";
+
+// Import advanced editor types
+import type {
+  BackgroundSettings,
+  ShapeElement,
+} from "@/lib/cover-image/editor-types";
+import { DEFAULT_IMAGE_FILTERS } from "@/lib/cover-image/editor-types";
 
 // ============================================================================
 // Constants
@@ -95,6 +106,11 @@ const TABS: { id: TabId; labelKey: string; icon: JSX.Element }[] = [
     id: "layout",
     labelKey: "tools.coverImage.tabLayout",
     icon: <TemplateIcon className="w-4 h-4" />,
+  },
+  {
+    id: "editor",
+    labelKey: "tools.coverImage.tabEditor",
+    icon: <PencilIcon className="w-4 h-4" />,
   },
   {
     id: "export",
@@ -449,7 +465,9 @@ function LayoutTab({ hook, t }: TabContentProps): JSX.Element {
         <ToggleButtonGroup
           options={["left", "center", "right"]}
           value={settings.textAlign}
-          onChange={(val) => updateSetting("textAlign", val as "left" | "center" | "right")}
+          onChange={(val) =>
+            updateSetting("textAlign", val as "left" | "center" | "right")
+          }
         />
       </div>
 
@@ -472,6 +490,125 @@ function LayoutTab({ hook, t }: TabContentProps): JSX.Element {
         max={50}
         unit="px"
       />
+    </>
+  );
+}
+
+// Extended tab props for advanced editor features
+interface EditorTabProps extends TabContentProps {
+  backgroundSettings: BackgroundSettings;
+  onBackgroundChange: (settings: BackgroundSettings) => void;
+  onAddText: () => void;
+  onAddShape: (type: ShapeElement["shapeType"]) => void;
+  onAddBadge: (text: string, bgColor: string, textColor: string) => void;
+  onAddEmoji: (emoji: string) => void;
+  onAddImage: (src: string) => void;
+  canUndo: boolean;
+  canRedo: boolean;
+  onUndo: () => void;
+  onRedo: () => void;
+}
+
+function EditorTab({
+  hook,
+  t,
+  backgroundSettings,
+  onBackgroundChange,
+  onAddText,
+  onAddShape,
+  onAddBadge,
+  onAddEmoji,
+  onAddImage,
+  canUndo,
+  canRedo,
+  onUndo,
+  onRedo,
+}: EditorTabProps): JSX.Element {
+  return (
+    <>
+      {/* Advanced Mode Info Banner */}
+      <div className="p-4 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 rounded-xl mb-4">
+        <div className="flex items-start gap-3">
+          <div className="p-2 bg-amber-500/20 rounded-lg">
+            <SparklesIcon className="w-5 h-5 text-amber-500" />
+          </div>
+          <div>
+            <h4 className="font-semibold text-gray-900 dark:text-white text-sm flex items-center gap-2">
+              Advanced Editor Mode
+              <span className="text-[10px] px-2 py-0.5 bg-amber-500/20 text-amber-700 dark:text-amber-400 rounded-full font-medium">
+                BETA
+              </span>
+            </h4>
+            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+              <strong className="text-amber-600 dark:text-amber-400">
+                Background Image & Filters
+              </strong>{" "}
+              are fully functional below. Element tools (shapes, badges, emojis)
+              are coming soon with full drag & drop support.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Advanced Editor Section */}
+      <div className="space-y-4">
+        {/* Background Image Controls - This works! */}
+        <div>
+          <FormLabel>Background Image</FormLabel>
+          <BackgroundControls
+            settings={backgroundSettings}
+            onChange={onBackgroundChange}
+          />
+        </div>
+
+        {/* Element Toolbar - Coming Soon */}
+        <div className="opacity-50 pointer-events-none">
+          <div className="flex items-center justify-between mb-1">
+            <FormLabel>Add Elements</FormLabel>
+            <span className="text-[10px] px-2 py-0.5 bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-full">
+              Coming Soon
+            </span>
+          </div>
+          <ElementToolbar
+            onAddText={onAddText}
+            onAddShape={onAddShape}
+            onAddBadge={onAddBadge}
+            onAddEmoji={onAddEmoji}
+            onAddImage={onAddImage}
+            disabled
+          />
+        </div>
+
+        {/* Undo/Redo Controls - Coming Soon */}
+        <div className="opacity-50 pointer-events-none">
+          <div className="flex items-center justify-between mb-1">
+            <FormLabel>History</FormLabel>
+            <span className="text-[10px] px-2 py-0.5 bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-full">
+              Coming Soon
+            </span>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              onClick={onUndo}
+              disabled={true}
+              variant="secondary"
+              className="flex-1"
+              icon={<ReplyIcon className="w-4 h-4" />}
+            >
+              Undo
+            </Button>
+            <Button
+              onClick={onRedo}
+              disabled={true}
+              variant="secondary"
+              className="flex-1"
+              icon={<ReplyIcon className="w-4 h-4 transform scale-x-[-1]" />}
+            >
+              Redo
+            </Button>
+          </div>
+        </div>
+      </div>
     </>
   );
 }
@@ -649,16 +786,40 @@ function ExportTab({ hook, t }: TabContentProps): JSX.Element {
 interface PreviewProps {
   hook: ReturnType<typeof useCoverImage>;
   t: (key: string) => string;
+  backgroundSettings?: BackgroundSettings;
 }
 
-function Preview({ hook, t }: PreviewProps): JSX.Element {
+function Preview({ hook, t, backgroundSettings }: PreviewProps): JSX.Element {
   const { settings, currentSize, currentFont } = hook;
   const previewRef = useRef<HTMLDivElement>(null);
 
-  const previewStyle = {
-    background: getGradientCSS(settings),
-    aspectRatio: `${currentSize.width}/${currentSize.height}`,
-    borderRadius: settings.borderRadius,
+  // Use background image if set, otherwise use gradient
+  const hasBackgroundImage =
+    backgroundSettings?.type === "image" && backgroundSettings?.image;
+
+  const previewStyle = hasBackgroundImage
+    ? {
+        aspectRatio: `${currentSize.width}/${currentSize.height}`,
+        borderRadius: settings.borderRadius,
+      }
+    : {
+        background: getGradientCSS(settings),
+        aspectRatio: `${currentSize.width}/${currentSize.height}`,
+        borderRadius: settings.borderRadius,
+      };
+
+  // Build CSS filter string for background image
+  const getImageFilterStyle = () => {
+    if (!backgroundSettings?.imageFilters) return {};
+    const { brightness, contrast, saturation, blur, grayscale } =
+      backgroundSettings.imageFilters;
+    const filters = [];
+    if (brightness !== 100) filters.push(`brightness(${brightness / 100})`);
+    if (contrast !== 100) filters.push(`contrast(${contrast / 100})`);
+    if (saturation !== 100) filters.push(`saturate(${saturation / 100})`);
+    if (blur > 0) filters.push(`blur(${blur / 10}px)`);
+    if (grayscale > 0) filters.push(`grayscale(${grayscale}%)`);
+    return filters.length > 0 ? { filter: filters.join(" ") } : {};
   };
 
   const patternStyle =
@@ -724,6 +885,37 @@ function Preview({ hook, t }: PreviewProps): JSX.Element {
           className="relative w-full overflow-hidden shadow-xl transition-all"
           style={previewStyle}
         >
+          {/* Background Image Layer */}
+          {hasBackgroundImage && (
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={backgroundSettings.image!}
+                alt=""
+                className="absolute inset-0 w-full h-full object-cover"
+                style={getImageFilterStyle()}
+              />
+              {/* Color overlay for background image */}
+              {backgroundSettings.overlay?.enabled && (
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    backgroundColor: backgroundSettings.overlay.color,
+                    opacity: backgroundSettings.overlay.opacity,
+                  }}
+                />
+              )}
+            </>
+          )}
+
+          {/* Gradient background fallback (shows when no image) */}
+          {!hasBackgroundImage && (
+            <div
+              className="absolute inset-0"
+              style={{ background: getGradientCSS(settings) }}
+            />
+          )}
+
           {/* Pattern Overlay */}
           {settings.pattern !== "none" && (
             <div
@@ -747,6 +939,7 @@ function Preview({ hook, t }: PreviewProps): JSX.Element {
               }}
             >
               {settings.customLogo ? (
+                // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={settings.customLogo}
                   alt="Logo"
@@ -899,7 +1092,56 @@ export default function CoverImageGeneratorPage(): JSX.Element {
     setShowTemplates,
     applyTemplate,
     handleRandomize,
+    settings,
   } = hook;
+
+  // Advanced editor state
+  const [backgroundSettings, setBackgroundSettings] =
+    useState<BackgroundSettings>({
+      type: "gradient",
+      image: null,
+      imageFilters: DEFAULT_IMAGE_FILTERS,
+      overlay: {
+        enabled: false,
+        color: "#000000",
+        opacity: 0.3,
+      },
+    });
+
+  const [canUndo, setCanUndo] = useState(false);
+  const [canRedo, setCanRedo] = useState(false);
+
+  // Element handlers (placeholder - will connect to canvas editor)
+  const handleAddText = useCallback(() => {
+    console.log("Add text element");
+  }, []);
+
+  const handleAddShape = useCallback((type: ShapeElement["shapeType"]) => {
+    console.log("Add shape:", type);
+  }, []);
+
+  const handleAddBadge = useCallback(
+    (text: string, bgColor: string, textColor: string) => {
+      console.log("Add badge:", text, bgColor, textColor);
+    },
+    [],
+  );
+
+  const handleAddEmoji = useCallback((emoji: string) => {
+    console.log("Add emoji:", emoji);
+  }, []);
+
+  const handleAddImage = useCallback((src: string) => {
+    console.log("Add image:", src);
+  }, []);
+
+  const handleUndo = useCallback(() => {
+    console.log("Undo");
+  }, []);
+
+  const handleRedo = useCallback(() => {
+    console.log("Redo");
+  }, []);
 
   // SEO configuration
   const { locale: currentLocale, locales, defaultLocale } = router;
@@ -919,6 +1161,23 @@ export default function CoverImageGeneratorPage(): JSX.Element {
         return <StyleTab {...props} />;
       case "layout":
         return <LayoutTab {...props} />;
+      case "editor":
+        return (
+          <EditorTab
+            {...props}
+            backgroundSettings={backgroundSettings}
+            onBackgroundChange={setBackgroundSettings}
+            onAddText={handleAddText}
+            onAddShape={handleAddShape}
+            onAddBadge={handleAddBadge}
+            onAddEmoji={handleAddEmoji}
+            onAddImage={handleAddImage}
+            canUndo={canUndo}
+            canRedo={canRedo}
+            onUndo={handleUndo}
+            onRedo={handleRedo}
+          />
+        );
       case "export":
         return <ExportTab {...props} />;
       default:
@@ -1116,7 +1375,11 @@ export default function CoverImageGeneratorPage(): JSX.Element {
             </motion.div>
 
             {/* Right Panel - Preview */}
-            <Preview hook={hook} t={t} />
+            <Preview
+              hook={hook}
+              t={t}
+              backgroundSettings={backgroundSettings}
+            />
           </div>
 
           {/* Features Section */}
