@@ -820,6 +820,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
       // Clear the query param from URL without reload
       router.replace("/tools/qr-code-generator", undefined, { shallow: true });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.query]);
 
   // Close dropdown when clicking outside

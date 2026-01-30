@@ -18,3 +18,7 @@ export {
   LoadingSpinner,
   FeatureCard,
 } from "./FormComponents";
+
+// Advanced Editor Components
+export { ElementToolbar } from "./ElementToolbar";
+export { BackgroundControls } from "./BackgroundControls";
