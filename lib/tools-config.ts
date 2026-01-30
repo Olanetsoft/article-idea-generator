@@ -32,6 +32,14 @@ export const tools: Tool[] = [
     available: true,
   },
   {
+    id: "background-remover",
+    nameKey: "tools.backgroundRemover.name",
+    descriptionKey: "tools.backgroundRemover.description",
+    href: "/tools/background-remover",
+    icon: "scissors",
+    available: true,
+  },
+  {
     id: "json-formatter",
     nameKey: "tools.jsonFormatter.name",
     descriptionKey: "tools.jsonFormatter.description",
