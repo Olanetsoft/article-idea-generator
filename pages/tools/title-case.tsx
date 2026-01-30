@@ -450,6 +450,78 @@ export default function TitleCasePage(): JSX.Element {
                     text: "Yes, this title case converter is 100% free with no signup required. All conversions happen in your browser - your text never leaves your device.",
                   },
                 },
+                {
+                  "@type": "Question",
+                  name: "What is the difference between AP, Chicago, and APA title case?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "AP Style capitalizes words with 4+ letters. Chicago Style capitalizes words with 5+ letters and follows more traditional rules. APA Style is similar to Chicago but has specific rules for scientific writing.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "What is CONSTANT_CASE used for?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "CONSTANT_CASE (all uppercase with underscores) is used for constants and environment variables in most programming languages. For example: MAX_SIZE, API_KEY, DATABASE_URL.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "Can this tool detect what case my text is already in?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Yes! The tool automatically detects the current case of your input text (camelCase, snake_case, Title Case, etc.) and displays it above the input field.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "What is sentence case vs title case?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Sentence case capitalizes only the first word and proper nouns (like a normal sentence). Title case capitalizes most words except small words like 'and', 'the', 'of'.",
+                  },
+                },
+              ],
+            }),
+          }}
+        />
+
+        {/* HowTo Schema */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "HowTo",
+              name: "How to Convert Text Case Online",
+              description:
+                "Learn how to convert text between different cases like title case, camelCase, snake_case, and more.",
+              step: [
+                {
+                  "@type": "HowToStep",
+                  name: "Enter your text",
+                  text: "Type or paste your text into the input field. The tool will automatically detect the current case.",
+                  position: 1,
+                },
+                {
+                  "@type": "HowToStep",
+                  name: "Choose a case style",
+                  text: "Click on any of the 16 case conversion buttons: Title Case, UPPERCASE, lowercase, camelCase, PascalCase, snake_case, kebab-case, and more.",
+                  position: 2,
+                },
+                {
+                  "@type": "HowToStep",
+                  name: "View the result",
+                  text: "The converted text appears instantly in the output area. Review the transformation to ensure it meets your needs.",
+                  position: 3,
+                },
+                {
+                  "@type": "HowToStep",
+                  name: "Copy the result",
+                  text: "Click the copy button to copy the converted text to your clipboard. Use it in your documents, code, or wherever needed.",
+                  position: 4,
+                },
               ],
             }),
           }}
@@ -703,6 +775,76 @@ export default function TitleCasePage(): JSX.Element {
                 <li>• 100% private - runs locally</li>
               </ul>
             </div>
+          </div>
+        </section>
+
+        {/* FAQ Section */}
+        <section className="w-full">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
+            Frequently Asked Questions
+          </h2>
+          <div className="space-y-3 max-w-3xl mx-auto">
+            {[
+              {
+                q: "What is title case?",
+                a: "Title case capitalizes major words while keeping minor words (articles, conjunctions, short prepositions) lowercase. AP, Chicago, and APA styles have different rules for which words to capitalize.",
+              },
+              {
+                q: "What is the difference between camelCase and PascalCase?",
+                a: "camelCase starts with a lowercase letter (myVariable), while PascalCase starts with an uppercase letter (MyClass). camelCase is used for variables/functions, PascalCase for classes/types.",
+              },
+              {
+                q: "When should I use snake_case vs kebab-case?",
+                a: "snake_case uses underscores and is common in Python, Ruby, and databases. kebab-case uses hyphens and is used for URLs, CSS classes, and file names.",
+              },
+              {
+                q: "Is this tool free?",
+                a: "Yes, this title case converter is 100% free with no signup required. All conversions happen in your browser - your text never leaves your device.",
+              },
+              {
+                q: "What is the difference between AP, Chicago, and APA title case?",
+                a: "AP Style capitalizes words with 4+ letters. Chicago Style capitalizes words with 5+ letters. APA Style is similar to Chicago but has specific rules for scientific writing.",
+              },
+              {
+                q: "What is CONSTANT_CASE used for?",
+                a: "CONSTANT_CASE (all uppercase with underscores) is used for constants and environment variables. For example: MAX_SIZE, API_KEY, DATABASE_URL.",
+              },
+              {
+                q: "Can this tool detect what case my text is already in?",
+                a: "Yes! The tool automatically detects the current case of your input text and displays it above the input field.",
+              },
+              {
+                q: "What is sentence case vs title case?",
+                a: "Sentence case capitalizes only the first word and proper nouns. Title case capitalizes most words except small words like 'and', 'the', 'of'.",
+              },
+            ].map((faq, index) => (
+              <details
+                key={index}
+                className="group bg-white dark:bg-dark-card rounded-xl border border-gray-200 dark:border-dark-border overflow-hidden"
+              >
+                <summary className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-dark-border/50 transition-colors">
+                  <span className="font-medium text-gray-900 dark:text-white pr-4">
+                    {faq.q}
+                  </span>
+                  <svg
+                    className="w-5 h-5 text-gray-500 transform group-open:rotate-180 transition-transform flex-shrink-0"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </summary>
+                <div className="px-4 pb-4 text-gray-600 dark:text-gray-300">
+                  {faq.a}
+                </div>
+              </details>
+            ))}
           </div>
         </section>
 

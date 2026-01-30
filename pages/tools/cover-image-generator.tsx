@@ -1244,14 +1244,135 @@ export default function CoverImageGeneratorPage(): JSX.Element {
               offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
               featureList: [
                 "24+ gradient presets",
-                "Custom color picker",
-                "12 pattern overlays",
-                "8 theme layouts",
-                "30+ dev icons",
-                "Custom logo upload",
+                "Custom color picker with hex input",
+                "12 pattern overlays (dots, grid, waves, etc.)",
+                "8 theme layouts for different styles",
+                "30+ dev icons (React, Node, Python, etc.)",
+                "Custom logo upload support",
                 "Download all 15 sizes at once",
-                "Save settings locally",
+                "Save settings locally for reuse",
                 "8 quick-start templates",
+                "Background image upload with filters",
+                "Advanced editor with Fabric.js",
+                "Add text, shapes, badges, emojis",
+                "Undo/redo support",
+              ],
+            }),
+          }}
+        />
+
+        {/* FAQ Schema */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              mainEntity: [
+                {
+                  "@type": "Question",
+                  name: "Is this cover image generator free?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Yes, this cover image generator is completely free with no limits. Create unlimited cover images for your blog posts, articles, and social media without signing up or paying anything.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "What sizes can I download?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "You can download all 15 standard sizes at once, including Twitter card (1200×628), LinkedIn post (1200×627), Dev.to cover (1000×420), Medium (1500×750), Hashnode (1600×840), Facebook (1200×630), Instagram (1080×1080), YouTube thumbnail (1280×720), and more.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "Can I upload my own logo?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Yes, you can upload your own custom logo (PNG, JPG, SVG up to 5MB) or choose from 30+ built-in dev icons including React, Node.js, Python, TypeScript, Go, and many more.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "Can I upload a background image?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Yes! In the Editor tab, you can upload custom background images. Apply filters like blur, brightness, contrast, saturation, and opacity adjustments to create the perfect backdrop for your cover.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "What is the Editor tab?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "The Editor tab provides an advanced canvas editor powered by Fabric.js. You can add multiple text layers, shapes (rectangles, circles, triangles), badges, emojis, and images. All elements can be moved, resized, rotated, and customized.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "Are my images saved?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Your design settings can be saved locally in your browser using the 'Save Settings' button. The actual images are generated client-side and never uploaded to any server. Everything stays private on your device.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "What platforms is this optimized for?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Our cover image generator is optimized for all major platforms including Dev.to, Hashnode, Medium, Twitter/X, LinkedIn, Facebook, Instagram, YouTube, Pinterest, and more. Each platform's recommended dimensions are included in the download pack.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "Can I use templates?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Yes, we provide 8 quick-start templates with pre-designed styles. Click any template to instantly apply its gradient, pattern, theme layout, and typography settings. You can then customize it further to match your brand.",
+                  },
+                },
+              ],
+            }),
+          }}
+        />
+
+        {/* HowTo Schema */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "HowTo",
+              name: "How to Create a Blog Cover Image",
+              description:
+                "Learn how to create professional cover images for your blog posts and social media using our free generator.",
+              step: [
+                {
+                  "@type": "HowToStep",
+                  name: "Enter your content",
+                  text: "Add your article title, optional subtitle, and author name in the Content tab. Choose a dev icon or upload your custom logo.",
+                  position: 1,
+                },
+                {
+                  "@type": "HowToStep",
+                  name: "Customize the style",
+                  text: "Select a gradient preset or custom colors, add a pattern overlay, choose text colors, and adjust fonts and alignment in the Style tab.",
+                  position: 2,
+                },
+                {
+                  "@type": "HowToStep",
+                  name: "Choose layout and size",
+                  text: "Pick from 8 theme layouts, adjust padding and border radius, and select your desired output size in the Layout tab.",
+                  position: 3,
+                },
+                {
+                  "@type": "HowToStep",
+                  name: "Download your images",
+                  text: "Preview your cover image, then click 'Download' for the current size or 'Download All Sizes' to get all 15 platform-optimized versions at once.",
+                  position: 4,
+                },
               ],
             }),
           }}
@@ -1403,6 +1524,81 @@ export default function CoverImageGeneratorPage(): JSX.Element {
               ))}
             </div>
           </motion.div>
+
+          {/* FAQ Section */}
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            className="mt-12 sm:mt-16"
+          >
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
+              Frequently Asked Questions
+            </h2>
+            <div className="space-y-3 max-w-3xl mx-auto">
+              {[
+                {
+                  q: "Is this cover image generator free?",
+                  a: "Yes, this cover image generator is completely free with no limits. Create unlimited cover images for your blog posts, articles, and social media without signing up or paying anything.",
+                },
+                {
+                  q: "What sizes can I download?",
+                  a: "You can download all 15 standard sizes at once, including Twitter card (1200×628), LinkedIn post (1200×627), Dev.to cover (1000×420), Medium (1500×750), Hashnode (1600×840), and more.",
+                },
+                {
+                  q: "Can I upload my own logo?",
+                  a: "Yes, you can upload your own custom logo (PNG, JPG, SVG up to 5MB) or choose from 30+ built-in dev icons including React, Node.js, Python, TypeScript, and more.",
+                },
+                {
+                  q: "Can I upload a background image?",
+                  a: "Yes! In the Editor tab, you can upload custom background images and apply filters like blur, brightness, contrast, and saturation adjustments.",
+                },
+                {
+                  q: "What is the Editor tab?",
+                  a: "The Editor tab provides an advanced canvas editor where you can add text layers, shapes (rectangles, circles, triangles), badges, emojis, and images. All elements can be moved, resized, and rotated.",
+                },
+                {
+                  q: "Are my images saved?",
+                  a: "Your design settings can be saved locally in your browser. The actual images are generated client-side and never uploaded to any server - everything stays private on your device.",
+                },
+                {
+                  q: "What platforms is this optimized for?",
+                  a: "Our cover image generator is optimized for Dev.to, Hashnode, Medium, Twitter/X, LinkedIn, Facebook, Instagram, YouTube, Pinterest, and more.",
+                },
+                {
+                  q: "Can I use templates?",
+                  a: "Yes, we provide 8 quick-start templates with pre-designed styles. Click any template to instantly apply its gradient, pattern, theme, and typography settings.",
+                },
+              ].map((faq, index) => (
+                <details
+                  key={index}
+                  className="group bg-white dark:bg-dark-card rounded-xl border border-gray-200 dark:border-dark-border overflow-hidden"
+                >
+                  <summary className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-dark-border/50 transition-colors">
+                    <span className="font-medium text-gray-900 dark:text-white pr-4">
+                      {faq.q}
+                    </span>
+                    <svg
+                      className="w-5 h-5 text-gray-500 transform group-open:rotate-180 transition-transform flex-shrink-0"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </summary>
+                  <div className="px-4 pb-4 text-gray-600 dark:text-gray-300">
+                    {faq.a}
+                  </div>
+                </details>
+              ))}
+            </div>
+          </motion.section>
         </div>
       </main>
 

@@ -424,13 +424,135 @@ export default function JsonFormatterPage(): JSX.Element {
                 priceCurrency: "USD",
               },
               featureList: [
-                "JSON formatting and beautification",
-                "JSON minification",
-                "JSON validation with error highlighting",
-                "Multiple indentation options",
-                "Copy to clipboard",
-                "Download formatted JSON",
-                "File upload support",
+                "JSON formatting and beautification with syntax highlighting",
+                "JSON minification for smaller file sizes",
+                "Real-time JSON validation with error highlighting",
+                "Multiple indentation options (2, 4, 8 spaces, tabs)",
+                "One-click copy to clipboard",
+                "Download formatted or minified JSON files",
+                "Drag-and-drop file upload support",
+                "Sample JSON templates for testing",
+                "JSON statistics (keys, values, depth, size)",
+                "Works offline - no server uploads",
+                "Dark mode support",
+                "Mobile-friendly responsive design",
+              ],
+            }),
+          }}
+        />
+
+        {/* FAQ Schema */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              mainEntity: [
+                {
+                  "@type": "Question",
+                  name: "What is JSON and why do I need to format it?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "JSON (JavaScript Object Notation) is a lightweight data format used for storing and exchanging data between servers and web applications. Formatting JSON makes it human-readable by adding proper indentation and line breaks, which is essential for debugging, reviewing API responses, and understanding data structures.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "Is this JSON formatter free to use?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Yes, this JSON formatter is completely free with no limits. Format, validate, and minify as much JSON as you need without signing up or paying anything. There are no premium features locked behind a paywall.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "Is my JSON data secure?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Absolutely. All JSON processing happens directly in your browser - your data never leaves your device or gets uploaded to any server. This makes it safe for formatting sensitive configuration files, API keys, or private data.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "What is the difference between formatting and minifying JSON?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Formatting (beautifying) JSON adds indentation and line breaks to make it readable. Minifying removes all unnecessary whitespace to reduce file size, which is useful for production environments where smaller payloads improve performance.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "How does JSON validation work?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "The validator checks your JSON against the official JSON specification. It detects syntax errors like missing commas, unquoted keys, trailing commas, mismatched brackets, and invalid values. Error messages show the exact line and position of problems.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "Can I upload JSON files directly?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Yes, you can drag and drop JSON files or click to browse and upload. The tool accepts .json files and will automatically process them for formatting, validation, or minification.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "What indentation options are available?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "You can choose from 2 spaces, 4 spaces, 8 spaces, or tabs for indentation. 2-space indentation is common for web development, while 4 spaces is the default for many languages and editors.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "Does this work offline?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Yes, once the page loads, you can format JSON without an internet connection. All processing is done client-side in your browser using JavaScript.",
+                  },
+                },
+              ],
+            }),
+          }}
+        />
+
+        {/* HowTo Schema */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "HowTo",
+              name: "How to Format JSON Online",
+              description:
+                "Learn how to format, validate, and beautify JSON data using our free online tool.",
+              step: [
+                {
+                  "@type": "HowToStep",
+                  name: "Enter or upload JSON",
+                  text: "Paste your JSON data into the input field, or drag and drop a .json file. You can also try our sample JSON templates.",
+                  position: 1,
+                },
+                {
+                  "@type": "HowToStep",
+                  name: "Choose formatting options",
+                  text: "Select your preferred indentation (2, 4, or 8 spaces, or tabs). The tool will automatically validate your JSON as you type.",
+                  position: 2,
+                },
+                {
+                  "@type": "HowToStep",
+                  name: "Format or minify",
+                  text: "Click 'Format' to beautify your JSON with proper indentation, or 'Minify' to compress it by removing all whitespace.",
+                  position: 3,
+                },
+                {
+                  "@type": "HowToStep",
+                  name: "Copy or download",
+                  text: "Copy the formatted JSON to your clipboard with one click, or download it as a .json file for use in your projects.",
+                  position: 4,
+                },
               ],
             }),
           }}
@@ -782,6 +904,81 @@ export default function JsonFormatterPage(): JSX.Element {
               ))}
             </div>
           </motion.div>
+
+          {/* FAQ Section */}
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            className="mt-12 sm:mt-16"
+          >
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
+              Frequently Asked Questions
+            </h2>
+            <div className="space-y-3 max-w-3xl mx-auto">
+              {[
+                {
+                  q: "What is JSON and why do I need to format it?",
+                  a: "JSON (JavaScript Object Notation) is a lightweight data format used for storing and exchanging data between servers and web applications. Formatting JSON makes it human-readable by adding proper indentation and line breaks, which is essential for debugging, reviewing API responses, and understanding data structures.",
+                },
+                {
+                  q: "Is this JSON formatter free to use?",
+                  a: "Yes, this JSON formatter is completely free with no limits. Format, validate, and minify as much JSON as you need without signing up or paying anything.",
+                },
+                {
+                  q: "Is my JSON data secure?",
+                  a: "Absolutely. All JSON processing happens directly in your browser - your data never leaves your device or gets uploaded to any server. This makes it safe for formatting sensitive configuration files, API keys, or private data.",
+                },
+                {
+                  q: "What is the difference between formatting and minifying JSON?",
+                  a: "Formatting (beautifying) JSON adds indentation and line breaks to make it readable. Minifying removes all unnecessary whitespace to reduce file size, which is useful for production environments where smaller payloads improve performance.",
+                },
+                {
+                  q: "How does JSON validation work?",
+                  a: "The validator checks your JSON against the official JSON specification. It detects syntax errors like missing commas, unquoted keys, trailing commas, mismatched brackets, and invalid values.",
+                },
+                {
+                  q: "Can I upload JSON files directly?",
+                  a: "Yes, you can drag and drop JSON files or click to browse and upload. The tool accepts .json files and will automatically process them.",
+                },
+                {
+                  q: "What indentation options are available?",
+                  a: "You can choose from 2 spaces, 4 spaces, 8 spaces, or tabs for indentation. 2-space indentation is common for web development, while 4 spaces is the default for many languages.",
+                },
+                {
+                  q: "Does this work offline?",
+                  a: "Yes, once the page loads, you can format JSON without an internet connection. All processing is done client-side in your browser.",
+                },
+              ].map((faq, index) => (
+                <details
+                  key={index}
+                  className="group bg-white dark:bg-dark-card rounded-xl border border-gray-200 dark:border-dark-border overflow-hidden"
+                >
+                  <summary className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-dark-border/50 transition-colors">
+                    <span className="font-medium text-gray-900 dark:text-white pr-4">
+                      {faq.q}
+                    </span>
+                    <svg
+                      className="w-5 h-5 text-gray-500 transform group-open:rotate-180 transition-transform flex-shrink-0"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </summary>
+                  <div className="px-4 pb-4 text-gray-600 dark:text-gray-300">
+                    {faq.a}
+                  </div>
+                </details>
+              ))}
+            </div>
+          </motion.section>
         </div>
       </main>
 

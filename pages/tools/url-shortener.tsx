@@ -443,11 +443,133 @@ export default function UrlShortenerPage(): JSX.Element {
                 priceCurrency: "USD",
               },
               featureList: [
-                "Free URL shortening",
-                "No registration required",
-                "QR code generation",
-                "Link history",
-                "One-click copy",
+                "Free URL shortening with no limits",
+                "No registration or account required",
+                "QR code generation for any shortened link",
+                "Local link history saved in browser",
+                "One-click copy to clipboard",
+                "Clean, professional short URLs",
+                "Works with any valid URL",
+                "Mobile-friendly responsive design",
+                "Fast, reliable shortening services",
+                "Privacy-focused - no tracking",
+              ],
+            }),
+          }}
+        />
+
+        {/* FAQ Schema */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              mainEntity: [
+                {
+                  "@type": "Question",
+                  name: "Is this URL shortener completely free?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Yes, our URL shortener is 100% free with no hidden costs or premium tiers. Shorten unlimited URLs without signing up or providing any personal information.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "Do shortened URLs expire?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Shortened URLs created through our service are permanent and do not expire. They will continue to redirect to the original URL as long as the shortening service remains operational.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "Can I track clicks on my shortened URLs?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Our tool focuses on simplicity and privacy. For basic link tracking, you can use UTM parameters in your original URL before shortening. For advanced analytics, consider dedicated link management platforms.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "Is it safe to click on shortened URLs?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "While our tool creates safe redirects, always be cautious with shortened links from unknown sources. Our tool doesn't scan destination URLs for malware, so only shorten URLs you trust.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "Can I generate a QR code for my short URL?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Yes! Every shortened URL includes a QR code option. Click the QR code icon next to your short link to generate and download a QR code instantly.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "Why should I shorten URLs?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Short URLs are easier to share, look cleaner in posts and messages, are easier to type from print materials, and don't break in emails or SMS. They're especially useful for social media with character limits.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "Is there a limit to how many URLs I can shorten?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "There's no limit. Shorten as many URLs as you need. Your recent links are saved locally in your browser for easy access.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "Can I customize my short URL?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Our tool uses trusted shortening services that generate random short codes. For custom branded short links (like yourname.link/page), you would need a dedicated URL shortening service with custom domain support.",
+                  },
+                },
+              ],
+            }),
+          }}
+        />
+
+        {/* HowTo Schema */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "HowTo",
+              name: "How to Shorten a URL",
+              description:
+                "Learn how to shorten long URLs into clean, shareable links using our free tool.",
+              step: [
+                {
+                  "@type": "HowToStep",
+                  name: "Paste your URL",
+                  text: "Copy the long URL you want to shorten and paste it into the input field. Make sure it includes http:// or https://.",
+                  position: 1,
+                },
+                {
+                  "@type": "HowToStep",
+                  name: "Click Shorten",
+                  text: "Click the 'Shorten URL' button. The tool will create a shortened version using a reliable shortening service.",
+                  position: 2,
+                },
+                {
+                  "@type": "HowToStep",
+                  name: "Copy your short link",
+                  text: "Your new short URL appears below. Click the copy button to copy it to your clipboard instantly.",
+                  position: 3,
+                },
+                {
+                  "@type": "HowToStep",
+                  name: "Generate QR code (optional)",
+                  text: "Click the QR code icon to generate a scannable QR code for your short link, perfect for print materials.",
+                  position: 4,
+                },
               ],
             }),
           }}
@@ -801,6 +923,81 @@ export default function UrlShortenerPage(): JSX.Element {
               ))}
             </div>
           </motion.div>
+
+          {/* FAQ Section */}
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+            className="mt-12 sm:mt-16"
+          >
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
+              Frequently Asked Questions
+            </h2>
+            <div className="space-y-3 max-w-3xl mx-auto">
+              {[
+                {
+                  q: "Is this URL shortener completely free?",
+                  a: "Yes, our URL shortener is 100% free with no hidden costs or premium tiers. Shorten unlimited URLs without signing up or providing any personal information.",
+                },
+                {
+                  q: "Do shortened URLs expire?",
+                  a: "Shortened URLs created through our service are permanent and do not expire. They will continue to redirect to the original URL as long as the shortening service remains operational.",
+                },
+                {
+                  q: "Can I track clicks on my shortened URLs?",
+                  a: "Our tool focuses on simplicity and privacy. For basic link tracking, you can use UTM parameters in your original URL before shortening.",
+                },
+                {
+                  q: "Is it safe to click on shortened URLs?",
+                  a: "While our tool creates safe redirects, always be cautious with shortened links from unknown sources. Only shorten URLs you trust.",
+                },
+                {
+                  q: "Can I generate a QR code for my short URL?",
+                  a: "Yes! Every shortened URL includes a QR code option. Click the QR code icon next to your short link to generate and download a QR code instantly.",
+                },
+                {
+                  q: "Why should I shorten URLs?",
+                  a: "Short URLs are easier to share, look cleaner in posts, are easier to type from print materials, and don't break in emails or SMS. They're especially useful for social media with character limits.",
+                },
+                {
+                  q: "Is there a limit to how many URLs I can shorten?",
+                  a: "There's no limit. Shorten as many URLs as you need. Your recent links are saved locally in your browser for easy access.",
+                },
+                {
+                  q: "Can I customize my short URL?",
+                  a: "Our tool uses trusted shortening services that generate random short codes. For custom branded short links, you would need a dedicated URL shortening service with custom domain support.",
+                },
+              ].map((faq, index) => (
+                <details
+                  key={index}
+                  className="group bg-white dark:bg-dark-card rounded-xl border border-gray-200 dark:border-dark-border overflow-hidden"
+                >
+                  <summary className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-dark-border/50 transition-colors">
+                    <span className="font-medium text-gray-900 dark:text-white pr-4">
+                      {faq.q}
+                    </span>
+                    <svg
+                      className="w-5 h-5 text-gray-500 transform group-open:rotate-180 transition-transform flex-shrink-0"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </summary>
+                  <div className="px-4 pb-4 text-gray-600 dark:text-gray-300">
+                    {faq.a}
+                  </div>
+                </details>
+              ))}
+            </div>
+          </motion.section>
         </div>
       </main>
 
