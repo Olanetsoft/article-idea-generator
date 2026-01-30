@@ -551,6 +551,7 @@
       "tabContent": "Content",
       "tabStyle": "Style",
       "tabLayout": "Layout",
+      "tabEditor": "Editor",
       "tabExport": "Export",
       "titleLabel": "Title",
       "titlePlaceholder": "Your Amazing Article Title",

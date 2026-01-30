@@ -36,6 +36,7 @@ export function LogoUploadSection({
         <div
           className={`flex items-center gap-3 ${compact ? "p-2" : "p-3"} bg-white dark:bg-dark-card rounded-lg border border-zinc-200 dark:border-dark-border`}
         >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={logoDataUrl}
             alt="Logo preview"
