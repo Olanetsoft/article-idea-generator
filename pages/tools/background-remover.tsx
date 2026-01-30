@@ -1,6 +1,6 @@
 // ============================================================================
 // Background Remover - AI-Powered Background Removal Tool
-// Uses MODNet via @huggingface/transformers for client-side processing
+// Uses @imgly/background-removal for client-side processing
 // ============================================================================
 
 import { useState, useCallback, useRef, useEffect } from "react";
@@ -186,99 +186,40 @@ export default function BackgroundRemover() {
 
     try {
       // Dynamic import to avoid SSR issues
-      const { env, AutoModel, AutoProcessor, RawImage } = await import(
-        "@huggingface/transformers"
-      );
-
-      // Configure transformers.js for browser
-      env.allowLocalModels = false;
-      env.useBrowserCache = true;
+      const { removeBackground } = await import("@imgly/background-removal");
 
       setProcessingState({
         status: "processing",
-        progress: 10,
-        message: "Loading MODNet model...",
+        progress: 20,
+        message: "Initializing AI model...",
       });
 
-      // Use Xenova/modnet - a well-tested background removal model
-      const model = await AutoModel.from_pretrained("Xenova/modnet", {
-        dtype: "fp32",
-      } as any);
+      // Remove background using imgly
+      const blob = await removeBackground(file, {
+        progress: (key, current, total) => {
+          // Update progress based on download/inference stages
+          const progressMap: Record<string, number> = {
+            "fetch:model": 30,
+            "compute:inference": 70,
+            "compute:postprocessing": 90,
+          };
+          const baseProgress = progressMap[key] || 50;
+          const stageProgress = total > 0 ? (current / total) * 20 : 0;
 
-      setProcessingState({
-        status: "processing",
-        progress: 40,
-        message: "Loading image processor...",
-      });
-
-      const processor = await AutoProcessor.from_pretrained("Xenova/modnet");
-
-      setProcessingState({
-        status: "processing",
-        progress: 50,
-        message: "Processing image...",
-      });
-
-      // Create object URL and load image
-      const imageUrl = URL.createObjectURL(file);
-      const image = await RawImage.read(imageUrl);
-
-      setProcessingState({
-        status: "processing",
-        progress: 60,
-        message: "Running AI inference...",
-      });
-
-      // Process through model
-      const { pixel_values } = await processor(image);
-      const { output } = await model({ input: pixel_values });
-
-      setProcessingState({
-        status: "processing",
-        progress: 80,
-        message: "Generating mask...",
-      });
-
-      // Get the mask from model output
-      // MODNet outputs a single-channel alpha matte
-      const maskData = output.squeeze().mul(255).clamp(0, 255).to("uint8");
-      const mask = await RawImage.fromTensor(maskData);
-      const resizedMask = await mask.resize(image.width, image.height);
-
-      setProcessingState({
-        status: "processing",
-        progress: 90,
-        message: "Applying transparency...",
-      });
-
-      // Create canvas for final output
-      const canvas = document.createElement("canvas");
-      canvas.width = image.width;
-      canvas.height = image.height;
-      const ctx = canvas.getContext("2d")!;
-
-      // Draw original image
-      const originalCanvas = image.toCanvas();
-      ctx.drawImage(originalCanvas, 0, 0);
-
-      // Get image data and apply alpha from mask
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const pixelData = imageData.data;
-      const maskPixels = (resizedMask as any).data;
-
-      // Apply mask as alpha channel
-      for (let i = 0; i < maskPixels.length; i++) {
-        pixelData[i * 4 + 3] = maskPixels[i];
-      }
-
-      ctx.putImageData(imageData, 0, 0);
-
-      // Clean up object URL
-      URL.revokeObjectURL(imageUrl);
-
-      // Convert to blob
-      const blob = await new Promise<Blob>((resolve) => {
-        canvas.toBlob((b) => resolve(b!), "image/png");
+          setProcessingState({
+            status: "processing",
+            progress: Math.min(baseProgress + stageProgress, 95),
+            message: key.includes("fetch")
+              ? "Downloading AI model..."
+              : key.includes("inference")
+                ? "Running AI inference..."
+                : "Processing...",
+          });
+        },
+        output: {
+          format: "image/png",
+          quality: 1,
+        },
       });
 
       setForegroundBlob(blob);

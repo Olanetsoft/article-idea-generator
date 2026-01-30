@@ -332,7 +332,7 @@ Browse all available writing tools with descriptions and "coming soon" badges fo
 - Replacing photo backgrounds
 
 **Technical Details**:
-- MODNet model via @huggingface/transformers
+- U²-Net model via @imgly/background-removal
 - Runs entirely in browser (WebGL/WebAssembly)
 - Canvas API for image compositing
 - GPU-accelerated when available

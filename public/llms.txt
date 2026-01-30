@@ -191,7 +191,7 @@ Free AI-powered background remover that works entirely in your browser:
 
 **AI Background Removal**:
 - One-click automatic background removal
-- MODNet model for high-quality edge detection
+- U²-Net model for high-quality edge detection
 - Handles complex edges (hair, fur, transparent objects)
 - Works with people, products, objects, and more
 
