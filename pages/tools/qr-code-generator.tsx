@@ -1502,13 +1502,19 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                 priceCurrency: "USD",
               },
               featureList: [
-                "Generate QR codes for URLs, text, WiFi, vCard, email, phone, SMS, location, and events",
-                "Custom colors and sizes",
-                "Multiple download formats (PNG, SVG, JPG)",
-                "Copy to clipboard",
-                "QR code history",
-                "Mobile responsive",
-                "Free to use with no signup",
+                "17+ QR code types: URL, WiFi, vCard, email, phone, SMS, location, calendar",
+                "Social media QR codes: Twitter/X, YouTube, Facebook, App Store",
+                "Crypto payment QR codes: Bitcoin, Ethereum, Cardano, Solana",
+                "Custom logo upload with automatic error correction",
+                "Customizable colors and style presets",
+                "Frame styles with custom text labels",
+                "Multiple download formats: PNG, SVG, JPG",
+                "Batch generation with ZIP download",
+                "Copy to clipboard functionality",
+                "QR code history saved locally",
+                "Mobile responsive design",
+                "100% free with no signup required",
+                "No watermarks or limits",
               ],
             }),
           }}
@@ -1585,6 +1591,103 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                     text: "We support Bitcoin (BIP21), Ethereum (EIP-681 with multi-chain support), Cardano (CIP-13), and Solana Pay. You can include amount, labels, and messages in payment QR codes.",
                   },
                 },
+                {
+                  "@type": "Question",
+                  name: "How do I create a WiFi QR code?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Select 'WiFi' from the QR type options, enter your network name (SSID), password, and security type (WPA/WPA2/WEP). Users can scan the QR code to instantly connect to your WiFi without typing the password.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "Can I generate multiple QR codes at once?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Yes! Use Batch Mode to generate multiple QR codes at once. Enter multiple URLs (one per line) or upload a CSV file, customize the style for all codes, and download them all as a ZIP file.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "What is the best QR code size for printing?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "For printing, we recommend at least 300x300 pixels for small prints (business cards) and 512x512 or larger for posters and banners. Download as SVG for infinite scalability without quality loss.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "Do QR codes expire?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "No! QR codes generated here are static and never expire. They contain the data directly encoded, so they will work forever as long as the destination (like a URL) remains active.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "What download formats are available?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "You can download QR codes as PNG (best for web), SVG (best for print, infinite scalability), or JPG (smaller file size). All formats support custom sizes and transparent backgrounds.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "How do I create a vCard QR code for my business card?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Select 'vCard' type, fill in your contact details (name, phone, email, company, address, website), and generate. When scanned, recipients can save your contact info directly to their phone.",
+                  },
+                },
+              ],
+            }),
+          }}
+        />
+
+        {/* HowTo Schema */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "HowTo",
+              name: "How to Create a QR Code",
+              description:
+                "Step-by-step guide to creating custom QR codes with logo and colors",
+              totalTime: "PT1M",
+              tool: {
+                "@type": "HowToTool",
+                name: "Article Idea Generator QR Code Tool",
+              },
+              step: [
+                {
+                  "@type": "HowToStep",
+                  position: 1,
+                  name: "Select QR Code Type",
+                  text: "Choose from 17+ QR code types: URL, WiFi, vCard, email, phone, social media, or crypto payment.",
+                  url: `${pageUrl}#type-selector`,
+                },
+                {
+                  "@type": "HowToStep",
+                  position: 2,
+                  name: "Enter Your Content",
+                  text: "Fill in the required information for your chosen QR type. For example, enter a URL, WiFi credentials, or contact details.",
+                  url: `${pageUrl}#content-form`,
+                },
+                {
+                  "@type": "HowToStep",
+                  position: 3,
+                  name: "Customize Style",
+                  text: "Choose colors, add your logo, select a frame style, and adjust the size. Use style presets for quick customization.",
+                  url: `${pageUrl}#style-options`,
+                },
+                {
+                  "@type": "HowToStep",
+                  position: 4,
+                  name: "Download Your QR Code",
+                  text: "Download your QR code as PNG, SVG, or JPG. You can also copy it to clipboard or save to history for later.",
+                  url: `${pageUrl}#download`,
+                },
               ],
             }),
           }}
@@ -1628,7 +1731,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
           <h1
             className={`${spaceGrotesk.className} text-3xl sm:text-4xl lg:text-5xl font-bold text-zinc-900 dark:text-white mb-4`}
           >
-            {t("tools.qrCode.title")}
+            {t("tools.qrCode.h1Title") || t("tools.qrCode.title")}
           </h1>
           <p className="text-lg text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto">
             {t("tools.qrCode.subtitle")}
@@ -2747,6 +2850,163 @@ export default function QRCodeGeneratorPage(): JSX.Element {
             </svg>
           </Link>
         </div>
+
+        {/* FAQ Section */}
+        <section className="w-full max-w-screen-lg mt-12">
+          <div className="bg-white dark:bg-dark-card rounded-xl p-6 sm:p-8 border border-zinc-200 dark:border-dark-border">
+            <h2
+              className={`${spaceGrotesk.className} text-2xl font-bold text-zinc-900 dark:text-white mb-6`}
+            >
+              Frequently Asked Questions
+            </h2>
+            <div className="space-y-4">
+              <details className="group border-b border-zinc-200 dark:border-dark-border pb-4">
+                <summary className="flex justify-between items-center cursor-pointer list-none">
+                  <h3 className="font-medium text-zinc-900 dark:text-white">
+                    What types of QR codes can I create?
+                  </h3>
+                  <ChevronDownIcon className="w-5 h-5 text-zinc-500 group-open:rotate-180 transition-transform" />
+                </summary>
+                <p className="mt-3 text-zinc-600 dark:text-zinc-400 text-sm">
+                  You can create 17+ types of QR codes: Basic (URLs, text, WiFi,
+                  vCard, email, phone, SMS, location, calendar), Social Media
+                  (Twitter/X, YouTube, Facebook, App Store), and Crypto Payments
+                  (Bitcoin, Ethereum, Cardano, Solana).
+                </p>
+              </details>
+
+              <details className="group border-b border-zinc-200 dark:border-dark-border pb-4">
+                <summary className="flex justify-between items-center cursor-pointer list-none">
+                  <h3 className="font-medium text-zinc-900 dark:text-white">
+                    Is this QR code generator free?
+                  </h3>
+                  <ChevronDownIcon className="w-5 h-5 text-zinc-500 group-open:rotate-180 transition-transform" />
+                </summary>
+                <p className="mt-3 text-zinc-600 dark:text-zinc-400 text-sm">
+                  Yes! This QR code generator is completely free with no limits,
+                  no signup required, and no watermarks. You can generate
+                  unlimited QR codes.
+                </p>
+              </details>
+
+              <details className="group border-b border-zinc-200 dark:border-dark-border pb-4">
+                <summary className="flex justify-between items-center cursor-pointer list-none">
+                  <h3 className="font-medium text-zinc-900 dark:text-white">
+                    Can I add a logo to my QR code?
+                  </h3>
+                  <ChevronDownIcon className="w-5 h-5 text-zinc-500 group-open:rotate-180 transition-transform" />
+                </summary>
+                <p className="mt-3 text-zinc-600 dark:text-zinc-400 text-sm">
+                  Yes! You can upload your own logo (PNG, JPG, SVG up to 2MB)
+                  and it will be centered in the QR code. The error correction
+                  is automatically increased for reliable scanning.
+                </p>
+              </details>
+
+              <details className="group border-b border-zinc-200 dark:border-dark-border pb-4">
+                <summary className="flex justify-between items-center cursor-pointer list-none">
+                  <h3 className="font-medium text-zinc-900 dark:text-white">
+                    How do I create a WiFi QR code?
+                  </h3>
+                  <ChevronDownIcon className="w-5 h-5 text-zinc-500 group-open:rotate-180 transition-transform" />
+                </summary>
+                <p className="mt-3 text-zinc-600 dark:text-zinc-400 text-sm">
+                  Select &apos;WiFi&apos; from the QR type options, enter your
+                  network name (SSID), password, and security type
+                  (WPA/WPA2/WEP). Users can scan the QR code to instantly
+                  connect to your WiFi without typing the password.
+                </p>
+              </details>
+
+              <details className="group border-b border-zinc-200 dark:border-dark-border pb-4">
+                <summary className="flex justify-between items-center cursor-pointer list-none">
+                  <h3 className="font-medium text-zinc-900 dark:text-white">
+                    Can I generate multiple QR codes at once?
+                  </h3>
+                  <ChevronDownIcon className="w-5 h-5 text-zinc-500 group-open:rotate-180 transition-transform" />
+                </summary>
+                <p className="mt-3 text-zinc-600 dark:text-zinc-400 text-sm">
+                  Yes! Use Batch Mode to generate multiple QR codes at once.
+                  Enter multiple URLs (one per line) or upload a CSV file,
+                  customize the style for all codes, and download them all as a
+                  ZIP file.
+                </p>
+              </details>
+
+              <details className="group border-b border-zinc-200 dark:border-dark-border pb-4">
+                <summary className="flex justify-between items-center cursor-pointer list-none">
+                  <h3 className="font-medium text-zinc-900 dark:text-white">
+                    What is the best QR code size for printing?
+                  </h3>
+                  <ChevronDownIcon className="w-5 h-5 text-zinc-500 group-open:rotate-180 transition-transform" />
+                </summary>
+                <p className="mt-3 text-zinc-600 dark:text-zinc-400 text-sm">
+                  For printing, we recommend at least 300x300 pixels for small
+                  prints (business cards) and 512x512 or larger for posters and
+                  banners. Download as SVG for infinite scalability without
+                  quality loss.
+                </p>
+              </details>
+
+              <details className="group border-b border-zinc-200 dark:border-dark-border pb-4">
+                <summary className="flex justify-between items-center cursor-pointer list-none">
+                  <h3 className="font-medium text-zinc-900 dark:text-white">
+                    Do QR codes expire?
+                  </h3>
+                  <ChevronDownIcon className="w-5 h-5 text-zinc-500 group-open:rotate-180 transition-transform" />
+                </summary>
+                <p className="mt-3 text-zinc-600 dark:text-zinc-400 text-sm">
+                  No! QR codes generated here are static and never expire. They
+                  contain the data directly encoded, so they will work forever
+                  as long as the destination (like a URL) remains active.
+                </p>
+              </details>
+
+              <details className="group border-b border-zinc-200 dark:border-dark-border pb-4">
+                <summary className="flex justify-between items-center cursor-pointer list-none">
+                  <h3 className="font-medium text-zinc-900 dark:text-white">
+                    What crypto payments are supported?
+                  </h3>
+                  <ChevronDownIcon className="w-5 h-5 text-zinc-500 group-open:rotate-180 transition-transform" />
+                </summary>
+                <p className="mt-3 text-zinc-600 dark:text-zinc-400 text-sm">
+                  We support Bitcoin (BIP21), Ethereum (EIP-681 with multi-chain
+                  support), Cardano (CIP-13), and Solana Pay. You can include
+                  amount, labels, and messages in payment QR codes.
+                </p>
+              </details>
+
+              <details className="group border-b border-zinc-200 dark:border-dark-border pb-4">
+                <summary className="flex justify-between items-center cursor-pointer list-none">
+                  <h3 className="font-medium text-zinc-900 dark:text-white">
+                    What download formats are available?
+                  </h3>
+                  <ChevronDownIcon className="w-5 h-5 text-zinc-500 group-open:rotate-180 transition-transform" />
+                </summary>
+                <p className="mt-3 text-zinc-600 dark:text-zinc-400 text-sm">
+                  You can download QR codes as PNG (best for web), SVG (best for
+                  print, infinite scalability), or JPG (smaller file size). All
+                  formats support custom sizes.
+                </p>
+              </details>
+
+              <details className="group pb-4">
+                <summary className="flex justify-between items-center cursor-pointer list-none">
+                  <h3 className="font-medium text-zinc-900 dark:text-white">
+                    How do I create a vCard QR code for my business card?
+                  </h3>
+                  <ChevronDownIcon className="w-5 h-5 text-zinc-500 group-open:rotate-180 transition-transform" />
+                </summary>
+                <p className="mt-3 text-zinc-600 dark:text-zinc-400 text-sm">
+                  Select &apos;vCard&apos; type, fill in your contact details
+                  (name, phone, email, company, address, website), and generate.
+                  When scanned, recipients can save your contact info directly
+                  to their phone.
+                </p>
+              </details>
+            </div>
+          </div>
+        </section>
       </main>
 
       <Footer />
