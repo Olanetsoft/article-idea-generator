@@ -10,6 +10,7 @@ import {
   LinkIcon,
   PhotographIcon,
   PencilIcon,
+  ScissorsIcon,
 } from "@heroicons/react/outline";
 import { useTranslation } from "@/hooks/useTranslation";
 import { trackToolClick } from "@/lib/gtag";
@@ -26,6 +27,7 @@ const iconMap: Record<ToolIcon, typeof DocumentTextIcon> = {
   link: LinkIcon,
   photograph: PhotographIcon,
   pencil: PencilIcon,
+  scissors: ScissorsIcon,
 };
 
 export default function ToolCard({

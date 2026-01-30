@@ -30,6 +30,7 @@ Generate article ideas using GPT-4o-mini. Enter a topic, get 4 title suggestions
 - **[JSON Formatter](https://www.articleideagenerator.com/tools/json-formatter)** — Format, minify, validate JSON. Customizable indentation (2/4/8 spaces, tabs). Real-time validation with line/column error positions. Structure analysis (keys, objects, arrays, depth). File upload/download support
 - **[URL Shortener](https://www.articleideagenerator.com/tools/url-shortener)** — Free URL shortener, no signup required. QR code generation for short links. Link history saved locally. Perfect for social media and marketing
 - **[Cover Image Generator](https://www.articleideagenerator.com/tools/cover-image-generator)** — The most feature-rich free cover image maker. **24+ gradient presets** (vibrant, dark, nature, minimal), **16 platform sizes** (Twitter, LinkedIn, Dev.to, Medium, Hashnode, Instagram, Pinterest, YouTube & more), **12 pattern overlays**, **8 theme layouts**, **30+ dev icons** (React, TypeScript, Python, etc.), **8 quick-start templates**. **Background image support** with advanced filters (brightness, contrast, saturation, blur, grayscale) and color overlay. Custom logo upload, download all sizes at once, settings persistence. No signup required
+- **[Background Remover](https://www.articleideagenerator.com/tools/background-remover)** — AI-powered background removal that runs **100% in your browser** (files never uploaded). Remove backgrounds from photos, portraits, products, and graphics instantly. **4 output modes**: transparent, solid color (16+ presets), custom image, or blur effect. Real-time preview, one-click download. Supports PNG, JPG, WebP. No signup required
 - **Character Counter** _(Coming Soon)_
 - **Reading Time Calculator** _(Coming Soon)_
 - **Headline Analyzer** _(Coming Soon)_
@@ -149,6 +150,21 @@ Generate article ideas using GPT-4o-mini. Enter a topic, get 4 title suggestions
 7. **Export Tab**: Select size preset (16 platforms) or custom dimensions
 8. Click **Download** for single size or **Download All Sizes** for all 15 images at once
 9. Use **Quick Templates** button for pre-configured styles
+
+### Background Remover
+
+1. Go to [/tools/background-remover](https://www.articleideagenerator.com/tools/background-remover)
+2. Upload an image (drag & drop or click to browse)
+3. Wait for AI processing (runs locally in your browser)
+4. Choose a background option:
+   - **Transparent**: Keep transparent background (PNG)
+   - **Solid Color**: Pick from 16+ presets or custom color
+   - **Image**: Upload a custom background image
+   - **Blur**: Add soft blur effect to original background
+5. Preview the result
+6. Click **Download** to save
+
+**Privacy**: All processing happens in your browser using AI. Images never leave your device.
 
 ## How it works
 

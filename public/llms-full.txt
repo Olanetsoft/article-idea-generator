@@ -286,6 +286,58 @@ Browse all available writing tools with descriptions and "coming soon" badges fo
 - Supports PDFs up to 50MB
 - Touch-friendly for mobile/tablet
 
+### Background Remover Tool
+
+**URL**: https://articleideagenerator.com/tools/background-remover
+
+**Features**:
+- **AI-Powered Removal**:
+  - One-click automatic background removal
+  - Advanced machine learning model runs in browser
+  - Precise edge detection for hair, fur, transparent objects
+  - Works with people, products, animals, and objects
+
+- **Background Options**:
+  - Transparent PNG (checkerboard preview)
+  - Solid color with 12 preset colors + custom picker
+  - Custom background image upload
+  - Blur original background with adjustable intensity (5-30px)
+  - Recent colors saved locally
+
+- **Image Comparison**:
+  - Before/after slider comparison
+  - Toggle between result and comparison view
+  - Real-time preview of background changes
+
+- **Download Options**:
+  - PNG with transparency
+  - JPG with applied background
+  - High-quality export (95% quality)
+
+- **Privacy**:
+  - 100% client-side AI processing
+  - Images never uploaded to servers
+  - No data collection or storage
+
+**Supported Formats**:
+- PNG, JPG, WebP
+- Up to 20MB file size
+
+**Use Cases**:
+- E-commerce product photos
+- Profile pictures and headshots
+- Marketing materials
+- Social media content
+- Creative design projects
+- Replacing photo backgrounds
+
+**Technical Details**:
+- U²-Net model via @imgly/background-removal
+- Runs entirely in browser (WebGL/WebAssembly)
+- Canvas API for image compositing
+- GPU-accelerated when available
+- Mobile-responsive with touch support
+
 ### Planned Tools
 
 - **Character Counter**: Track character limits for Twitter (280), LinkedIn (3000), meta descriptions (160)

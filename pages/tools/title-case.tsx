@@ -6,6 +6,7 @@ import { Space_Grotesk } from "@next/font/google";
 import { motion, AnimatePresence } from "framer-motion";
 import { Toaster, toast } from "react-hot-toast";
 import { Header, Footer } from "@/components";
+import { RelatedTools } from "@/components/tools";
 import { useTranslation } from "@/hooks/useTranslation";
 import { SITE_URL, SITE_NAME } from "@/lib/constants";
 import { trackToolUsage } from "@/lib/gtag";
@@ -780,7 +781,9 @@ export default function TitleCasePage(): JSX.Element {
 
         {/* FAQ Section */}
         <section className="w-full">
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
+          <h2
+            className={`text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center ${spaceGrotesk.className}`}
+          >
             Frequently Asked Questions
           </h2>
           <div className="space-y-3 max-w-3xl mx-auto">
@@ -863,6 +866,9 @@ export default function TitleCasePage(): JSX.Element {
             {t("tools.tryGenerator")}
           </Link>
         </section>
+
+        {/* Related Tools */}
+        <RelatedTools currentToolId="title-case-converter" />
       </main>
 
       <Footer />

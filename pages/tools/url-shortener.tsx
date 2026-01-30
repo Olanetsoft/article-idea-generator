@@ -6,6 +6,7 @@ import { Space_Grotesk } from "@next/font/google";
 import { motion, AnimatePresence } from "framer-motion";
 import { Toaster, toast } from "react-hot-toast";
 import { Header, Footer } from "@/components";
+import { RelatedTools } from "@/components/tools";
 import { useTranslation } from "@/hooks/useTranslation";
 import { SITE_URL, SITE_NAME } from "@/lib/constants";
 import { trackToolUsage } from "@/lib/gtag";
@@ -823,7 +824,9 @@ export default function UrlShortenerPage(): JSX.Element {
             transition={{ duration: 0.5, delay: 0.3 }}
             className="mt-12"
           >
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2
+              className={`text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-4 ${spaceGrotesk.className}`}
+            >
               {t("tools.urlShortener.whyUseTitle")}
             </h2>
             <p className="text-gray-600 dark:text-gray-300 mb-6">
@@ -886,7 +889,9 @@ export default function UrlShortenerPage(): JSX.Element {
             transition={{ duration: 0.5, delay: 0.4 }}
             className="mt-12"
           >
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2
+              className={`text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-4 ${spaceGrotesk.className}`}
+            >
               {t("tools.urlShortener.useCasesTitle")}
             </h2>
 
@@ -931,7 +936,9 @@ export default function UrlShortenerPage(): JSX.Element {
             transition={{ duration: 0.5, delay: 0.5 }}
             className="mt-12 sm:mt-16"
           >
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
+            <h2
+              className={`text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center ${spaceGrotesk.className}`}
+            >
               Frequently Asked Questions
             </h2>
             <div className="space-y-3 max-w-3xl mx-auto">
@@ -998,6 +1005,9 @@ export default function UrlShortenerPage(): JSX.Element {
               ))}
             </div>
           </motion.section>
+
+          {/* Related Tools */}
+          <RelatedTools currentToolId="url-shortener" />
         </div>
       </main>
 
