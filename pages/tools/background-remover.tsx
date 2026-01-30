@@ -1,6 +1,6 @@
 // ============================================================================
 // Background Remover - AI-Powered Background Removal Tool
-// Uses @imgly/background-removal for client-side processing
+// Uses RMBG-1.4 via @huggingface/transformers for client-side processing
 // ============================================================================
 
 import { useState, useCallback, useRef, useEffect } from "react";
@@ -181,31 +181,111 @@ export default function BackgroundRemover() {
     setProcessingState({
       status: "loading",
       progress: 0,
-      message: "Loading AI model...",
+      message: "Loading AI model (first time may take ~30s)...",
     });
 
     try {
       // Dynamic import to avoid SSR issues
-      const { removeBackground } = await import("@imgly/background-removal");
+      const { AutoModel, AutoProcessor, RawImage, env } =
+        await import("@huggingface/transformers");
+
+      // Configure transformers.js
+      env.allowLocalModels = false;
+      env.useBrowserCache = true;
 
       setProcessingState({
         status: "processing",
-        progress: 20,
-        message: "Analyzing image...",
+        progress: 10,
+        message: "Loading RMBG-1.4 model...",
       });
 
-      const blob = await removeBackground(file, {
-        progress: (key, current, total) => {
-          const progress = Math.round((current / total) * 100);
-          setProcessingState({
-            status: "processing",
-            progress: 20 + progress * 0.8,
-            message:
-              key === "fetch:inference"
-                ? "Removing background..."
-                : "Processing...",
-          });
-        },
+      // Load model and processor (cached after first load)
+      const model = await AutoModel.from_pretrained("briaai/RMBG-1.4", {
+        config: { model_type: "custom" } as any,
+      });
+
+      setProcessingState({
+        status: "processing",
+        progress: 40,
+        message: "Loading image processor...",
+      });
+
+      const processor = await AutoProcessor.from_pretrained("briaai/RMBG-1.4", {
+        config: {
+          do_normalize: true,
+          do_pad: false,
+          do_rescale: true,
+          do_resize: true,
+          image_mean: [0.5, 0.5, 0.5],
+          feature_extractor_type: "ImageFeatureExtractor",
+          image_std: [1, 1, 1],
+          resample: 2,
+          rescale_factor: 0.00392156862745098,
+          size: { width: 1024, height: 1024 },
+        } as any,
+      });
+
+      setProcessingState({
+        status: "processing",
+        progress: 50,
+        message: "Processing image...",
+      });
+
+      // Load image
+      const image = await RawImage.fromURL(URL.createObjectURL(file));
+
+      setProcessingState({
+        status: "processing",
+        progress: 60,
+        message: "Running AI inference...",
+      });
+
+      // Process through model
+      const { pixel_values } = await processor(image);
+      const { output } = await (model as any)({ input: pixel_values });
+
+      setProcessingState({
+        status: "processing",
+        progress: 80,
+        message: "Generating mask...",
+      });
+
+      // Post-process the mask
+      const maskData = (
+        await RawImage.fromTensor(output[0].mul(255).to("uint8")).resize(
+          image.width,
+          image.height,
+        )
+      ).grayscale();
+
+      setProcessingState({
+        status: "processing",
+        progress: 90,
+        message: "Applying transparency...",
+      });
+
+      // Create canvas and apply mask
+      const canvas = document.createElement("canvas");
+      canvas.width = image.width;
+      canvas.height = image.height;
+      const ctx = canvas.getContext("2d")!;
+
+      // Draw original image
+      ctx.drawImage(image.toCanvas(), 0, 0);
+
+      // Get image data and apply alpha from mask
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const pixelData = imageData.data;
+
+      for (let i = 0; i < maskData.data.length; i++) {
+        pixelData[i * 4 + 3] = maskData.data[i]; // Set alpha channel
+      }
+
+      ctx.putImageData(imageData, 0, 0);
+
+      // Convert to blob
+      const blob = await new Promise<Blob>((resolve) => {
+        canvas.toBlob((b) => resolve(b!), "image/png");
       });
 
       setForegroundBlob(blob);

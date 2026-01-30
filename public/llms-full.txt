@@ -332,8 +332,8 @@ Browse all available writing tools with descriptions and "coming soon" badges fo
 - Replacing photo backgrounds
 
 **Technical Details**:
-- @imgly/background-removal for AI processing
-- Web Workers for performance
+- RMBG-1.4 model via @huggingface/transformers
+- Runs entirely in browser (WebGL/WebAssembly)
 - Canvas API for image compositing
 - GPU-accelerated when available
 - Mobile-responsive with touch support
