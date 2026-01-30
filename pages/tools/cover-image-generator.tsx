@@ -1229,10 +1229,6 @@ export default function CoverImageGeneratorPage(): JSX.Element {
           />
         ))}
         <link rel="alternate" hrefLang="x-default" href={pageUrl} />
-        <link
-          rel="stylesheet"
-          href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css"
-        />
 
         <script
           type="application/ld+json"
