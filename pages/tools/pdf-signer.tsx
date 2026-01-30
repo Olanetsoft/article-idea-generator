@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect, useMemo } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -16,10 +16,6 @@ import {
   STROKE_COLORS,
   FONT_SIZES,
   STROKE_WIDTHS,
-  ELEMENT_DEFAULTS,
-  FILE_CONSTRAINTS,
-  COLOR_TOOLS,
-  STROKE_TOOLS,
   getInitialsFromName,
   hasColorSupport,
   hasStrokeSupport,
@@ -57,7 +53,6 @@ import {
   PhotographIcon,
   RefreshIcon,
   PencilAltIcon,
-  AnnotationIcon,
   MenuAlt2Icon,
   CheckCircleIcon,
   MinusIcon,
@@ -1511,7 +1506,6 @@ export default function PDFSigner() {
   const [currentImage, setCurrentImage] = useState<string | null>(null);
   const [fullName, setFullName] = useState<string>("");
   const [showSignaturePad, setShowSignaturePad] = useState(false);
-  const [showImageUpload, setShowImageUpload] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
 

@@ -25,7 +25,7 @@ Generate article ideas using GPT-4o-mini. Enter a topic, get 4 title suggestions
 
 - **[Word Counter](https://www.articleideagenerator.com/tools/word-counter)** — Words, characters, sentences, paragraphs, reading/speaking time, keyword density
 - **[QR Code Generator](https://www.articleideagenerator.com/tools/qr-code-generator)** — 17+ QR types: URL, WiFi, vCard, social media (Twitter, YouTube, Facebook), crypto payments (Bitcoin, Ethereum, Cardano, Solana), App Store links. Custom colors, **logo support**, frames, style presets, **batch generation** (multiple QR codes at once with ZIP download). PNG/SVG/JPEG export. UTM tracking compatible
-- **[PDF Signer](https://www.articleideagenerator.com/tools/pdf-signer)** — Sign, fill, and annotate PDFs directly in your browser. **100% private** (files never leave your device). Draw/type/upload signatures, add full name & initials (auto-derived), text fields, dates, checkboxes, shapes (circles, rectangles, lines, arrows), highlights, strikethrough, and image stamps. Drag, resize, and position any element. Multi-page support. Instant download
+- **[PDF Signer](https://www.articleideagenerator.com/tools/pdf-signer)** — Sign, fill, and annotate PDFs directly in your browser. **100% private** (files never leave your device). Draw/type/upload signatures, add full name & initials (auto-derived), text fields, dates, checkboxes, shapes (circles, rectangles, lines, arrows), highlights, strikethrough, and image stamps. Drag, resize, and position any element. Multi-page support. **Undo/redo** (Ctrl+Z/Y), **keyboard shortcuts** (Delete, arrows, Escape), **save signatures** to browser for reuse. Instant download
 - **[Title Case Converter](https://www.articleideagenerator.com/tools/title-case)** — 16 case styles (AP, Chicago, APA, camelCase, snake_case, kebab-case, etc). Auto-detection, one-click copy
 - **[JSON Formatter](https://www.articleideagenerator.com/tools/json-formatter)** — Format, minify, validate JSON. Customizable indentation (2/4/8 spaces, tabs). Real-time validation with line/column error positions. Structure analysis (keys, objects, arrays, depth). File upload/download support
 - **[URL Shortener](https://www.articleideagenerator.com/tools/url-shortener)** — Free URL shortener, no signup required. QR code generation for short links. Link history saved locally. Perfect for social media and marketing
@@ -111,11 +111,12 @@ Generate article ideas using GPT-4o-mini. Enter a topic, get 4 title suggestions
 
 1. Go to [/tools/pdf-signer](https://www.articleideagenerator.com/tools/pdf-signer)
 2. Upload a PDF (drag & drop or click to browse, up to 50MB)
-3. Enter your full name (auto-generates initials)
+3. Enter your full name (auto-generates initials, saved for next visit)
 4. Create a signature:
    - **Draw**: Use mouse, trackpad, or finger
    - **Type**: Choose from 5 signature fonts
    - **Upload**: Use an existing signature image
+   - **Save**: Hover over your signature and click save icon for reuse
 5. Select a tool from the sidebar:
    - **Signature/Initials/Full Name**: Place your signature or name
    - **Text/Date/Checkbox**: Fill form fields
@@ -124,7 +125,16 @@ Generate article ideas using GPT-4o-mini. Enter a topic, get 4 title suggestions
    - **Image**: Add stamps or logos
 6. Click on the PDF to place elements
 7. Drag to reposition, use handles to resize
-8. Click **Download** to save your signed PDF
+8. Use **Undo/Redo** buttons or keyboard shortcuts (Ctrl+Z / Ctrl+Y)
+9. Click **Download** to save your signed PDF
+
+**Keyboard Shortcuts**:
+
+- `Ctrl+Z` / `Cmd+Z` — Undo
+- `Ctrl+Y` / `Cmd+Shift+Z` — Redo
+- `Delete` / `Backspace` — Remove selected element
+- `Arrow keys` — Move element by 1px (hold Shift for 10px)
+- `Escape` — Deselect
 
 **Privacy**: All processing happens in your browser. Files never leave your device.
 
