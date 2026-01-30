@@ -6,6 +6,7 @@ import { Space_Grotesk } from "@next/font/google";
 import { motion } from "framer-motion";
 import { Toaster, toast } from "react-hot-toast";
 import { Header, Footer } from "@/components";
+import { RelatedTools } from "@/components/tools";
 import { useTranslation } from "@/hooks/useTranslation";
 import { SITE_URL, SITE_NAME } from "@/lib/constants";
 import { trackToolUsage } from "@/lib/gtag";
@@ -905,6 +906,9 @@ export default function BackgroundRemover() {
               </div>
             </motion.section>
           )}
+
+          {/* Related Tools */}
+          <RelatedTools currentToolId="background-remover" />
         </div>
       </main>
 
