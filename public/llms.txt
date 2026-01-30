@@ -114,6 +114,39 @@ Free online URL shortener that provides:
 
 Perfect for social media, marketing campaigns, print materials, and messaging.
 
+### PDF Signer
+URL: https://articleideagenerator.com/tools/pdf-signer
+
+Free online PDF signer and form filler that provides:
+
+**Signature Options**:
+- Draw signature with mouse, trackpad, or touch
+- Type signature with 5 handwriting font styles (Dancing Script, Great Vibes, Pacifico, Caveat, Satisfy)
+- Upload existing signature image
+
+**Form Filling Tools**:
+- Full name field (auto-populates from your input)
+- Initials (auto-derived from full name, e.g., "John Doe" → "JD")
+- Text fields (editable after placement)
+- Date stamps (auto-fills current date)
+- Checkboxes
+
+**Annotation Tools**:
+- Highlight with 5 colors (yellow, green, red, blue, orange)
+- Circle, rectangle, line, and arrow shapes
+- Strikethrough text
+- Image stamps for logos or custom graphics
+
+**Key Features**:
+- 100% private: All processing happens in browser, files never uploaded to servers
+- Drag and resize any element
+- Multi-page PDF support with navigation
+- Zoom controls (50% to 300%)
+- Customizable colors and stroke widths
+- Instant PDF download with all annotations embedded
+
+Perfect for signing contracts, filling forms, annotating documents, and adding approval stamps without installing software.
+
 ### Cover Image Generator
 URL: https://articleideagenerator.com/tools/cover-image-generator
 

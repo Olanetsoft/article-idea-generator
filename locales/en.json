@@ -625,6 +625,24 @@
       "step2Desc": "Choose gradients, patterns, themes, and fonts to match your brand.",
       "step3Title": "Download & Share",
       "step3Desc": "Download a single size or all 15 platform sizes at once."
+    },
+    "pdfSigner": {
+      "name": "PDF Signer",
+      "description": "Sign and fill PDF documents online for free. Draw, type, or upload signatures. Add text, dates, checkboxes. 100% private - files never leave your browser.",
+      "pageTitle": "Free PDF Signer - Sign & Fill PDF Documents Online | No Upload",
+      "h1Title": "Sign & Fill PDFs Instantly",
+      "pageDescription": "Sign and fill PDF documents online for free. Draw, type, or upload your signature. Add text, dates, checkboxes, and highlights. 100% private - your files never leave your browser. No signup required.",
+      "badge": "Document Tool",
+      "subtitle": "Sign contracts, fill forms, and annotate PDFs without printing. Your documents stay private - everything happens in your browser.",
+      "uploadTitle": "Upload Your PDF",
+      "uploadSubtitle": "Drag and drop your PDF here, or click to browse",
+      "selectFile": "Select PDF File",
+      "maxSize": "Maximum file size: 50MB",
+      "toolsTitle": "Tools",
+      "download": "Download Signed PDF",
+      "clearAll": "Start Over",
+      "featuresTitle": "Why Use Our PDF Signer?",
+      "featuresDescription": "The most privacy-focused free PDF signer. Sign contracts, fill forms, and annotate documents without your files ever leaving your device."
     }
   }
 }
