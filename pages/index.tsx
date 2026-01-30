@@ -819,7 +819,9 @@ Format: Just the abstract text, nothing else.`;
         {/* SEO Content Sections - Only show when no results and not loading */}
         {!generatedTitles && !loading && (
           <section className="w-full max-w-screen-md mt-12 sm:mt-16 px-4">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-zinc-200 mb-6 text-center">
+            <h2
+              className={`text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-zinc-200 mb-6 text-center ${spaceGrotesk.className}`}
+            >
               {t("howItWorks.title")}
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-6 mb-12">

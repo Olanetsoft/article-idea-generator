@@ -601,7 +601,9 @@ export default function WordCounterPage(): JSX.Element {
 
         {/* About Section */}
         <section className="w-full max-w-screen-lg mt-12">
-          <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-4">
+          <h2
+            className={`text-2xl font-bold text-zinc-900 dark:text-white mb-4 ${spaceGrotesk.className}`}
+          >
             {t("tools.wordCounter.aboutTitle")}
           </h2>
           <p className="text-zinc-600 dark:text-zinc-400">
@@ -694,7 +696,9 @@ export default function WordCounterPage(): JSX.Element {
 
         {/* FAQ Section */}
         <section className="w-full max-w-screen-lg mt-12">
-          <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-6">
+          <h2
+            className={`text-2xl font-bold text-zinc-900 dark:text-white mb-6 ${spaceGrotesk.className}`}
+          >
             Frequently Asked Questions
           </h2>
           <div className="space-y-3 max-w-3xl">
@@ -762,7 +766,9 @@ export default function WordCounterPage(): JSX.Element {
 
         {/* Related Tools Section */}
         <section className="w-full max-w-screen-lg mt-12">
-          <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-6">
+          <h2
+            className={`text-2xl font-bold text-zinc-900 dark:text-white mb-6 ${spaceGrotesk.className}`}
+          >
             Related Writing Tools
           </h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">

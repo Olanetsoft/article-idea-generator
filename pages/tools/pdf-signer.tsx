@@ -451,7 +451,9 @@ const SignaturePadModal = ({ onSave, onClose }: SignaturePadProps) => {
         className="bg-white dark:bg-dark-card rounded-2xl shadow-xl max-w-lg w-full overflow-hidden"
       >
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-dark-border">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+          <h3
+            className={`text-lg font-semibold text-gray-900 dark:text-white ${spaceGrotesk.className}`}
+          >
             Create Signature
           </h3>
           <button
@@ -2349,7 +2351,9 @@ export default function PDFSigner() {
                 <div className="w-16 h-16 bg-violet-100 dark:bg-violet-900/30 rounded-2xl flex items-center justify-center mb-4">
                   <DocumentTextIcon className="w-8 h-8 text-violet-600 dark:text-violet-400" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                <h3
+                  className={`text-xl font-semibold text-gray-900 dark:text-white mb-2 ${spaceGrotesk.className}`}
+                >
                   {t("tools.pdfSigner.uploadTitle")}
                 </h3>
                 <p className="text-gray-500 dark:text-gray-400 mb-6">
@@ -2619,7 +2623,9 @@ export default function PDFSigner() {
             transition={{ duration: 0.5, delay: 0.3 }}
             className="mt-12"
           >
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2
+              className={`text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-4 ${spaceGrotesk.className}`}
+            >
               {t("tools.pdfSigner.featuresTitle")}
             </h2>
             <p className="text-gray-600 dark:text-gray-300 mb-6">
@@ -2702,7 +2708,9 @@ export default function PDFSigner() {
             transition={{ duration: 0.5, delay: 0.4 }}
             className="mt-12 sm:mt-16"
           >
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
+            <h2
+              className={`text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center ${spaceGrotesk.className}`}
+            >
               Frequently Asked Questions
             </h2>
             <div className="space-y-3 max-w-3xl mx-auto">

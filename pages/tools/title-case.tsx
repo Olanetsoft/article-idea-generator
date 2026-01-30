@@ -780,7 +780,9 @@ export default function TitleCasePage(): JSX.Element {
 
         {/* FAQ Section */}
         <section className="w-full">
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
+          <h2
+            className={`text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center ${spaceGrotesk.className}`}
+          >
             Frequently Asked Questions
           </h2>
           <div className="space-y-3 max-w-3xl mx-auto">
