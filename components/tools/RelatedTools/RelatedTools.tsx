@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Space_Grotesk } from "@next/font/google";
 import { tools } from "@/lib/tools-config";
 import { useTranslation } from "@/hooks/useTranslation";
 import {
@@ -14,12 +13,6 @@ import {
   ChartBarIcon,
   ScissorsIcon,
 } from "@heroicons/react/outline";
-
-const spaceGrotesk = Space_Grotesk({
-  weight: "700",
-  display: "swap",
-  subsets: ["latin"],
-});
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   photograph: PhotographIcon,
@@ -56,9 +49,7 @@ export const RelatedTools = ({
 
   return (
     <section className="w-full max-w-6xl mt-12 sm:mt-16">
-      <h2
-        className={`text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-6 ${spaceGrotesk.className}`}
-      >
+      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-6">
         {title}
       </h2>
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
