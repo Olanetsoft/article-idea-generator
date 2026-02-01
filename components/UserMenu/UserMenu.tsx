@@ -100,6 +100,7 @@ export function UserMenu() {
         className="flex items-center gap-2 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
       >
         {profile?.avatar_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={profile.avatar_url}
             alt={profile.full_name || "User avatar"}
@@ -118,6 +119,7 @@ export function UserMenu() {
           <div className="p-4 border-b border-gray-200 dark:border-dark-border">
             <div className="flex items-center gap-3">
               {profile?.avatar_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={profile.avatar_url}
                   alt={profile.full_name || "User avatar"}
