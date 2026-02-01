@@ -2,13 +2,13 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 // Short URL domain
-const SHORT_URL_DOMAIN = "aig.link";
+const SHORT_URL_DOMAIN = "aigl.ink";
 
 export function middleware(request: NextRequest) {
   const host = request.headers.get("host") || "";
   const pathname = request.nextUrl.pathname;
 
-  // Check if request is from the short URL domain (aig.link)
+  // Check if request is from the short URL domain (aigl.ink)
   if (host === SHORT_URL_DOMAIN || host === `www.${SHORT_URL_DOMAIN}`) {
     // Root path on aig.link -> redirect to main site tools page
     if (pathname === "/") {

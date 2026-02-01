@@ -111,7 +111,7 @@ export default function RedirectPage({ code, clickData }: RedirectPageProps) {
             <p className="text-slate-400 mb-6">
               The shortened link{" "}
               <code className="text-cyan-400 bg-slate-800 px-2 py-1 rounded">
-                aig.link/{code}
+                aigl.ink/{code}
               </code>{" "}
               doesn&apos;t exist or has expired.
             </p>

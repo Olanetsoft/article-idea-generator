@@ -1,7 +1,7 @@
 // Link Analytics Constants
 
 // Short URL configuration
-export const SHORT_URL_DOMAIN = "aig.link";
+export const SHORT_URL_DOMAIN = "aigl.ink";
 export const SHORT_URL_BASE = `https://${SHORT_URL_DOMAIN}`;
 
 // Short code generation
