@@ -7,6 +7,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { ThemeProvider } from "next-themes";
 import { Inter } from "@next/font/google";
 import ErrorBoundary from "../components/ErrorBoundary";
+import { AuthProvider } from "@/contexts";
 import { GA_MEASUREMENT_ID, pageview } from "@/lib/gtag";
 
 const inter = Inter({
@@ -58,12 +59,14 @@ export default function App({ Component, pageProps }: AppProps) {
       )}
 
       <ThemeProvider enableSystem={true} attribute="class">
-        <ErrorBoundary>
-          <main className={inter.className}>
-            <Component {...pageProps} />
-            <Analytics />
-          </main>
-        </ErrorBoundary>
+        <AuthProvider>
+          <ErrorBoundary>
+            <main className={inter.className}>
+              <Component {...pageProps} />
+              <Analytics />
+            </main>
+          </ErrorBoundary>
+        </AuthProvider>
       </ThemeProvider>
     </>
   );

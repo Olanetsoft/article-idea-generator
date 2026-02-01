@@ -8,6 +8,7 @@ import { Toaster, toast } from "react-hot-toast";
 import { Header, Footer } from "@/components";
 import { RelatedTools } from "@/components/tools";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useAuth } from "@/contexts";
 import { SITE_URL, SITE_NAME } from "@/lib/constants";
 import { trackToolUsage } from "@/lib/gtag";
 import {
@@ -60,6 +61,7 @@ interface ShortenedUrl {
   shortUrl: string;
   createdAt: number;
   clicks?: number;
+  source?: "local" | "supabase";
 }
 
 interface HistoryItem extends ShortenedUrl {}
@@ -484,6 +486,7 @@ function AnalyticsModal({ item, onClose }: AnalyticsModalProps) {
 export default function UrlShortenerPage(): JSX.Element {
   const { t } = useTranslation();
   const router = useRouter();
+  const { user, signInWithGoogle } = useAuth();
   const [url, setUrl] = useState("");
   const [shortUrl, setShortUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -493,36 +496,70 @@ export default function UrlShortenerPage(): JSX.Element {
   const [showAnalytics, setShowAnalytics] = useState<HistoryItem | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const hasTrackedUsage = useRef(false);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
 
-  // Load history from localStorage and sync click counts
+  // Load history from localStorage or Supabase
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(HISTORY_STORAGE_KEY);
-      if (stored) {
-        const historyItems: HistoryItem[] = JSON.parse(stored);
-
-        // Sync click counts from tracked URL storage
-        const trackedUrls = getLocalShortUrls();
-        const syncedHistory = historyItems.map((item) => {
-          const tracked = trackedUrls.find((t) => t.id === item.id);
-          if (tracked) {
-            return { ...item, clicks: tracked.clicks };
+    const loadHistory = async () => {
+      if (user) {
+        // Load from Supabase for logged-in users
+        setIsLoadingHistory(true);
+        try {
+          const response = await fetch("/api/urls");
+          if (response.ok) {
+            const { urls } = await response.json();
+            const supabaseHistory: HistoryItem[] = urls.map((url: any) => ({
+              id: url.id,
+              originalUrl: url.original_url,
+              shortUrl: `${SHORT_URL_BASE}/${url.code}`,
+              createdAt: new Date(url.created_at).getTime(),
+              clicks: url.click_count || 0,
+              source: "supabase" as const,
+            }));
+            setHistory(supabaseHistory);
           }
-          return item;
-        });
+        } catch (err) {
+          console.error("Failed to load URLs from Supabase:", err);
+        } finally {
+          setIsLoadingHistory(false);
+        }
+      } else {
+        // Load from localStorage for anonymous users
+        try {
+          const stored = localStorage.getItem(HISTORY_STORAGE_KEY);
+          if (stored) {
+            const historyItems: HistoryItem[] = JSON.parse(stored);
 
-        setHistory(syncedHistory);
+            // Sync click counts from tracked URL storage
+            const trackedUrls = getLocalShortUrls();
+            const syncedHistory = historyItems.map((item) => {
+              const tracked = trackedUrls.find((t) => t.id === item.id);
+              if (tracked) {
+                return {
+                  ...item,
+                  clicks: tracked.clicks,
+                  source: "local" as const,
+                };
+              }
+              return { ...item, source: "local" as const };
+            });
 
-        // Save synced history back
-        localStorage.setItem(
-          HISTORY_STORAGE_KEY,
-          JSON.stringify(syncedHistory),
-        );
+            setHistory(syncedHistory);
+
+            // Save synced history back
+            localStorage.setItem(
+              HISTORY_STORAGE_KEY,
+              JSON.stringify(syncedHistory),
+            );
+          }
+        } catch {
+          // Ignore localStorage errors
+        }
       }
-    } catch {
-      // Ignore localStorage errors
-    }
-  }, []);
+    };
+
+    loadHistory();
+  }, [user]);
 
   // Save history to localStorage
   const saveHistory = useCallback((items: HistoryItem[]) => {
@@ -568,22 +605,57 @@ export default function UrlShortenerPage(): JSX.Element {
     }
 
     try {
-      // Create short URL with aig.link domain
-      const trackedUrl = createTrackedShortUrl(normalizedUrl);
-      const shortened = trackedUrl.shortUrl;
+      let shortened: string;
+      let newItem: HistoryItem;
 
-      // Add to history
-      const newItem: HistoryItem = {
-        id: trackedUrl.id,
-        originalUrl: normalizedUrl,
-        shortUrl: shortened,
-        createdAt: Date.now(),
-        clicks: 0,
-      };
+      // Try API first (works for everyone, associates with user if logged in)
+      try {
+        const response = await fetch("/api/urls", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            originalUrl: normalizedUrl,
+            title: extractTitleFromUrl(normalizedUrl),
+          }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          shortened = data.shortUrl;
+
+          newItem = {
+            id: data.id,
+            originalUrl: normalizedUrl,
+            shortUrl: shortened,
+            createdAt: Date.now(),
+            clicks: 0,
+            source: user ? "supabase" : "local",
+          };
+        } else {
+          throw new Error("API unavailable");
+        }
+      } catch {
+        // Fallback to local creation if API fails
+        const trackedUrl = createTrackedShortUrl(normalizedUrl);
+        shortened = trackedUrl.shortUrl;
+
+        newItem = {
+          id: trackedUrl.id,
+          originalUrl: normalizedUrl,
+          shortUrl: shortened,
+          createdAt: Date.now(),
+          clicks: 0,
+          source: "local",
+        };
+      }
 
       const newHistory = [newItem, ...history].slice(0, MAX_HISTORY_ITEMS);
       setHistory(newHistory);
-      saveHistory(newHistory);
+
+      // Save to localStorage for non-logged-in users
+      if (!user) {
+        saveHistory(newHistory);
+      }
 
       setShortUrl(shortened);
       toast.success(t("tools.urlShortener.successMessage"));
@@ -624,23 +696,65 @@ export default function UrlShortenerPage(): JSX.Element {
     inputRef.current?.focus();
   };
 
-  const handleDeleteHistoryItem = (id: string) => {
-    // Delete from tracked storage
-    deleteLocalShortUrl(id);
+  const handleDeleteHistoryItem = async (id: string) => {
+    const item = history.find((h) => h.id === id);
+
+    if (item?.source === "supabase" && user) {
+      // Delete via API for Supabase items
+      try {
+        const code = item.shortUrl.split("/").pop();
+        const response = await fetch(`/api/urls?code=${code}`, {
+          method: "DELETE",
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to delete URL");
+        }
+      } catch (err) {
+        toast.error("Failed to delete link");
+        return;
+      }
+    } else {
+      // Delete from local storage
+      deleteLocalShortUrl(id);
+    }
 
     const newHistory = history.filter((item) => item.id !== id);
     setHistory(newHistory);
-    saveHistory(newHistory);
+
+    if (!user) {
+      saveHistory(newHistory);
+    }
+
     toast.success(t("tools.urlShortener.deletedMessage"));
   };
 
-  const handleClearHistory = () => {
-    // Clear all tracked links from storage
-    history.forEach((item) => {
-      deleteLocalShortUrl(item.id);
-    });
+  const handleClearHistory = async () => {
+    if (user) {
+      // Delete all Supabase URLs
+      for (const item of history) {
+        if (item.source === "supabase") {
+          try {
+            const code = item.shortUrl.split("/").pop();
+            await fetch(`/api/urls?code=${code}`, { method: "DELETE" });
+          } catch {
+            // Continue with other deletions
+          }
+        }
+      }
+    } else {
+      // Clear all local tracked links
+      history.forEach((item) => {
+        deleteLocalShortUrl(item.id);
+      });
+    }
+
     setHistory([]);
-    saveHistory([]);
+
+    if (!user) {
+      saveHistory([]);
+    }
+
     toast.success(t("tools.urlShortener.historyCleared"));
   };
 
@@ -684,7 +798,7 @@ export default function UrlShortenerPage(): JSX.Element {
         />
         <meta
           name="keywords"
-          content="url shortener, link shortener, shorten url, short link, tiny url, link compressor, free url shortener, custom short links"
+          content="url shortener, link shortener, shorten url, short link, tiny url, link compressor, free url shortener, custom short links, link analytics, click tracking, url analytics, link management, qr code generator"
         />
         <link rel="canonical" href={pageUrl} />
 
@@ -744,15 +858,19 @@ export default function UrlShortenerPage(): JSX.Element {
               },
               featureList: [
                 "Free URL shortening with no limits",
-                "No registration or account required",
+                "No registration required for basic usage",
                 "QR code generation for any shortened link",
+                "Click analytics with geographic data",
+                "Device and browser statistics",
+                "Traffic source and referrer tracking",
+                "UTM parameter support",
+                "Dashboard for link management",
+                "Sync links across devices when signed in",
                 "Local link history saved in browser",
                 "One-click copy to clipboard",
                 "Clean, professional short URLs",
                 "Works with any valid URL",
                 "Mobile-friendly responsive design",
-                "Fast, reliable shortening services",
-                "Privacy-focused - no tracking",
               ],
             }),
           }}
@@ -771,7 +889,7 @@ export default function UrlShortenerPage(): JSX.Element {
                   name: "Is this URL shortener completely free?",
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "Yes, our URL shortener is 100% free with no hidden costs or premium tiers. Shorten unlimited URLs without signing up or providing any personal information.",
+                    text: "Yes, URL shortening is 100% free with no hidden costs. Shorten unlimited URLs without signing up. For advanced features like detailed click analytics and link management dashboard, simply sign in with Google - also free.",
                   },
                 },
                 {
@@ -787,7 +905,7 @@ export default function UrlShortenerPage(): JSX.Element {
                   name: "Can I track clicks on my shortened URLs?",
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "Our tool focuses on simplicity and privacy. For basic link tracking, you can use UTM parameters in your original URL before shortening. For advanced analytics, consider dedicated link management platforms.",
+                    text: "Yes! Sign in with Google to access detailed click analytics including total clicks, unique visitors, geographic location (country/city), device types, browsers, operating systems, traffic sources, and referrers. You can also track UTM parameters for marketing campaigns.",
                   },
                 },
                 {
@@ -819,7 +937,7 @@ export default function UrlShortenerPage(): JSX.Element {
                   name: "Is there a limit to how many URLs I can shorten?",
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "There's no limit. Shorten as many URLs as you need. Your recent links are saved locally in your browser for easy access.",
+                    text: "There's no limit. Shorten as many URLs as you need. Your recent links are saved locally in your browser. Sign in with Google to sync your links across devices and never lose them.",
                   },
                 },
                 {
@@ -944,8 +1062,8 @@ export default function UrlShortenerPage(): JSX.Element {
               {/* Feature badge */}
               <div className="flex items-center justify-center mb-4">
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-cyan-50 dark:bg-cyan-900/20 text-cyan-700 dark:text-cyan-300 rounded-full text-xs font-medium">
-                  <ChartBarIcon className="w-3.5 h-3.5" />
-                  Free analytics included • No sign-up required
+                  <LinkIcon className="w-3.5 h-3.5" />
+                  Free URL shortening • Sign in for analytics
                 </div>
               </div>
 
@@ -1085,6 +1203,103 @@ export default function UrlShortenerPage(): JSX.Element {
               )}
             </AnimatePresence>
           </motion.div>
+
+          {/* Sign-in prompt for analytics (only shown to anonymous users) */}
+          {!user && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.15 }}
+              className="mt-6 p-4 bg-gradient-to-r from-cyan-50 to-blue-50 dark:from-cyan-900/20 dark:to-blue-900/20 border border-cyan-200 dark:border-cyan-800/30 rounded-xl"
+            >
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-white dark:bg-dark-card rounded-lg shadow-sm">
+                    <ChartBarIcon className="w-6 h-6 text-cyan-600 dark:text-cyan-400" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-900 dark:text-white">
+                      Want detailed analytics?
+                    </p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Sign in to track clicks, see visitor locations, and sync
+                      links across devices.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={signInWithGoogle}
+                  className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-lg hover:bg-gray-50 dark:hover:bg-dark-border/50 transition-colors text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
+                  <svg className="w-4 h-4" viewBox="0 0 24 24">
+                    <path
+                      fill="#4285F4"
+                      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                    />
+                    <path
+                      fill="#34A853"
+                      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                    />
+                    <path
+                      fill="#FBBC05"
+                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                    />
+                    <path
+                      fill="#EA4335"
+                      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                    />
+                  </svg>
+                  Sign in with Google
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Dashboard link for logged-in users */}
+          {user && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.15 }}
+              className="mt-6 p-4 bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 border border-violet-200 dark:border-violet-800/30 rounded-xl"
+            >
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-white dark:bg-dark-card rounded-lg shadow-sm">
+                    <ChartBarIcon className="w-6 h-6 text-violet-600 dark:text-violet-400" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-900 dark:text-white">
+                      Links saved to your account
+                    </p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      View click analytics, visitor locations, and manage all
+                      your links.
+                    </p>
+                  </div>
+                </div>
+                <Link
+                  href="/dashboard"
+                  className="flex items-center gap-2 px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-colors text-sm font-medium"
+                >
+                  Go to Dashboard
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+                </Link>
+              </div>
+            </motion.div>
+          )}
 
           {/* History Section */}
           {history.length > 0 && (

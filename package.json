@@ -12,6 +12,8 @@
     "@heroicons/react": "^1.0.6",
     "@imgly/background-removal": "^1.7.0",
     "@next/font": "13.1.5",
+    "@supabase/ssr": "^0.8.0",
+    "@supabase/supabase-js": "^2.93.3",
     "@tailwindcss/line-clamp": "^0.4.2",
     "@types/node": "18.11.18",
     "@types/qrcode": "^1.5.6",

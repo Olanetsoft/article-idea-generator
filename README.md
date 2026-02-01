@@ -28,7 +28,7 @@ Generate article ideas using GPT-4o-mini. Enter a topic, get 4 title suggestions
 - **[PDF Signer](https://www.articleideagenerator.com/tools/pdf-signer)** — Sign, fill, and annotate PDFs directly in your browser. **100% private** (files never leave your device). Draw/type/upload signatures, add full name & initials (auto-derived), text fields, dates, checkboxes, shapes (circles, rectangles, lines, arrows), highlights, strikethrough, and image stamps. Drag, resize, and position any element. Multi-page support. **Undo/redo** (Ctrl+Z/Y), **keyboard shortcuts** (Delete, arrows, Escape), **save signatures** to browser for reuse. Instant download
 - **[Title Case Converter](https://www.articleideagenerator.com/tools/title-case)** — 16 case styles (AP, Chicago, APA, camelCase, snake_case, kebab-case, etc). Auto-detection, one-click copy
 - **[JSON Formatter](https://www.articleideagenerator.com/tools/json-formatter)** — Format, minify, validate JSON. Customizable indentation (2/4/8 spaces, tabs). Real-time validation with line/column error positions. Structure analysis (keys, objects, arrays, depth). File upload/download support
-- **[URL Shortener](https://www.articleideagenerator.com/tools/url-shortener)** — Free URL shortener, no signup required. QR code generation for short links. Link history saved locally. Perfect for social media and marketing
+- **[URL Shortener](https://www.articleideagenerator.com/tools/url-shortener)** — Free URL shortener with click analytics. QR code generation for short links. **Sign in for detailed analytics**: click tracking, visitor locations (country/city), device & browser stats, traffic sources, UTM tracking. Links saved locally or synced across devices when signed in. Dashboard for managing all links. Perfect for social media and marketing
 - **[Cover Image Generator](https://www.articleideagenerator.com/tools/cover-image-generator)** — The most feature-rich free cover image maker. **24+ gradient presets** (vibrant, dark, nature, minimal), **16 platform sizes** (Twitter, LinkedIn, Dev.to, Medium, Hashnode, Instagram, Pinterest, YouTube & more), **12 pattern overlays**, **8 theme layouts**, **30+ dev icons** (React, TypeScript, Python, etc.), **8 quick-start templates**. **Background image support** with advanced filters (brightness, contrast, saturation, blur, grayscale) and color overlay. Custom logo upload, download all sizes at once, settings persistence. No signup required
 - **[Background Remover](https://www.articleideagenerator.com/tools/background-remover)** — AI-powered background removal that runs **100% in your browser** (files never uploaded). Remove backgrounds from photos, portraits, products, and graphics instantly. **4 output modes**: transparent, solid color (16+ presets), custom image, or blur effect. Real-time preview, one-click download. Supports PNG, JPG, WebP. No signup required
 - **Character Counter** _(Coming Soon)_
@@ -104,9 +104,19 @@ Generate article ideas using GPT-4o-mini. Enter a topic, get 4 title suggestions
 
 1. Go to [/tools/url-shortener](https://www.articleideagenerator.com/tools/url-shortener)
 2. Paste any long URL
-3. Click **Shorten URL**
+3. Click **Shorten URL** (no sign-up required)
 4. Copy the short link or generate a QR code
 5. Recent links are saved locally for quick access
+
+**Analytics (sign in with Google for):**
+
+- Click tracking (total, unique, QR scans)
+- Visitor locations (country, city)
+- Device & browser breakdown
+- Traffic sources & referrers
+- UTM parameter tracking
+- Sync links across devices
+- Dashboard at [/dashboard](https://www.articleideagenerator.com/dashboard)
 
 ### PDF Signer
 
@@ -179,6 +189,7 @@ Uses [OpenAI GPT-4o-mini](https://openai.com/api/):
 
 - Next.js 13 + TypeScript
 - OpenAI GPT-4o-mini
+- Supabase (auth & database for analytics)
 - Tailwind CSS
 - Framer Motion
 - Deployed on Vercel
@@ -205,7 +216,17 @@ Open [http://localhost:3000](http://localhost:3000)
 
 ### Environment Variables
 
-- `OPENAI_API_KEY` — Required. Get from [platform.openai.com](https://platform.openai.com/account/api-keys)
+**Required:**
+
+- `OPENAI_API_KEY` — Get from [platform.openai.com](https://platform.openai.com/account/api-keys)
+
+**Optional (for URL analytics with auth):**
+
+- `NEXT_PUBLIC_SUPABASE_URL` — Your Supabase project URL
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` — Your Supabase anon/public key
+- `NEXT_PUBLIC_SITE_URL` — Your site URL for auth redirects
+
+See [docs/SUPABASE_SETUP.md](./docs/SUPABASE_SETUP.md) for detailed Supabase setup instructions.
 
 ## Contributing
 

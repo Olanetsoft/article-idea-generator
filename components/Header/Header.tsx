@@ -11,6 +11,7 @@ import {
 import { MenuIcon, XIcon } from "@heroicons/react/outline";
 import { useTranslation } from "@/hooks/useTranslation";
 import { tools } from "@/lib/tools-config";
+import { UserMenu } from "@/components/UserMenu";
 
 export default function Header() {
   const { systemTheme, theme, setTheme } = useTheme();
@@ -242,6 +243,8 @@ export default function Header() {
               <StarIcon className="w-5 h-5 text-yellow-500" />
               <span className="font-medium text-sm">Star on GitHub</span>
             </a>
+
+            <UserMenu />
           </div>
 
           {/* Mobile Menu Button */}
@@ -410,6 +413,11 @@ export default function Header() {
               <span>Star on GitHub</span>
               <StarIcon className="w-5 h-5 text-yellow-500 ml-auto" />
             </a>
+
+            {/* User Account - Mobile */}
+            <div className="mx-2 mt-2">
+              <UserMenu />
+            </div>
           </div>
 
           {/* CTA Button - Fixed at bottom */}

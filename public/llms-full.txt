@@ -286,6 +286,47 @@ Browse all available writing tools with descriptions and "coming soon" badges fo
 - Supports PDFs up to 50MB
 - Touch-friendly for mobile/tablet
 
+### URL Shortener Tool
+
+**URL**: https://articleideagenerator.com/tools/url-shortener
+
+**Features**:
+- **URL Shortening**:
+  - Instant URL shortening with no signup required
+  - Clean, professional short links (aigl.ink domain)
+  - QR code generation for any shortened link
+  - One-click copy to clipboard
+  - Local link history saved in browser
+
+- **Analytics (requires sign-in with Google)**:
+  - Click tracking (total clicks, unique visitors, QR scans)
+  - Geographic breakdown (country, city, region)
+  - Device type statistics (mobile, tablet, desktop)
+  - Browser and operating system breakdown
+  - Traffic source analysis (direct, social, search, referral)
+  - Referrer domain tracking
+  - UTM parameter support (utm_source, utm_medium, utm_campaign)
+  - Timeline data with click history
+  - Dashboard for managing all links
+  - Sync links across devices
+
+**Use Cases**:
+- Social media posts (cleaner links for Twitter, LinkedIn, Instagram)
+- Marketing campaigns with UTM tracking
+- Print materials (shorter URLs easier to type)
+- Email newsletters
+- SMS messages (character limits)
+- QR code campaigns (track scan rates)
+- A/B testing different traffic sources
+
+**Technical Details**:
+- Supabase for authentication and database
+- Google OAuth for sign-in
+- Row Level Security (RLS) for data privacy
+- IP hashing for anonymous unique visitor tracking
+- Vercel geo headers for location data
+- Client-side fallback to localStorage when API unavailable
+
 ### Background Remover Tool
 
 **URL**: https://articleideagenerator.com/tools/background-remover

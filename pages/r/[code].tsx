@@ -12,10 +12,23 @@ import {
   generateFingerprint,
   parseUtmParams,
 } from "@/lib/analytics";
+import { createServerClient } from "@/lib/supabase/server";
 import type { ClickEvent, LocalShortUrl } from "@/types/analytics";
+
+interface UrlData {
+  code: string;
+  originalUrl: string;
+  title?: string;
+  source: "supabase" | "localStorage";
+}
 
 interface RedirectPageProps {
   code: string;
+  // URL data from Supabase (if found)
+  supabaseUrl: {
+    originalUrl: string;
+    title: string | null;
+  } | null;
   // Analytics data captured server-side
   clickData: {
     ip: string;
@@ -27,22 +40,42 @@ interface RedirectPageProps {
   };
 }
 
-export default function RedirectPage({ code, clickData }: RedirectPageProps) {
-  const [urlData, setUrlData] = useState<LocalShortUrl | null>(null);
+export default function RedirectPage({
+  code,
+  supabaseUrl,
+  clickData,
+}: RedirectPageProps) {
+  const [urlData, setUrlData] = useState<UrlData | null>(null);
   const [notFound, setNotFound] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
 
   useEffect(() => {
-    // Look up the short URL in local storage
+    // First check if we have Supabase data
+    if (supabaseUrl) {
+      setUrlData({
+        code,
+        originalUrl: supabaseUrl.originalUrl,
+        title: supabaseUrl.title || undefined,
+        source: "supabase",
+      });
+      return;
+    }
+
+    // Fall back to local storage
     const urls = getLocalShortUrls();
     const found = urls.find((u) => u.code === code);
 
     if (found) {
-      setUrlData(found);
+      setUrlData({
+        code: found.code,
+        originalUrl: found.originalUrl,
+        title: found.title,
+        source: "localStorage",
+      });
     } else {
       setNotFound(true);
     }
-  }, [code]);
+  }, [code, supabaseUrl]);
 
   useEffect(() => {
     if (!urlData || isRedirecting) return;
@@ -54,36 +87,56 @@ export default function RedirectPage({ code, clickData }: RedirectPageProps) {
     const sourceType = urlParams.get("source") === "qr" ? "qr" : "direct";
     const utmParams = parseUtmParams(window.location.href);
 
-    // Save click event to local storage for analytics
-    const event: ClickEvent = {
-      id: `${code}-${Date.now()}`,
-      shortUrlId: code,
-      timestamp: clickData.timestamp,
-      ip: clickData.ip,
-      userAgent: clickData.userAgent,
-      referrer: parseReferrer(clickData.referrer),
-      country: clickData.country,
-      city: clickData.city,
-      deviceType: detectDeviceType(clickData.userAgent),
-      browser: detectBrowser(clickData.userAgent),
-      os: detectOS(clickData.userAgent),
-      fingerprint: generateFingerprint(
-        clickData.userAgent,
-        clickData.ip,
-        typeof navigator !== "undefined" ? navigator.language : "",
-      ),
-      sourceType,
-      utmSource: utmParams.utm_source,
-      utmMedium: utmParams.utm_medium,
-      utmCampaign: utmParams.utm_campaign,
+    // Track the click
+    const trackClick = async () => {
+      if (urlData.source === "supabase") {
+        // Track via API for Supabase URLs
+        try {
+          await fetch("/api/urls/track", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              code,
+              sourceType,
+              utmParams,
+            }),
+          });
+        } catch (error) {
+          console.error("Failed to track click:", error);
+        }
+      } else {
+        // Save to local storage for localStorage URLs
+        const event: ClickEvent = {
+          id: `${code}-${Date.now()}`,
+          shortUrlId: code,
+          timestamp: clickData.timestamp,
+          ip: clickData.ip,
+          userAgent: clickData.userAgent,
+          referrer: parseReferrer(clickData.referrer),
+          country: clickData.country,
+          city: clickData.city,
+          deviceType: detectDeviceType(clickData.userAgent),
+          browser: detectBrowser(clickData.userAgent),
+          os: detectOS(clickData.userAgent),
+          fingerprint: generateFingerprint(
+            clickData.userAgent,
+            clickData.ip,
+            typeof navigator !== "undefined" ? navigator.language : "",
+          ),
+          sourceType,
+          utmSource: utmParams.utm_source,
+          utmMedium: utmParams.utm_medium,
+          utmCampaign: utmParams.utm_campaign,
+        };
+
+        saveLocalClickEvent(code, event);
+      }
+
+      // Redirect after tracking
+      window.location.replace(urlData.originalUrl);
     };
 
-    saveLocalClickEvent(code, event);
-
-    // Small delay to ensure analytics is saved
-    setTimeout(() => {
-      window.location.replace(urlData.originalUrl);
-    }, 100);
+    trackClick();
   }, [urlData, code, clickData, isRedirecting]);
 
   // Show 404 page for invalid codes
@@ -209,9 +262,32 @@ export const getServerSideProps: GetServerSideProps<RedirectPageProps> = async (
     timestamp: new Date().toISOString(),
   };
 
+  // Try to find the URL in Supabase first
+  let supabaseUrl: RedirectPageProps["supabaseUrl"] = null;
+
+  try {
+    const supabase = createServerClient(context.req, context.res);
+    const { data } = await supabase
+      .from("short_urls")
+      .select("original_url, title")
+      .eq("code", code)
+      .single();
+
+    if (data) {
+      supabaseUrl = {
+        originalUrl: data.original_url,
+        title: data.title,
+      };
+    }
+  } catch (error) {
+    // Supabase not configured or error - will fall back to localStorage
+    console.error("Supabase lookup error:", error);
+  }
+
   return {
     props: {
       code,
+      supabaseUrl,
       clickData,
     },
   };
