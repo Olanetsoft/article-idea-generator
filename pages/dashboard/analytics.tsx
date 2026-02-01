@@ -557,7 +557,7 @@ function AnalyticsContent({ analytics }: { analytics: AnalyticsData }) {
       </motion.div>
 
       {/* Timeline Chart */}
-      {analytics.timeline.length > 0 && (
+      {analytics.timeline && analytics.timeline.length > 0 && (
         <motion.div variants={itemVariants} className="mb-8">
           <ClicksChart data={analytics.timeline} />
         </motion.div>

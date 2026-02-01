@@ -64,6 +64,7 @@ export function GeoChart({
   type = "country",
 }: GeoChartProps) {
   const chartData = useMemo(() => {
+    if (!data || data.length === 0) return [];
     const total = data.reduce((acc, item) => acc + item.count, 0);
     return data.slice(0, 6).map((item) => ({
       ...item,
@@ -72,7 +73,7 @@ export function GeoChart({
     }));
   }, [data, type]);
 
-  if (data.length === 0) {
+  if (!data || data.length === 0) {
     return (
       <div className="p-6 rounded-xl bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">

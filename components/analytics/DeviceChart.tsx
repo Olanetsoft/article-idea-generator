@@ -38,6 +38,7 @@ export function DeviceChart({
   type = "device",
 }: DeviceChartProps) {
   const chartData = useMemo(() => {
+    if (!data || data.length === 0) return [];
     const total = data.reduce((acc, item) => acc + item.count, 0);
     return data.map((item) => ({
       ...item,
@@ -47,7 +48,7 @@ export function DeviceChart({
 
   const colors = COLORS[type] || COLORS.device;
 
-  if (data.length === 0) {
+  if (!data || data.length === 0) {
     return (
       <div className="p-6 rounded-xl bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
