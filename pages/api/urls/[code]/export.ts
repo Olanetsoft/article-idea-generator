@@ -1,5 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { createApiClient } from "@/lib/supabase/server";
+import { getClientIP } from "@/lib/url-utils";
+import {
+  checkRateLimit,
+  getRateLimitHeaders,
+  RateLimits,
+} from "@/lib/rate-limit";
 
 // Type for click events
 interface ClickEvent {
@@ -36,6 +42,26 @@ export default async function handler(
 ) {
   if (req.method !== "GET") {
     return res.status(405).json({ error: "Method not allowed" });
+  }
+
+  // Rate limiting - 5 exports per minute per IP
+  const ip = getClientIP(
+    req.headers as Record<string, string | string[] | undefined>,
+    req.socket.remoteAddress,
+  );
+  const rateLimit = checkRateLimit(ip, RateLimits.export);
+
+  // Set rate limit headers
+  const rateLimitHeaders = getRateLimitHeaders(rateLimit);
+  Object.entries(rateLimitHeaders).forEach(([key, value]) => {
+    res.setHeader(key, value);
+  });
+
+  if (!rateLimit.success) {
+    return res.status(429).json({
+      error: "Too many export requests. Please try again later.",
+      retryAfter: Math.ceil((rateLimit.resetTime - Date.now()) / 1000),
+    });
   }
 
   const supabase = createApiClient(req, res);

@@ -10,6 +10,11 @@ import {
   getClientIP,
   getGeoDataWithFallback,
 } from "@/lib/url-utils";
+import {
+  checkRateLimit,
+  getRateLimitHeaders,
+  RateLimits,
+} from "@/lib/rate-limit";
 
 // Type for short URL query result
 interface ShortUrlTrackData {
@@ -26,6 +31,26 @@ export default async function handler(
   // Anyone can track clicks on URLs (this enables analytics for all URLs)
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
+  }
+
+  // Rate limiting - 100 requests per minute per IP
+  const ip = getClientIP(
+    req.headers as Record<string, string | string[] | undefined>,
+    req.socket.remoteAddress,
+  );
+  const rateLimit = checkRateLimit(ip, RateLimits.track);
+
+  // Set rate limit headers
+  const rateLimitHeaders = getRateLimitHeaders(rateLimit);
+  Object.entries(rateLimitHeaders).forEach(([key, value]) => {
+    res.setHeader(key, value);
+  });
+
+  if (!rateLimit.success) {
+    return res.status(429).json({
+      error: "Too many requests. Please try again later.",
+      retryAfter: Math.ceil((rateLimit.resetTime - Date.now()) / 1000),
+    });
   }
 
   const supabase = createApiClient(req, res);

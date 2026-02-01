@@ -2,7 +2,12 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { createApiClient } from "@/lib/supabase/server";
 import type { InsertShortUrl, ShortUrl } from "@/types/database";
 import { nanoid } from "nanoid";
-import { extractTitleFromUrl, isValidUrl } from "@/lib/url-utils";
+import { extractTitleFromUrl, isValidUrl, getClientIP } from "@/lib/url-utils";
+import {
+  checkRateLimit,
+  getRateLimitHeaders,
+  RateLimits,
+} from "@/lib/rate-limit";
 
 // Generate a short code
 function generateShortCode(length: number = 6): string {
@@ -27,6 +32,26 @@ export default async function handler(
   // Anyone can create short URLs - auth is optional for associating with account
   // =========================================================================
   if (req.method === "POST") {
+    // Rate limiting - 10 URLs per minute per IP
+    const ip = getClientIP(
+      req.headers as Record<string, string | string[] | undefined>,
+      req.socket.remoteAddress,
+    );
+    const rateLimit = checkRateLimit(ip, RateLimits.createUrl);
+
+    // Set rate limit headers
+    const rateLimitHeaders = getRateLimitHeaders(rateLimit);
+    Object.entries(rateLimitHeaders).forEach(([key, value]) => {
+      res.setHeader(key, value);
+    });
+
+    if (!rateLimit.success) {
+      return res.status(429).json({
+        error: "Too many URLs created. Please try again later.",
+        retryAfter: Math.ceil((rateLimit.resetTime - Date.now()) / 1000),
+      });
+    }
+
     const { originalUrl, title, expiresAt } = req.body;
 
     if (!originalUrl) {
