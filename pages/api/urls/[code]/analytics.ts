@@ -163,6 +163,9 @@ export default async function handler(
     sourceType: c.source_type,
   }));
 
+  // Calculate QR scans from sourceBreakdown
+  const qrScans = clickEvents.filter((c) => c.source_type === "qr").length;
+
   return res.status(200).json({
     code: shortUrl.code,
     originalUrl: shortUrl.original_url,
@@ -170,17 +173,13 @@ export default async function handler(
     createdAt: shortUrl.created_at,
     totalClicks: shortUrl.total_clicks,
     uniqueClicks: shortUrl.unique_clicks,
-    analytics: {
-      clicksToday,
-      clicksLast7Days,
-      clicksLast30Days: clickEvents.length,
-      topCountries,
-      deviceBreakdown,
-      browserBreakdown,
-      sourceBreakdown,
-      topReferrers,
-      timeline,
-      recentClicks,
-    },
+    qrScans,
+    countries: topCountries,
+    devices: deviceBreakdown,
+    browsers: browserBreakdown,
+    sources: sourceBreakdown,
+    referrers: topReferrers,
+    timeline,
+    recentClicks,
   });
 }
