@@ -11,6 +11,16 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { SITE_URL, SITE_NAME } from "@/lib/constants";
 import { trackToolUsage } from "@/lib/gtag";
 import {
+  generateShortCode,
+  saveLocalShortUrl,
+  getLocalShortUrls,
+  deleteLocalShortUrl,
+  formatShortUrl,
+  isValidUrl as isValidUrlUtil,
+  SHORT_URL_BASE,
+} from "@/lib/analytics";
+import type { LocalShortUrl } from "@/types/analytics";
+import {
   ClipboardCopyIcon,
   TrashIcon,
   CheckIcon,
@@ -19,6 +29,8 @@ import {
   QrcodeIcon,
   ClockIcon,
   XIcon,
+  ChartBarIcon,
+  SwitchHorizontalIcon,
 } from "@heroicons/react/outline";
 
 // ============================================================================
@@ -45,12 +57,15 @@ const HISTORY_STORAGE_KEY = "url-shortener-history";
 // Types
 // ============================================================================
 
+type ShorteningMode = "tracked" | "external";
+
 interface ShortenedUrl {
   id: string;
   originalUrl: string;
   shortUrl: string;
   createdAt: number;
   clicks?: number;
+  mode: ShorteningMode;
 }
 
 interface HistoryItem extends ShortenedUrl {}
@@ -60,12 +75,7 @@ interface HistoryItem extends ShortenedUrl {}
 // ============================================================================
 
 function isValidUrl(string: string): boolean {
-  try {
-    const url = new URL(string);
-    return url.protocol === "http:" || url.protocol === "https:";
-  } catch {
-    return false;
-  }
+  return isValidUrlUtil(string);
 }
 
 function generateId(): string {
@@ -123,6 +133,41 @@ async function shortenUrl(url: string): Promise<string> {
   }
 }
 
+// Create a tracked short URL (aig.link)
+function createTrackedShortUrl(
+  originalUrl: string,
+  title?: string,
+): LocalShortUrl {
+  const code = generateShortCode();
+  const shortUrl: LocalShortUrl = {
+    id: code,
+    code,
+    originalUrl,
+    shortUrl: `${SHORT_URL_BASE}/${code}`,
+    title: title || extractTitleFromUrl(originalUrl),
+    createdAt: new Date().toISOString(),
+    clicks: 0,
+  };
+
+  saveLocalShortUrl(shortUrl);
+  return shortUrl;
+}
+
+// Extract a reasonable title from URL
+function extractTitleFromUrl(url: string): string {
+  try {
+    const urlObj = new URL(url);
+    const hostname = urlObj.hostname.replace("www.", "");
+    const path = urlObj.pathname.replace(/\//g, " ").trim();
+    if (path && path.length > 2) {
+      return `${hostname} - ${path.substring(0, 30)}`;
+    }
+    return hostname;
+  } catch {
+    return "Untitled Link";
+  }
+}
+
 // ============================================================================
 // Components
 // ============================================================================
@@ -132,6 +177,7 @@ interface HistoryItemCardProps {
   onCopy: (url: string) => void;
   onDelete: (id: string) => void;
   onGenerateQr: (url: string) => void;
+  onViewAnalytics?: (item: HistoryItem) => void;
   t: (key: string) => string;
 }
 
@@ -140,6 +186,7 @@ function HistoryItemCard({
   onCopy,
   onDelete,
   onGenerateQr,
+  onViewAnalytics,
   t,
 }: HistoryItemCardProps) {
   const [copied, setCopied] = useState(false);
@@ -150,6 +197,8 @@ function HistoryItemCard({
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const isTracked = item.mode === "tracked";
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -158,22 +207,37 @@ function HistoryItemCard({
       className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-gray-50 dark:bg-dark-card/50 rounded-xl border border-gray-100 dark:border-dark-border"
     >
       <div className="flex-1 min-w-0">
-        <a
-          href={item.shortUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-violet-600 dark:text-violet-400 font-medium hover:underline flex items-center gap-1.5"
-        >
-          {item.shortUrl}
-          <ExternalLinkIcon className="w-3.5 h-3.5 flex-shrink-0" />
-        </a>
+        <div className="flex items-center gap-2">
+          <a
+            href={item.shortUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-violet-600 dark:text-violet-400 font-medium hover:underline flex items-center gap-1.5"
+          >
+            {item.shortUrl}
+            <ExternalLinkIcon className="w-3.5 h-3.5 flex-shrink-0" />
+          </a>
+          {isTracked && (
+            <span className="px-1.5 py-0.5 text-[10px] font-medium bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300 rounded">
+              Tracked
+            </span>
+          )}
+        </div>
         <p className="text-sm text-gray-500 dark:text-gray-400 truncate mt-1">
           {truncateUrl(item.originalUrl, 60)}
         </p>
-        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 flex items-center gap-1">
-          <ClockIcon className="w-3 h-3" />
-          {formatDate(item.createdAt)}
-        </p>
+        <div className="flex items-center gap-3 mt-1">
+          <p className="text-xs text-gray-400 dark:text-gray-500 flex items-center gap-1">
+            <ClockIcon className="w-3 h-3" />
+            {formatDate(item.createdAt)}
+          </p>
+          {isTracked && typeof item.clicks === "number" && (
+            <p className="text-xs text-gray-400 dark:text-gray-500 flex items-center gap-1">
+              <ChartBarIcon className="w-3 h-3" />
+              {item.clicks} {item.clicks === 1 ? "click" : "clicks"}
+            </p>
+          )}
+        </div>
       </div>
 
       <div className="flex items-center gap-2 flex-shrink-0">
@@ -193,6 +257,17 @@ function HistoryItemCard({
               : t("tools.urlShortener.copy")}
           </span>
         </button>
+
+        {isTracked && onViewAnalytics && (
+          <button
+            onClick={() => onViewAnalytics(item)}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-lg hover:bg-gray-50 dark:hover:bg-dark-border/50 transition-colors"
+            title="View analytics"
+          >
+            <ChartBarIcon className="w-4 h-4 text-cyan-500" />
+            <span className="hidden sm:inline">Stats</span>
+          </button>
+        )}
 
         <button
           onClick={() => onGenerateQr(item.shortUrl)}
@@ -217,6 +292,181 @@ function HistoryItemCard({
   );
 }
 
+// Analytics Modal Component
+interface AnalyticsModalProps {
+  item: HistoryItem;
+  onClose: () => void;
+}
+
+function AnalyticsModal({ item, onClose }: AnalyticsModalProps) {
+  const [clickEvents, setClickEvents] = useState<
+    import("@/types/analytics").ClickEvent[]
+  >([]);
+  const [analytics, setAnalytics] = useState<
+    import("@/types/analytics").AnalyticsSummary | null
+  >(null);
+
+  useEffect(() => {
+    // Load click events for this URL
+    const {
+      getLocalClickEvents,
+      calculateAnalytics,
+    } = require("@/lib/analytics");
+    const events = getLocalClickEvents(item.id);
+    setClickEvents(events);
+    if (events.length > 0) {
+      setAnalytics(calculateAnalytics(events));
+    }
+  }, [item.id]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ scale: 0.95, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.95, opacity: 0 }}
+        className="w-full max-w-2xl bg-white dark:bg-dark-card rounded-2xl shadow-xl overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-dark-border">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-cyan-100 dark:bg-cyan-900/30 rounded-lg">
+              <ChartBarIcon className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-900 dark:text-white">
+                Link Analytics
+              </h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-xs">
+                {item.shortUrl}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+          >
+            <XIcon className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="p-6">
+          {analytics ? (
+            <div className="space-y-6">
+              {/* Stats Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div className="p-4 bg-gray-50 dark:bg-dark-card/50 rounded-xl text-center">
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {analytics.totalClicks}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Total Clicks
+                  </p>
+                </div>
+                <div className="p-4 bg-gray-50 dark:bg-dark-card/50 rounded-xl text-center">
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {analytics.uniqueVisitors}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Unique Visitors
+                  </p>
+                </div>
+                <div className="p-4 bg-gray-50 dark:bg-dark-card/50 rounded-xl text-center">
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {analytics.clicksToday}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Today
+                  </p>
+                </div>
+                <div className="p-4 bg-gray-50 dark:bg-dark-card/50 rounded-xl text-center">
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {analytics.clicksLast7Days}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Last 7 Days
+                  </p>
+                </div>
+              </div>
+
+              {/* Recent Clicks */}
+              {clickEvents.length > 0 && (
+                <div>
+                  <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">
+                    Recent Clicks
+                  </h4>
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                    {clickEvents.slice(0, 10).map((event, index) => (
+                      <div
+                        key={event.id || index}
+                        className="flex items-center justify-between p-3 bg-gray-50 dark:bg-dark-card/50 rounded-lg text-sm"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="text-gray-500 dark:text-gray-400">
+                            {event.country || "Unknown"}
+                          </span>
+                          <span className="text-gray-400 dark:text-gray-500">
+                            •
+                          </span>
+                          <span className="text-gray-500 dark:text-gray-400 capitalize">
+                            {event.deviceType || "unknown"}
+                          </span>
+                          <span className="text-gray-400 dark:text-gray-500">
+                            •
+                          </span>
+                          <span className="text-gray-500 dark:text-gray-400">
+                            {event.browser || "Unknown"}
+                          </span>
+                        </div>
+                        <span className="text-xs text-gray-400 dark:text-gray-500">
+                          {new Date(event.timestamp).toLocaleString()}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 dark:bg-dark-card/50 flex items-center justify-center">
+                <ChartBarIcon className="w-8 h-8 text-gray-400" />
+              </div>
+              <p className="text-gray-600 dark:text-gray-300 mb-1">
+                No clicks yet
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Share your link to start tracking analytics
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-between p-4 border-t border-gray-200 dark:border-dark-border bg-gray-50 dark:bg-dark-card/50">
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Analytics are stored locally in your browser
+          </p>
+          <button
+            onClick={onClose}
+            className="px-4 py-2 bg-gray-200 dark:bg-dark-border text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-dark-border/80 transition-colors text-sm font-medium"
+          >
+            Close
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 // ============================================================================
 // Main Component
 // ============================================================================
@@ -229,7 +479,10 @@ export default function UrlShortenerPage(): JSX.Element {
   const [isLoading, setIsLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [trackedLinks, setTrackedLinks] = useState<LocalShortUrl[]>([]);
   const [error, setError] = useState("");
+  const [mode, setMode] = useState<ShorteningMode>("tracked");
+  const [showAnalytics, setShowAnalytics] = useState<HistoryItem | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const hasTrackedUsage = useRef(false);
 
@@ -240,6 +493,8 @@ export default function UrlShortenerPage(): JSX.Element {
       if (stored) {
         setHistory(JSON.parse(stored));
       }
+      // Load tracked links
+      setTrackedLinks(getLocalShortUrls());
     } catch {
       // Ignore localStorage errors
     }
@@ -284,26 +539,56 @@ export default function UrlShortenerPage(): JSX.Element {
 
     // Track usage
     if (!hasTrackedUsage.current) {
-      trackToolUsage("url_shortener", "shorten_url");
+      trackToolUsage(
+        "url_shortener",
+        mode === "tracked" ? "shorten_tracked" : "shorten_external",
+      );
       hasTrackedUsage.current = true;
     }
 
     try {
-      const shortened = await shortenUrl(normalizedUrl);
+      let shortened: string;
+
+      if (mode === "tracked") {
+        // Create tracked short URL with our aig.link domain
+        const trackedUrl = createTrackedShortUrl(normalizedUrl);
+        shortened = trackedUrl.shortUrl;
+
+        // Update tracked links state
+        setTrackedLinks(getLocalShortUrls());
+
+        // Add to history
+        const newItem: HistoryItem = {
+          id: trackedUrl.id,
+          originalUrl: normalizedUrl,
+          shortUrl: shortened,
+          createdAt: Date.now(),
+          clicks: 0,
+          mode: "tracked",
+        };
+
+        const newHistory = [newItem, ...history].slice(0, MAX_HISTORY_ITEMS);
+        setHistory(newHistory);
+        saveHistory(newHistory);
+      } else {
+        // Use external shortening services
+        shortened = await shortenUrl(normalizedUrl);
+
+        // Add to history
+        const newItem: HistoryItem = {
+          id: generateId(),
+          originalUrl: normalizedUrl,
+          shortUrl: shortened,
+          createdAt: Date.now(),
+          mode: "external",
+        };
+
+        const newHistory = [newItem, ...history].slice(0, MAX_HISTORY_ITEMS);
+        setHistory(newHistory);
+        saveHistory(newHistory);
+      }
+
       setShortUrl(shortened);
-
-      // Add to history
-      const newItem: HistoryItem = {
-        id: generateId(),
-        originalUrl: normalizedUrl,
-        shortUrl: shortened,
-        createdAt: Date.now(),
-      };
-
-      const newHistory = [newItem, ...history].slice(0, MAX_HISTORY_ITEMS);
-      setHistory(newHistory);
-      saveHistory(newHistory);
-
       toast.success(t("tools.urlShortener.successMessage"));
     } catch (err) {
       const message =
@@ -343,6 +628,14 @@ export default function UrlShortenerPage(): JSX.Element {
   };
 
   const handleDeleteHistoryItem = (id: string) => {
+    const itemToDelete = history.find((item) => item.id === id);
+
+    // If it's a tracked link, also delete from tracked storage
+    if (itemToDelete?.mode === "tracked") {
+      deleteLocalShortUrl(id);
+      setTrackedLinks(getLocalShortUrls());
+    }
+
     const newHistory = history.filter((item) => item.id !== id);
     setHistory(newHistory);
     saveHistory(newHistory);
@@ -350,9 +643,20 @@ export default function UrlShortenerPage(): JSX.Element {
   };
 
   const handleClearHistory = () => {
+    // Clear tracked links from storage
+    history.forEach((item) => {
+      if (item.mode === "tracked") {
+        deleteLocalShortUrl(item.id);
+      }
+    });
+    setTrackedLinks([]);
     setHistory([]);
     saveHistory([]);
     toast.success(t("tools.urlShortener.historyCleared"));
+  };
+
+  const handleViewAnalytics = (item: HistoryItem) => {
+    setShowAnalytics(item);
   };
 
   const handleGenerateQr = (shortUrl: string) => {
@@ -642,6 +946,53 @@ export default function UrlShortenerPage(): JSX.Element {
           >
             {/* Input Section */}
             <div className="p-6">
+              {/* Mode Toggle */}
+              <div className="flex items-center justify-center gap-4 mb-4">
+                <button
+                  onClick={() => setMode("tracked")}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                    mode === "tracked"
+                      ? "bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300 border border-cyan-300 dark:border-cyan-700"
+                      : "bg-gray-100 dark:bg-dark-card/50 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-dark-border hover:bg-gray-200 dark:hover:bg-dark-border"
+                  }`}
+                >
+                  <ChartBarIcon className="w-4 h-4" />
+                  Tracked (aig.link)
+                </button>
+                <button
+                  onClick={() => setMode("external")}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                    mode === "external"
+                      ? "bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 border border-violet-300 dark:border-violet-700"
+                      : "bg-gray-100 dark:bg-dark-card/50 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-dark-border hover:bg-gray-200 dark:hover:bg-dark-border"
+                  }`}
+                >
+                  <ExternalLinkIcon className="w-4 h-4" />
+                  External (TinyURL)
+                </button>
+              </div>
+
+              {/* Mode description */}
+              <p className="text-xs text-center text-gray-500 dark:text-gray-400 mb-4">
+                {mode === "tracked" ? (
+                  <>
+                    <span className="text-cyan-600 dark:text-cyan-400 font-medium">
+                      Tracked links
+                    </span>{" "}
+                    use aig.link and include click analytics, geo data, and
+                    device info.
+                  </>
+                ) : (
+                  <>
+                    <span className="text-violet-600 dark:text-violet-400 font-medium">
+                      External links
+                    </span>{" "}
+                    use TinyURL. No tracking, but links work even if this site
+                    is unavailable.
+                  </>
+                )}
+              </p>
+
               <div className="flex flex-col sm:flex-row gap-3">
                 <div className="flex-1 relative">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -809,6 +1160,7 @@ export default function UrlShortenerPage(): JSX.Element {
                       onCopy={handleCopy}
                       onDelete={handleDeleteHistoryItem}
                       onGenerateQr={handleGenerateQr}
+                      onViewAnalytics={handleViewAnalytics}
                       t={t}
                     />
                   ))}
@@ -1012,6 +1364,16 @@ export default function UrlShortenerPage(): JSX.Element {
       </main>
 
       <Footer />
+
+      {/* Analytics Modal */}
+      <AnimatePresence>
+        {showAnalytics && (
+          <AnalyticsModal
+            item={showAnalytics}
+            onClose={() => setShowAnalytics(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
