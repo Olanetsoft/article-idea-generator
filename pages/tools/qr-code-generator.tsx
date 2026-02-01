@@ -2560,11 +2560,11 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                       onClick={() =>
                         setShowTrackingTooltip(!showTrackingTooltip)
                       }
-                      className="w-full flex items-center justify-between p-3 bg-zinc-50 dark:bg-dark-hover border border-zinc-200 dark:border-dark-border rounded-lg hover:border-violet-300 dark:hover:border-violet-700 transition-colors group"
+                      className="w-full flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg hover:border-violet-300 dark:hover:border-violet-600 transition-colors group"
                     >
                       <div className="flex items-center gap-2">
                         <ChartBarIcon className="w-4 h-4 text-violet-500 dark:text-violet-400 group-hover:text-violet-600 dark:group-hover:text-violet-300 transition-colors" />
-                        <span className="text-sm font-medium text-zinc-700 dark:text-zinc-200 group-hover:text-zinc-900 dark:group-hover:text-white">
+                        <span className="text-sm font-medium text-zinc-800 dark:text-white group-hover:text-zinc-900 dark:group-hover:text-white">
                           Enable scan tracking
                         </span>
                       </div>
