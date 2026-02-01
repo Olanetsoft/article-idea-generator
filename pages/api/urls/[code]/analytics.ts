@@ -138,13 +138,20 @@ export default async function handler(
       startDate = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
   }
 
-  // Get click events
-  const { data: clicks, error: clicksError } = await supabase
+  // Get click events with pagination to prevent memory issues
+  // Limit to 10,000 most recent events for analytics computation
+  const MAX_EVENTS = 10000;
+  const {
+    data: clicks,
+    error: clicksError,
+    count: totalCount,
+  } = await supabase
     .from("click_events")
-    .select("*")
+    .select("*", { count: "exact" })
     .eq("short_url_id", shortUrl.id)
     .gte("timestamp", startDate.toISOString())
     .order("timestamp", { ascending: false })
+    .limit(MAX_EVENTS)
     .returns<ClickEvent[]>();
 
   if (clicksError) {

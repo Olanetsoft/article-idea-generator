@@ -941,23 +941,29 @@ export default function QRCodeGeneratorPage(): JSX.Element {
     if (contentType !== "url" || !data.url) return;
 
     const urlStr = data.url as string;
-    // Only create short URL if not already created and not already a short URL
-    if (!generatedShortUrl && !urlStr.includes("aigl.ink")) {
-      const code = generateShortCode();
-      const shortUrl = `${SHORT_URL_BASE}/${code}`;
+    // Only create short URL if not already created
+    if (!generatedShortUrl) {
+      // Check if URL is already a short URL (aigl.ink)
+      if (urlStr.includes("aigl.ink")) {
+        // Already a short URL, just set it for tracking
+        setGeneratedShortUrl(urlStr);
+      } else {
+        const code = generateShortCode();
+        const shortUrl = `${SHORT_URL_BASE}/${code}`;
 
-      // Save to local storage for tracking
-      saveLocalShortUrl({
-        id: code,
-        code,
-        originalUrl: urlStr,
-        shortUrl,
-        title: `QR Code - ${new URL(urlStr).hostname}`,
-        createdAt: new Date().toISOString(),
-        clicks: 0,
-      });
+        // Save to local storage for tracking
+        saveLocalShortUrl({
+          id: code,
+          code,
+          originalUrl: urlStr,
+          shortUrl,
+          title: `QR Code - ${new URL(urlStr).hostname}`,
+          createdAt: new Date().toISOString(),
+          clicks: 0,
+        });
 
-      setGeneratedShortUrl(shortUrl);
+        setGeneratedShortUrl(shortUrl);
+      }
     }
 
     setEnableTracking(true);

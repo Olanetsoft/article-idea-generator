@@ -142,8 +142,8 @@ export default function PrivacyPolicy() {
                   active.
                 </li>
                 <li>
-                  <strong>URL Analytics:</strong> Click data is retained for up
-                  to 2 years.
+                  <strong>URL Analytics:</strong> Click data is retained for as
+                  long as the associated URL exists.
                 </li>
                 <li>
                   <strong>Deleted URLs:</strong> Associated analytics are

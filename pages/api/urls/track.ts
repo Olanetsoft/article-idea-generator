@@ -94,27 +94,29 @@ export default async function handler(
     ip,
   );
 
-  // Check if this is a unique click (by fingerprint in last 24 hours)
-  let isUnique = true;
-  if (fingerprint) {
-    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-    const { data: existingClicks } = await supabase
-      .from("click_events")
-      .select("id")
-      .eq("short_url_id", shortUrl.id)
-      .eq("fingerprint", fingerprint)
-      .gte("timestamp", oneDayAgo)
-      .limit(1);
+  // Compute IP hash and use fingerprint or IP hash for uniqueness
+  const ipHash = hashIP(ip);
+  const fingerprintToCheck = fingerprint || ipHash;
 
-    isUnique = !existingClicks || existingClicks.length === 0;
-  }
+  // Check if this is a unique click (by fingerprint/IP hash in last 24 hours)
+  let isUnique = true;
+  const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  const { data: existingClicks } = await supabase
+    .from("click_events")
+    .select("id")
+    .eq("short_url_id", shortUrl.id)
+    .eq("fingerprint", fingerprintToCheck)
+    .gte("timestamp", oneDayAgo)
+    .limit(1);
+
+  isUnique = !existingClicks || existingClicks.length === 0;
 
   // Create click event
   const clickEvent: InsertClickEvent = {
     short_url_id: shortUrl.id,
-    ip_hash: hashIP(ip),
+    ip_hash: ipHash,
     user_agent: userAgent.substring(0, 500),
-    fingerprint: fingerprint || null,
+    fingerprint: fingerprintToCheck,
     country: geo.country,
     city: geo.city,
     region: geo.region,

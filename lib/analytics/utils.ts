@@ -330,7 +330,7 @@ export function aggregateReferrerData(events: ClickEvent[]): ReferrerData[] {
 
 // Format short URL for display
 export function formatShortUrl(code: string, domain?: string): string {
-  const baseDomain = domain || "aig.link";
+  const baseDomain = domain || "aigl.ink";
   return `${baseDomain}/${code}`;
 }
 

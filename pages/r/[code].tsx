@@ -87,18 +87,18 @@ export default function RedirectPage({
     const sourceType = urlParams.get("source") === "qr" ? "qr" : "direct";
     const utmParams = parseUtmParams(window.location.href);
 
+    // Generate fingerprint once for reuse
+    const fingerprint = generateFingerprint(
+      clickData.userAgent,
+      clickData.ip,
+      typeof navigator !== "undefined" ? navigator.language : "",
+    );
+
     // Track the click
     const trackClick = async () => {
       if (urlData.source === "supabase") {
         // Track via API for Supabase URLs
         try {
-          // Generate fingerprint for unique click detection
-          const fingerprint = generateFingerprint(
-            clickData.userAgent,
-            clickData.ip,
-            typeof navigator !== "undefined" ? navigator.language : "",
-          );
-
           await fetch("/api/urls/track", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -117,11 +117,11 @@ export default function RedirectPage({
         }
       } else {
         // Save to local storage for localStorage URLs
+        // Don't store raw IP for privacy - use fingerprint only
         const event: ClickEvent = {
           id: `${code}-${Date.now()}`,
           shortUrlId: code,
           timestamp: clickData.timestamp,
-          ip: clickData.ip,
           userAgent: clickData.userAgent,
           referrer: parseReferrer(clickData.referrer),
           country: clickData.country,
@@ -129,11 +129,7 @@ export default function RedirectPage({
           deviceType: detectDeviceType(clickData.userAgent),
           browser: detectBrowser(clickData.userAgent),
           os: detectOS(clickData.userAgent),
-          fingerprint: generateFingerprint(
-            clickData.userAgent,
-            clickData.ip,
-            typeof navigator !== "undefined" ? navigator.language : "",
-          ),
+          fingerprint,
           sourceType,
           utmSource: utmParams.utm_source,
           utmMedium: utmParams.utm_medium,

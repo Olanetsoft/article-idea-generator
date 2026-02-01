@@ -489,12 +489,13 @@ export default function UrlShortenerPage(): JSX.Element {
           const response = await fetch("/api/urls");
           if (response.ok) {
             const { urls } = await response.json();
+            // Use camelCase properties from API response
             const supabaseHistory: HistoryItem[] = urls.map((url: any) => ({
               id: url.id,
-              originalUrl: url.original_url,
-              shortUrl: `${SHORT_URL_BASE}/${url.code}`,
-              createdAt: new Date(url.created_at).getTime(),
-              clicks: url.click_count || 0,
+              originalUrl: url.originalUrl,
+              shortUrl: url.shortUrl || `${SHORT_URL_BASE}/${url.code}`,
+              createdAt: new Date(url.createdAt).getTime(),
+              clicks: url.totalClicks || 0,
               source: "supabase" as const,
             }));
             setHistory(supabaseHistory);
@@ -681,10 +682,9 @@ export default function UrlShortenerPage(): JSX.Element {
     const item = history.find((h) => h.id === id);
 
     if (item?.source === "supabase" && user) {
-      // Delete via API for Supabase items
+      // Delete via API for Supabase items - use id instead of code
       try {
-        const code = item.shortUrl.split("/").pop();
-        const response = await fetch(`/api/urls?code=${code}`, {
+        const response = await fetch(`/api/urls?id=${item.id}`, {
           method: "DELETE",
         });
 
@@ -712,12 +712,11 @@ export default function UrlShortenerPage(): JSX.Element {
 
   const handleClearHistory = async () => {
     if (user) {
-      // Delete all Supabase URLs
+      // Delete all Supabase URLs using id instead of code
       for (const item of history) {
         if (item.source === "supabase") {
           try {
-            const code = item.shortUrl.split("/").pop();
-            await fetch(`/api/urls?code=${code}`, { method: "DELETE" });
+            await fetch(`/api/urls?id=${item.id}`, { method: "DELETE" });
           } catch {
             // Continue with other deletions
           }

@@ -6,6 +6,26 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import type { GetServerSidePropsContext } from "next";
 import type { Database } from "@/types/database";
 
+// Helper to append a Set-Cookie header without overwriting existing ones
+function appendSetCookie(
+  res: NextApiResponse | GetServerSidePropsContext["res"],
+  cookie: string,
+) {
+  const existing = res.getHeader("Set-Cookie");
+  let cookies: string[];
+
+  if (!existing) {
+    cookies = [];
+  } else if (Array.isArray(existing)) {
+    cookies = existing as string[];
+  } else {
+    cookies = [existing as string];
+  }
+
+  cookies.push(cookie);
+  res.setHeader("Set-Cookie", cookies);
+}
+
 // For API routes
 export function createApiClient(req: NextApiRequest, res: NextApiResponse) {
   return createSupabaseServerClient<Database>(
@@ -17,13 +37,12 @@ export function createApiClient(req: NextApiRequest, res: NextApiResponse) {
           return req.cookies[name];
         },
         set(name: string, value: string, options: CookieOptions) {
-          res.setHeader(
-            "Set-Cookie",
-            `${name}=${value}; Path=/; ${options.maxAge ? `Max-Age=${options.maxAge};` : ""} ${options.httpOnly ? "HttpOnly;" : ""} ${options.secure ? "Secure;" : ""} SameSite=Lax`,
-          );
+          const cookie = `${name}=${value}; Path=/; ${options.maxAge ? `Max-Age=${options.maxAge};` : ""} ${options.httpOnly ? "HttpOnly;" : ""} ${options.secure ? "Secure;" : ""} SameSite=Lax`;
+          appendSetCookie(res, cookie);
         },
         remove(name: string, options: CookieOptions) {
-          res.setHeader("Set-Cookie", `${name}=; Path=/; Max-Age=0`);
+          const cookie = `${name}=; Path=/; Max-Age=0`;
+          appendSetCookie(res, cookie);
         },
       },
     },
@@ -45,13 +64,12 @@ export function createServerClient(
           return cookies[name];
         },
         set(name: string, value: string, options: CookieOptions) {
-          res.setHeader(
-            "Set-Cookie",
-            `${name}=${value}; Path=/; ${options.maxAge ? `Max-Age=${options.maxAge};` : ""} ${options.httpOnly ? "HttpOnly;" : ""} ${options.secure ? "Secure;" : ""} SameSite=Lax`,
-          );
+          const cookie = `${name}=${value}; Path=/; ${options.maxAge ? `Max-Age=${options.maxAge};` : ""} ${options.httpOnly ? "HttpOnly;" : ""} ${options.secure ? "Secure;" : ""} SameSite=Lax`;
+          appendSetCookie(res, cookie);
         },
         remove(name: string, options: CookieOptions) {
-          res.setHeader("Set-Cookie", `${name}=; Path=/; Max-Age=0`);
+          const cookie = `${name}=; Path=/; Max-Age=0`;
+          appendSetCookie(res, cookie);
         },
       },
     },

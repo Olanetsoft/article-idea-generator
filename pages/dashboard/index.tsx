@@ -40,31 +40,29 @@ export default function DashboardPage() {
 
         const { urls } = await response.json();
 
-        // Calculate stats
+        // Calculate stats using camelCase properties from API response
         const totalLinks = urls.length;
         const totalClicks = urls.reduce(
-          (acc: number, url: any) => acc + (url.click_count || 0),
+          (acc: number, url: any) => acc + (url.totalClicks || 0),
           0,
         );
         const uniqueClicks = urls.reduce(
-          (acc: number, url: any) => acc + (url.unique_click_count || 0),
+          (acc: number, url: any) => acc + (url.uniqueClicks || 0),
           0,
         );
-        const qrScans = urls.reduce(
-          (acc: number, url: any) => acc + (url.qr_scan_count || 0),
-          0,
-        );
+        // QR scans not tracked separately yet, default to 0
+        const qrScans = 0;
 
         // Find top link
         const sortedByClicks = [...urls].sort(
-          (a: any, b: any) => (b.click_count || 0) - (a.click_count || 0),
+          (a: any, b: any) => (b.totalClicks || 0) - (a.totalClicks || 0),
         );
         const topLink = sortedByClicks[0]
           ? {
               code: sortedByClicks[0].code,
-              originalUrl: sortedByClicks[0].original_url,
+              originalUrl: sortedByClicks[0].originalUrl,
               title: sortedByClicks[0].title,
-              clickCount: sortedByClicks[0].click_count || 0,
+              clickCount: sortedByClicks[0].totalClicks || 0,
             }
           : null;
 
@@ -72,10 +70,10 @@ export default function DashboardPage() {
         const recentLinks = urls.slice(0, 5).map((url: any) => ({
           id: url.id,
           code: url.code,
-          originalUrl: url.original_url,
+          originalUrl: url.originalUrl,
           title: url.title,
-          clickCount: url.click_count || 0,
-          createdAt: url.created_at,
+          clickCount: url.totalClicks || 0,
+          createdAt: url.createdAt,
         }));
 
         setStats({

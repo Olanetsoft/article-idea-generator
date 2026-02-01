@@ -7,9 +7,23 @@ export default async function handler(
   res: NextApiResponse,
 ) {
   const code = req.query.code as string;
-  // The redirect URL is stored in localStorage on the client side
-  // We'll redirect to a page that reads it and redirects
-  const next = (req.query.next as string) || "/auth/redirect";
+
+  // Validate and sanitize the redirect URL to prevent open redirects
+  const rawNext = (req.query.next as string) || "/auth/redirect";
+  let next = "/auth/redirect";
+
+  // Only allow same-origin relative paths
+  if (
+    rawNext.startsWith("/") &&
+    !rawNext.startsWith("//") &&
+    !rawNext.includes("://")
+  ) {
+    // Additional check: path should not contain encoded protocol markers
+    const decoded = decodeURIComponent(rawNext);
+    if (!decoded.includes("://") && !decoded.startsWith("//")) {
+      next = rawNext;
+    }
+  }
 
   if (code) {
     const cookiesToSetLater: string[] = [];

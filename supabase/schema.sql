@@ -25,7 +25,7 @@ CREATE POLICY "Users can view own profile" ON public.profiles
   FOR SELECT USING (auth.uid() = id);
 
 CREATE POLICY "Users can update own profile" ON public.profiles
-  FOR UPDATE USING (auth.uid() = id);
+  FOR UPDATE USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
 
 -- Function to handle new user creation
 CREATE OR REPLACE FUNCTION public.handle_new_user()
@@ -81,13 +81,13 @@ CREATE POLICY "Anyone can read active short URLs" ON public.short_urls
 CREATE POLICY "Users can read own URLs" ON public.short_urls
   FOR SELECT USING (auth.uid() = user_id);
 
--- Users can create URLs (with or without being logged in - anonymous URLs have null user_id)
-CREATE POLICY "Anyone can create URLs" ON public.short_urls
-  FOR INSERT WITH CHECK (TRUE);
+-- Users can create URLs (authenticated users only - user_id must match)
+CREATE POLICY "Authenticated users can create URLs" ON public.short_urls
+  FOR INSERT WITH CHECK (auth.uid() IS NOT NULL AND (user_id IS NULL OR auth.uid() = user_id));
 
 -- Users can update their own URLs
 CREATE POLICY "Users can update own URLs" ON public.short_urls
-  FOR UPDATE USING (auth.uid() = user_id);
+  FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
 
 -- Users can delete their own URLs
 CREATE POLICY "Users can delete own URLs" ON public.short_urls
@@ -165,8 +165,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Function to get URL analytics summary
-CREATE OR REPLACE FUNCTION public.get_url_analytics(url_code TEXT)
+-- Function to get URL analytics summary (with ownership check)
+CREATE OR REPLACE FUNCTION public.get_url_analytics(url_code TEXT, requesting_user_id UUID DEFAULT NULL)
 RETURNS TABLE (
   total_clicks BIGINT,
   unique_visitors BIGINT,
@@ -178,7 +178,17 @@ RETURNS TABLE (
   top_referrers JSONB,
   clicks_by_day JSONB
 ) AS $$
+DECLARE
+  url_owner_id UUID;
 BEGIN
+  -- Get the URL's owner
+  SELECT user_id INTO url_owner_id FROM public.short_urls WHERE code = url_code;
+  
+  -- Check ownership if user_id is set (if null, it's an anonymous URL - allow access)
+  IF url_owner_id IS NOT NULL AND (requesting_user_id IS NULL OR url_owner_id != requesting_user_id) THEN
+    RAISE EXCEPTION 'Access denied: You do not own this URL';
+  END IF;
+
   RETURN QUERY
   WITH url AS (
     SELECT id FROM public.short_urls WHERE code = url_code
