@@ -86,6 +86,12 @@
     "a7": "Yes! All generated titles are yours to use freely for any purpose - personal blogs, commercial websites, client work, or any other content creation needs.",
     "q8": "Why should I use an article title generator?",
     "a8": "An article title generator helps you overcome writer's block, saves time brainstorming, provides SEO-optimized titles, offers fresh perspectives on topics, and helps you create more engaging content that attracts readers.",
+    "q9": "What is the URL shortener and how does it work?",
+    "a9": "Our URL shortener creates compact, shareable links from long URLs. Simply paste your link, optionally customize the short code, and get a trackable URL. Sign in with Google to access your dashboard where you can manage all your links and view detailed analytics.",
+    "q10": "What analytics data does the URL shortener track?",
+    "a10": "The URL shortener tracks comprehensive click analytics including: total clicks over time, geographic location (country and city), device type (desktop, mobile, tablet), browser and operating system, referrer sources, and UTM campaign parameters. All data is displayed in beautiful charts and can be exported as CSV or JSON.",
+    "q11": "Is the URL shortener free? Do I need an account?",
+    "a11": "Creating short URLs is free and doesn't require an account. However, to access the analytics dashboard, manage your links, and view click statistics, you'll need to sign in with your Google account. Your data is private and only visible to you.",
     "ctaTitle": "Try Our Free Article Title Generator",
     "ctaDescription": "Generate SEO-optimized article ideas in seconds with AI",
     "ctaButton": "Generate Article Ideas Now"
