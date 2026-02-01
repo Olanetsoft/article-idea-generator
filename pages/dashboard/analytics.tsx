@@ -54,6 +54,8 @@ export default function AnalyticsPage() {
   const [isLoadingLinks, setIsLoadingLinks] = useState(true);
   const [isLoadingAnalytics, setIsLoadingAnalytics] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [period, setPeriod] = useState<"7d" | "30d" | "90d" | "all">("30d");
+  const [isExporting, setIsExporting] = useState(false);
 
   // Fetch user's links
   useEffect(() => {
@@ -100,7 +102,9 @@ export default function AnalyticsPage() {
       setError(null);
 
       try {
-        const response = await fetch(`/api/urls/${selectedCode}/analytics`);
+        const response = await fetch(
+          `/api/urls/${selectedCode}/analytics?period=${period}`,
+        );
         if (!response.ok) throw new Error("Failed to fetch analytics");
 
         const data = await response.json();
@@ -113,7 +117,33 @@ export default function AnalyticsPage() {
     };
 
     fetchAnalytics();
-  }, [selectedCode]);
+  }, [selectedCode, period]);
+
+  const handleExport = async (format: "csv" | "json") => {
+    if (!selectedCode) return;
+
+    setIsExporting(true);
+    try {
+      const response = await fetch(
+        `/api/urls/${selectedCode}/export?format=${format}&period=${period}`,
+      );
+      if (!response.ok) throw new Error("Export failed");
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `analytics-${selectedCode}-${period}.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Export failed");
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   const handleLinkChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newCode = e.target.value;
@@ -175,6 +205,54 @@ export default function AnalyticsPage() {
                 </option>
               ))}
             </select>
+          </motion.div>
+
+          {/* Date Range & Export Controls */}
+          <motion.div variants={itemVariants} className="mb-8 flex flex-wrap items-center gap-4">
+            {/* Date Range Picker */}
+            <div className="flex items-center gap-2">
+              <span className="text-slate-400 text-sm">Period:</span>
+              <div className="flex bg-slate-800/50 rounded-lg border border-slate-700/50 p-1">
+                {(["7d", "30d", "90d", "all"] as const).map((p) => (
+                  <button
+                    key={p}
+                    onClick={() => setPeriod(p)}
+                    className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                      period === p
+                        ? "bg-cyan-500/20 text-cyan-400"
+                        : "text-slate-400 hover:text-white"
+                    }`}
+                  >
+                    {p === "7d" ? "7 Days" : p === "30d" ? "30 Days" : p === "90d" ? "90 Days" : "All Time"}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Export Buttons */}
+            <div className="flex items-center gap-2 ml-auto">
+              <span className="text-slate-400 text-sm">Export:</span>
+              <button
+                onClick={() => handleExport("csv")}
+                disabled={isExporting || !analytics}
+                className="px-3 py-1.5 bg-slate-700/50 text-slate-300 rounded-lg hover:bg-slate-700 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                CSV
+              </button>
+              <button
+                onClick={() => handleExport("json")}
+                disabled={isExporting || !analytics}
+                className="px-3 py-1.5 bg-slate-700/50 text-slate-300 rounded-lg hover:bg-slate-700 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                JSON
+              </button>
+            </div>
           </motion.div>
 
           {selectedLink && (

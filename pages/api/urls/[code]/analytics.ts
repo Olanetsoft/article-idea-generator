@@ -55,7 +55,7 @@ export default async function handler(
   }
 
   const supabase = createApiClient(req, res);
-  const { code } = req.query;
+  const { code, period = "30d" } = req.query;
 
   if (!code || typeof code !== "string") {
     return res.status(400).json({ error: "URL code is required" });
@@ -90,18 +90,34 @@ export default async function handler(
     });
   }
 
-  // Get detailed analytics for owner
+  // Calculate date range based on period parameter
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const last7Days = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
-  const last30Days = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+  let startDate: Date;
+
+  switch (period) {
+    case "7d":
+      startDate = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+      break;
+    case "30d":
+      startDate = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+      break;
+    case "90d":
+      startDate = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000);
+      break;
+    case "all":
+      startDate = new Date(0);
+      break;
+    default:
+      startDate = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+  }
 
   // Get click events
   const { data: clicks, error: clicksError } = await supabase
     .from("click_events")
     .select("*")
     .eq("short_url_id", shortUrl.id)
-    .gte("timestamp", last30Days.toISOString())
+    .gte("timestamp", startDate.toISOString())
     .order("timestamp", { ascending: false })
     .returns<ClickEvent[]>();
 
@@ -110,14 +126,6 @@ export default async function handler(
   }
 
   const clickEvents: ClickEvent[] = clicks || [];
-
-  // Calculate time-based statistics
-  const clicksToday = clickEvents.filter(
-    (c) => new Date(c.timestamp) >= today,
-  ).length;
-  const clicksLast7Days = clickEvents.filter(
-    (c) => new Date(c.timestamp) >= last7Days,
-  ).length;
 
   // Use helper for grouping
   const topCountries = groupAndCount(clickEvents, (c) => c.country).slice(
