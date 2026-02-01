@@ -870,6 +870,16 @@ export default function QRCodeGeneratorPage(): JSX.Element {
     [contentType, data],
   );
 
+  // The actual value encoded in the QR code - uses short URL with ?source=qr for tracking
+  const qrEncodedValue = useMemo(() => {
+    // For URL types with a generated short URL, use the short URL with source=qr
+    if (contentType === "url" && generatedShortUrl) {
+      return `${generatedShortUrl}?source=qr`;
+    }
+    // For all other types, use the regular qrValue
+    return qrValue;
+  }, [contentType, generatedShortUrl, qrValue]);
+
   const validation = useMemo(
     () => validateQRContent(contentType, data),
     [contentType, data],
@@ -1092,7 +1102,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
 
   const handleDownload = useCallback(
     async (format: DownloadFormat) => {
-      if (!qrValue) return;
+      if (!qrEncodedValue) return;
 
       trackToolUsage("QR Code Generator", `download_${format}`);
       const filename = `qrcode-${contentType}-${Date.now()}`;
@@ -1100,7 +1110,10 @@ export default function QRCodeGeneratorPage(): JSX.Element {
       try {
         // Generate high-resolution QR code (2048px) for download
         const highResSize = 2048;
-        const canvas = await generateStyledQRCanvas(qrValue, highResSize);
+        const canvas = await generateStyledQRCanvas(
+          qrEncodedValue,
+          highResSize,
+        );
 
         switch (format) {
           case "png":
@@ -1152,7 +1165,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
     },
     [
       contentType,
-      qrValue,
+      qrEncodedValue,
       style.size,
       style.fgColor,
       style.bgColor,
@@ -1162,14 +1175,14 @@ export default function QRCodeGeneratorPage(): JSX.Element {
   );
 
   const handleCopy = useCallback(async () => {
-    if (!qrValue) return;
+    if (!qrEncodedValue) return;
 
     trackToolUsage("QR Code Generator", "copy_to_clipboard");
 
     try {
       // Generate high-resolution QR code for clipboard
       const highResSize = 1024;
-      const canvas = await generateStyledQRCanvas(qrValue, highResSize);
+      const canvas = await generateStyledQRCanvas(qrEncodedValue, highResSize);
       const success = await copyQRToClipboard(canvas);
       if (success) {
         setCopySuccess(true);
@@ -1194,7 +1207,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
         toast.error(t("tools.qrCode.errorCopyFailed"));
       }
     }
-  }, [qrValue, generateStyledQRCanvas, t]);
+  }, [qrEncodedValue, generateStyledQRCanvas, t]);
 
   const handleReset = useCallback(() => {
     setData(getInitialData(contentType));
@@ -2375,7 +2388,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                       )}
                       <div className={frameStyle === "banner" ? "p-3" : ""}>
                         <QRCodeCanvas
-                          value={qrValue}
+                          value={qrEncodedValue}
                           size={Math.min(
                             style.size,
                             frameStyle !== "none" ? 220 : 280,
@@ -2531,7 +2544,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                       {t("tools.qrCode.encodedData")}
                     </p>
                     <p className="text-sm text-zinc-700 dark:text-zinc-300 break-all line-clamp-2">
-                      {qrValue}
+                      {qrEncodedValue}
                     </p>
                   </div>
                 )}
