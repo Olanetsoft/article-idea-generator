@@ -271,7 +271,7 @@ export const getServerSideProps: GetServerSideProps<RedirectPageProps> = async (
       .from("short_urls")
       .select("original_url, title")
       .eq("code", code)
-      .single();
+      .single<{ original_url: string; title: string | null }>();
 
     if (data) {
       supabaseUrl = {

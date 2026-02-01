@@ -14,6 +14,15 @@ export { DashboardLayout } from "./DashboardLayout";
 // Tool components
 export { StatsPanel, type TextStats } from "./tools";
 
+// Analytics components
+export {
+  ClicksChart,
+  DeviceChart,
+  GeoChart,
+  ReferrerList,
+  SourceComparison,
+} from "./analytics";
+
 // Skeleton components
 export {
   Skeleton,

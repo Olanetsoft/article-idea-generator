@@ -1,7 +1,14 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { DashboardLayout } from "@/components";
+import {
+  DashboardLayout,
+  ClicksChart,
+  DeviceChart,
+  GeoChart,
+  ReferrerList,
+  SourceComparison,
+} from "@/components";
 import { useAuth } from "@/contexts";
 
 interface Analytics {
@@ -59,7 +66,7 @@ export default function AnalyticsPage() {
             code: url.code,
             originalUrl: url.original_url,
             title: url.title,
-          }))
+          })),
         );
 
         // If code is in URL, select it
@@ -285,47 +292,50 @@ export default function AnalyticsPage() {
                 />
               </div>
 
-              {/* Charts Grid */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                {/* Countries */}
-                <BreakdownCard
-                  title="Top Countries"
-                  data={analytics.countries}
-                  emptyMessage="No location data yet"
-                />
+              {/* Timeline Chart */}
+              {analytics.timeline.length > 0 && (
+                <div className="mb-8">
+                  <ClicksChart data={analytics.timeline} />
+                </div>
+              )}
 
-                {/* Devices */}
-                <BreakdownCard
-                  title="Devices"
-                  data={analytics.devices}
-                  emptyMessage="No device data yet"
-                />
-
-                {/* Browsers */}
-                <BreakdownCard
-                  title="Browsers"
-                  data={analytics.browsers}
-                  emptyMessage="No browser data yet"
-                />
-
-                {/* Sources */}
-                <BreakdownCard
-                  title="Traffic Sources"
-                  data={analytics.sources}
-                  emptyMessage="No source data yet"
+              {/* QR vs Direct Comparison */}
+              <div className="mb-8">
+                <SourceComparison
+                  qrScans={analytics.qrScans}
+                  directClicks={analytics.totalClicks - analytics.qrScans}
                 />
               </div>
 
-              {/* Top Referrers */}
-              {analytics.referrers.length > 0 && (
-                <div className="mb-8">
-                  <BreakdownCard
-                    title="Top Referrers"
-                    data={analytics.referrers}
-                    emptyMessage="No referrer data yet"
-                  />
-                </div>
-              )}
+              {/* Charts Grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                {/* Geographic */}
+                <GeoChart
+                  data={analytics.countries}
+                  title="Top Countries"
+                  type="country"
+                />
+
+                {/* Devices */}
+                <DeviceChart
+                  data={analytics.devices}
+                  title="Devices"
+                  type="device"
+                />
+
+                {/* Browsers */}
+                <DeviceChart
+                  data={analytics.browsers}
+                  title="Browsers"
+                  type="browser"
+                />
+
+                {/* Referrers */}
+                <ReferrerList
+                  data={analytics.referrers}
+                  title="Top Referrers"
+                />
+              </div>
 
               {/* Recent Clicks */}
               <div className="rounded-xl bg-slate-800/50 border border-slate-700/50 overflow-hidden">
@@ -384,7 +394,9 @@ export default function AnalyticsPage() {
                                     : "bg-cyan-500/20 text-cyan-400"
                                 }`}
                               >
-                                {click.sourceType === "qr" ? "QR Code" : "Direct"}
+                                {click.sourceType === "qr"
+                                  ? "QR Code"
+                                  : "Direct"}
                               </span>
                             </td>
                           </tr>
@@ -430,47 +442,6 @@ function StatCard({
         <div className={`p-2 rounded-lg ${colorClasses[color]}`}>{icon}</div>
       </div>
       <p className="text-3xl font-bold text-white">{value.toLocaleString()}</p>
-    </div>
-  );
-}
-
-function BreakdownCard({
-  title,
-  data,
-  emptyMessage,
-}: {
-  title: string;
-  data: Array<{ name: string; count: number }>;
-  emptyMessage: string;
-}) {
-  const total = data.reduce((acc, item) => acc + item.count, 0);
-
-  return (
-    <div className="p-6 rounded-xl bg-slate-800/50 border border-slate-700/50">
-      <h3 className="text-lg font-semibold text-white mb-4">{title}</h3>
-      {data.length > 0 ? (
-        <div className="space-y-3">
-          {data.slice(0, 5).map((item, i) => {
-            const percentage = total > 0 ? (item.count / total) * 100 : 0;
-            return (
-              <div key={i}>
-                <div className="flex items-center justify-between text-sm mb-1">
-                  <span className="text-slate-300">{item.name}</span>
-                  <span className="text-slate-400">{item.count}</span>
-                </div>
-                <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full"
-                    style={{ width: `${percentage}%` }}
-                  />
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      ) : (
-        <p className="text-slate-500 text-sm">{emptyMessage}</p>
-      )}
     </div>
   );
 }

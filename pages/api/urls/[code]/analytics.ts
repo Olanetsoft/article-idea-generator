@@ -17,6 +17,35 @@ function groupAndCount<T>(
     .sort((a, b) => b.count - a.count);
 }
 
+// Type for the short URL data we need
+interface ShortUrlData {
+  id: string;
+  user_id: string | null;
+  code: string;
+  original_url: string;
+  title: string | null;
+  created_at: string;
+  total_clicks: number;
+  unique_clicks: number;
+}
+
+// Type for click events
+interface ClickEvent {
+  id: string;
+  short_url_id: string;
+  timestamp: string;
+  ip_hash: string | null;
+  user_agent: string | null;
+  referrer: string | null;
+  referrer_domain: string | null;
+  country: string | null;
+  city: string | null;
+  device_type: string | null;
+  browser: string | null;
+  os: string | null;
+  source_type: string | null;
+}
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
@@ -39,7 +68,7 @@ export default async function handler(
       "id, user_id, code, original_url, title, created_at, total_clicks, unique_clicks",
     )
     .eq("code", code)
-    .single();
+    .single<ShortUrlData>();
 
   if (urlError || !shortUrl) {
     return res.status(404).json({ error: "Short URL not found" });
@@ -73,13 +102,14 @@ export default async function handler(
     .select("*")
     .eq("short_url_id", shortUrl.id)
     .gte("timestamp", last30Days.toISOString())
-    .order("timestamp", { ascending: false });
+    .order("timestamp", { ascending: false })
+    .returns<ClickEvent[]>();
 
   if (clicksError) {
     console.error("Error fetching clicks:", clicksError);
   }
 
-  const clickEvents = clicks || [];
+  const clickEvents: ClickEvent[] = clicks || [];
 
   // Calculate time-based statistics
   const clicksToday = clickEvents.filter(

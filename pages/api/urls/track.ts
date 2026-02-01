@@ -8,8 +8,15 @@ import {
   detectOS,
   parseReferrerDomain,
   getClientIP,
-  getGeoData,
+  getGeoDataWithFallback,
 } from "@/lib/url-utils";
+
+// Type for short URL query result
+interface ShortUrlTrackData {
+  id: string;
+  original_url: string;
+  is_active: boolean;
+}
 
 export default async function handler(
   req: NextApiRequest,
@@ -42,7 +49,7 @@ export default async function handler(
     .from("short_urls")
     .select("id, original_url, is_active")
     .eq("code", code)
-    .single();
+    .single<ShortUrlTrackData>();
 
   if (urlError || !shortUrl) {
     return res.status(404).json({ error: "Short URL not found" });
@@ -59,8 +66,11 @@ export default async function handler(
   );
   const userAgent = (req.headers["user-agent"] as string) || "";
   const requestReferrer = (req.headers.referer as string) || referrer || null;
-  const geo = getGeoData(
+
+  // Get geo data with ip-api.com fallback for local dev
+  const geo = await getGeoDataWithFallback(
     req.headers as Record<string, string | string[] | undefined>,
+    ip,
   );
 
   // Check if this is a unique click (by fingerprint in last 24 hours)
@@ -100,7 +110,7 @@ export default async function handler(
 
   const { error: insertError } = await supabase
     .from("click_events")
-    .insert(clickEvent);
+    .insert(clickEvent as any);
 
   if (insertError) {
     console.error("Error tracking click:", insertError);
@@ -108,7 +118,7 @@ export default async function handler(
   }
 
   // Increment click counts
-  await supabase.rpc("increment_click_count", {
+  await (supabase.rpc as any)("increment_click_count", {
     url_id: shortUrl.id,
     is_unique: isUnique,
   });

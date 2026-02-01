@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { createApiClient } from "@/lib/supabase/server";
-import type { InsertShortUrl } from "@/types/database";
+import type { InsertShortUrl, ShortUrl } from "@/types/database";
 import { nanoid } from "nanoid";
 import { extractTitleFromUrl, isValidUrl } from "@/lib/url-utils";
 
@@ -69,12 +69,16 @@ export default async function handler(
 
     const { data, error } = await supabase
       .from("short_urls")
-      .insert(newUrl)
+      .insert(newUrl as any)
       .select()
-      .single();
+      .single<ShortUrl>();
 
     if (error) {
       console.error("Error creating short URL:", error);
+      return res.status(500).json({ error: "Failed to create short URL" });
+    }
+
+    if (!data) {
       return res.status(500).json({ error: "Failed to create short URL" });
     }
 
@@ -106,7 +110,8 @@ export default async function handler(
       .select("*", { count: "exact" })
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
-      .range(Number(offset), Number(offset) + Number(limit) - 1);
+      .range(Number(offset), Number(offset) + Number(limit) - 1)
+      .returns<ShortUrl[]>();
 
     if (error) {
       console.error("Error fetching URLs:", error);
@@ -114,7 +119,7 @@ export default async function handler(
     }
 
     return res.status(200).json({
-      urls: data.map((url) => ({
+      urls: (data || []).map((url) => ({
         id: url.id,
         code: url.code,
         shortUrl: `${SHORT_URL_BASE}/${url.code}`,
