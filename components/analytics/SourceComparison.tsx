@@ -21,25 +21,25 @@ export function SourceComparison({
         value: directClicks,
         percentage: ((directClicks / total) * 100).toFixed(1),
         icon: "🔗",
-        color: "#06b6d4", // cyan
+        color: "#8b5cf6", // violet
       },
       {
         name: "QR Scans",
         value: qrScans,
         percentage: ((qrScans / total) * 100).toFixed(1),
         icon: "📱",
-        color: "#8b5cf6", // purple
+        color: "#10b981", // emerald
       },
     ];
   }, [qrScans, directClicks, total]);
 
   if (total === 0) {
     return (
-      <div className="p-6 rounded-xl bg-slate-800/50 border border-slate-700/50">
-        <h3 className="text-lg font-semibold text-white mb-4">
+      <div className="p-6 rounded-xl bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
           QR vs Direct Traffic
         </h3>
-        <div className="h-40 flex items-center justify-center text-slate-500">
+        <div className="h-40 flex items-center justify-center text-gray-400 dark:text-gray-500">
           No traffic data yet
         </div>
       </div>
@@ -47,8 +47,8 @@ export function SourceComparison({
   }
 
   return (
-    <div className="p-6 rounded-xl bg-slate-800/50 border border-slate-700/50">
-      <h3 className="text-lg font-semibold text-white mb-4">
+    <div className="p-6 rounded-xl bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800">
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
         QR vs Direct Traffic
       </h3>
       <div className="flex items-center gap-6">
@@ -76,8 +76,12 @@ export function SourceComparison({
           </ClientPieChart>
           {/* Center label */}
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-            <span className="text-2xl font-bold text-white">{total}</span>
-            <span className="text-xs text-slate-400">Total</span>
+            <span className="text-2xl font-bold text-gray-900 dark:text-white">
+              {total}
+            </span>
+            <span className="text-xs text-gray-500 dark:text-gray-400">
+              Total
+            </span>
           </div>
         </div>
 
@@ -91,13 +95,15 @@ export function SourceComparison({
                   style={{ backgroundColor: item.color }}
                 />
                 <span className="text-lg">{item.icon}</span>
-                <span className="text-slate-300">{item.name}</span>
+                <span className="text-gray-700 dark:text-gray-300">
+                  {item.name}
+                </span>
               </div>
               <div className="text-right">
-                <span className="text-white font-semibold">
+                <span className="text-gray-900 dark:text-white font-semibold">
                   {item.value.toLocaleString()}
                 </span>
-                <span className="text-slate-500 text-sm ml-2">
+                <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">
                   ({item.percentage}%)
                 </span>
               </div>
@@ -121,11 +127,11 @@ function CustomTooltip({
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     return (
-      <div className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 shadow-xl">
-        <p className="text-white font-semibold">
+      <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-lg px-3 py-2 shadow-xl">
+        <p className="text-gray-900 dark:text-white font-semibold">
           {data.icon} {data.name}
         </p>
-        <p className="text-slate-400 text-sm">
+        <p className="text-gray-500 dark:text-gray-400 text-sm">
           {data.value.toLocaleString()} ({data.percentage}%)
         </p>
       </div>

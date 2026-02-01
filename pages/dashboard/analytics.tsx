@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   DashboardLayout,
   ClicksChart,
@@ -58,6 +58,22 @@ export default function AnalyticsPage() {
   const [error, setError] = useState<string | null>(null);
   const [period, setPeriod] = useState<"7d" | "30d" | "90d" | "all">("30d");
   const [isExporting, setIsExporting] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // Fetch user's links
   useEffect(() => {
@@ -174,7 +190,7 @@ export default function AnalyticsPage() {
   return (
     <>
       <Head>
-        <title>Link Analytics | {SITE_NAME}</title>
+        <title>{`Link Analytics | ${SITE_NAME}`}</title>
         <meta
           name="description"
           content="View detailed analytics for your shortened URLs. Track clicks, visitors, locations, devices, and traffic sources."
@@ -195,27 +211,110 @@ export default function AnalyticsPage() {
             initial="hidden"
             animate="visible"
           >
-            {/* Link Selector */}
+            {/* Link Selector - Custom Dropdown */}
             <motion.div variants={itemVariants} className="mb-8">
-              <label
-                htmlFor="link-select"
-                className="block text-slate-400 text-sm mb-2"
-              >
+              <label className="block text-gray-500 dark:text-gray-400 text-sm mb-2">
                 Select a link to view analytics
               </label>
-              <select
-                id="link-select"
-                value={selectedCode || ""}
-                onChange={handleLinkChange}
-                className="w-full max-w-md px-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-colors"
-              >
-                {links.map((link) => (
-                  <option key={link.id} value={link.code}>
-                    aigl.ink/{link.code} -{" "}
-                    {link.title || truncateUrl(link.originalUrl, 40)}
-                  </option>
-                ))}
-              </select>
+              <div ref={dropdownRef} className="relative w-full max-w-lg">
+                <button
+                  type="button"
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  className="w-full px-4 py-3 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl text-left flex items-center justify-between gap-3 hover:border-gray-300 dark:hover:border-zinc-700 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-colors"
+                >
+                  {selectedLink ? (
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-violet-600 dark:text-violet-400 font-mono text-sm">
+                          aigl.ink/{selectedLink.code}
+                        </span>
+                      </div>
+                      <p className="text-gray-500 dark:text-gray-400 text-sm truncate mt-0.5">
+                        {selectedLink.title ||
+                          truncateUrl(selectedLink.originalUrl, 50)}
+                      </p>
+                    </div>
+                  ) : (
+                    <span className="text-gray-400">Select a link...</span>
+                  )}
+                  <svg
+                    className={`w-5 h-5 text-gray-400 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+
+                <AnimatePresence>
+                  {isDropdownOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute z-50 w-full mt-2 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl shadow-lg overflow-hidden"
+                    >
+                      <div className="max-h-80 overflow-y-auto">
+                        {links.map((link) => (
+                          <button
+                            key={link.id}
+                            type="button"
+                            onClick={() => {
+                              setSelectedCode(link.code);
+                              setIsDropdownOpen(false);
+                              router.push(
+                                `/dashboard/analytics?code=${link.code}`,
+                                undefined,
+                                { shallow: true },
+                              );
+                            }}
+                            className={`w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors border-b border-gray-100 dark:border-zinc-800 last:border-0 ${
+                              selectedCode === link.code
+                                ? "bg-violet-50 dark:bg-violet-500/10"
+                                : ""
+                            }`}
+                          >
+                            <div className="flex items-center gap-2">
+                              <span
+                                className={`font-mono text-sm ${
+                                  selectedCode === link.code
+                                    ? "text-violet-600 dark:text-violet-400"
+                                    : "text-gray-700 dark:text-gray-300"
+                                }`}
+                              >
+                                aigl.ink/{link.code}
+                              </span>
+                              {selectedCode === link.code && (
+                                <svg
+                                  className="w-4 h-4 text-violet-500"
+                                  fill="currentColor"
+                                  viewBox="0 0 20 20"
+                                >
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                    clipRule="evenodd"
+                                  />
+                                </svg>
+                              )}
+                            </div>
+                            <p className="text-gray-500 dark:text-gray-400 text-sm truncate mt-0.5">
+                              {link.title || truncateUrl(link.originalUrl, 50)}
+                            </p>
+                          </button>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </motion.div>
 
             {/* Date Range & Export Controls */}
@@ -225,16 +324,18 @@ export default function AnalyticsPage() {
             >
               {/* Date Range Picker */}
               <div className="flex items-center gap-2">
-                <span className="text-slate-400 text-sm">Period:</span>
-                <div className="flex bg-slate-800/50 rounded-lg border border-slate-700/50 p-1">
+                <span className="text-gray-500 dark:text-gray-400 text-sm">
+                  Period:
+                </span>
+                <div className="flex bg-white dark:bg-zinc-900 rounded-lg border border-gray-200 dark:border-zinc-800 p-1">
                   {(["7d", "30d", "90d", "all"] as const).map((p) => (
                     <button
                       key={p}
                       onClick={() => setPeriod(p)}
                       className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
                         period === p
-                          ? "bg-cyan-500/20 text-cyan-400"
-                          : "text-slate-400 hover:text-white"
+                          ? "bg-violet-100 dark:bg-violet-500/20 text-violet-700 dark:text-violet-400"
+                          : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                       }`}
                     >
                       {p === "7d"
@@ -251,11 +352,13 @@ export default function AnalyticsPage() {
 
               {/* Export Buttons */}
               <div className="flex items-center gap-2 ml-auto">
-                <span className="text-slate-400 text-sm">Export:</span>
+                <span className="text-gray-500 dark:text-gray-400 text-sm">
+                  Export:
+                </span>
                 <button
                   onClick={() => handleExport("csv")}
                   disabled={isExporting || !analytics}
-                  className="px-3 py-1.5 bg-slate-700/50 text-slate-300 rounded-lg hover:bg-slate-700 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
+                  className="px-3 py-1.5 bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
                 >
                   <svg
                     className="w-4 h-4"
@@ -275,7 +378,7 @@ export default function AnalyticsPage() {
                 <button
                   onClick={() => handleExport("json")}
                   disabled={isExporting || !analytics}
-                  className="px-3 py-1.5 bg-slate-700/50 text-slate-300 rounded-lg hover:bg-slate-700 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
+                  className="px-3 py-1.5 bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
                 >
                   <svg
                     className="w-4 h-4"
@@ -298,7 +401,7 @@ export default function AnalyticsPage() {
             {selectedLink && (
               <motion.div
                 variants={itemVariants}
-                className="mb-8 p-4 rounded-xl bg-slate-800/30 border border-slate-700/30"
+                className="mb-8 p-4 rounded-xl bg-violet-50 dark:bg-violet-500/10 border border-violet-200 dark:border-violet-500/20"
               >
                 <div className="flex flex-wrap items-center gap-4">
                   <div className="flex-1 min-w-0">
@@ -306,17 +409,17 @@ export default function AnalyticsPage() {
                       href={`https://aigl.ink/${selectedLink.code}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-cyan-400 font-mono hover:text-cyan-300 transition-colors"
+                      className="text-violet-600 dark:text-violet-400 font-mono hover:text-violet-700 dark:hover:text-violet-300 transition-colors"
                     >
                       aigl.ink/{selectedLink.code}
                     </a>
-                    <p className="text-slate-500 text-sm truncate">
+                    <p className="text-gray-500 dark:text-gray-400 text-sm truncate">
                       → {selectedLink.originalUrl}
                     </p>
                   </div>
                   <Link
                     href={`/tools/qr-code-generator?url=https://aigl.ink/${selectedLink.code}`}
-                    className="px-4 py-2 bg-slate-700/50 text-slate-300 rounded-lg hover:bg-slate-700 transition-colors text-sm"
+                    className="px-4 py-2 bg-white dark:bg-zinc-800 text-gray-600 dark:text-gray-300 rounded-lg border border-gray-200 dark:border-zinc-700 hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors text-sm"
                   >
                     Generate QR Code
                   </Link>
@@ -327,7 +430,7 @@ export default function AnalyticsPage() {
             {error ? (
               <motion.div
                 variants={itemVariants}
-                className="p-6 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400"
+                className="p-5 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 text-red-600 dark:text-red-400"
               >
                 {error}
               </motion.div>
@@ -354,17 +457,23 @@ function LoadingSkeleton({ showHeader = true }: { showHeader?: boolean }) {
   return (
     <div className="animate-pulse">
       {showHeader && (
-        <div className="h-12 bg-slate-700/50 rounded-xl w-full max-w-md mb-8" />
+        <div className="h-12 bg-gray-200 dark:bg-zinc-700 rounded-lg w-full max-w-md mb-8" />
       )}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         {[...Array(3)].map((_, i) => (
-          <div key={i} className="h-32 bg-slate-700/50 rounded-xl" />
+          <div
+            key={i}
+            className="h-28 bg-gray-200 dark:bg-zinc-700 rounded-xl"
+          />
         ))}
       </div>
-      <div className="h-72 bg-slate-700/50 rounded-xl mb-8" />
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="h-64 bg-gray-200 dark:bg-zinc-700 rounded-xl mb-8" />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {[...Array(4)].map((_, i) => (
-          <div key={i} className="h-64 bg-slate-700/50 rounded-xl" />
+          <div
+            key={i}
+            className="h-56 bg-gray-200 dark:bg-zinc-700 rounded-xl"
+          />
         ))}
       </div>
     </div>
@@ -377,10 +486,10 @@ function EmptyState() {
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="p-12 rounded-xl bg-slate-800/50 border border-slate-700/50 text-center"
+      className="p-12 rounded-xl bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 text-center"
     >
       <svg
-        className="w-16 h-16 mx-auto mb-4 text-slate-600"
+        className="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-gray-600"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -388,16 +497,16 @@ function EmptyState() {
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
-          strokeWidth={2}
+          strokeWidth={1.5}
           d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
         />
       </svg>
-      <p className="text-slate-400 mb-4">
+      <p className="text-gray-500 dark:text-gray-400 mb-4">
         Create links to start tracking analytics.
       </p>
       <Link
         href="/tools/url-shortener"
-        className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-medium rounded-xl hover:from-cyan-600 hover:to-blue-600 transition-all duration-200"
+        className="inline-flex items-center gap-2 px-5 py-2 bg-violet-600 text-white font-medium rounded-lg hover:bg-violet-700 transition-colors"
       >
         Create Your First Link
       </Link>
@@ -431,19 +540,19 @@ function AnalyticsContent({ analytics }: { analytics: AnalyticsData }) {
           title="Total Clicks"
           value={analytics.totalClicks}
           icon="cursor"
-          color="cyan"
+          color="violet"
         />
         <StatCard
           title="Unique Clicks"
           value={analytics.uniqueClicks}
           icon="users"
-          color="blue"
+          color="violet"
         />
         <StatCard
           title="QR Scans"
           value={analytics.qrScans}
           icon="qr"
-          color="green"
+          color="emerald"
         />
       </motion.div>
 
@@ -501,18 +610,19 @@ function StatCard({
   title: string;
   value: number;
   icon: "cursor" | "users" | "qr";
-  color: "cyan" | "blue" | "green";
+  color: "violet" | "emerald";
 }) {
   const colorClasses = {
-    cyan: "bg-cyan-500/20 text-cyan-400",
-    blue: "bg-blue-500/20 text-blue-400",
-    green: "bg-green-500/20 text-green-400",
+    violet:
+      "bg-violet-100 dark:bg-violet-500/20 text-violet-600 dark:text-violet-400",
+    emerald:
+      "bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400",
   };
 
   const icons = {
     cursor: (
       <svg
-        className="w-6 h-6"
+        className="w-5 h-5"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -527,7 +637,7 @@ function StatCard({
     ),
     users: (
       <svg
-        className="w-6 h-6"
+        className="w-5 h-5"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -542,7 +652,7 @@ function StatCard({
     ),
     qr: (
       <svg
-        className="w-6 h-6"
+        className="w-5 h-5"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -558,14 +668,18 @@ function StatCard({
   };
 
   return (
-    <div className="p-6 rounded-xl bg-slate-800/50 border border-slate-700/50 hover:border-slate-600/50 transition-colors">
+    <div className="p-5 rounded-xl bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 hover:border-gray-300 dark:hover:border-zinc-700 transition-colors">
       <div className="flex items-center justify-between mb-3">
-        <span className="text-slate-400 text-sm">{title}</span>
+        <span className="text-gray-500 dark:text-gray-400 text-sm">
+          {title}
+        </span>
         <div className={`p-2 rounded-lg ${colorClasses[color]}`}>
           {icons[icon]}
         </div>
       </div>
-      <p className="text-3xl font-bold text-white">{value.toLocaleString()}</p>
+      <p className="text-2xl font-bold text-gray-900 dark:text-white">
+        {value.toLocaleString()}
+      </p>
     </div>
   );
 }
@@ -577,28 +691,30 @@ function RecentClicksTable({
   clicks: AnalyticsData["recentClicks"];
 }) {
   return (
-    <div className="rounded-xl bg-slate-800/50 border border-slate-700/50 overflow-hidden">
-      <div className="p-4 border-b border-slate-700/50">
-        <h3 className="text-lg font-semibold text-white">Recent Clicks</h3>
+    <div className="rounded-xl bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 overflow-hidden">
+      <div className="p-4 border-b border-gray-200 dark:border-zinc-800">
+        <h3 className="text-base font-semibold text-gray-900 dark:text-white">
+          Recent Clicks
+        </h3>
       </div>
       {clicks.length > 0 ? (
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-slate-700/50">
-                <th className="text-left px-4 py-3 text-slate-400 text-sm font-medium">
+              <tr className="border-b border-gray-200 dark:border-zinc-800">
+                <th className="text-left px-4 py-3 text-gray-500 dark:text-gray-400 text-sm font-medium">
                   Time
                 </th>
-                <th className="text-left px-4 py-3 text-slate-400 text-sm font-medium">
+                <th className="text-left px-4 py-3 text-gray-500 dark:text-gray-400 text-sm font-medium">
                   Location
                 </th>
-                <th className="text-left px-4 py-3 text-slate-400 text-sm font-medium">
+                <th className="text-left px-4 py-3 text-gray-500 dark:text-gray-400 text-sm font-medium">
                   Device
                 </th>
-                <th className="text-left px-4 py-3 text-slate-400 text-sm font-medium">
+                <th className="text-left px-4 py-3 text-gray-500 dark:text-gray-400 text-sm font-medium">
                   Browser
                 </th>
-                <th className="text-left px-4 py-3 text-slate-400 text-sm font-medium">
+                <th className="text-left px-4 py-3 text-gray-500 dark:text-gray-400 text-sm font-medium">
                   Source
                 </th>
               </tr>
@@ -607,28 +723,28 @@ function RecentClicksTable({
               {clicks.map((click, i) => (
                 <tr
                   key={i}
-                  className="border-b border-slate-700/30 last:border-0 hover:bg-slate-700/20 transition-colors"
+                  className="border-b border-gray-100 dark:border-zinc-800/50 last:border-0 hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors"
                 >
-                  <td className="px-4 py-3 text-slate-300 text-sm">
+                  <td className="px-4 py-3 text-gray-700 dark:text-gray-300 text-sm">
                     {formatTimestamp(click.timestamp)}
                   </td>
-                  <td className="px-4 py-3 text-slate-300 text-sm">
+                  <td className="px-4 py-3 text-gray-700 dark:text-gray-300 text-sm">
                     {click.city && click.country
                       ? `${click.city}, ${click.country}`
                       : click.country || "Unknown"}
                   </td>
-                  <td className="px-4 py-3 text-slate-300 text-sm capitalize">
+                  <td className="px-4 py-3 text-gray-700 dark:text-gray-300 text-sm capitalize">
                     {click.deviceType || "Unknown"}
                   </td>
-                  <td className="px-4 py-3 text-slate-300 text-sm">
+                  <td className="px-4 py-3 text-gray-700 dark:text-gray-300 text-sm">
                     {click.browser || "Unknown"}
                   </td>
                   <td className="px-4 py-3 text-sm">
                     <span
                       className={`px-2 py-1 rounded-full text-xs font-medium ${
                         click.sourceType === "qr"
-                          ? "bg-purple-500/20 text-purple-400"
-                          : "bg-cyan-500/20 text-cyan-400"
+                          ? "bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400"
+                          : "bg-violet-100 dark:bg-violet-500/20 text-violet-700 dark:text-violet-400"
                       }`}
                     >
                       {click.sourceType === "qr" ? "QR Code" : "Direct"}
@@ -640,7 +756,7 @@ function RecentClicksTable({
           </table>
         </div>
       ) : (
-        <div className="p-8 text-center text-slate-400">
+        <div className="p-8 text-center text-gray-500 dark:text-gray-400">
           No clicks recorded yet
         </div>
       )}

@@ -10,9 +10,9 @@ interface DeviceChartProps {
 
 // Color palettes for different chart types
 const COLORS = {
-  device: ["#06b6d4", "#3b82f6", "#8b5cf6"], // cyan, blue, purple
-  browser: ["#06b6d4", "#f59e0b", "#ef4444", "#22c55e", "#8b5cf6", "#64748b"], // cyan, amber, red, green, purple, slate
-  os: ["#3b82f6", "#22c55e", "#f59e0b", "#8b5cf6", "#06b6d4", "#64748b"], // blue, green, amber, purple, cyan, slate
+  device: ["#8b5cf6", "#a78bfa", "#c4b5fd"], // violet shades
+  browser: ["#8b5cf6", "#10b981", "#f59e0b", "#ef4444", "#3b82f6", "#6b7280"], // violet, emerald, amber, red, blue, gray
+  os: ["#8b5cf6", "#10b981", "#f59e0b", "#3b82f6", "#a78bfa", "#6b7280"], // violet, emerald, amber, blue, violet-light, gray
 };
 
 // Device icons
@@ -49,9 +49,11 @@ export function DeviceChart({
 
   if (data.length === 0) {
     return (
-      <div className="p-6 rounded-xl bg-slate-800/50 border border-slate-700/50">
-        <h3 className="text-lg font-semibold text-white mb-4">{title}</h3>
-        <div className="h-64 flex items-center justify-center text-slate-500">
+      <div className="p-6 rounded-xl bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          {title}
+        </h3>
+        <div className="h-64 flex items-center justify-center text-gray-400 dark:text-gray-500">
           No data yet
         </div>
       </div>
@@ -59,8 +61,10 @@ export function DeviceChart({
   }
 
   return (
-    <div className="p-6 rounded-xl bg-slate-800/50 border border-slate-700/50">
-      <h3 className="text-lg font-semibold text-white mb-4">{title}</h3>
+    <div className="p-6 rounded-xl bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800">
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+        {title}
+      </h3>
       <div className="flex flex-col lg:flex-row items-center gap-4">
         {/* Pie Chart */}
         <div className="h-48 w-48 flex-shrink-0">
@@ -91,23 +95,23 @@ export function DeviceChart({
           {chartData.map((item, index) => (
             <div
               key={item.name}
-              className="flex items-center justify-between p-2 rounded-lg hover:bg-slate-700/30 transition-colors"
+              className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
             >
               <div className="flex items-center gap-3">
                 <div
                   className="w-3 h-3 rounded-full flex-shrink-0"
                   style={{ backgroundColor: colors[index % colors.length] }}
                 />
-                <span className="text-slate-300">
+                <span className="text-gray-700 dark:text-gray-300">
                   {type === "device" && DEVICE_ICONS[item.name.toLowerCase()]}{" "}
                   {type === "browser" && BROWSER_ICONS[item.name]} {item.name}
                 </span>
               </div>
               <div className="flex items-center gap-3">
-                <span className="text-slate-400 text-sm">
+                <span className="text-gray-500 dark:text-gray-400 text-sm">
                   {item.count.toLocaleString()}
                 </span>
-                <span className="text-slate-500 text-sm w-12 text-right">
+                <span className="text-gray-400 dark:text-gray-500 text-sm w-12 text-right">
                   {item.percentage}%
                 </span>
               </div>
@@ -132,9 +136,11 @@ function CustomTooltip({
 }) {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 shadow-xl">
-        <p className="text-white font-semibold">{payload[0].name}</p>
-        <p className="text-slate-400 text-sm">
+      <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-lg px-3 py-2 shadow-xl">
+        <p className="text-gray-900 dark:text-white font-semibold">
+          {payload[0].name}
+        </p>
+        <p className="text-gray-500 dark:text-gray-400 text-sm">
           {payload[0].value.toLocaleString()} ({payload[0].payload.percentage}%)
         </p>
       </div>

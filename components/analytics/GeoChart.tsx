@@ -50,12 +50,12 @@ const COUNTRY_FLAGS: Record<string, string> = {
 };
 
 const COLORS = [
-  "#06b6d4",
-  "#3b82f6",
   "#8b5cf6",
-  "#22c55e",
+  "#a78bfa",
+  "#c4b5fd",
+  "#10b981",
   "#f59e0b",
-  "#ef4444",
+  "#3b82f6",
 ];
 
 export function GeoChart({
@@ -74,9 +74,11 @@ export function GeoChart({
 
   if (data.length === 0) {
     return (
-      <div className="p-6 rounded-xl bg-slate-800/50 border border-slate-700/50">
-        <h3 className="text-lg font-semibold text-white mb-4">{title}</h3>
-        <div className="h-64 flex items-center justify-center text-slate-500">
+      <div className="p-6 rounded-xl bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          {title}
+        </h3>
+        <div className="h-64 flex items-center justify-center text-gray-400 dark:text-gray-500">
           No location data yet
         </div>
       </div>
@@ -84,8 +86,10 @@ export function GeoChart({
   }
 
   return (
-    <div className="p-6 rounded-xl bg-slate-800/50 border border-slate-700/50">
-      <h3 className="text-lg font-semibold text-white mb-4">{title}</h3>
+    <div className="p-6 rounded-xl bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800">
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+        {title}
+      </h3>
       <div className="h-64">
         <ClientBarChart
           data={chartData}
@@ -94,7 +98,7 @@ export function GeoChart({
         >
           <XAxis
             type="number"
-            stroke="#64748b"
+            className="text-gray-500 dark:text-gray-400"
             fontSize={12}
             tickLine={false}
             axisLine={false}
@@ -102,7 +106,7 @@ export function GeoChart({
           <YAxis
             type="category"
             dataKey="name"
-            stroke="#64748b"
+            className="text-gray-500 dark:text-gray-400"
             fontSize={12}
             tickLine={false}
             axisLine={false}
@@ -114,7 +118,7 @@ export function GeoChart({
                   y={0}
                   dy={4}
                   textAnchor="end"
-                  fill="#94a3b8"
+                  className="fill-gray-600 dark:fill-gray-400"
                   fontSize={12}
                 >
                   {chartData.find((d) => d.name === payload.value)?.flag}{" "}
@@ -123,7 +127,10 @@ export function GeoChart({
               </g>
             )}
           />
-          <Tooltip content={<CustomTooltip />} cursor={{ fill: "#334155" }} />
+          <Tooltip
+            content={<CustomTooltip />}
+            cursor={{ fill: "rgba(139, 92, 246, 0.1)" }}
+          />
           <Bar dataKey="count" radius={[0, 4, 4, 0]} maxBarSize={24}>
             {chartData.map((_, index) => (
               <Cell
@@ -150,11 +157,11 @@ function CustomTooltip({
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     return (
-      <div className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 shadow-xl">
-        <p className="text-white font-semibold">
+      <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-lg px-3 py-2 shadow-xl">
+        <p className="text-gray-900 dark:text-white font-semibold">
           {data.flag} {data.name}
         </p>
-        <p className="text-slate-400 text-sm">
+        <p className="text-gray-500 dark:text-gray-400 text-sm">
           {data.count.toLocaleString()} clicks ({data.percentage}%)
         </p>
       </div>

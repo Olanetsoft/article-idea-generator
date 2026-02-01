@@ -102,31 +102,31 @@ export default function DashboardPage() {
       description="Overview of your links and analytics"
     >
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
             <div
               key={i}
-              className="p-6 rounded-xl bg-slate-800/50 border border-slate-700/50 animate-pulse"
+              className="p-5 rounded-xl bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 animate-pulse"
             >
-              <div className="h-4 w-24 bg-slate-700 rounded mb-3" />
-              <div className="h-8 w-16 bg-slate-700 rounded" />
+              <div className="h-4 w-24 bg-gray-200 dark:bg-zinc-700 rounded mb-3" />
+              <div className="h-8 w-16 bg-gray-200 dark:bg-zinc-700 rounded" />
             </div>
           ))}
         </div>
       ) : error ? (
-        <div className="p-6 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400">
+        <div className="p-5 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 text-red-600 dark:text-red-400">
           {error}
         </div>
       ) : (
         <>
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <StatsCard
               title="Total Links"
               value={stats?.totalLinks || 0}
               icon={
                 <svg
-                  className="w-6 h-6"
+                  className="w-5 h-5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -139,14 +139,14 @@ export default function DashboardPage() {
                   />
                 </svg>
               }
-              color="cyan"
+              color="violet"
             />
             <StatsCard
               title="Total Clicks"
               value={stats?.totalClicks || 0}
               icon={
                 <svg
-                  className="w-6 h-6"
+                  className="w-5 h-5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -159,14 +159,14 @@ export default function DashboardPage() {
                   />
                 </svg>
               }
-              color="blue"
+              color="violet"
             />
             <StatsCard
               title="Unique Clicks"
               value={stats?.uniqueClicks || 0}
               icon={
                 <svg
-                  className="w-6 h-6"
+                  className="w-5 h-5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -179,14 +179,14 @@ export default function DashboardPage() {
                   />
                 </svg>
               }
-              color="purple"
+              color="violet"
             />
             <StatsCard
               title="QR Scans"
               value={stats?.qrScans || 0}
               icon={
                 <svg
-                  className="w-6 h-6"
+                  className="w-5 h-5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -199,36 +199,38 @@ export default function DashboardPage() {
                   />
                 </svg>
               }
-              color="green"
+              color="emerald"
             />
           </div>
 
           {/* Top Performing Link */}
           {stats?.topLink && (
             <div className="mb-8">
-              <h2 className="text-xl font-semibold text-white mb-4">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                 Top Performing Link
               </h2>
-              <div className="p-6 rounded-xl bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-cyan-500/30">
+              <div className="p-5 rounded-xl bg-violet-50 dark:bg-violet-500/10 border border-violet-200 dark:border-violet-500/20">
                 <div className="flex items-center justify-between flex-wrap gap-4">
                   <div className="flex-1 min-w-0">
-                    <p className="text-cyan-400 font-mono text-lg mb-1">
+                    <p className="text-violet-600 dark:text-violet-400 font-mono text-base mb-1">
                       aigl.ink/{stats.topLink.code}
                     </p>
-                    <p className="text-slate-400 truncate">
+                    <p className="text-gray-500 dark:text-gray-400 truncate text-sm">
                       {stats.topLink.title || stats.topLink.originalUrl}
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-3xl font-bold text-white">
+                    <p className="text-2xl font-bold text-gray-900 dark:text-white">
                       {stats.topLink.clickCount.toLocaleString()}
                     </p>
-                    <p className="text-slate-400 text-sm">clicks</p>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">
+                      clicks
+                    </p>
                   </div>
                 </div>
                 <Link
                   href={`/dashboard/analytics?code=${stats.topLink.code}`}
-                  className="inline-flex items-center gap-2 mt-4 text-cyan-400 hover:text-cyan-300 transition-colors"
+                  className="inline-flex items-center gap-2 mt-4 text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 transition-colors text-sm font-medium"
                 >
                   View Analytics
                   <svg
@@ -252,10 +254,12 @@ export default function DashboardPage() {
           {/* Recent Links */}
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold text-white">Recent Links</h2>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Recent Links
+              </h2>
               <Link
                 href="/dashboard/links"
-                className="text-cyan-400 hover:text-cyan-300 transition-colors text-sm"
+                className="text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 transition-colors text-sm font-medium"
               >
                 View All →
               </Link>
@@ -265,26 +269,28 @@ export default function DashboardPage() {
                 {stats.recentLinks.map((link) => (
                   <div
                     key={link.id}
-                    className="p-4 rounded-xl bg-slate-800/50 border border-slate-700/50 flex items-center justify-between gap-4"
+                    className="p-4 rounded-xl bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 flex items-center justify-between gap-4"
                   >
                     <div className="flex-1 min-w-0">
-                      <p className="text-cyan-400 font-mono">
+                      <p className="text-violet-600 dark:text-violet-400 font-mono text-sm">
                         aigl.ink/{link.code}
                       </p>
-                      <p className="text-slate-400 text-sm truncate">
+                      <p className="text-gray-500 dark:text-gray-400 text-sm truncate">
                         {link.title || link.originalUrl}
                       </p>
                     </div>
                     <div className="flex items-center gap-4">
                       <div className="text-right">
-                        <p className="text-white font-semibold">
+                        <p className="text-gray-900 dark:text-white font-semibold">
                           {link.clickCount}
                         </p>
-                        <p className="text-slate-500 text-xs">clicks</p>
+                        <p className="text-gray-400 dark:text-gray-500 text-xs">
+                          clicks
+                        </p>
                       </div>
                       <Link
                         href={`/dashboard/analytics?code=${link.code}`}
-                        className="p-2 rounded-lg bg-slate-700/50 text-slate-400 hover:text-white hover:bg-slate-700 transition-colors"
+                        className="p-2 rounded-lg bg-gray-100 dark:bg-zinc-800 text-gray-500 dark:text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-500/10 transition-colors"
                       >
                         <svg
                           className="w-5 h-5"
@@ -305,13 +311,13 @@ export default function DashboardPage() {
                 ))}
               </div>
             ) : (
-              <div className="p-8 rounded-xl bg-slate-800/50 border border-slate-700/50 text-center">
-                <p className="text-slate-400 mb-4">
+              <div className="p-8 rounded-xl bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 text-center">
+                <p className="text-gray-500 dark:text-gray-400 mb-4">
                   You haven&apos;t created any links yet.
                 </p>
                 <Link
                   href="/tools/url-shortener"
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-medium rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-colors"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-violet-600 text-white font-medium rounded-lg hover:bg-violet-700 transition-colors"
                 >
                   Create Your First Link
                 </Link>
@@ -333,22 +339,26 @@ function StatsCard({
   title: string;
   value: number;
   icon: React.ReactNode;
-  color: "cyan" | "blue" | "purple" | "green";
+  color: "violet" | "emerald";
 }) {
   const colorClasses = {
-    cyan: "bg-cyan-500/20 text-cyan-400",
-    blue: "bg-blue-500/20 text-blue-400",
-    purple: "bg-purple-500/20 text-purple-400",
-    green: "bg-green-500/20 text-green-400",
+    violet:
+      "bg-violet-100 dark:bg-violet-500/20 text-violet-600 dark:text-violet-400",
+    emerald:
+      "bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400",
   };
 
   return (
-    <div className="p-6 rounded-xl bg-slate-800/50 border border-slate-700/50">
+    <div className="p-5 rounded-xl bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800">
       <div className="flex items-center justify-between mb-3">
-        <span className="text-slate-400 text-sm">{title}</span>
+        <span className="text-gray-500 dark:text-gray-400 text-sm">
+          {title}
+        </span>
         <div className={`p-2 rounded-lg ${colorClasses[color]}`}>{icon}</div>
       </div>
-      <p className="text-3xl font-bold text-white">{value.toLocaleString()}</p>
+      <p className="text-2xl font-bold text-gray-900 dark:text-white">
+        {value.toLocaleString()}
+      </p>
     </div>
   );
 }

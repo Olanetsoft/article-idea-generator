@@ -102,7 +102,7 @@ export default function LinksPage() {
   return (
     <>
       <Head>
-        <title>My Links | {SITE_NAME}</title>
+        <title>{`My Links | ${SITE_NAME}`}</title>
         <meta
           name="description"
           content="Manage and track all your shortened URLs. View click statistics and analytics for each link."
@@ -117,7 +117,7 @@ export default function LinksPage() {
         <div className="flex flex-col sm:flex-row gap-4 mb-6">
           <div className="flex-1 relative">
             <svg
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -134,12 +134,12 @@ export default function LinksPage() {
               placeholder="Search links..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50"
+              className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
             />
           </div>
           <Link
             href="/tools/url-shortener"
-            className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-medium rounded-xl hover:from-cyan-600 hover:to-blue-600 transition-colors"
+            className="flex items-center justify-center gap-2 px-5 py-2.5 bg-violet-600 text-white font-medium rounded-lg hover:bg-violet-700 transition-colors"
           >
             <svg
               className="w-5 h-5"
@@ -159,34 +159,34 @@ export default function LinksPage() {
         </div>
 
         {isLoading ? (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {[...Array(5)].map((_, i) => (
               <div
                 key={i}
-                className="p-6 rounded-xl bg-slate-800/50 border border-slate-700/50 animate-pulse"
+                className="p-5 rounded-xl bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 animate-pulse"
               >
                 <div className="flex items-center gap-4">
-                  <div className="h-5 w-32 bg-slate-700 rounded" />
-                  <div className="h-4 w-48 bg-slate-700 rounded" />
-                  <div className="ml-auto h-8 w-20 bg-slate-700 rounded" />
+                  <div className="h-5 w-32 bg-gray-200 dark:bg-zinc-700 rounded" />
+                  <div className="h-4 w-48 bg-gray-200 dark:bg-zinc-700 rounded" />
+                  <div className="ml-auto h-8 w-20 bg-gray-200 dark:bg-zinc-700 rounded" />
                 </div>
               </div>
             ))}
           </div>
         ) : error ? (
-          <div className="p-6 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400">
+          <div className="p-5 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 text-red-600 dark:text-red-400">
             {error}
           </div>
         ) : filteredLinks.length === 0 ? (
-          <div className="p-12 rounded-xl bg-slate-800/50 border border-slate-700/50 text-center">
+          <div className="p-12 rounded-xl bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 text-center">
             {searchQuery ? (
               <>
-                <p className="text-slate-400 mb-2">
+                <p className="text-gray-500 dark:text-gray-400 mb-2">
                   No links found matching &quot;{searchQuery}&quot;
                 </p>
                 <button
                   onClick={() => setSearchQuery("")}
-                  className="text-cyan-400 hover:text-cyan-300 transition-colors"
+                  className="text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 transition-colors"
                 >
                   Clear search
                 </button>
@@ -194,7 +194,7 @@ export default function LinksPage() {
             ) : (
               <>
                 <svg
-                  className="w-16 h-16 mx-auto mb-4 text-slate-600"
+                  className="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-gray-600"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -202,16 +202,16 @@ export default function LinksPage() {
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    strokeWidth={2}
+                    strokeWidth={1.5}
                     d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
                   />
                 </svg>
-                <p className="text-slate-400 mb-4">
+                <p className="text-gray-500 dark:text-gray-400 mb-4">
                   You haven&apos;t created any links yet.
                 </p>
                 <Link
                   href="/tools/url-shortener"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-medium rounded-xl hover:from-cyan-600 hover:to-blue-600 transition-colors"
+                  className="inline-flex items-center gap-2 px-5 py-2 bg-violet-600 text-white font-medium rounded-lg hover:bg-violet-700 transition-colors"
                 >
                   Create Your First Link
                 </Link>
@@ -219,11 +219,11 @@ export default function LinksPage() {
             )}
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {filteredLinks.map((link) => (
               <div
                 key={link.id}
-                className="p-6 rounded-xl bg-slate-800/50 border border-slate-700/50 hover:border-slate-600/50 transition-colors"
+                className="p-5 rounded-xl bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 hover:border-gray-300 dark:hover:border-zinc-700 transition-colors"
               >
                 <div className="flex flex-col lg:flex-row lg:items-center gap-4">
                   {/* Link Info */}
@@ -233,7 +233,7 @@ export default function LinksPage() {
                         href={`https://aigl.ink/${link.code}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-cyan-400 font-mono text-lg hover:text-cyan-300 transition-colors"
+                        className="text-violet-600 dark:text-violet-400 font-mono hover:text-violet-700 dark:hover:text-violet-300 transition-colors"
                       >
                         aigl.ink/{link.code}
                       </a>
@@ -241,8 +241,8 @@ export default function LinksPage() {
                         onClick={() => handleCopy(link.code)}
                         className={`p-1.5 rounded-lg transition-colors ${
                           copiedCode === link.code
-                            ? "bg-green-500/20 text-green-400"
-                            : "bg-slate-700/50 text-slate-400 hover:text-white"
+                            ? "bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400"
+                            : "bg-gray-100 dark:bg-zinc-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                         }`}
                         title="Copy link"
                       >
@@ -277,10 +277,10 @@ export default function LinksPage() {
                         )}
                       </button>
                     </div>
-                    <p className="text-slate-400 text-sm truncate mb-1">
+                    <p className="text-gray-500 dark:text-gray-400 text-sm truncate mb-1">
                       {link.title || link.originalUrl}
                     </p>
-                    <p className="text-slate-500 text-xs">
+                    <p className="text-gray-400 dark:text-gray-500 text-xs">
                       Created {formatDate(link.createdAt)}
                     </p>
                   </div>
@@ -288,22 +288,28 @@ export default function LinksPage() {
                   {/* Stats */}
                   <div className="flex items-center gap-6 lg:gap-8">
                     <div className="text-center">
-                      <p className="text-xl font-semibold text-white">
+                      <p className="text-lg font-semibold text-gray-900 dark:text-white">
                         {link.clickCount}
                       </p>
-                      <p className="text-slate-500 text-xs">Clicks</p>
+                      <p className="text-gray-400 dark:text-gray-500 text-xs">
+                        Clicks
+                      </p>
                     </div>
                     <div className="text-center">
-                      <p className="text-xl font-semibold text-white">
+                      <p className="text-lg font-semibold text-gray-900 dark:text-white">
                         {link.uniqueClickCount}
                       </p>
-                      <p className="text-slate-500 text-xs">Unique</p>
+                      <p className="text-gray-400 dark:text-gray-500 text-xs">
+                        Unique
+                      </p>
                     </div>
                     <div className="text-center">
-                      <p className="text-xl font-semibold text-white">
+                      <p className="text-lg font-semibold text-gray-900 dark:text-white">
                         {link.qrScanCount}
                       </p>
-                      <p className="text-slate-500 text-xs">QR Scans</p>
+                      <p className="text-gray-400 dark:text-gray-500 text-xs">
+                        QR Scans
+                      </p>
                     </div>
                   </div>
 
@@ -311,7 +317,7 @@ export default function LinksPage() {
                   <div className="flex items-center gap-2">
                     <Link
                       href={`/dashboard/analytics?code=${link.code}`}
-                      className="p-2.5 rounded-lg bg-slate-700/50 text-slate-400 hover:text-white hover:bg-slate-700 transition-colors"
+                      className="p-2 rounded-lg bg-gray-100 dark:bg-zinc-800 text-gray-500 dark:text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-500/10 transition-colors"
                       title="View Analytics"
                     >
                       <svg
@@ -330,7 +336,7 @@ export default function LinksPage() {
                     </Link>
                     <Link
                       href={`/tools/qr-code-generator?url=https://aigl.ink/${link.code}`}
-                      className="p-2.5 rounded-lg bg-slate-700/50 text-slate-400 hover:text-white hover:bg-slate-700 transition-colors"
+                      className="p-2 rounded-lg bg-gray-100 dark:bg-zinc-800 text-gray-500 dark:text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-500/10 transition-colors"
                       title="Generate QR Code"
                     >
                       <svg
@@ -350,7 +356,7 @@ export default function LinksPage() {
                     <button
                       onClick={() => handleDelete(link.id, link.code)}
                       disabled={deletingId === link.id}
-                      className="p-2.5 rounded-lg bg-slate-700/50 text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-50"
+                      className="p-2 rounded-lg bg-gray-100 dark:bg-zinc-800 text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors disabled:opacity-50"
                       title="Delete Link"
                     >
                       {deletingId === link.id ? (
@@ -392,7 +398,7 @@ export default function LinksPage() {
 
         {/* Results count */}
         {!isLoading && !error && filteredLinks.length > 0 && (
-          <p className="text-slate-500 text-sm mt-6 text-center">
+          <p className="text-gray-400 dark:text-gray-500 text-sm mt-6 text-center">
             Showing {filteredLinks.length} of {links.length} links
           </p>
         )}

@@ -11,7 +11,7 @@ import {
 import { MenuIcon, XIcon } from "@heroicons/react/outline";
 import { useTranslation } from "@/hooks/useTranslation";
 import { tools } from "@/lib/tools-config";
-import { UserMenu } from "@/components/UserMenu";
+import { UserMenu, UserMenuMobile } from "@/components/UserMenu";
 
 export default function Header() {
   const { systemTheme, theme, setTheme } = useTheme();
@@ -416,7 +416,7 @@ export default function Header() {
 
             {/* User Account - Mobile */}
             <div className="mx-2 mt-2">
-              <UserMenu />
+              <UserMenuMobile onNavigate={() => setMobileMenuOpen(false)} />
             </div>
           </div>
 

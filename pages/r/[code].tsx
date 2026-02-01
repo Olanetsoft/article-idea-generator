@@ -211,20 +211,20 @@ export default function RedirectPage({
         </title>
         <meta name="robots" content="noindex, nofollow" />
       </Head>
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-zinc-900 dark:via-zinc-900 dark:to-zinc-800">
         <div className="text-center p-8">
           <div className="relative w-16 h-16 mx-auto mb-6">
-            <div className="absolute inset-0 rounded-full border-4 border-slate-700" />
-            <div className="absolute inset-0 rounded-full border-4 border-cyan-500 border-t-transparent animate-spin" />
+            <div className="absolute inset-0 rounded-full border-4 border-gray-200 dark:border-zinc-700" />
+            <div className="absolute inset-0 rounded-full border-4 border-violet-500 border-t-transparent animate-spin" />
           </div>
-          <h1 className="text-2xl font-semibold text-white mb-2">
+          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
             Redirecting...
           </h1>
-          <p className="text-slate-400 text-sm">
+          <p className="text-gray-500 dark:text-gray-400 text-sm">
             You&apos;re being redirected to your destination
           </p>
           {urlData?.originalUrl && (
-            <p className="text-slate-500 text-xs mt-4 max-w-sm truncate">
+            <p className="text-gray-400 dark:text-gray-500 text-xs mt-4 max-w-sm truncate">
               {urlData.originalUrl}
             </p>
           )}

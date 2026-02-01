@@ -29,9 +29,11 @@ export function ClicksChart({
 
   if (data.length === 0) {
     return (
-      <div className="p-6 rounded-xl bg-slate-800/50 border border-slate-700/50">
-        <h3 className="text-lg font-semibold text-white mb-4">{title}</h3>
-        <div className="h-64 flex items-center justify-center text-slate-500">
+      <div className="p-6 rounded-xl bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          {title}
+        </h3>
+        <div className="h-64 flex items-center justify-center text-gray-400 dark:text-gray-500">
           No click data yet
         </div>
       </div>
@@ -39,8 +41,10 @@ export function ClicksChart({
   }
 
   return (
-    <div className="p-6 rounded-xl bg-slate-800/50 border border-slate-700/50">
-      <h3 className="text-lg font-semibold text-white mb-4">{title}</h3>
+    <div className="p-6 rounded-xl bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800">
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+        {title}
+      </h3>
       <div className="h-64">
         <ClientAreaChart
           data={chartData}
@@ -48,20 +52,23 @@ export function ClicksChart({
         >
           <defs>
             <linearGradient id="colorClicks" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.4} />
-              <stop offset="95%" stopColor="#06b6d4" stopOpacity={0} />
+              <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.4} />
+              <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+          <CartesianGrid
+            strokeDasharray="3 3"
+            className="stroke-gray-200 dark:stroke-zinc-700"
+          />
           <XAxis
             dataKey="displayDate"
-            stroke="#64748b"
+            className="text-gray-500 dark:text-gray-400"
             fontSize={12}
             tickLine={false}
             axisLine={false}
           />
           <YAxis
-            stroke="#64748b"
+            className="text-gray-500 dark:text-gray-400"
             fontSize={12}
             tickLine={false}
             axisLine={false}
@@ -69,12 +76,12 @@ export function ClicksChart({
           />
           <Tooltip
             content={<CustomTooltip />}
-            cursor={{ stroke: "#64748b", strokeDasharray: "5 5" }}
+            cursor={{ stroke: "#a78bfa", strokeDasharray: "5 5" }}
           />
           <Area
             type="monotone"
             dataKey="clicks"
-            stroke="#06b6d4"
+            stroke="#8b5cf6"
             strokeWidth={2}
             fillOpacity={1}
             fill="url(#colorClicks)"
@@ -96,9 +103,9 @@ function CustomTooltip({
 }) {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 shadow-xl">
-        <p className="text-slate-400 text-xs">{label}</p>
-        <p className="text-white font-semibold">
+      <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-lg px-3 py-2 shadow-xl">
+        <p className="text-gray-500 dark:text-gray-400 text-xs">{label}</p>
+        <p className="text-gray-900 dark:text-white font-semibold">
           {payload[0].value.toLocaleString()} clicks
         </p>
       </div>
