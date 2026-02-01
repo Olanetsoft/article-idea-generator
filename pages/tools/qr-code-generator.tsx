@@ -2577,7 +2577,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                     {showTrackingTooltip && (
                       <>
                         {/* Backdrop overlay */}
-                        <div 
+                        <div
                           className="fixed inset-0 bg-black/20 dark:bg-black/40 z-40"
                           onClick={() => setShowTrackingTooltip(false)}
                         />
@@ -2593,8 +2593,8 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                               </h4>
                               <p className="text-sm text-zinc-600 dark:text-zinc-300 mb-4">
                                 Creates a short link (aigl.ink) that tracks how
-                                many people scan your QR code, their location, and
-                                device type.
+                                many people scan your QR code, their location,
+                                and device type.
                               </p>
                               <ul className="text-sm text-zinc-600 dark:text-zinc-300 space-y-2 mb-4">
                                 <li className="flex items-center gap-2">
