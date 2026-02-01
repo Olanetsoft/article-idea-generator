@@ -128,7 +128,9 @@ export default async function handler(
       });
     }
 
-    const { limit = 50, offset = 0 } = req.query;
+    // Enforce max limit to prevent memory issues
+    const limit = Math.min(Number(req.query.limit) || 50, 100);
+    const offset = Number(req.query.offset) || 0;
 
     const { data, error, count } = await supabase
       .from("short_urls")

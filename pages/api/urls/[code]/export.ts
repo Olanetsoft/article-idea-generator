@@ -163,6 +163,17 @@ export default async function handler(
     });
   }
 
+  // CSV injection protection - escape formula characters
+  const escapeCsvValue = (value: string): string => {
+    if (!value) return "";
+    // Escape values starting with =, +, -, @ to prevent formula injection
+    if (/^[=+\-@]/.test(value)) {
+      return `'${value}`;
+    }
+    // Escape quotes
+    return value.replace(/"/g, '""');
+  };
+
   // Default to CSV
   const headers = [
     "Timestamp",
@@ -182,17 +193,17 @@ export default async function handler(
     headers.join(","),
     ...exportData.map((row) =>
       [
-        `"${row.timestamp}"`,
-        `"${row.country}"`,
-        `"${row.city}"`,
-        `"${row.device}"`,
-        `"${row.browser}"`,
-        `"${row.os}"`,
-        `"${row.referrer}"`,
-        `"${row.source}"`,
-        `"${row.utm_source}"`,
-        `"${row.utm_medium}"`,
-        `"${row.utm_campaign}"`,
+        `"${escapeCsvValue(row.timestamp)}"`,
+        `"${escapeCsvValue(row.country)}"`,
+        `"${escapeCsvValue(row.city)}"`,
+        `"${escapeCsvValue(row.device)}"`,
+        `"${escapeCsvValue(row.browser)}"`,
+        `"${escapeCsvValue(row.os)}"`,
+        `"${escapeCsvValue(row.referrer)}"`,
+        `"${escapeCsvValue(row.source)}"`,
+        `"${escapeCsvValue(row.utm_source)}"`,
+        `"${escapeCsvValue(row.utm_medium)}"`,
+        `"${escapeCsvValue(row.utm_campaign)}"`,
       ].join(","),
     ),
   ];

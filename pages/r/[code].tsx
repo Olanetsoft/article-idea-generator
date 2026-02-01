@@ -92,13 +92,24 @@ export default function RedirectPage({
       if (urlData.source === "supabase") {
         // Track via API for Supabase URLs
         try {
+          // Generate fingerprint for unique click detection
+          const fingerprint = generateFingerprint(
+            clickData.userAgent,
+            clickData.ip,
+            typeof navigator !== "undefined" ? navigator.language : "",
+          );
+
           await fetch("/api/urls/track", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               code,
               sourceType,
-              utmParams,
+              fingerprint,
+              referrer: clickData.referrer,
+              utmSource: utmParams.utm_source,
+              utmMedium: utmParams.utm_medium,
+              utmCampaign: utmParams.utm_campaign,
             }),
           });
         } catch (error) {
@@ -132,8 +143,20 @@ export default function RedirectPage({
         saveLocalClickEvent(code, event);
       }
 
-      // Redirect after tracking
-      window.location.replace(urlData.originalUrl);
+      // Validate URL before redirect (prevent javascript: or malicious protocols)
+      try {
+        const targetUrl = new URL(urlData.originalUrl);
+        if (targetUrl.protocol === "http:" || targetUrl.protocol === "https:") {
+          window.location.replace(urlData.originalUrl);
+        } else {
+          console.error("Invalid URL protocol:", targetUrl.protocol);
+          // Fallback to homepage if invalid protocol
+          window.location.replace("/");
+        }
+      } catch {
+        // Invalid URL format
+        window.location.replace("/");
+      }
     };
 
     trackClick();
