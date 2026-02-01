@@ -85,7 +85,8 @@ function formatDate(timestamp: number): string {
   });
 }
 
-function truncateUrl(url: string, maxLength: number = 50): string {
+function truncateUrl(url: string | undefined | null, maxLength: number = 50): string {
+  if (!url) return "";
   if (url.length <= maxLength) return url;
   return url.substring(0, maxLength - 3) + "...";
 }
