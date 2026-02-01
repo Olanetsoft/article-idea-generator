@@ -49,6 +49,11 @@ export default function RedirectPage({ code, clickData }: RedirectPageProps) {
 
     setIsRedirecting(true);
 
+    // Check if click came from QR code scan
+    const urlParams = new URLSearchParams(window.location.search);
+    const sourceType = urlParams.get("source") === "qr" ? "qr" : "direct";
+    const utmParams = parseUtmParams(window.location.href);
+
     // Save click event to local storage for analytics
     const event: ClickEvent = {
       id: `${code}-${Date.now()}`,
@@ -67,9 +72,10 @@ export default function RedirectPage({ code, clickData }: RedirectPageProps) {
         clickData.ip,
         typeof navigator !== "undefined" ? navigator.language : "",
       ),
-      utmSource: parseUtmParams(window.location.href).utm_source,
-      utmMedium: parseUtmParams(window.location.href).utm_medium,
-      utmCampaign: parseUtmParams(window.location.href).utm_campaign,
+      sourceType,
+      utmSource: utmParams.utm_source,
+      utmMedium: utmParams.utm_medium,
+      utmCampaign: utmParams.utm_campaign,
     };
 
     saveLocalClickEvent(code, event);
@@ -148,7 +154,7 @@ export default function RedirectPage({ code, clickData }: RedirectPageProps) {
           {urlData?.title
             ? `Redirecting to ${urlData.title}`
             : "Redirecting..."}{" "}
-          | aig.link
+          | aigl.ink
         </title>
         <meta name="robots" content="noindex, nofollow" />
       </Head>

@@ -14,6 +14,7 @@ import {
   generateShortCode,
   saveLocalShortUrl,
   deleteLocalShortUrl,
+  getLocalShortUrls,
   SHORT_URL_BASE,
 } from "@/lib/analytics";
 import type { LocalShortUrl } from "@/types/analytics";
@@ -264,6 +265,10 @@ function AnalyticsModal({ item, onClose }: AnalyticsModalProps) {
   const [analytics, setAnalytics] = useState<
     import("@/types/analytics").AnalyticsSummary | null
   >(null);
+  const [sourceStats, setSourceStats] = useState<{
+    direct: number;
+    qr: number;
+  }>({ direct: 0, qr: 0 });
 
   useEffect(() => {
     // Load click events for this URL
@@ -275,6 +280,14 @@ function AnalyticsModal({ item, onClose }: AnalyticsModalProps) {
     setClickEvents(events);
     if (events.length > 0) {
       setAnalytics(calculateAnalytics(events));
+      // Calculate source breakdown
+      const qrClicks = events.filter(
+        (e: import("@/types/analytics").ClickEvent) => e.sourceType === "qr",
+      ).length;
+      setSourceStats({
+        direct: events.length - qrClicks,
+        qr: qrClicks,
+      });
     }
   }, [item.id]);
 
@@ -356,6 +369,39 @@ function AnalyticsModal({ item, onClose }: AnalyticsModalProps) {
                 </div>
               </div>
 
+              {/* Source Breakdown */}
+              {(sourceStats.qr > 0 || sourceStats.direct > 0) && (
+                <div>
+                  <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">
+                    Click Sources
+                  </h4>
+                  <div className="flex gap-4">
+                    <div className="flex-1 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <LinkIcon className="w-4 h-4 text-blue-500" />
+                        <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
+                          Direct Links
+                        </span>
+                      </div>
+                      <p className="text-xl font-bold text-blue-600 dark:text-blue-400 mt-1">
+                        {sourceStats.direct}
+                      </p>
+                    </div>
+                    <div className="flex-1 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <QrcodeIcon className="w-4 h-4 text-purple-500" />
+                        <span className="text-sm font-medium text-purple-700 dark:text-purple-300">
+                          QR Scans
+                        </span>
+                      </div>
+                      <p className="text-xl font-bold text-purple-600 dark:text-purple-400 mt-1">
+                        {sourceStats.qr}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Recent Clicks */}
               {clickEvents.length > 0 && (
                 <div>
@@ -369,6 +415,11 @@ function AnalyticsModal({ item, onClose }: AnalyticsModalProps) {
                         className="flex items-center justify-between p-3 bg-gray-50 dark:bg-dark-card/50 rounded-lg text-sm"
                       >
                         <div className="flex items-center gap-3">
+                          {event.sourceType === "qr" && (
+                            <span className="px-1.5 py-0.5 text-xs font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded">
+                              QR
+                            </span>
+                          )}
                           <span className="text-gray-500 dark:text-gray-400">
                             {event.country || "Unknown"}
                           </span>
@@ -443,12 +494,30 @@ export default function UrlShortenerPage(): JSX.Element {
   const inputRef = useRef<HTMLInputElement>(null);
   const hasTrackedUsage = useRef(false);
 
-  // Load history from localStorage
+  // Load history from localStorage and sync click counts
   useEffect(() => {
     try {
       const stored = localStorage.getItem(HISTORY_STORAGE_KEY);
       if (stored) {
-        setHistory(JSON.parse(stored));
+        const historyItems: HistoryItem[] = JSON.parse(stored);
+
+        // Sync click counts from tracked URL storage
+        const trackedUrls = getLocalShortUrls();
+        const syncedHistory = historyItems.map((item) => {
+          const tracked = trackedUrls.find((t) => t.id === item.id);
+          if (tracked) {
+            return { ...item, clicks: tracked.clicks };
+          }
+          return item;
+        });
+
+        setHistory(syncedHistory);
+
+        // Save synced history back
+        localStorage.setItem(
+          HISTORY_STORAGE_KEY,
+          JSON.stringify(syncedHistory),
+        );
       }
     } catch {
       // Ignore localStorage errors
@@ -581,7 +650,13 @@ export default function UrlShortenerPage(): JSX.Element {
 
   const handleGenerateQr = (shortUrl: string) => {
     // Navigate to QR code generator with pre-filled URL
-    router.push(`/tools/qr-code-generator?url=${encodeURIComponent(shortUrl)}`);
+    // Add ?source=qr to the short URL so we can track QR code scans vs direct clicks
+    const qrTrackingUrl = shortUrl.includes("?")
+      ? `${shortUrl}&source=qr`
+      : `${shortUrl}?source=qr`;
+    router.push(
+      `/tools/qr-code-generator?url=${encodeURIComponent(qrTrackingUrl)}`,
+    );
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
