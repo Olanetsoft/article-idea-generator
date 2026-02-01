@@ -9,10 +9,7 @@ import { Inter } from "@next/font/google";
 import ErrorBoundary from "../components/ErrorBoundary";
 import { AuthProvider } from "@/contexts";
 import { GA_MEASUREMENT_ID, pageview } from "@/lib/gtag";
-import {
-  CookieConsent,
-  hasAnalyticsConsent,
-} from "@/components/CookieConsent";
+import { CookieConsent, hasAnalyticsConsent } from "@/components/CookieConsent";
 
 const inter = Inter({
   subsets: ["latin"],

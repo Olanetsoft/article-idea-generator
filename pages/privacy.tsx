@@ -105,7 +105,10 @@ export default function PrivacyPolicy() {
             <section className="mb-8">
               <h2>3. How We Use Your Information</h2>
               <ul>
-                <li>To provide and maintain our URL shortening and QR code services</li>
+                <li>
+                  To provide and maintain our URL shortening and QR code
+                  services
+                </li>
                 <li>To display analytics about your shortened URLs</li>
                 <li>To improve our services and user experience</li>
                 <li>To detect and prevent fraud or abuse</li>
@@ -115,7 +118,10 @@ export default function PrivacyPolicy() {
 
             <section className="mb-8">
               <h2>4. Data Sharing</h2>
-              <p>We do not sell your personal information. We may share data with:</p>
+              <p>
+                We do not sell your personal information. We may share data
+                with:
+              </p>
               <ul>
                 <li>
                   <strong>Service Providers:</strong> Supabase (database),
@@ -148,7 +154,9 @@ export default function PrivacyPolicy() {
 
             <section className="mb-8">
               <h2>6. Your Rights (GDPR)</h2>
-              <p>If you are in the European Economic Area, you have the right to:</p>
+              <p>
+                If you are in the European Economic Area, you have the right to:
+              </p>
               <ul>
                 <li>
                   <strong>Access:</strong> Request a copy of your personal data.
@@ -181,9 +189,7 @@ export default function PrivacyPolicy() {
 
             <section className="mb-8">
               <h2>7. Data Security</h2>
-              <p>
-                We implement appropriate security measures including:
-              </p>
+              <p>We implement appropriate security measures including:</p>
               <ul>
                 <li>HTTPS encryption for all data transmission</li>
                 <li>IP address hashing (SHA-256) - we never store raw IPs</li>
