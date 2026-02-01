@@ -2563,63 +2563,71 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                       className="w-full flex items-center justify-between p-3 bg-zinc-50 dark:bg-dark-hover border border-zinc-200 dark:border-dark-border rounded-lg hover:border-violet-300 dark:hover:border-violet-700 transition-colors group"
                     >
                       <div className="flex items-center gap-2">
-                        <ChartBarIcon className="w-4 h-4 text-zinc-400 group-hover:text-violet-500 transition-colors" />
-                        <span className="text-sm text-zinc-600 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-200">
+                        <ChartBarIcon className="w-4 h-4 text-violet-500 dark:text-violet-400 group-hover:text-violet-600 dark:group-hover:text-violet-300 transition-colors" />
+                        <span className="text-sm font-medium text-zinc-700 dark:text-zinc-200 group-hover:text-zinc-900 dark:group-hover:text-white">
                           Enable scan tracking
                         </span>
                       </div>
-                      <span className="text-xs text-zinc-400 dark:text-zinc-500">
+                      <span className="text-xs text-zinc-500 dark:text-zinc-400">
                         Optional
                       </span>
                     </button>
 
-                    {/* Tracking Info Popup */}
+                    {/* Tracking Info Popup - Fixed position on page */}
                     {showTrackingTooltip && (
-                      <div className="absolute left-0 right-0 top-full mt-2 p-4 bg-white dark:bg-dark-card border border-zinc-200 dark:border-dark-border rounded-lg shadow-lg z-10">
-                        <div className="flex items-start gap-3">
-                          <div className="p-2 bg-violet-100 dark:bg-violet-900/30 rounded-lg">
-                            <ChartBarIcon className="w-5 h-5 text-violet-600 dark:text-violet-400" />
-                          </div>
-                          <div className="flex-1">
-                            <h4 className="font-medium text-zinc-900 dark:text-white mb-1">
-                              Track QR Code Scans
-                            </h4>
-                            <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-3">
-                              Creates a short link (aigl.ink) that tracks how
-                              many people scan your QR code, their location, and
-                              device type.
-                            </p>
-                            <ul className="text-xs text-zinc-500 dark:text-zinc-400 space-y-1 mb-3">
-                              <li className="flex items-center gap-1.5">
-                                <CheckIcon className="w-3.5 h-3.5 text-green-500" />
-                                See total scans and unique visitors
-                              </li>
-                              <li className="flex items-center gap-1.5">
-                                <CheckIcon className="w-3.5 h-3.5 text-green-500" />
-                                View geographic distribution
-                              </li>
-                              <li className="flex items-center gap-1.5">
-                                <CheckIcon className="w-3.5 h-3.5 text-green-500" />
-                                Device and browser breakdown
-                              </li>
-                            </ul>
-                            <div className="flex items-center gap-2">
-                              <button
-                                onClick={handleEnableTracking}
-                                className="px-3 py-1.5 text-sm font-medium text-white bg-violet-600 hover:bg-violet-700 rounded-md transition-colors"
-                              >
-                                Enable Tracking
-                              </button>
-                              <button
-                                onClick={() => setShowTrackingTooltip(false)}
-                                className="px-3 py-1.5 text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-dark-hover rounded-md transition-colors"
-                              >
-                                No thanks
-                              </button>
+                      <>
+                        {/* Backdrop overlay */}
+                        <div 
+                          className="fixed inset-0 bg-black/20 dark:bg-black/40 z-40"
+                          onClick={() => setShowTrackingTooltip(false)}
+                        />
+                        {/* Centered modal popup */}
+                        <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-md p-5 bg-white dark:bg-dark-card border border-zinc-200 dark:border-dark-border rounded-xl shadow-2xl z-50">
+                          <div className="flex items-start gap-4">
+                            <div className="p-2.5 bg-violet-100 dark:bg-violet-900/40 rounded-lg flex-shrink-0">
+                              <ChartBarIcon className="w-6 h-6 text-violet-600 dark:text-violet-400" />
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="font-semibold text-lg text-zinc-900 dark:text-white mb-2">
+                                Track QR Code Scans
+                              </h4>
+                              <p className="text-sm text-zinc-600 dark:text-zinc-300 mb-4">
+                                Creates a short link (aigl.ink) that tracks how
+                                many people scan your QR code, their location, and
+                                device type.
+                              </p>
+                              <ul className="text-sm text-zinc-600 dark:text-zinc-300 space-y-2 mb-4">
+                                <li className="flex items-center gap-2">
+                                  <CheckIcon className="w-4 h-4 text-green-500 flex-shrink-0" />
+                                  See total scans and unique visitors
+                                </li>
+                                <li className="flex items-center gap-2">
+                                  <CheckIcon className="w-4 h-4 text-green-500 flex-shrink-0" />
+                                  View geographic distribution
+                                </li>
+                                <li className="flex items-center gap-2">
+                                  <CheckIcon className="w-4 h-4 text-green-500 flex-shrink-0" />
+                                  Device and browser breakdown
+                                </li>
+                              </ul>
+                              <div className="flex items-center gap-3">
+                                <button
+                                  onClick={handleEnableTracking}
+                                  className="px-4 py-2 text-sm font-medium text-white bg-violet-600 hover:bg-violet-700 rounded-lg transition-colors"
+                                >
+                                  Enable Tracking
+                                </button>
+                                <button
+                                  onClick={() => setShowTrackingTooltip(false)}
+                                  className="px-4 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-dark-hover rounded-lg transition-colors"
+                                >
+                                  No thanks
+                                </button>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
+                      </>
                     )}
                   </div>
                 )}
