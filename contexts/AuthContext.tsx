@@ -49,6 +49,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           .single();
 
         if (error) {
+          // Profile might not exist yet - this is OK
+          if (error.code === "PGRST116") {
+            return null;
+          }
           console.error("Error fetching profile:", error);
           return null;
         }
@@ -70,7 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [user, fetchProfile]);
 
-  // Initialize auth state
+  // Initialize auth state and listen for changes
   useEffect(() => {
     // Skip initialization if Supabase is not configured
     if (!supabase) {
@@ -78,22 +82,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
+    let isMounted = true;
+
     const initAuth = async () => {
       try {
+        // Add timeout to prevent infinite loading if getSession hangs
+        // (can happen with corrupted cookies or SSR issues)
+        const timeoutPromise = new Promise<{ data: { session: null } }>(
+          (resolve) => {
+            setTimeout(() => resolve({ data: { session: null } }), 3000);
+          },
+        );
+
         const {
           data: { session: currentSession },
-        } = await supabase.auth.getSession();
+        } = await Promise.race([supabase.auth.getSession(), timeoutPromise]);
+
+        if (!isMounted) return;
 
         if (currentSession) {
           setSession(currentSession);
           setUser(currentSession.user);
-          const userProfile = await fetchProfile(currentSession.user.id);
-          setProfile(userProfile);
+          // Fetch profile inline to avoid dependency issues
+          const { data: profileData } = await supabase
+            .from("profiles")
+            .select("*")
+            .eq("id", currentSession.user.id as never)
+            .single();
+          if (isMounted) {
+            setProfile(profileData as unknown as Profile | null);
+          }
         }
       } catch (error) {
         console.error("Error initializing auth:", error);
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
 
@@ -102,24 +127,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, newSession) => {
+    } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
+      if (!isMounted) return;
+
       setSession(newSession);
       setUser(newSession?.user ?? null);
 
       if (newSession?.user) {
-        const userProfile = await fetchProfile(newSession.user.id);
-        setProfile(userProfile);
+        // Fetch profile inline to avoid dependency issues
+        const { data: profileData } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", newSession.user.id as never)
+          .single();
+        if (isMounted) {
+          setProfile(profileData as unknown as Profile | null);
+        }
       } else {
         setProfile(null);
       }
 
-      setIsLoading(false);
+      if (isMounted) {
+        setIsLoading(false);
+      }
     });
 
     return () => {
+      isMounted = false;
       subscription.unsubscribe();
     };
-  }, [supabase, fetchProfile]);
+  }, [supabase]);
 
   // Sign in with Google
   const signInWithGoogle = useCallback(async () => {
@@ -128,10 +165,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
     try {
+      // Save the current page URL to redirect back after sign-in
+      const currentPath = window.location.pathname + window.location.search;
+      localStorage.setItem("auth_redirect", currentPath);
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: `${window.location.origin}/api/auth/callback`,
           queryParams: {
             access_type: "offline",
             prompt: "consent",
