@@ -1,15 +1,22 @@
 import { useEffect } from "react";
 import { useRouter } from "next/router";
 import Head from "next/head";
-import { createClient } from "@/lib/supabase/client";
+import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 
 export default function AuthCallbackPage() {
   const router = useRouter();
-  const supabase = createClient();
 
   useEffect(() => {
     const handleCallback = async () => {
+      // Only run on client side when Supabase is configured
+      if (!isSupabaseConfigured) {
+        console.error("Supabase is not configured");
+        router.push("/?error=config_error");
+        return;
+      }
+
       try {
+        const supabase = createClient();
         // Get the code from the URL
         const { error } = await supabase.auth.exchangeCodeForSession(
           window.location.href,
@@ -32,7 +39,7 @@ export default function AuthCallbackPage() {
     };
 
     handleCallback();
-  }, [router, supabase]);
+  }, [router]);
 
   return (
     <>
