@@ -84,11 +84,7 @@ export default async function handler(
     return res.status(410).json({ error: "Short URL is no longer active" });
   }
 
-  // Get request info using shared utilities
-  const ip = getClientIP(
-    req.headers as Record<string, string | string[] | undefined>,
-    req.socket.remoteAddress,
-  );
+  // Get request info using shared utilities (reuse ip from rate limiting)
   const userAgent = (req.headers["user-agent"] as string) || "";
   const requestReferrer = (req.headers.referer as string) || referrer || null;
 

@@ -20,11 +20,13 @@ function cleanup() {
   if (now - lastCleanup < CLEANUP_INTERVAL) return;
 
   lastCleanup = now;
-  for (const [key, entry] of rateLimitStore.entries()) {
+  const keysToDelete: string[] = [];
+  rateLimitStore.forEach((entry, key) => {
     if (entry.resetTime < now) {
-      rateLimitStore.delete(key);
+      keysToDelete.push(key);
     }
-  }
+  });
+  keysToDelete.forEach((key) => rateLimitStore.delete(key));
 }
 
 export interface RateLimitConfig {
