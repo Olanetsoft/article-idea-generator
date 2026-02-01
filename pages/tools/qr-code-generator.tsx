@@ -2557,7 +2557,9 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                 {isGenerated && contentType === "url" && !enableTracking && (
                   <div className="mt-3 relative">
                     <button
-                      onClick={() => setShowTrackingTooltip(!showTrackingTooltip)}
+                      onClick={() =>
+                        setShowTrackingTooltip(!showTrackingTooltip)
+                      }
                       className="w-full flex items-center justify-between p-3 bg-zinc-50 dark:bg-dark-hover border border-zinc-200 dark:border-dark-border rounded-lg hover:border-violet-300 dark:hover:border-violet-700 transition-colors group"
                     >
                       <div className="flex items-center gap-2">
@@ -2583,7 +2585,9 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                               Track QR Code Scans
                             </h4>
                             <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-3">
-                              Creates a short link (aigl.ink) that tracks how many people scan your QR code, their location, and device type.
+                              Creates a short link (aigl.ink) that tracks how
+                              many people scan your QR code, their location, and
+                              device type.
                             </p>
                             <ul className="text-xs text-zinc-500 dark:text-zinc-400 space-y-1 mb-3">
                               <li className="flex items-center gap-1.5">
@@ -2621,56 +2625,60 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                 )}
 
                 {/* Tracking Enabled Section - Shows when tracking is active */}
-                {isGenerated && enableTracking && generatedShortUrl && contentType === "url" && (
-                  <div className="mt-3 p-3 bg-gradient-to-r from-violet-50 to-cyan-50 dark:from-violet-900/20 dark:to-cyan-900/20 border border-violet-200 dark:border-violet-800/50 rounded-lg">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2 min-w-0">
-                        <LinkIcon className="w-4 h-4 text-violet-500 flex-shrink-0" />
-                        <div className="min-w-0">
-                          <p className="text-xs text-violet-600 dark:text-violet-400 font-medium">
-                            Tracking Enabled
-                          </p>
-                          <p className="text-sm text-violet-700 dark:text-violet-300 font-mono truncate">
-                            {generatedShortUrl}
-                          </p>
+                {isGenerated &&
+                  enableTracking &&
+                  generatedShortUrl &&
+                  contentType === "url" && (
+                    <div className="mt-3 p-3 bg-gradient-to-r from-violet-50 to-cyan-50 dark:from-violet-900/20 dark:to-cyan-900/20 border border-violet-200 dark:border-violet-800/50 rounded-lg">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <LinkIcon className="w-4 h-4 text-violet-500 flex-shrink-0" />
+                          <div className="min-w-0">
+                            <p className="text-xs text-violet-600 dark:text-violet-400 font-medium">
+                              Tracking Enabled
+                            </p>
+                            <p className="text-sm text-violet-700 dark:text-violet-300 font-mono truncate">
+                              {generatedShortUrl}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => {
+                              setEnableTracking(false);
+                            }}
+                            className="text-xs text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
+                          >
+                            Disable
+                          </button>
+                          <button
+                            onClick={handleCopyShortUrl}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+                              shortUrlCopied
+                                ? "bg-green-500 text-white"
+                                : "bg-violet-500 hover:bg-violet-600 text-white"
+                            }`}
+                          >
+                            {shortUrlCopied ? (
+                              <>
+                                <CheckIcon className="w-3.5 h-3.5" />
+                                Copied
+                              </>
+                            ) : (
+                              <>
+                                <ClipboardCopyIcon className="w-3.5 h-3.5" />
+                                Copy
+                              </>
+                            )}
+                          </button>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => {
-                            setEnableTracking(false);
-                          }}
-                          className="text-xs text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
-                        >
-                          Disable
-                        </button>
-                        <button
-                          onClick={handleCopyShortUrl}
-                          className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
-                            shortUrlCopied
-                              ? "bg-green-500 text-white"
-                              : "bg-violet-500 hover:bg-violet-600 text-white"
-                          }`}
-                        >
-                          {shortUrlCopied ? (
-                            <>
-                              <CheckIcon className="w-3.5 h-3.5" />
-                              Copied
-                            </>
-                          ) : (
-                            <>
-                              <ClipboardCopyIcon className="w-3.5 h-3.5" />
-                              Copy
-                            </>
-                          )}
-                        </button>
-                      </div>
+                      <p className="mt-2 text-xs text-violet-600/70 dark:text-violet-400/70">
+                        QR code now links through aigl.ink for scan tracking.
+                        Sign up free to view analytics.
+                      </p>
                     </div>
-                    <p className="mt-2 text-xs text-violet-600/70 dark:text-violet-400/70">
-                      QR code now links through aigl.ink for scan tracking. Sign up free to view analytics.
-                    </p>
-                  </div>
-                )}
+                  )}
               </div>
 
               {/* History Section */}

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import Head from "next/head";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
@@ -11,6 +12,7 @@ import {
   SourceComparison,
 } from "@/components";
 import { useAuth } from "@/contexts";
+import { SITE_NAME } from "@/lib/constants";
 
 interface AnalyticsData {
   code: string;
@@ -170,164 +172,174 @@ export default function AnalyticsPage() {
   };
 
   return (
-    <DashboardLayout
-      title="Analytics"
-      description="Detailed analytics for your links"
-    >
-      {isLoadingLinks ? (
-        <LoadingSkeleton />
-      ) : links.length === 0 ? (
-        <EmptyState />
-      ) : (
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          {/* Link Selector */}
-          <motion.div variants={itemVariants} className="mb-8">
-            <label
-              htmlFor="link-select"
-              className="block text-slate-400 text-sm mb-2"
-            >
-              Select a link to view analytics
-            </label>
-            <select
-              id="link-select"
-              value={selectedCode || ""}
-              onChange={handleLinkChange}
-              className="w-full max-w-md px-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-colors"
-            >
-              {links.map((link) => (
-                <option key={link.id} value={link.code}>
-                  aigl.ink/{link.code} -{" "}
-                  {link.title || truncateUrl(link.originalUrl, 40)}
-                </option>
-              ))}
-            </select>
-          </motion.div>
-
-          {/* Date Range & Export Controls */}
+    <>
+      <Head>
+        <title>Link Analytics | {SITE_NAME}</title>
+        <meta
+          name="description"
+          content="View detailed analytics for your shortened URLs. Track clicks, visitors, locations, devices, and traffic sources."
+        />
+        <meta name="robots" content="noindex, nofollow" />
+      </Head>
+      <DashboardLayout
+        title="Analytics"
+        description="Detailed analytics for your links"
+      >
+        {isLoadingLinks ? (
+          <LoadingSkeleton />
+        ) : links.length === 0 ? (
+          <EmptyState />
+        ) : (
           <motion.div
-            variants={itemVariants}
-            className="mb-8 flex flex-wrap items-center gap-4"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
           >
-            {/* Date Range Picker */}
-            <div className="flex items-center gap-2">
-              <span className="text-slate-400 text-sm">Period:</span>
-              <div className="flex bg-slate-800/50 rounded-lg border border-slate-700/50 p-1">
-                {(["7d", "30d", "90d", "all"] as const).map((p) => (
-                  <button
-                    key={p}
-                    onClick={() => setPeriod(p)}
-                    className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                      period === p
-                        ? "bg-cyan-500/20 text-cyan-400"
-                        : "text-slate-400 hover:text-white"
-                    }`}
-                  >
-                    {p === "7d"
-                      ? "7 Days"
-                      : p === "30d"
-                        ? "30 Days"
-                        : p === "90d"
-                          ? "90 Days"
-                          : "All Time"}
-                  </button>
+            {/* Link Selector */}
+            <motion.div variants={itemVariants} className="mb-8">
+              <label
+                htmlFor="link-select"
+                className="block text-slate-400 text-sm mb-2"
+              >
+                Select a link to view analytics
+              </label>
+              <select
+                id="link-select"
+                value={selectedCode || ""}
+                onChange={handleLinkChange}
+                className="w-full max-w-md px-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-colors"
+              >
+                {links.map((link) => (
+                  <option key={link.id} value={link.code}>
+                    aigl.ink/{link.code} -{" "}
+                    {link.title || truncateUrl(link.originalUrl, 40)}
+                  </option>
                 ))}
-              </div>
-            </div>
+              </select>
+            </motion.div>
 
-            {/* Export Buttons */}
-            <div className="flex items-center gap-2 ml-auto">
-              <span className="text-slate-400 text-sm">Export:</span>
-              <button
-                onClick={() => handleExport("csv")}
-                disabled={isExporting || !analytics}
-                className="px-3 py-1.5 bg-slate-700/50 text-slate-300 rounded-lg hover:bg-slate-700 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
-              >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                  />
-                </svg>
-                CSV
-              </button>
-              <button
-                onClick={() => handleExport("json")}
-                disabled={isExporting || !analytics}
-                className="px-3 py-1.5 bg-slate-700/50 text-slate-300 rounded-lg hover:bg-slate-700 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
-              >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                  />
-                </svg>
-                JSON
-              </button>
-            </div>
-          </motion.div>
-
-          {selectedLink && (
+            {/* Date Range & Export Controls */}
             <motion.div
               variants={itemVariants}
-              className="mb-8 p-4 rounded-xl bg-slate-800/30 border border-slate-700/30"
+              className="mb-8 flex flex-wrap items-center gap-4"
             >
-              <div className="flex flex-wrap items-center gap-4">
-                <div className="flex-1 min-w-0">
-                  <a
-                    href={`https://aigl.ink/${selectedLink.code}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-cyan-400 font-mono hover:text-cyan-300 transition-colors"
-                  >
-                    aigl.ink/{selectedLink.code}
-                  </a>
-                  <p className="text-slate-500 text-sm truncate">
-                    → {selectedLink.originalUrl}
-                  </p>
+              {/* Date Range Picker */}
+              <div className="flex items-center gap-2">
+                <span className="text-slate-400 text-sm">Period:</span>
+                <div className="flex bg-slate-800/50 rounded-lg border border-slate-700/50 p-1">
+                  {(["7d", "30d", "90d", "all"] as const).map((p) => (
+                    <button
+                      key={p}
+                      onClick={() => setPeriod(p)}
+                      className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                        period === p
+                          ? "bg-cyan-500/20 text-cyan-400"
+                          : "text-slate-400 hover:text-white"
+                      }`}
+                    >
+                      {p === "7d"
+                        ? "7 Days"
+                        : p === "30d"
+                          ? "30 Days"
+                          : p === "90d"
+                            ? "90 Days"
+                            : "All Time"}
+                    </button>
+                  ))}
                 </div>
-                <Link
-                  href={`/tools/qr-code-generator?url=https://aigl.ink/${selectedLink.code}`}
-                  className="px-4 py-2 bg-slate-700/50 text-slate-300 rounded-lg hover:bg-slate-700 transition-colors text-sm"
+              </div>
+
+              {/* Export Buttons */}
+              <div className="flex items-center gap-2 ml-auto">
+                <span className="text-slate-400 text-sm">Export:</span>
+                <button
+                  onClick={() => handleExport("csv")}
+                  disabled={isExporting || !analytics}
+                  className="px-3 py-1.5 bg-slate-700/50 text-slate-300 rounded-lg hover:bg-slate-700 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
                 >
-                  Generate QR Code
-                </Link>
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
+                  CSV
+                </button>
+                <button
+                  onClick={() => handleExport("json")}
+                  disabled={isExporting || !analytics}
+                  className="px-3 py-1.5 bg-slate-700/50 text-slate-300 rounded-lg hover:bg-slate-700 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
+                >
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
+                  JSON
+                </button>
               </div>
             </motion.div>
-          )}
 
-          {error ? (
-            <motion.div
-              variants={itemVariants}
-              className="p-6 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400"
-            >
-              {error}
-            </motion.div>
-          ) : isLoadingAnalytics ? (
-            <LoadingSkeleton showHeader={false} />
-          ) : analytics ? (
-            <AnalyticsContent analytics={analytics} />
-          ) : null}
-        </motion.div>
-      )}
-    </DashboardLayout>
+            {selectedLink && (
+              <motion.div
+                variants={itemVariants}
+                className="mb-8 p-4 rounded-xl bg-slate-800/30 border border-slate-700/30"
+              >
+                <div className="flex flex-wrap items-center gap-4">
+                  <div className="flex-1 min-w-0">
+                    <a
+                      href={`https://aigl.ink/${selectedLink.code}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-cyan-400 font-mono hover:text-cyan-300 transition-colors"
+                    >
+                      aigl.ink/{selectedLink.code}
+                    </a>
+                    <p className="text-slate-500 text-sm truncate">
+                      → {selectedLink.originalUrl}
+                    </p>
+                  </div>
+                  <Link
+                    href={`/tools/qr-code-generator?url=https://aigl.ink/${selectedLink.code}`}
+                    className="px-4 py-2 bg-slate-700/50 text-slate-300 rounded-lg hover:bg-slate-700 transition-colors text-sm"
+                  >
+                    Generate QR Code
+                  </Link>
+                </div>
+              </motion.div>
+            )}
+
+            {error ? (
+              <motion.div
+                variants={itemVariants}
+                className="p-6 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400"
+              >
+                {error}
+              </motion.div>
+            ) : isLoadingAnalytics ? (
+              <LoadingSkeleton showHeader={false} />
+            ) : analytics ? (
+              <AnalyticsContent analytics={analytics} />
+            ) : null}
+          </motion.div>
+        )}
+      </DashboardLayout>
+    </>
   );
 }
 

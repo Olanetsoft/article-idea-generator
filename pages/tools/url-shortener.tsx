@@ -18,6 +18,7 @@ import {
   getLocalShortUrls,
   SHORT_URL_BASE,
 } from "@/lib/analytics";
+import { isValidUrl, extractTitleFromUrl } from "@/lib/url-utils";
 import type { LocalShortUrl } from "@/types/analytics";
 import {
   ClipboardCopyIcon,
@@ -70,15 +71,6 @@ interface HistoryItem extends ShortenedUrl {}
 // Utility Functions
 // ============================================================================
 
-function isValidUrl(string: string): boolean {
-  try {
-    const url = new URL(string);
-    return url.protocol === "http:" || url.protocol === "https:";
-  } catch {
-    return false;
-  }
-}
-
 function generateId(): string {
   return Math.random().toString(36).substring(2, 10);
 }
@@ -120,21 +112,6 @@ function createTrackedShortUrl(
 
   saveLocalShortUrl(shortUrl);
   return shortUrl;
-}
-
-// Extract a reasonable title from URL
-function extractTitleFromUrl(url: string): string {
-  try {
-    const urlObj = new URL(url);
-    const hostname = urlObj.hostname.replace("www.", "");
-    const path = urlObj.pathname.replace(/\//g, " ").trim();
-    if (path && path.length > 2) {
-      return `${hostname} - ${path.substring(0, 30)}`;
-    }
-    return hostname;
-  } catch {
-    return "Untitled Link";
-  }
 }
 
 // ============================================================================
