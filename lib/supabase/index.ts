@@ -1,2 +1,2 @@
 export { createClient } from "./client";
-export { createApiClient } from "./server";
+export { createApiClient, createServerClient } from "./server";
