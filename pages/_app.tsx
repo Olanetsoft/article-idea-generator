@@ -1,6 +1,6 @@
 import "../styles/globals.css";
 import type { AppProps } from "next/app";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Script from "next/script";
 import { Analytics } from "@vercel/analytics/react";
@@ -9,6 +9,10 @@ import { Inter } from "@next/font/google";
 import ErrorBoundary from "../components/ErrorBoundary";
 import { AuthProvider } from "@/contexts";
 import { GA_MEASUREMENT_ID, pageview } from "@/lib/gtag";
+import {
+  CookieConsent,
+  hasAnalyticsConsent,
+} from "@/components/CookieConsent";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -19,9 +23,25 @@ const inter = Inter({
 
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
+  const [analyticsEnabled, setAnalyticsEnabled] = useState(false);
 
-  // Track page views on route change
+  // Check consent status on mount and when consent changes
   useEffect(() => {
+    setAnalyticsEnabled(hasAnalyticsConsent());
+
+    const handleConsentUpdate = () => {
+      setAnalyticsEnabled(hasAnalyticsConsent());
+    };
+
+    window.addEventListener("consent-updated", handleConsentUpdate);
+    return () =>
+      window.removeEventListener("consent-updated", handleConsentUpdate);
+  }, []);
+
+  // Track page views on route change (only if consented)
+  useEffect(() => {
+    if (!analyticsEnabled) return;
+
     const handleRouteChange = (url: string) => {
       pageview(url, document.title);
     };
@@ -30,12 +50,12 @@ export default function App({ Component, pageProps }: AppProps) {
     return () => {
       router.events.off("routeChangeComplete", handleRouteChange);
     };
-  }, [router.events]);
+  }, [router.events, analyticsEnabled]);
 
   return (
     <>
-      {/* Google Analytics 4 */}
-      {GA_MEASUREMENT_ID && (
+      {/* Google Analytics 4 - Only load if user has consented */}
+      {GA_MEASUREMENT_ID && analyticsEnabled && (
         <>
           <Script
             strategy="afterInteractive"
@@ -63,7 +83,9 @@ export default function App({ Component, pageProps }: AppProps) {
           <ErrorBoundary>
             <main className={inter.className}>
               <Component {...pageProps} />
-              <Analytics />
+              {/* Vercel Analytics - Only load if user has consented */}
+              {analyticsEnabled && <Analytics />}
+              <CookieConsent />
             </main>
           </ErrorBoundary>
         </AuthProvider>
