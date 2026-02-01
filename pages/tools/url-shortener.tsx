@@ -13,10 +13,7 @@ import { trackToolUsage } from "@/lib/gtag";
 import {
   generateShortCode,
   saveLocalShortUrl,
-  getLocalShortUrls,
   deleteLocalShortUrl,
-  formatShortUrl,
-  isValidUrl as isValidUrlUtil,
   SHORT_URL_BASE,
 } from "@/lib/analytics";
 import type { LocalShortUrl } from "@/types/analytics";
@@ -30,7 +27,6 @@ import {
   ClockIcon,
   XIcon,
   ChartBarIcon,
-  SwitchHorizontalIcon,
 } from "@heroicons/react/outline";
 
 // ============================================================================
@@ -57,15 +53,12 @@ const HISTORY_STORAGE_KEY = "url-shortener-history";
 // Types
 // ============================================================================
 
-type ShorteningMode = "tracked" | "external";
-
 interface ShortenedUrl {
   id: string;
   originalUrl: string;
   shortUrl: string;
   createdAt: number;
   clicks?: number;
-  mode: ShorteningMode;
 }
 
 interface HistoryItem extends ShortenedUrl {}
@@ -75,7 +68,12 @@ interface HistoryItem extends ShortenedUrl {}
 // ============================================================================
 
 function isValidUrl(string: string): boolean {
-  return isValidUrlUtil(string);
+  try {
+    const url = new URL(string);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
 }
 
 function generateId(): string {
@@ -101,39 +99,7 @@ function truncateUrl(url: string, maxLength: number = 50): string {
 // API Functions
 // ============================================================================
 
-async function shortenWithTinyUrl(url: string): Promise<string> {
-  const response = await fetch(
-    `https://tinyurl.com/api-create.php?url=${encodeURIComponent(url)}`,
-  );
-  if (!response.ok) throw new Error("TinyURL API failed");
-  return await response.text();
-}
-
-async function shortenWithCleanUri(url: string): Promise<string> {
-  const response = await fetch("https://cleanuri.com/api/v1/shorten", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: `url=${encodeURIComponent(url)}`,
-  });
-  if (!response.ok) throw new Error("CleanURI API failed");
-  const data = await response.json();
-  return data.result_url;
-}
-
-async function shortenUrl(url: string): Promise<string> {
-  // Try TinyURL first, fall back to CleanURI
-  try {
-    return await shortenWithTinyUrl(url);
-  } catch {
-    try {
-      return await shortenWithCleanUri(url);
-    } catch {
-      throw new Error("All URL shortening services failed. Please try again.");
-    }
-  }
-}
-
-// Create a tracked short URL (aig.link)
+// Create a short URL with aig.link domain
 function createTrackedShortUrl(
   originalUrl: string,
   title?: string,
@@ -197,8 +163,6 @@ function HistoryItemCard({
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const isTracked = item.mode === "tracked";
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -217,11 +181,6 @@ function HistoryItemCard({
             {item.shortUrl}
             <ExternalLinkIcon className="w-3.5 h-3.5 flex-shrink-0" />
           </a>
-          {isTracked && (
-            <span className="px-1.5 py-0.5 text-[10px] font-medium bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300 rounded">
-              Tracked
-            </span>
-          )}
         </div>
         <p className="text-sm text-gray-500 dark:text-gray-400 truncate mt-1">
           {truncateUrl(item.originalUrl, 60)}
@@ -231,7 +190,7 @@ function HistoryItemCard({
             <ClockIcon className="w-3 h-3" />
             {formatDate(item.createdAt)}
           </p>
-          {isTracked && typeof item.clicks === "number" && (
+          {typeof item.clicks === "number" && (
             <p className="text-xs text-gray-400 dark:text-gray-500 flex items-center gap-1">
               <ChartBarIcon className="w-3 h-3" />
               {item.clicks} {item.clicks === 1 ? "click" : "clicks"}
@@ -258,7 +217,7 @@ function HistoryItemCard({
           </span>
         </button>
 
-        {isTracked && onViewAnalytics && (
+        {onViewAnalytics && (
           <button
             onClick={() => onViewAnalytics(item)}
             className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-lg hover:bg-gray-50 dark:hover:bg-dark-border/50 transition-colors"
@@ -479,9 +438,7 @@ export default function UrlShortenerPage(): JSX.Element {
   const [isLoading, setIsLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [history, setHistory] = useState<HistoryItem[]>([]);
-  const [trackedLinks, setTrackedLinks] = useState<LocalShortUrl[]>([]);
   const [error, setError] = useState("");
-  const [mode, setMode] = useState<ShorteningMode>("tracked");
   const [showAnalytics, setShowAnalytics] = useState<HistoryItem | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const hasTrackedUsage = useRef(false);
@@ -493,8 +450,6 @@ export default function UrlShortenerPage(): JSX.Element {
       if (stored) {
         setHistory(JSON.parse(stored));
       }
-      // Load tracked links
-      setTrackedLinks(getLocalShortUrls());
     } catch {
       // Ignore localStorage errors
     }
@@ -539,54 +494,27 @@ export default function UrlShortenerPage(): JSX.Element {
 
     // Track usage
     if (!hasTrackedUsage.current) {
-      trackToolUsage(
-        "url_shortener",
-        mode === "tracked" ? "shorten_tracked" : "shorten_external",
-      );
+      trackToolUsage("url_shortener", "shorten_url");
       hasTrackedUsage.current = true;
     }
 
     try {
-      let shortened: string;
+      // Create short URL with aig.link domain
+      const trackedUrl = createTrackedShortUrl(normalizedUrl);
+      const shortened = trackedUrl.shortUrl;
 
-      if (mode === "tracked") {
-        // Create tracked short URL with our aig.link domain
-        const trackedUrl = createTrackedShortUrl(normalizedUrl);
-        shortened = trackedUrl.shortUrl;
+      // Add to history
+      const newItem: HistoryItem = {
+        id: trackedUrl.id,
+        originalUrl: normalizedUrl,
+        shortUrl: shortened,
+        createdAt: Date.now(),
+        clicks: 0,
+      };
 
-        // Update tracked links state
-        setTrackedLinks(getLocalShortUrls());
-
-        // Add to history
-        const newItem: HistoryItem = {
-          id: trackedUrl.id,
-          originalUrl: normalizedUrl,
-          shortUrl: shortened,
-          createdAt: Date.now(),
-          clicks: 0,
-          mode: "tracked",
-        };
-
-        const newHistory = [newItem, ...history].slice(0, MAX_HISTORY_ITEMS);
-        setHistory(newHistory);
-        saveHistory(newHistory);
-      } else {
-        // Use external shortening services
-        shortened = await shortenUrl(normalizedUrl);
-
-        // Add to history
-        const newItem: HistoryItem = {
-          id: generateId(),
-          originalUrl: normalizedUrl,
-          shortUrl: shortened,
-          createdAt: Date.now(),
-          mode: "external",
-        };
-
-        const newHistory = [newItem, ...history].slice(0, MAX_HISTORY_ITEMS);
-        setHistory(newHistory);
-        saveHistory(newHistory);
-      }
+      const newHistory = [newItem, ...history].slice(0, MAX_HISTORY_ITEMS);
+      setHistory(newHistory);
+      saveHistory(newHistory);
 
       setShortUrl(shortened);
       toast.success(t("tools.urlShortener.successMessage"));
@@ -628,13 +556,8 @@ export default function UrlShortenerPage(): JSX.Element {
   };
 
   const handleDeleteHistoryItem = (id: string) => {
-    const itemToDelete = history.find((item) => item.id === id);
-
-    // If it's a tracked link, also delete from tracked storage
-    if (itemToDelete?.mode === "tracked") {
-      deleteLocalShortUrl(id);
-      setTrackedLinks(getLocalShortUrls());
-    }
+    // Delete from tracked storage
+    deleteLocalShortUrl(id);
 
     const newHistory = history.filter((item) => item.id !== id);
     setHistory(newHistory);
@@ -643,13 +566,10 @@ export default function UrlShortenerPage(): JSX.Element {
   };
 
   const handleClearHistory = () => {
-    // Clear tracked links from storage
+    // Clear all tracked links from storage
     history.forEach((item) => {
-      if (item.mode === "tracked") {
-        deleteLocalShortUrl(item.id);
-      }
+      deleteLocalShortUrl(item.id);
     });
-    setTrackedLinks([]);
     setHistory([]);
     saveHistory([]);
     toast.success(t("tools.urlShortener.historyCleared"));
@@ -946,52 +866,13 @@ export default function UrlShortenerPage(): JSX.Element {
           >
             {/* Input Section */}
             <div className="p-6">
-              {/* Mode Toggle */}
-              <div className="flex items-center justify-center gap-4 mb-4">
-                <button
-                  onClick={() => setMode("tracked")}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                    mode === "tracked"
-                      ? "bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300 border border-cyan-300 dark:border-cyan-700"
-                      : "bg-gray-100 dark:bg-dark-card/50 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-dark-border hover:bg-gray-200 dark:hover:bg-dark-border"
-                  }`}
-                >
-                  <ChartBarIcon className="w-4 h-4" />
-                  Tracked (aig.link)
-                </button>
-                <button
-                  onClick={() => setMode("external")}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                    mode === "external"
-                      ? "bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 border border-violet-300 dark:border-violet-700"
-                      : "bg-gray-100 dark:bg-dark-card/50 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-dark-border hover:bg-gray-200 dark:hover:bg-dark-border"
-                  }`}
-                >
-                  <ExternalLinkIcon className="w-4 h-4" />
-                  External (TinyURL)
-                </button>
+              {/* Feature badge */}
+              <div className="flex items-center justify-center mb-4">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-cyan-50 dark:bg-cyan-900/20 text-cyan-700 dark:text-cyan-300 rounded-full text-xs font-medium">
+                  <ChartBarIcon className="w-3.5 h-3.5" />
+                  Free analytics included • No sign-up required
+                </div>
               </div>
-
-              {/* Mode description */}
-              <p className="text-xs text-center text-gray-500 dark:text-gray-400 mb-4">
-                {mode === "tracked" ? (
-                  <>
-                    <span className="text-cyan-600 dark:text-cyan-400 font-medium">
-                      Tracked links
-                    </span>{" "}
-                    use aig.link and include click analytics, geo data, and
-                    device info.
-                  </>
-                ) : (
-                  <>
-                    <span className="text-violet-600 dark:text-violet-400 font-medium">
-                      External links
-                    </span>{" "}
-                    use TinyURL. No tracking, but links work even if this site
-                    is unavailable.
-                  </>
-                )}
-              </p>
 
               <div className="flex flex-col sm:flex-row gap-3">
                 <div className="flex-1 relative">
