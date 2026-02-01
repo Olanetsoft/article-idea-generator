@@ -7,7 +7,7 @@ import {
   type ReactNode,
 } from "react";
 import type { User, Session } from "@supabase/supabase-js";
-import { createClient } from "@/lib/supabase/client";
+import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import type { Profile } from "@/types/database";
 
 interface AuthContextType {
@@ -15,6 +15,7 @@ interface AuthContextType {
   profile: Profile | null;
   session: Session | null;
   isLoading: boolean;
+  isConfigured: boolean;
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
@@ -22,22 +23,29 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Create client outside component to avoid type inference issues
+// This will only be created at runtime when env vars are available
+const getSupabaseClient = () => {
+  if (!isSupabaseConfigured) return null;
+  return createClient();
+};
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-
-  const supabase = createClient();
+  const [supabase] = useState(getSupabaseClient);
 
   // Fetch user profile
   const fetchProfile = useCallback(
-    async (userId: string) => {
+    async (userId: string): Promise<Profile | null> => {
+      if (!supabase) return null;
       try {
         const { data, error } = await supabase
           .from("profiles")
           .select("*")
-          .eq("id", userId)
+          .eq("id", userId as never)
           .single();
 
         if (error) {
@@ -45,7 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return null;
         }
 
-        return data;
+        return data as unknown as Profile;
       } catch (error) {
         console.error("Error fetching profile:", error);
         return null;
@@ -64,6 +72,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Initialize auth state
   useEffect(() => {
+    // Skip initialization if Supabase is not configured
+    if (!supabase) {
+      setIsLoading(false);
+      return;
+    }
+
     const initAuth = async () => {
       try {
         const {
@@ -109,6 +123,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Sign in with Google
   const signInWithGoogle = useCallback(async () => {
+    if (!supabase) {
+      console.error("Supabase is not configured");
+      return;
+    }
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
@@ -132,6 +150,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Sign out
   const signOut = useCallback(async () => {
+    if (!supabase) {
+      console.error("Supabase is not configured");
+      return;
+    }
     try {
       const { error } = await supabase.auth.signOut();
       if (error) {
@@ -151,6 +173,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     profile,
     session,
     isLoading,
+    isConfigured: isSupabaseConfigured,
     signInWithGoogle,
     signOut,
     refreshProfile,
