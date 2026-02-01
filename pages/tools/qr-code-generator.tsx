@@ -22,7 +22,14 @@ import {
   XIcon,
   CollectionIcon,
   UploadIcon,
+  LinkIcon,
+  ChartBarIcon,
 } from "@heroicons/react/outline";
+import {
+  generateShortCode,
+  saveLocalShortUrl,
+  SHORT_URL_BASE,
+} from "@/lib/analytics";
 import type {
   QRContentType,
   QRStyleSettings,
@@ -788,6 +795,12 @@ export default function QRCodeGeneratorPage(): JSX.Element {
   const [showTypeCategories, setShowTypeCategories] = useState(false);
   const [showAdvancedStyle, setShowAdvancedStyle] = useState(false);
 
+  // Short URL state for URL-type QR codes
+  const [generatedShortUrl, setGeneratedShortUrl] = useState<string | null>(
+    null,
+  );
+  const [shortUrlCopied, setShortUrlCopied] = useState(false);
+
   // Batch mode state
   const [batchInput, setBatchInput] = useState("");
   const [batchItems, setBatchItems] = useState<BatchQRItem[]>([]);
@@ -804,6 +817,9 @@ export default function QRCodeGeneratorPage(): JSX.Element {
   const csvInputRef = useRef<HTMLInputElement>(null);
 
   // Load history on mount
+  // Track if we've processed a URL query to prevent re-processing
+  const hasProcessedUrlQuery = useRef(false);
+
   useEffect(() => {
     setHistory(getHistory());
   }, []);
@@ -811,13 +827,23 @@ export default function QRCodeGeneratorPage(): JSX.Element {
   // Handle URL query parameter (for integration with URL shortener)
   useEffect(() => {
     const { url } = router.query;
-    if (url && typeof url === "string") {
+    if (url && typeof url === "string" && !hasProcessedUrlQuery.current) {
+      hasProcessedUrlQuery.current = true;
+
       // Set content type to URL and pre-fill the URL
       setContentType("url");
       setData({ url: url });
       setHasInteracted(true);
       // Auto-generate the QR code
       setIsGenerated(true);
+
+      // If the URL is already a short URL (from URL shortener), display it
+      // The URL contains ?source=qr which we should strip for display
+      if (url.includes("aigl.ink")) {
+        const displayUrl = url.replace(/[?&]source=qr/i, "");
+        setGeneratedShortUrl(displayUrl);
+      }
+
       // Clear the query param from URL without reload
       router.replace("/tools/qr-code-generator", undefined, { shallow: true });
     }
@@ -856,6 +882,8 @@ export default function QRCodeGeneratorPage(): JSX.Element {
       setData(getInitialData(type));
       setIsGenerated(false);
       setHasInteracted(false);
+      setGeneratedShortUrl(null);
+      setShortUrlCopied(false);
       hasTrackedUsage.current = false;
       // Switch away from batch tab if changing to non-URL type
       if (type !== "url" && activeTab === "batch") {
@@ -887,12 +915,42 @@ export default function QRCodeGeneratorPage(): JSX.Element {
 
     setIsGenerated(true);
 
+    // For URL-type QR codes, generate a short URL for tracking
+    if (contentType === "url" && data.url) {
+      const urlStr = data.url as string;
+      // Only create short URL if the URL is not already a short URL
+      if (!urlStr.includes("aigl.ink")) {
+        const code = generateShortCode();
+        const shortUrl = `${SHORT_URL_BASE}/${code}`;
+
+        // Save to local storage for tracking
+        saveLocalShortUrl({
+          id: code,
+          code,
+          originalUrl: urlStr,
+          shortUrl,
+          title: `QR Code - ${new URL(urlStr).hostname}`,
+          createdAt: new Date().toISOString(),
+          clicks: 0,
+        });
+
+        setGeneratedShortUrl(shortUrl);
+      }
+    }
+
     // Save to history
     if (qrValue) {
       saveToHistory(contentType, qrValue, style.fgColor, style.bgColor);
       setHistory(getHistory());
     }
-  }, [validation.isValid, contentType, qrValue, style.fgColor, style.bgColor]);
+  }, [
+    validation.isValid,
+    contentType,
+    qrValue,
+    style.fgColor,
+    style.bgColor,
+    data.url,
+  ]);
 
   // Helper function to generate a styled QR code canvas with frames and logo
   const generateStyledQRCanvas = useCallback(
@@ -1145,11 +1203,26 @@ export default function QRCodeGeneratorPage(): JSX.Element {
     setLogoDataUrl(null);
     setFrameStyle("none");
     setFrameText("SCAN ME");
+    setGeneratedShortUrl(null);
+    setShortUrlCopied(false);
     if (logoInputRef.current) {
       logoInputRef.current.value = "";
     }
     hasTrackedUsage.current = false;
   }, [contentType]);
+
+  // Handle copying short URL
+  const handleCopyShortUrl = useCallback(async () => {
+    if (!generatedShortUrl) return;
+    try {
+      await navigator.clipboard.writeText(generatedShortUrl);
+      setShortUrlCopied(true);
+      toast.success("Short URL copied!");
+      setTimeout(() => setShortUrlCopied(false), 2000);
+    } catch {
+      toast.error("Failed to copy URL");
+    }
+  }, [generatedShortUrl]);
 
   const handleLogoUpload = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -2460,6 +2533,49 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                     <p className="text-sm text-zinc-700 dark:text-zinc-300 break-all line-clamp-2">
                       {qrValue}
                     </p>
+                  </div>
+                )}
+
+                {/* Short URL Section - For URL-type QR codes */}
+                {isGenerated && generatedShortUrl && contentType === "url" && (
+                  <div className="mt-3 p-3 bg-gradient-to-r from-violet-50 to-cyan-50 dark:from-violet-900/20 dark:to-cyan-900/20 border border-violet-200 dark:border-violet-800/50 rounded-lg">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <LinkIcon className="w-4 h-4 text-violet-500 flex-shrink-0" />
+                        <div className="min-w-0">
+                          <p className="text-xs text-violet-600 dark:text-violet-400 font-medium">
+                            Trackable Short Link
+                          </p>
+                          <p className="text-sm text-violet-700 dark:text-violet-300 font-mono truncate">
+                            {generatedShortUrl}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={handleCopyShortUrl}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+                          shortUrlCopied
+                            ? "bg-green-500 text-white"
+                            : "bg-violet-500 hover:bg-violet-600 text-white"
+                        }`}
+                      >
+                        {shortUrlCopied ? (
+                          <>
+                            <CheckIcon className="w-3.5 h-3.5" />
+                            Copied
+                          </>
+                        ) : (
+                          <>
+                            <ClipboardCopyIcon className="w-3.5 h-3.5" />
+                            Copy
+                          </>
+                        )}
+                      </button>
+                    </div>
+                    <div className="mt-2 flex items-center gap-1.5 text-xs text-violet-600/70 dark:text-violet-400/70">
+                      <ChartBarIcon className="w-3.5 h-3.5" />
+                      <span>Track scans • Sign up free to view analytics</span>
+                    </div>
                   </div>
                 )}
               </div>
