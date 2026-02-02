@@ -277,8 +277,11 @@ export default function QRCodeGeneratorPage(): JSX.Element {
     setHistory(getHistory());
   }, []);
 
-  // Handle URL query parameter (for integration with URL shortener)
+  // Handle URL query parameter (for integration with URL shortener and returning from sign-in)
   useEffect(() => {
+    // Wait for router to be ready (query params populated after hydration)
+    if (!router.isReady) return;
+
     const { url } = router.query;
     if (url && typeof url === "string" && !hasProcessedUrlQuery.current) {
       hasProcessedUrlQuery.current = true;
@@ -301,7 +304,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
       router.replace("/tools/qr-code-generator", undefined, { shallow: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router.query]);
+  }, [router.isReady, router.query]);
 
   // Reset tracking state when URL input changes (so user gets fresh short URL for new value)
   useEffect(() => {
