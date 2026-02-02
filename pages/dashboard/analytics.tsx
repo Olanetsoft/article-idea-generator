@@ -59,7 +59,9 @@ export default function AnalyticsPage() {
   const [period, setPeriod] = useState<"7d" | "30d" | "90d" | "all">("30d");
   const [isExporting, setIsExporting] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -69,12 +71,30 @@ export default function AnalyticsPage() {
         !dropdownRef.current.contains(event.target as Node)
       ) {
         setIsDropdownOpen(false);
+        setSearchQuery("");
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Focus search input when dropdown opens
+  useEffect(() => {
+    if (isDropdownOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [isDropdownOpen]);
+
+  // Filter links based on search query
+  const filteredLinks = links.filter((link) => {
+    if (!searchQuery.trim()) return true;
+    const query = searchQuery.toLowerCase();
+    return (
+      link.code.toLowerCase().includes(query) ||
+      link.originalUrl.toLowerCase().includes(query) ||
+      (link.title && link.title.toLowerCase().includes(query))
+    );
+  });
   // Fetch user's links
   useEffect(() => {
     if (!user) return;
@@ -89,7 +109,7 @@ export default function AnalyticsPage() {
           urls.map((url: any) => ({
             id: url.id,
             code: url.code,
-            originalUrl: url.original_url,
+            originalUrl: url.originalUrl,
             title: url.title,
           })),
         );
@@ -226,7 +246,7 @@ export default function AnalyticsPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <span className="text-violet-600 dark:text-violet-400 font-mono text-sm">
-                          aigl.ink/{selectedLink.code}
+                          aigl.ink/r/{selectedLink.code}
                         </span>
                       </div>
                       <p className="text-gray-500 dark:text-gray-400 text-sm truncate mt-0.5">
@@ -261,55 +281,93 @@ export default function AnalyticsPage() {
                       transition={{ duration: 0.15 }}
                       className="absolute z-50 w-full mt-2 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl shadow-lg overflow-hidden"
                     >
-                      <div className="max-h-80 overflow-y-auto">
-                        {links.map((link) => (
-                          <button
-                            key={link.id}
-                            type="button"
-                            onClick={() => {
-                              setSelectedCode(link.code);
-                              setIsDropdownOpen(false);
-                              router.push(
-                                `/dashboard/analytics?code=${link.code}`,
-                                undefined,
-                                { shallow: true },
-                              );
-                            }}
-                            className={`w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors border-b border-gray-100 dark:border-zinc-800 last:border-0 ${
-                              selectedCode === link.code
-                                ? "bg-violet-50 dark:bg-violet-500/10"
-                                : ""
-                            }`}
+                      {/* Search Input */}
+                      <div className="p-3 border-b border-gray-100 dark:border-zinc-800">
+                        <div className="relative">
+                          <svg
+                            className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
                           >
-                            <div className="flex items-center gap-2">
-                              <span
-                                className={`font-mono text-sm ${
-                                  selectedCode === link.code
-                                    ? "text-violet-600 dark:text-violet-400"
-                                    : "text-gray-700 dark:text-gray-300"
-                                }`}
-                              >
-                                aigl.ink/{link.code}
-                              </span>
-                              {selectedCode === link.code && (
-                                <svg
-                                  className="w-4 h-4 text-violet-500"
-                                  fill="currentColor"
-                                  viewBox="0 0 20 20"
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                            />
+                          </svg>
+                          <input
+                            ref={searchInputRef}
+                            type="text"
+                            placeholder="Search links..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-full pl-9 pr-4 py-2 text-sm bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
+                          />
+                        </div>
+                        <p className="text-xs text-gray-400 mt-2">
+                          {filteredLinks.length} of {links.length} links
+                        </p>
+                      </div>
+                      
+                      {/* Links List */}
+                      <div className="max-h-64 overflow-y-auto">
+                        {filteredLinks.length === 0 ? (
+                          <div className="px-4 py-8 text-center text-gray-500 dark:text-gray-400 text-sm">
+                            No links match your search
+                          </div>
+                        ) : (
+                          filteredLinks.map((link) => (
+                            <button
+                              key={link.id}
+                              type="button"
+                              onClick={() => {
+                                setSelectedCode(link.code);
+                                setIsDropdownOpen(false);
+                                setSearchQuery("");
+                                router.push(
+                                  `/dashboard/analytics?code=${link.code}`,
+                                  undefined,
+                                  { shallow: true },
+                                );
+                              }}
+                              className={`w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors border-b border-gray-100 dark:border-zinc-800 last:border-0 ${
+                                selectedCode === link.code
+                                  ? "bg-violet-50 dark:bg-violet-500/10"
+                                  : ""
+                              }`}
+                            >
+                              <div className="flex items-center gap-2">
+                                <span
+                                  className={`font-mono text-sm ${
+                                    selectedCode === link.code
+                                      ? "text-violet-600 dark:text-violet-400"
+                                      : "text-gray-700 dark:text-gray-300"
+                                  }`}
                                 >
-                                  <path
-                                    fillRule="evenodd"
-                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                    clipRule="evenodd"
-                                  />
-                                </svg>
-                              )}
-                            </div>
-                            <p className="text-gray-500 dark:text-gray-400 text-sm truncate mt-0.5">
-                              {link.title || truncateUrl(link.originalUrl, 50)}
-                            </p>
-                          </button>
-                        ))}
+                                  aigl.ink/r/{link.code}
+                                </span>
+                                {selectedCode === link.code && (
+                                  <svg
+                                    className="w-4 h-4 text-violet-500"
+                                    fill="currentColor"
+                                    viewBox="0 0 20 20"
+                                  >
+                                    <path
+                                      fillRule="evenodd"
+                                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                      clipRule="evenodd"
+                                    />
+                                  </svg>
+                                )}
+                              </div>
+                              <p className="text-gray-500 dark:text-gray-400 text-sm truncate mt-0.5">
+                                {link.title || truncateUrl(link.originalUrl, 50)}
+                              </p>
+                            </button>
+                          ))
+                        )}
                       </div>
                     </motion.div>
                   )}

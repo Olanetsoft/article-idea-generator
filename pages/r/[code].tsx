@@ -34,8 +34,8 @@ interface RedirectPageProps {
     ip: string;
     userAgent: string;
     referrer: string | null;
-    country?: string;
-    city?: string;
+    country: string | null;
+    city: string | null;
     timestamp: string;
   };
 }
@@ -267,10 +267,10 @@ export const getServerSideProps: GetServerSideProps<RedirectPageProps> = async (
   const userAgent = context.req.headers["user-agent"] || "unknown";
   const referrer = context.req.headers.referer || null;
 
-  // Try to get geo data from Vercel headers
+  // Try to get geo data from Vercel headers (null if not available)
   const country =
-    (context.req.headers["x-vercel-ip-country"] as string) || undefined;
-  const city = (context.req.headers["x-vercel-ip-city"] as string) || undefined;
+    (context.req.headers["x-vercel-ip-country"] as string) || null;
+  const city = (context.req.headers["x-vercel-ip-city"] as string) || null;
 
   const clickData = {
     ip,
