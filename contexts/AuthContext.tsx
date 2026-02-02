@@ -166,8 +166,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     try {
       // Save the current page URL to redirect back after sign-in
-      const currentPath = window.location.pathname + window.location.search;
-      localStorage.setItem("auth_redirect", currentPath);
+      // Only set if not already set (callers may have set a custom return URL)
+      if (!localStorage.getItem("auth_redirect")) {
+        const currentPath = window.location.pathname + window.location.search;
+        localStorage.setItem("auth_redirect", currentPath);
+      }
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
