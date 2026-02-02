@@ -155,9 +155,9 @@ export interface Database {
       increment_click_count: {
         Args: {
           url_id: string;
-          is_unique: boolean;
+          is_unique?: boolean;
         };
-        Returns: void;
+        Returns: undefined;
       };
     };
     Enums: {
