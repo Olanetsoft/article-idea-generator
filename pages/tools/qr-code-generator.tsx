@@ -8,6 +8,7 @@ import { Toaster, toast } from "react-hot-toast";
 import { Header, Footer } from "@/components";
 import { RelatedTools } from "@/components/tools";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useAuth } from "@/contexts/AuthContext";
 import { SITE_URL, SITE_NAME, LOCALE_MAP } from "@/lib/constants";
 import { trackToolUsage } from "@/lib/gtag";
 import {
@@ -25,11 +26,7 @@ import {
   LinkIcon,
   ChartBarIcon,
 } from "@heroicons/react/outline";
-import {
-  generateShortCode,
-  saveLocalShortUrl,
-  SHORT_URL_BASE,
-} from "@/lib/analytics";
+import { SHORT_URL_BASE } from "@/lib/analytics";
 import type {
   QRContentType,
   QRStyleSettings,
@@ -226,6 +223,7 @@ interface BatchQRItem {
 export default function QRCodeGeneratorPage(): JSX.Element {
   const { t } = useTranslation();
   const router = useRouter();
+  const { user } = useAuth();
 
   // State
   const [contentType, setContentType] = useState<QRContentType>("url");
@@ -255,6 +253,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
   const [shortUrlCopied, setShortUrlCopied] = useState(false);
   const [enableTracking, setEnableTracking] = useState(false);
   const [showTrackingTooltip, setShowTrackingTooltip] = useState(false);
+  const [isCreatingShortUrl, setIsCreatingShortUrl] = useState(false);
 
   // Batch mode state
   const [batchInput, setBatchInput] = useState("");
@@ -412,56 +411,65 @@ export default function QRCodeGeneratorPage(): JSX.Element {
     }
   }, [validation.isValid, contentType, qrValue, style.fgColor, style.bgColor]);
 
-  // Handler to enable tracking - generates short URL on demand
-  const handleEnableTracking = useCallback(() => {
-    if (contentType !== "url" || !data.url) return;
+  // Handler to enable tracking - creates short URL via API for real tracking
+  const handleEnableTracking = useCallback(async () => {
+    if (contentType !== "url" || !data.url || isCreatingShortUrl) return;
 
     const urlStr = data.url as string;
+
     // Only create short URL if not already created
     if (!generatedShortUrl) {
       // Check if URL is already a short URL (aigl.ink)
       if (urlStr.includes("aigl.ink")) {
-        // Already a short URL, set it for tracking (ensure qrEncodedValue gets ?source=qr)
-        // Extract the base short URL (without any existing query params)
+        // Already a short URL, set it for tracking
         try {
           const shortUrlObj = new URL(urlStr);
           const baseShortUrl = `${shortUrlObj.origin}${shortUrlObj.pathname}`;
           setGeneratedShortUrl(baseShortUrl);
         } catch {
-          // Fallback to the URL as-is
           setGeneratedShortUrl(urlStr);
         }
       } else {
-        const code = generateShortCode();
-        const shortUrl = `${SHORT_URL_BASE}/${code}`;
-
-        // Safely extract hostname for title
-        let title = "QR Code";
+        // Create short URL via API (works for both logged-in and anonymous users)
+        setIsCreatingShortUrl(true);
         try {
-          title = `QR Code - ${new URL(urlStr).hostname}`;
-        } catch {
-          // Invalid URL, use fallback title
-          title = `QR Code - ${urlStr.slice(0, 30)}`;
+          // Extract title for the short URL
+          let title = "QR Code";
+          try {
+            title = `QR Code - ${new URL(urlStr).hostname}`;
+          } catch {
+            title = `QR Code - ${urlStr.slice(0, 30)}`;
+          }
+
+          const response = await fetch("/api/urls", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              originalUrl: urlStr,
+              title,
+            }),
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || "Failed to create short URL");
+          }
+
+          const { shortUrl } = await response.json();
+          setGeneratedShortUrl(shortUrl);
+        } catch (error) {
+          console.error("Failed to create short URL:", error);
+          toast.error("Failed to enable tracking. Please try again.");
+          setIsCreatingShortUrl(false);
+          return;
         }
-
-        // Save to local storage for tracking
-        saveLocalShortUrl({
-          id: code,
-          code,
-          originalUrl: urlStr,
-          shortUrl,
-          title,
-          createdAt: new Date().toISOString(),
-          clicks: 0,
-        });
-
-        setGeneratedShortUrl(shortUrl);
+        setIsCreatingShortUrl(false);
       }
     }
 
     setEnableTracking(true);
     setShowTrackingTooltip(false);
-  }, [contentType, data.url, generatedShortUrl]);
+  }, [contentType, data.url, generatedShortUrl, isCreatingShortUrl]);
 
   // Helper function to generate a styled QR code canvas with frames and logo
   const generateStyledQRCanvas = useCallback(
@@ -2074,29 +2082,36 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                       onClick={() =>
                         setShowTrackingTooltip(!showTrackingTooltip)
                       }
-                      className="w-full flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg hover:border-violet-300 dark:hover:border-violet-600 transition-colors group"
+                      disabled={isCreatingShortUrl}
+                      className="w-full flex items-center justify-between p-3 bg-gradient-to-r from-violet-50 to-indigo-50 dark:from-violet-900/20 dark:to-indigo-900/20 border border-violet-200 dark:border-violet-700/50 rounded-lg hover:border-violet-300 dark:hover:border-violet-600 transition-colors group disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <div className="flex items-center gap-2">
                         <ChartBarIcon className="w-4 h-4 text-violet-500 dark:text-violet-400 group-hover:text-violet-600 dark:group-hover:text-violet-300 transition-colors" />
                         <span className="text-sm font-medium text-zinc-800 dark:text-white group-hover:text-zinc-900 dark:group-hover:text-white">
-                          Enable scan tracking
+                          {isCreatingShortUrl
+                            ? "Creating tracked link..."
+                            : "Add scan tracking"}
                         </span>
                       </div>
-                      <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                        Optional
+                      <span className="text-xs px-2 py-0.5 bg-violet-100 dark:bg-violet-800/50 text-violet-600 dark:text-violet-300 rounded-full">
+                        Free
                       </span>
                     </button>
 
-                    {/* Tracking Info Popup - Fixed position on page */}
+                    {/* Tracking Info Popup */}
                     {showTrackingTooltip && (
                       <>
-                        {/* Backdrop overlay */}
                         <div
                           className="fixed inset-0 bg-black/20 dark:bg-black/40 z-40"
                           onClick={() => setShowTrackingTooltip(false)}
                         />
-                        {/* Centered modal popup */}
                         <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-md p-5 bg-white dark:bg-dark-card border border-zinc-200 dark:border-dark-border rounded-xl shadow-2xl z-50">
+                          <button
+                            onClick={() => setShowTrackingTooltip(false)}
+                            className="absolute top-3 right-3 p-1 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
+                          >
+                            <XIcon className="w-5 h-5" />
+                          </button>
                           <div className="flex items-start gap-4">
                             <div className="p-2.5 bg-violet-100 dark:bg-violet-900/40 rounded-lg flex-shrink-0">
                               <ChartBarIcon className="w-6 h-6 text-violet-600 dark:text-violet-400" />
@@ -2105,37 +2120,90 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                               <h4 className="font-semibold text-lg text-zinc-900 dark:text-white mb-2">
                                 Track QR Code Scans
                               </h4>
-                              <p className="text-sm text-zinc-600 dark:text-zinc-300 mb-4">
-                                Creates a short link (aigl.ink) that tracks how
-                                many people scan your QR code, their location,
-                                and device type.
+                              <p className="text-sm text-zinc-600 dark:text-zinc-300 mb-3">
+                                Your QR code will link through{" "}
+                                <span className="font-mono text-violet-600 dark:text-violet-400">
+                                  aigl.ink
+                                </span>{" "}
+                                to track scan analytics.
                               </p>
-                              <ul className="text-sm text-zinc-600 dark:text-zinc-300 space-y-2 mb-4">
+                              <ul className="text-sm text-zinc-600 dark:text-zinc-300 space-y-1.5 mb-4">
                                 <li className="flex items-center gap-2">
                                   <CheckIcon className="w-4 h-4 text-green-500 flex-shrink-0" />
-                                  See total scans and unique visitors
+                                  Total scans & unique visitors
                                 </li>
                                 <li className="flex items-center gap-2">
                                   <CheckIcon className="w-4 h-4 text-green-500 flex-shrink-0" />
-                                  View geographic distribution
+                                  Geographic location data
                                 </li>
                                 <li className="flex items-center gap-2">
                                   <CheckIcon className="w-4 h-4 text-green-500 flex-shrink-0" />
-                                  Device and browser breakdown
+                                  Device & browser breakdown
                                 </li>
                               </ul>
+
+                              {/* Auth-aware messaging */}
+                              {user ? (
+                                <div className="p-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg mb-4">
+                                  <p className="text-xs text-green-700 dark:text-green-300 flex items-center gap-1.5">
+                                    <CheckIcon className="w-3.5 h-3.5" />
+                                    Analytics will appear in your dashboard
+                                  </p>
+                                </div>
+                              ) : (
+                                <div className="p-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg mb-4">
+                                  <p className="text-xs text-amber-700 dark:text-amber-300">
+                                    💡{" "}
+                                    <Link
+                                      href="/auth/redirect"
+                                      className="underline hover:no-underline"
+                                    >
+                                      Sign in
+                                    </Link>{" "}
+                                    to view analytics in your dashboard, or
+                                    track anonymously.
+                                  </p>
+                                </div>
+                              )}
+
                               <div className="flex items-center gap-3">
                                 <button
                                   onClick={handleEnableTracking}
-                                  className="px-4 py-2 text-sm font-medium text-white bg-violet-600 hover:bg-violet-700 rounded-lg transition-colors"
+                                  disabled={isCreatingShortUrl}
+                                  className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-violet-600 hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors flex items-center justify-center gap-2"
                                 >
-                                  Enable Tracking
+                                  {isCreatingShortUrl ? (
+                                    <>
+                                      <svg
+                                        className="animate-spin h-4 w-4"
+                                        viewBox="0 0 24 24"
+                                      >
+                                        <circle
+                                          className="opacity-25"
+                                          cx="12"
+                                          cy="12"
+                                          r="10"
+                                          stroke="currentColor"
+                                          strokeWidth="4"
+                                          fill="none"
+                                        />
+                                        <path
+                                          className="opacity-75"
+                                          fill="currentColor"
+                                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                        />
+                                      </svg>
+                                      Creating...
+                                    </>
+                                  ) : (
+                                    "Enable Tracking"
+                                  )}
                                 </button>
                                 <button
                                   onClick={() => setShowTrackingTooltip(false)}
-                                  className="px-4 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-dark-hover rounded-lg transition-colors"
+                                  className="px-4 py-2.5 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-dark-hover rounded-lg transition-colors"
                                 >
-                                  No thanks
+                                  Cancel
                                 </button>
                               </div>
                             </div>
@@ -2151,53 +2219,69 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                   enableTracking &&
                   generatedShortUrl &&
                   contentType === "url" && (
-                    <div className="mt-3 p-3 bg-gradient-to-r from-violet-50 to-cyan-50 dark:from-violet-900/20 dark:to-cyan-900/20 border border-violet-200 dark:border-violet-800/50 rounded-lg">
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-2 min-w-0">
-                          <LinkIcon className="w-4 h-4 text-violet-500 flex-shrink-0" />
-                          <div className="min-w-0">
-                            <p className="text-xs text-violet-600 dark:text-violet-400 font-medium">
-                              Tracking Enabled
-                            </p>
-                            <p className="text-sm text-violet-700 dark:text-violet-300 font-mono truncate">
-                              {generatedShortUrl}
-                            </p>
-                          </div>
-                        </div>
+                    <div className="mt-3 p-3 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800/50 rounded-lg">
+                      <div className="flex items-center justify-between gap-2 mb-2">
                         <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => {
-                              setEnableTracking(false);
-                            }}
-                            className="text-xs text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
-                          >
-                            Disable
-                          </button>
-                          <button
-                            onClick={handleCopyShortUrl}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
-                              shortUrlCopied
-                                ? "bg-green-500 text-white"
-                                : "bg-violet-500 hover:bg-violet-600 text-white"
-                            }`}
-                          >
-                            {shortUrlCopied ? (
-                              <>
-                                <CheckIcon className="w-3.5 h-3.5" />
-                                Copied
-                              </>
-                            ) : (
-                              <>
-                                <ClipboardCopyIcon className="w-3.5 h-3.5" />
-                                Copy
-                              </>
-                            )}
-                          </button>
+                          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                          <span className="text-sm font-medium text-green-700 dark:text-green-300">
+                            Tracking Active
+                          </span>
                         </div>
+                        <button
+                          onClick={() => setEnableTracking(false)}
+                          className="text-xs text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 px-2 py-1 hover:bg-white/50 dark:hover:bg-black/20 rounded"
+                        >
+                          Disable
+                        </button>
                       </div>
-                      <p className="mt-2 text-xs text-violet-600/70 dark:text-violet-400/70">
-                        QR code now links through aigl.ink for scan tracking.
-                        Sign up free to view analytics.
+                      <div className="flex items-center gap-2 p-2 bg-white/60 dark:bg-black/20 rounded-md">
+                        <LinkIcon className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0" />
+                        <p className="text-sm text-green-800 dark:text-green-200 font-mono truncate flex-1">
+                          {generatedShortUrl}
+                        </p>
+                        <button
+                          onClick={handleCopyShortUrl}
+                          className={`flex items-center gap-1 px-2 py-1 text-xs font-medium rounded transition-all ${
+                            shortUrlCopied
+                              ? "bg-green-500 text-white"
+                              : "bg-green-600 hover:bg-green-700 text-white"
+                          }`}
+                        >
+                          {shortUrlCopied ? (
+                            <>
+                              <CheckIcon className="w-3 h-3" />
+                              Copied
+                            </>
+                          ) : (
+                            <>
+                              <ClipboardCopyIcon className="w-3 h-3" />
+                              Copy
+                            </>
+                          )}
+                        </button>
+                      </div>
+                      <p className="mt-2 text-xs text-green-600/80 dark:text-green-400/80">
+                        {user ? (
+                          <>
+                            View analytics in your{" "}
+                            <Link
+                              href="/dashboard/analytics"
+                              className="underline hover:no-underline font-medium"
+                            >
+                              dashboard
+                            </Link>
+                          </>
+                        ) : (
+                          <>
+                            <Link
+                              href="/auth/redirect"
+                              className="underline hover:no-underline font-medium"
+                            >
+                              Sign in
+                            </Link>{" "}
+                            to view detailed analytics for this link
+                          </>
+                        )}
                       </p>
                     </div>
                   )}
