@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { createApiClient } from "@/lib/supabase/server";
+import { createApiClient, createServiceRoleClient } from "@/lib/supabase/server";
 import type { InsertClickEvent } from "@/types/database";
 import {
   hashIP,
@@ -140,11 +140,17 @@ export default async function handler(
     // Don't fail - tracking errors shouldn't break redirects
   }
 
-  // Increment click counts
-  await (supabase.rpc as any)("increment_click_count", {
-    url_id: shortUrl.id,
-    is_unique: isUnique,
-  });
+  // Increment click counts using service role client (required for service_role-only function)
+  try {
+    const serviceClient = createServiceRoleClient();
+    await serviceClient.rpc("increment_click_count", {
+      url_id: shortUrl.id,
+      is_unique: isUnique,
+    });
+  } catch (rpcError) {
+    console.error("Error incrementing click count:", rpcError);
+    // Don't fail - count errors shouldn't break tracking
+  }
 
   return res.status(200).json({
     originalUrl: shortUrl.original_url,

@@ -2,6 +2,7 @@ import {
   createServerClient as createSupabaseServerClient,
   type CookieOptions,
 } from "@supabase/ssr";
+import { createClient } from "@supabase/supabase-js";
 import type { NextApiRequest, NextApiResponse } from "next";
 import type { GetServerSidePropsContext } from "next";
 import type { Database } from "@/types/database";
@@ -26,7 +27,26 @@ function appendSetCookie(
   res.setHeader("Set-Cookie", cookies);
 }
 
-// For API routes
+// Service role client for privileged operations (e.g., increment_click_count)
+// This bypasses RLS and can call service_role-only functions
+export function createServiceRoleClient() {
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!serviceRoleKey) {
+    throw new Error("SUPABASE_SERVICE_ROLE_KEY is not configured");
+  }
+  return createClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    serviceRoleKey,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    },
+  );
+}
+
+// For API routes (uses anon key - respects RLS)
 export function createApiClient(req: NextApiRequest, res: NextApiResponse) {
   return createSupabaseServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
