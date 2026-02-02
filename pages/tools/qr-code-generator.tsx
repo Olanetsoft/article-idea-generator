@@ -956,8 +956,16 @@ export default function QRCodeGeneratorPage(): JSX.Element {
     if (!generatedShortUrl) {
       // Check if URL is already a short URL (aigl.ink)
       if (urlStr.includes("aigl.ink")) {
-        // Already a short URL, just set it for tracking
-        setGeneratedShortUrl(urlStr);
+        // Already a short URL, set it for tracking (ensure qrEncodedValue gets ?source=qr)
+        // Extract the base short URL (without any existing query params)
+        try {
+          const shortUrlObj = new URL(urlStr);
+          const baseShortUrl = `${shortUrlObj.origin}${shortUrlObj.pathname}`;
+          setGeneratedShortUrl(baseShortUrl);
+        } catch {
+          // Fallback to the URL as-is
+          setGeneratedShortUrl(urlStr);
+        }
       } else {
         const code = generateShortCode();
         const shortUrl = `${SHORT_URL_BASE}/${code}`;

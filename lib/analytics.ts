@@ -5,11 +5,13 @@ import type { LocalShortUrl, ClickEvent } from "@/types/analytics";
 
 // ============================================================================
 // Constants
+// Unified with lib/analytics/constants.ts to prevent localStorage conflicts
 // ============================================================================
 
 export const SHORT_URL_BASE = "https://aigl.ink/r";
-const LOCAL_URLS_KEY = "aigl_short_urls";
-const LOCAL_CLICKS_KEY = "aigl_click_events";
+// Use same keys as lib/analytics/constants.ts STORAGE_KEYS
+const LOCAL_URLS_KEY = "aig-short-urls";
+const LOCAL_CLICKS_KEY = "aig-click-events";
 
 // ============================================================================
 // Short Code Generation
