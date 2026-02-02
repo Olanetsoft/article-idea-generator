@@ -146,7 +146,7 @@ export default async function handler(
   // Increment click counts using service role client (required for service_role-only function)
   try {
     const serviceClient = createServiceRoleClient();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line
     await (serviceClient.rpc as any)("increment_click_count", {
       url_id: shortUrl.id,
       is_unique: isUnique,
