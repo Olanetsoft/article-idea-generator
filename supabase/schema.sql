@@ -151,6 +151,8 @@ CREATE POLICY "Users can read own URL click events" ON public.click_events
 -- ============================================================================
 
 -- Function to increment click counts
+-- SECURITY: Restricted to service_role to prevent arbitrary callers from inflating counts.
+-- Only the API server (using service role key) can call this function.
 CREATE OR REPLACE FUNCTION public.increment_click_count(
   url_id UUID,
   is_unique BOOLEAN DEFAULT FALSE
@@ -164,6 +166,12 @@ BEGIN
   WHERE id = url_id;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Revoke public execute and grant only to service_role
+REVOKE EXECUTE ON FUNCTION public.increment_click_count(UUID, BOOLEAN) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.increment_click_count(UUID, BOOLEAN) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.increment_click_count(UUID, BOOLEAN) FROM authenticated;
+GRANT EXECUTE ON FUNCTION public.increment_click_count(UUID, BOOLEAN) TO service_role;
 
 -- Function to get URL analytics summary (with ownership check)
 CREATE OR REPLACE FUNCTION public.get_url_analytics(url_code TEXT, requesting_user_id UUID DEFAULT NULL)

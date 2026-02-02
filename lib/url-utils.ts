@@ -90,18 +90,33 @@ export interface GeoLocation {
 }
 
 /**
- * Fetch geolocation data from ip-api.com (free tier: 45 req/min)
+ * Check if an IP is in the RFC1918 172.16.0.0/12 private range (172.16.0.0 - 172.31.255.255)
+ */
+function isPrivate172Range(ip: string): boolean {
+  if (!ip.startsWith("172.")) return false;
+  const octets = ip.split(".");
+  if (octets.length !== 4) return false;
+  const secondOctet = parseInt(octets[1], 10);
+  return secondOctet >= 16 && secondOctet <= 31;
+}
+
+/**
+ * Fetch geolocation data from a geo-IP provider
  * Use this as fallback when Vercel headers aren't available
+ *
+ * Privacy note: By default, uses HTTPS providers. Set ENABLE_PLAINTEXT_GEOIP=true
+ * to allow unencrypted ip-api.com fallback (not recommended in production).
+ * Configure GEOIP_PROVIDER_URL to use a custom HTTPS geo-IP provider.
  */
 export async function fetchGeoLocation(ip: string): Promise<GeoLocation> {
-  // Don't lookup private/local IPs
+  // Don't lookup private/local IPs (RFC1918 ranges)
   if (
     ip === "unknown" ||
     ip === "127.0.0.1" ||
     ip === "::1" ||
     ip.startsWith("192.168.") ||
     ip.startsWith("10.") ||
-    ip.startsWith("172.")
+    isPrivate172Range(ip)
   ) {
     return {
       country: null,
@@ -114,10 +129,27 @@ export async function fetchGeoLocation(ip: string): Promise<GeoLocation> {
   }
 
   try {
-    // ip-api.com free tier - no API key needed, 45 requests/minute limit
-    // Using http (not https) as that's what free tier supports
+    // Determine geo-IP provider URL
+    // Priority: 1) Custom GEOIP_PROVIDER_URL, 2) HTTPS provider, 3) HTTP fallback if explicitly enabled
+    // PRIVACY: User IPs are sent to the geo provider. Use HTTPS to protect in transit.
+    // Set GEOIP_PROVIDER_URL for a custom provider, or ENABLE_PLAINTEXT_GEOIP=true for unencrypted fallback.
+    let geoUrl: string;
+    const customProvider = process.env.GEOIP_PROVIDER_URL;
+    const allowPlaintext = process.env.ENABLE_PLAINTEXT_GEOIP === "true";
+
+    if (customProvider) {
+      // Use custom provider URL (should include {ip} placeholder)
+      geoUrl = customProvider.replace("{ip}", ip);
+    } else if (allowPlaintext) {
+      // Explicit opt-in for unencrypted ip-api.com (free tier, HTTP only)
+      geoUrl = `http://ip-api.com/json/${ip}?fields=status,country,countryCode,regionName,city,lat,lon`;
+    } else {
+      // Default: Use ipapi.co (HTTPS, free tier: 1000 req/day)
+      geoUrl = `https://ipapi.co/${ip}/json/`;
+    }
+
     const response = await fetch(
-      `http://ip-api.com/json/${ip}?fields=status,country,countryCode,regionName,city,lat,lon`,
+      geoUrl,
       { signal: AbortSignal.timeout(2000) }, // 2s timeout
     );
 
@@ -127,17 +159,19 @@ export async function fetchGeoLocation(ip: string): Promise<GeoLocation> {
 
     const data = await response.json();
 
-    if (data.status !== "success") {
+    // Handle error responses from different providers
+    if (data.status === "fail" || data.error) {
       return emptyGeoLocation();
     }
 
+    // Normalize response fields (ip-api.com vs ipapi.co vs custom)
     return {
-      country: data.countryCode || null,
-      countryName: data.country || null,
+      country: data.countryCode || data.country_code || data.country || null,
+      countryName: data.country || data.country_name || null,
       city: data.city || null,
-      region: data.regionName || null,
-      latitude: data.lat || null,
-      longitude: data.lon || null,
+      region: data.regionName || data.region || null,
+      latitude: data.lat || data.latitude || null,
+      longitude: data.lon || data.longitude || null,
     };
   } catch (error) {
     // Silently fail - geo data is optional

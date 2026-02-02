@@ -389,9 +389,12 @@ export default function AnalyticsPage() {
 
     setIsExporting(true);
     try {
-      const response = await fetch(
-        `/api/urls/${selectedCode}/export?format=${format}&period=${period}`,
-      );
+      // Build export URL with period params (include startDate/endDate for custom period)
+      let exportUrl = `/api/urls/${selectedCode}/export?format=${format}&period=${period}`;
+      if (period === "custom" && customDateRange.start && customDateRange.end) {
+        exportUrl += `&startDate=${encodeURIComponent(customDateRange.start)}&endDate=${encodeURIComponent(customDateRange.end)}`;
+      }
+      const response = await fetch(exportUrl);
       if (!response.ok) throw new Error("Export failed");
 
       const blob = await response.blob();

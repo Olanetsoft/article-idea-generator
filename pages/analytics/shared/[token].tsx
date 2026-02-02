@@ -2,7 +2,7 @@ import { GetServerSideProps } from "next";
 import Head from "next/head";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { createServerClient } from "@supabase/ssr";
+import { createServerClient } from "@/lib/supabase/server";
 
 interface SharedAnalyticsProps {
   error?: string;
@@ -481,39 +481,15 @@ function UTMList({
   );
 }
 
-export const getServerSideProps: GetServerSideProps = async ({
-  params,
-  req,
-}) => {
-  const token = params?.token as string;
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const token = context.params?.token as string;
 
   if (!token) {
     return { props: { error: "Invalid share link" } };
   }
 
-  // Create a Supabase client to verify the token
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          const cookies: { name: string; value: string }[] = [];
-          const cookieHeader = req.headers.cookie || "";
-          cookieHeader.split(";").forEach((cookie) => {
-            const [name, ...rest] = cookie.trim().split("=");
-            if (name) {
-              cookies.push({ name, value: rest.join("=") });
-            }
-          });
-          return cookies;
-        },
-        setAll() {
-          // Read-only for getServerSideProps
-        },
-      },
-    },
-  );
+  // Create a Supabase client using the centralized wrapper for consistent cookie handling
+  const supabase = createServerClient(context.req, context.res);
 
   // Verify the share token exists and is valid
   const { data: shareToken, error } = await supabase
@@ -534,16 +510,22 @@ export const getServerSideProps: GetServerSideProps = async ({
     return { props: { error: "This share link is invalid or has expired" } };
   }
 
+  // Type assertion for the result - shareToken is typed from the query
+  const tokenData = shareToken as {
+    token: string;
+    expires_at: string | null;
+    is_active: boolean;
+    short_urls: { code: string };
+  };
+
   // Check expiration
-  if (shareToken.expires_at && new Date(shareToken.expires_at) < new Date()) {
+  if (tokenData.expires_at && new Date(tokenData.expires_at) < new Date()) {
     return { props: { error: "This share link has expired" } };
   }
 
-  const shortUrl = shareToken.short_urls as unknown as { code: string };
-
   return {
     props: {
-      code: shortUrl.code,
+      code: tokenData.short_urls.code,
       token: token,
     },
   };

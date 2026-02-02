@@ -14,6 +14,8 @@ interface ClickEvent {
   utm_source: string | null;
   utm_medium: string | null;
   utm_campaign: string | null;
+  fingerprint: string | null;
+  ip_hash: string | null;
 }
 
 // Helper function to group and count
@@ -65,12 +67,13 @@ export default async function handler(
           return cookies;
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            res.setHeader(
-              "Set-Cookie",
-              `${name}=${value}; Path=${options?.path || "/"}; ${options?.httpOnly ? "HttpOnly;" : ""} ${options?.secure ? "Secure;" : ""} SameSite=${options?.sameSite || "Lax"}`,
-            );
+          // Build array of cookie header strings to set all at once (avoid overwriting)
+          const cookieHeaders = cookiesToSet.map(({ name, value, options }) => {
+            return `${name}=${value}; Path=${options?.path || "/"}; ${options?.httpOnly ? "HttpOnly;" : ""} ${options?.secure ? "Secure;" : ""} SameSite=${options?.sameSite || "Lax"}`;
           });
+          if (cookieHeaders.length > 0) {
+            res.setHeader("Set-Cookie", cookieHeaders);
+          }
         },
       },
     },
@@ -192,16 +195,22 @@ export default async function handler(
     .map(([hour, clicks]) => ({ hour: parseInt(hour), clicks }))
     .sort((a, b) => a.hour - b.hour);
 
-  // QR scans
+  // QR scans (filtered by period)
   const qrScans = events.filter((c) => c.source_type === "qr").length;
+
+  // Compute period-filtered click counts from events (not all-time totals)
+  const periodTotalClicks = events.length;
+  const periodUniqueClicks = new Set(
+    events.map((e) => e.fingerprint || e.ip_hash),
+  ).size;
 
   return res.status(200).json({
     code: shortUrl.code,
     originalUrl: shortUrl.original_url,
     title: shortUrl.title,
     createdAt: shortUrl.created_at,
-    totalClicks: shortUrl.total_clicks,
-    uniqueClicks: shortUrl.unique_clicks,
+    totalClicks: periodTotalClicks,
+    uniqueClicks: periodUniqueClicks,
     qrScans,
     countries,
     devices,

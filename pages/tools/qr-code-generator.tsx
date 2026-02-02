@@ -306,6 +306,18 @@ export default function QRCodeGeneratorPage(): JSX.Element {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.query]);
 
+  // Reset tracking state when URL input changes (so user gets fresh short URL for new value)
+  useEffect(() => {
+    // Only reset if we had tracking enabled and URL changed
+    if (generatedShortUrl && contentType === "url") {
+      setGeneratedShortUrl(null);
+      setEnableTracking(false);
+      setShortUrlCopied(false);
+      setShowTrackingTooltip(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data.url]);
+
   // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
