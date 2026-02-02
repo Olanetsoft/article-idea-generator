@@ -344,18 +344,64 @@ export function isValidUrl(url: string): boolean {
   }
 }
 
-// Generate a simple fingerprint from available data
-export function generateFingerprint(
+/**
+ * Generate a privacy-preserving fingerprint using SHA-256.
+ * This function is async and uses the Web Crypto API.
+ * For server-side usage, use generateFingerprintSync with Node's crypto module.
+ */
+export async function generateFingerprint(
+  userAgent: string,
+  ip: string,
+  acceptLanguage?: string,
+): Promise<string> {
+  const data = `${userAgent}|${ip}|${acceptLanguage || ""}`;
+
+  // Use Web Crypto API for SHA-256 hashing
+  if (typeof window !== "undefined" && window.crypto?.subtle) {
+    const encoder = new TextEncoder();
+    const dataBuffer = encoder.encode(data);
+    const hashBuffer = await window.crypto.subtle.digest("SHA-256", dataBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("")
+      .substring(0, 32);
+  }
+
+  // Fallback for Node.js environment (server-side)
+  if (typeof require !== "undefined") {
+    try {
+      const crypto = require("crypto");
+      return crypto
+        .createHash("sha256")
+        .update(data)
+        .digest("hex")
+        .substring(0, 32);
+    } catch {
+      // If crypto module not available, use a deterministic fallback
+    }
+  }
+
+  // Last resort fallback - should not normally be reached
+  throw new Error(
+    "No crypto implementation available for fingerprint generation",
+  );
+}
+
+/**
+ * Synchronous fingerprint generation for server-side usage (Node.js).
+ * Uses Node's crypto module with SHA-256.
+ */
+export function generateFingerprintSync(
   userAgent: string,
   ip: string,
   acceptLanguage?: string,
 ): string {
   const data = `${userAgent}|${ip}|${acceptLanguage || ""}`;
-  let hash = 0;
-  for (let i = 0; i < data.length; i++) {
-    const char = data.charCodeAt(i);
-    hash = (hash << 5) - hash + char;
-    hash = hash & hash; // Convert to 32bit integer
-  }
-  return Math.abs(hash).toString(36);
+  const crypto = require("crypto");
+  return crypto
+    .createHash("sha256")
+    .update(data)
+    .digest("hex")
+    .substring(0, 32);
 }

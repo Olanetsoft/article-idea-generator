@@ -280,7 +280,7 @@ export default function DashboardPage() {
                     <div className="flex items-center gap-4">
                       <div className="text-right">
                         <p className="text-gray-900 dark:text-white font-semibold">
-                          {link.clickCount}
+                          {link.clickCount.toLocaleString()}
                         </p>
                         <p className="text-gray-400 dark:text-gray-500 text-xs">
                           clicks

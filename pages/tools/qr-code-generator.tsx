@@ -876,7 +876,18 @@ export default function QRCodeGeneratorPage(): JSX.Element {
   const qrEncodedValue = useMemo(() => {
     // For URL types with tracking enabled and a generated short URL
     if (contentType === "url" && enableTracking && generatedShortUrl) {
-      return `${generatedShortUrl}?source=qr`;
+      // Safely append source=qr param, handling URLs that may already have query params
+      try {
+        const url = new URL(generatedShortUrl);
+        url.searchParams.append("source", "qr");
+        return url.toString();
+      } catch {
+        // Fallback for invalid URLs - check for existing query string
+        if (generatedShortUrl.includes("?")) {
+          return `${generatedShortUrl}&source=qr`;
+        }
+        return `${generatedShortUrl}?source=qr`;
+      }
     }
     // For all other cases, use the regular qrValue (original URL)
     return qrValue;

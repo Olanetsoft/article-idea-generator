@@ -2,16 +2,39 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { createServerClient } from "@supabase/ssr";
 import { serialize } from "cookie";
 
+/**
+ * Safely decode a URI component, returning fallback on malformed input
+ */
+function safeDecode(value: string, fallback: string = ""): string {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    // Malformed percent-encoding
+    return fallback;
+  }
+}
+
+/**
+ * Normalize query param that could be string | string[] | undefined to a single string
+ */
+function normalizeQueryParam(
+  param: string | string[] | undefined,
+): string | undefined {
+  if (param === undefined) return undefined;
+  if (Array.isArray(param)) return param[0];
+  return param;
+}
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
-  const code = req.query.code as string;
-
-  // Validate and sanitize the redirect URL to prevent open redirects
-  const rawNext = (req.query.next as string) || "/auth/redirect";
+  // Normalize query params - handle string | string[] | undefined
+  const code = normalizeQueryParam(req.query.code);
+  const rawNext = normalizeQueryParam(req.query.next) || "/auth/redirect";
   let next = "/auth/redirect";
 
+  // Validate and sanitize the redirect URL to prevent open redirects
   // Only allow same-origin relative paths
   if (
     rawNext.startsWith("/") &&
@@ -19,8 +42,9 @@ export default async function handler(
     !rawNext.includes("://")
   ) {
     // Additional check: path should not contain encoded protocol markers
-    const decoded = decodeURIComponent(rawNext);
-    if (!decoded.includes("://") && !decoded.startsWith("//")) {
+    // Use safeDecode to handle malformed percent-encoding
+    const decoded = safeDecode(rawNext, "");
+    if (decoded && !decoded.includes("://") && !decoded.startsWith("//")) {
       next = rawNext;
     }
   }

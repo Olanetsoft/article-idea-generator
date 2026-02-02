@@ -201,7 +201,8 @@ function HistoryItemCard({
           </span>
         </button>
 
-        {onViewAnalytics && (
+        {/* Only show Stats button for local items - Supabase items should use dashboard analytics */}
+        {onViewAnalytics && item.source !== "supabase" && (
           <button
             onClick={() => onViewAnalytics(item)}
             className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-lg hover:bg-gray-50 dark:hover:bg-dark-border/50 transition-colors"

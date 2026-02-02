@@ -411,14 +411,6 @@ export default function AnalyticsPage() {
     }
   };
 
-  const handleLinkChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newCode = e.target.value;
-    setSelectedCode(newCode);
-    router.push(`/dashboard/analytics?code=${newCode}`, undefined, {
-      shallow: true,
-    });
-  };
-
   const selectedLink = links.find((l) => l.code === selectedCode);
 
   // Animation variants

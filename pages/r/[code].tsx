@@ -87,15 +87,15 @@ export default function RedirectPage({
     const sourceType = urlParams.get("source") === "qr" ? "qr" : "direct";
     const utmParams = parseUtmParams(window.location.href);
 
-    // Generate fingerprint once for reuse
-    const fingerprint = generateFingerprint(
-      clickData.userAgent,
-      clickData.ip,
-      typeof navigator !== "undefined" ? navigator.language : "",
-    );
-
-    // Track the click
+    // Track the click (async to handle fingerprint generation)
     const trackClick = async () => {
+      // Generate fingerprint using SHA-256 (async Web Crypto API)
+      const fingerprint = await generateFingerprint(
+        clickData.userAgent,
+        clickData.ip,
+        typeof navigator !== "undefined" ? navigator.language : "",
+      );
+
       if (urlData.source === "supabase") {
         // Track via API for Supabase URLs
         try {

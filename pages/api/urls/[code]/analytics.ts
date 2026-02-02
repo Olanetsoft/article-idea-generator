@@ -176,13 +176,9 @@ export default async function handler(
   // Get click events with pagination to prevent memory issues
   // Limit to 10,000 most recent events for analytics computation
   const MAX_EVENTS = 10000;
-  const {
-    data: clicks,
-    error: clicksError,
-    count: totalCount,
-  } = await supabase
+  const { data: clicks, error: clicksError } = await supabase
     .from("click_events")
-    .select("*", { count: "exact" })
+    .select("*")
     .eq("short_url_id", shortUrl.id)
     .gte("timestamp", startDate.toISOString())
     .order("timestamp", { ascending: false })
@@ -191,6 +187,10 @@ export default async function handler(
 
   if (clicksError) {
     console.error("Error fetching clicks:", clicksError);
+    return res.status(500).json({
+      error: "Error fetching click analytics",
+      details: String(clicksError.message || clicksError),
+    });
   }
 
   const clickEvents: ClickEvent[] = clicks || [];

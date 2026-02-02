@@ -58,8 +58,11 @@ export default function PrivacyPolicy() {
               </p>
               <ul>
                 <li>
-                  <strong>Anonymized IP Address:</strong> We hash (one-way
-                  encrypt) IP addresses. We never store your actual IP address.
+                  <strong>Anonymized IP Address:</strong> We hash IP addresses
+                  using a one-way cryptographic function (SHA-256). Hashing is
+                  not encryption — it is irreversible, meaning your actual IP
+                  address cannot be recovered. We never store your actual IP
+                  address.
                 </li>
                 <li>
                   <strong>Device Information:</strong> Device type (mobile,
@@ -90,10 +93,6 @@ export default function PrivacyPolicy() {
                   <strong>Analytics Cookies:</strong> Google Analytics and
                   Vercel Analytics to understand usage patterns. Only activated
                   with your consent.
-                </li>
-                <li>
-                  <strong>Marketing Cookies:</strong> Used for advertising
-                  purposes. Only activated with your consent.
                 </li>
               </ul>
               <p>
