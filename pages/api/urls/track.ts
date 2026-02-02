@@ -1,5 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { createApiClient, createServiceRoleClient } from "@/lib/supabase/server";
+import {
+  createApiClient,
+  createServiceRoleClient,
+} from "@/lib/supabase/server";
 import type { InsertClickEvent } from "@/types/database";
 import {
   hashIP,
@@ -143,7 +146,7 @@ export default async function handler(
   // Increment click counts using service role client (required for service_role-only function)
   try {
     const serviceClient = createServiceRoleClient();
-    await serviceClient.rpc("increment_click_count", {
+    await serviceClient.rpc("increment_click_count" as any, {
       url_id: shortUrl.id,
       is_unique: isUnique,
     });
