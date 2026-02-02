@@ -2,7 +2,7 @@
 
 // Short URL configuration
 export const SHORT_URL_DOMAIN = "aigl.ink";
-export const SHORT_URL_BASE = `https://${SHORT_URL_DOMAIN}`;
+export const SHORT_URL_BASE = `https://${SHORT_URL_DOMAIN}/r`;
 
 // Short code generation
 export const SHORT_CODE_LENGTH = 6;

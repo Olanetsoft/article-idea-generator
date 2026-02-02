@@ -14,7 +14,7 @@ function generateShortCode(length: number = 6): string {
   return nanoid(length);
 }
 
-const SHORT_URL_BASE = "https://aigl.ink";
+const SHORT_URL_BASE = "https://aigl.ink/r";
 
 export default async function handler(
   req: NextApiRequest,

@@ -7,7 +7,7 @@ import type { LocalShortUrl, ClickEvent } from "@/types/analytics";
 // Constants
 // ============================================================================
 
-export const SHORT_URL_BASE = "https://aigl.ink";
+export const SHORT_URL_BASE = "https://aigl.ink/r";
 const LOCAL_URLS_KEY = "aigl_short_urls";
 const LOCAL_CLICKS_KEY = "aigl_click_events";
 
