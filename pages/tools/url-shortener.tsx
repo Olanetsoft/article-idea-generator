@@ -1075,7 +1075,7 @@ export default function UrlShortenerPage(): JSX.Element {
                 <button
                   onClick={handleShorten}
                   disabled={isLoading}
-                  className="px-6 py-3 bg-violet-600 text-white font-medium rounded-xl hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 min-w-[140px]"
+                  className="px-6 py-3 bg-violet-600 text-white font-medium rounded-xl hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 min-w-[100px] sm:min-w-[140px]"
                 >
                   {isLoading ? (
                     <>

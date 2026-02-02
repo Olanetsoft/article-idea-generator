@@ -77,7 +77,7 @@ function ReferrerRow({
             {index + 1}.
           </span>
           <span className="text-base">{item.icon}</span>
-          <span className="text-gray-700 dark:text-gray-300 text-sm truncate max-w-[200px]">
+          <span className="text-gray-700 dark:text-gray-300 text-sm truncate max-w-[120px] sm:max-w-[200px]">
             {item.name}
           </span>
         </div>
