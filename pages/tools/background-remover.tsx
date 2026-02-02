@@ -8,7 +8,7 @@ import { Toaster, toast } from "react-hot-toast";
 import { Header, Footer } from "@/components";
 import { RelatedTools } from "@/components/tools";
 import { useTranslation } from "@/hooks/useTranslation";
-import { SITE_URL, SITE_NAME } from "@/lib/constants";
+import { SITE_URL, SITE_NAME, LOCALE_MAP } from "@/lib/constants";
 import { trackToolUsage } from "@/lib/gtag";
 import {
   UploadIcon,
@@ -50,12 +50,6 @@ const PRESET_COLORS = [
   "#800080",
   "#008080",
 ];
-const LOCALE_MAP: Record<string, string> = {
-  en: "en_US",
-  fr: "fr_FR",
-  es: "es_ES",
-  de: "de_DE",
-};
 
 // Reusable Components
 const FeatureCard = ({
