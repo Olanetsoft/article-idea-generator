@@ -50,6 +50,9 @@ interface ClickEvent {
   browser: string | null;
   os: string | null;
   source_type: string | null;
+  utm_source: string | null;
+  utm_medium: string | null;
+  utm_campaign: string | null;
 }
 
 export default async function handler(
@@ -120,22 +123,54 @@ export default async function handler(
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   let startDate: Date;
+  let previousPeriodStart: Date;
+  let previousPeriodEnd: Date;
+
+  // Handle custom date range
+  const { startDate: customStart, endDate: customEnd } = req.query;
 
   switch (period) {
     case "7d":
       startDate = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+      previousPeriodEnd = startDate;
+      previousPeriodStart = new Date(
+        today.getTime() - 14 * 24 * 60 * 60 * 1000,
+      );
       break;
     case "30d":
       startDate = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+      previousPeriodEnd = startDate;
+      previousPeriodStart = new Date(
+        today.getTime() - 60 * 24 * 60 * 60 * 1000,
+      );
       break;
     case "90d":
       startDate = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000);
+      previousPeriodEnd = startDate;
+      previousPeriodStart = new Date(
+        today.getTime() - 180 * 24 * 60 * 60 * 1000,
+      );
+      break;
+    case "custom":
+      if (customStart && customEnd) {
+        startDate = new Date(customStart as string);
+        const endDate = new Date(customEnd as string);
+        const periodLength = endDate.getTime() - startDate.getTime();
+        previousPeriodEnd = startDate;
+        previousPeriodStart = new Date(startDate.getTime() - periodLength);
+      } else {
+        startDate = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+        previousPeriodEnd = startDate;
+        previousPeriodStart = new Date(
+          today.getTime() - 60 * 24 * 60 * 60 * 1000,
+        );
+      }
       break;
     case "all":
-      startDate = new Date(0);
-      break;
     default:
-      startDate = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+      startDate = new Date(0);
+      previousPeriodEnd = new Date(0);
+      previousPeriodStart = new Date(0);
   }
 
   // Get click events with pagination to prevent memory issues
@@ -202,10 +237,61 @@ export default async function handler(
     os: c.os,
     referrer: c.referrer_domain,
     sourceType: c.source_type,
+    utmSource: c.utm_source,
+    utmMedium: c.utm_medium,
+    utmCampaign: c.utm_campaign,
   }));
 
   // Calculate QR scans from sourceBreakdown
   const qrScans = clickEvents.filter((c) => c.source_type === "qr").length;
+
+  // UTM breakdowns
+  const utmSources = groupAndCount(
+    clickEvents.filter((c) => c.utm_source),
+    (c) => c.utm_source,
+  );
+  const utmMediums = groupAndCount(
+    clickEvents.filter((c) => c.utm_medium),
+    (c) => c.utm_medium,
+  );
+  const utmCampaigns = groupAndCount(
+    clickEvents.filter((c) => c.utm_campaign),
+    (c) => c.utm_campaign,
+  );
+
+  // Hourly distribution (0-23)
+  const hourlyClicks: Record<number, number> = {};
+  for (let i = 0; i < 24; i++) hourlyClicks[i] = 0;
+  clickEvents.forEach((c) => {
+    const hour = new Date(c.timestamp).getHours();
+    hourlyClicks[hour] = (hourlyClicks[hour] || 0) + 1;
+  });
+  const hourlyDistribution = Object.entries(hourlyClicks)
+    .map(([hour, clicks]) => ({ hour: parseInt(hour), clicks }))
+    .sort((a, b) => a.hour - b.hour);
+
+  // Calculate trend (compare with previous period)
+  let clicksTrend: number | undefined;
+  let previousPeriodClicks: number | undefined;
+
+  if (period !== "all" && previousPeriodStart.getTime() > 0) {
+    const { count: prevCount } = await supabase
+      .from("click_events")
+      .select("*", { count: "exact", head: true })
+      .eq("short_url_id", shortUrl.id)
+      .gte("timestamp", previousPeriodStart.toISOString())
+      .lt("timestamp", previousPeriodEnd.toISOString());
+
+    previousPeriodClicks = prevCount || 0;
+
+    if (previousPeriodClicks > 0) {
+      clicksTrend =
+        ((clickEvents.length - previousPeriodClicks) / previousPeriodClicks) *
+        100;
+    } else if (clickEvents.length > 0) {
+      clicksTrend = 100; // New clicks with no previous data
+    }
+  }
 
   return res.status(200).json({
     code: shortUrl.code,
@@ -215,12 +301,18 @@ export default async function handler(
     totalClicks: shortUrl.total_clicks,
     uniqueClicks: shortUrl.unique_clicks,
     qrScans,
+    previousPeriodClicks,
+    clicksTrend,
     countries: topCountries,
     devices: deviceBreakdown,
     browsers: browserBreakdown,
     sources: sourceBreakdown,
     referrers: topReferrers,
     timeline,
+    utmSources,
+    utmMediums,
+    utmCampaigns,
+    hourlyDistribution,
     recentClicks,
   });
 }

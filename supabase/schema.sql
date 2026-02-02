@@ -254,3 +254,64 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- INSERT INTO storage.buckets (id, name, public)
 -- VALUES ('qr-codes', 'qr-codes', true)
 -- ON CONFLICT (id) DO NOTHING;
+
+-- ============================================================================
+-- ANALYTICS SHARE TOKENS TABLE
+-- Allows users to share read-only analytics with others
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS public.analytics_share_tokens (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  short_url_id UUID REFERENCES public.short_urls(id) ON DELETE CASCADE NOT NULL,
+  token TEXT NOT NULL UNIQUE,
+  created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+  expires_at TIMESTAMPTZ,
+  is_active BOOLEAN DEFAULT TRUE NOT NULL
+);
+
+-- Create index for fast token lookups
+CREATE INDEX IF NOT EXISTS idx_analytics_share_tokens_token ON public.analytics_share_tokens(token);
+CREATE INDEX IF NOT EXISTS idx_analytics_share_tokens_short_url_id ON public.analytics_share_tokens(short_url_id);
+
+-- Enable RLS
+ALTER TABLE public.analytics_share_tokens ENABLE ROW LEVEL SECURITY;
+
+-- Share tokens policies
+-- Anyone can read active share tokens (for validation)
+CREATE POLICY "Anyone can read active share tokens" ON public.analytics_share_tokens
+  FOR SELECT USING (is_active = TRUE);
+
+-- Users can create share tokens for their own URLs
+CREATE POLICY "Users can create share tokens for own URLs" ON public.analytics_share_tokens
+  FOR INSERT WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM public.short_urls
+      WHERE short_urls.id = analytics_share_tokens.short_url_id
+      AND short_urls.user_id = auth.uid()
+    )
+  );
+
+-- Users can update/revoke their own share tokens
+CREATE POLICY "Users can update own share tokens" ON public.analytics_share_tokens
+  FOR UPDATE USING (
+    EXISTS (
+      SELECT 1 FROM public.short_urls
+      WHERE short_urls.id = analytics_share_tokens.short_url_id
+      AND short_urls.user_id = auth.uid()
+    )
+  ) WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM public.short_urls
+      WHERE short_urls.id = analytics_share_tokens.short_url_id
+      AND short_urls.user_id = auth.uid()
+    )
+  );
+
+-- Users can delete their own share tokens
+CREATE POLICY "Users can delete own share tokens" ON public.analytics_share_tokens
+  FOR DELETE USING (
+    EXISTS (
+      SELECT 1 FROM public.short_urls
+      WHERE short_urls.id = analytics_share_tokens.short_url_id
+      AND short_urls.user_id = auth.uid()
+    )
+  );
