@@ -40,12 +40,12 @@ export default function LinksPage() {
         urls.map((url: any) => ({
           id: url.id,
           code: url.code,
-          originalUrl: url.original_url,
+          originalUrl: url.originalUrl,
           title: url.title,
-          clickCount: url.click_count || 0,
-          uniqueClickCount: url.unique_click_count || 0,
-          qrScanCount: url.qr_scan_count || 0,
-          createdAt: url.created_at,
+          clickCount: url.totalClicks || 0,
+          uniqueClickCount: url.uniqueClicks || 0,
+          qrScanCount: url.qrScanCount || 0,
+          createdAt: url.createdAt,
         })),
       );
     } catch (err) {
