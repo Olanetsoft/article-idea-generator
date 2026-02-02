@@ -33,7 +33,6 @@ import {
 import type {
   QRContentType,
   QRStyleSettings,
-  ErrorCorrectionLevel,
   FrameStyle,
 } from "@/types/qr-code";
 import {
