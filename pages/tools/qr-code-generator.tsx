@@ -8,7 +8,8 @@ import { Toaster, toast } from "react-hot-toast";
 import { Header, Footer } from "@/components";
 import { RelatedTools } from "@/components/tools";
 import { useTranslation } from "@/hooks/useTranslation";
-import { SITE_URL, SITE_NAME } from "@/lib/constants";
+import { useAuth } from "@/contexts/AuthContext";
+import { SITE_URL, SITE_NAME, LOCALE_MAP } from "@/lib/constants";
 import { trackToolUsage } from "@/lib/gtag";
 import {
   DownloadIcon,
@@ -22,11 +23,13 @@ import {
   XIcon,
   CollectionIcon,
   UploadIcon,
+  LinkIcon,
+  ChartBarIcon,
 } from "@heroicons/react/outline";
+import { SHORT_URL_BASE } from "@/lib/analytics";
 import type {
   QRContentType,
   QRStyleSettings,
-  ErrorCorrectionLevel,
   FrameStyle,
 } from "@/types/qr-code";
 import {
@@ -58,18 +61,30 @@ import {
   InputField,
   SelectField,
   CheckboxField,
+  // Form components
+  URLForm,
+  TextForm,
+  EmailForm,
+  PhoneForm,
+  SMSForm,
+  WiFiForm,
+  VCardForm,
+  LocationForm,
+  EventForm,
+  TwitterForm,
+  YouTubeForm,
+  FacebookForm,
+  AppStoreForm,
+  BitcoinForm,
+  EthereumForm,
+  CardanoForm,
+  SolanaForm,
+  type FormProps,
 } from "@/components/qr-code";
 
 // ============================================================================
 // Constants
 // ============================================================================
-
-const LOCALE_MAP: Record<string, string> = {
-  en: "en_US",
-  fr: "fr_FR",
-  es: "es_ES",
-  de: "de_DE",
-};
 
 const spaceGrotesk = Space_Grotesk({
   weight: "700",
@@ -194,564 +209,6 @@ interface HistoryItem {
 type DownloadFormat = "png" | "svg" | "jpg";
 
 // ============================================================================
-// Input Form Components by Type
-// ============================================================================
-
-interface FormProps {
-  data: Record<string, unknown>;
-  updateField: (field: string, value: unknown) => void;
-  t: (key: string) => string;
-}
-
-function URLForm({ data, updateField, t }: FormProps) {
-  return (
-    <InputField
-      label={t("tools.qrCode.urlLabel")}
-      value={(data.url as string) || ""}
-      onChange={(v: string) => updateField("url", v)}
-      placeholder={t("tools.qrCode.urlPlaceholder")}
-      type="url"
-      required
-    />
-  );
-}
-
-function TextForm({ data, updateField, t }: FormProps) {
-  return (
-    <InputField
-      label={t("tools.qrCode.textLabel")}
-      value={(data.text as string) || ""}
-      onChange={(v: string) => updateField("text", v)}
-      placeholder={t("tools.qrCode.textPlaceholder")}
-      multiline
-      rows={4}
-      required
-    />
-  );
-}
-
-function EmailForm({ data, updateField, t }: FormProps) {
-  return (
-    <div className="space-y-4">
-      <InputField
-        label={t("tools.qrCode.emailLabel")}
-        value={(data.email as string) || ""}
-        onChange={(v: string) => updateField("email", v)}
-        placeholder={t("tools.qrCode.emailPlaceholder")}
-        type="email"
-        required
-      />
-      <InputField
-        label={t("tools.qrCode.emailSubject")}
-        value={(data.subject as string) || ""}
-        onChange={(v: string) => updateField("subject", v)}
-        placeholder={t("tools.qrCode.emailSubjectPlaceholder")}
-      />
-      <InputField
-        label={t("tools.qrCode.emailBody")}
-        value={(data.body as string) || ""}
-        onChange={(v: string) => updateField("body", v)}
-        placeholder={t("tools.qrCode.emailBodyPlaceholder")}
-        multiline
-        rows={3}
-      />
-    </div>
-  );
-}
-
-function PhoneForm({ data, updateField, t }: FormProps) {
-  return (
-    <InputField
-      label={t("tools.qrCode.phoneLabel")}
-      value={(data.phone as string) || ""}
-      onChange={(v: string) => updateField("phone", v)}
-      placeholder={t("tools.qrCode.phonePlaceholder")}
-      type="tel"
-      required
-    />
-  );
-}
-
-function SMSForm({ data, updateField, t }: FormProps) {
-  return (
-    <div className="space-y-4">
-      <InputField
-        label={t("tools.qrCode.smsPhone")}
-        value={(data.phone as string) || ""}
-        onChange={(v: string) => updateField("phone", v)}
-        placeholder={t("tools.qrCode.phonePlaceholder")}
-        type="tel"
-        required
-      />
-      <InputField
-        label={t("tools.qrCode.smsMessage")}
-        value={(data.message as string) || ""}
-        onChange={(v: string) => updateField("message", v)}
-        placeholder={t("tools.qrCode.smsMessagePlaceholder")}
-        multiline
-        rows={3}
-      />
-    </div>
-  );
-}
-
-function WiFiForm({ data, updateField, t }: FormProps) {
-  return (
-    <div className="space-y-4">
-      <InputField
-        label={t("tools.qrCode.wifiSSID")}
-        value={(data.ssid as string) || ""}
-        onChange={(v: string) => updateField("ssid", v)}
-        placeholder={t("tools.qrCode.wifiSSIDPlaceholder")}
-        required
-      />
-      <InputField
-        label={t("tools.qrCode.wifiPassword")}
-        value={(data.password as string) || ""}
-        onChange={(v: string) => updateField("password", v)}
-        placeholder={t("tools.qrCode.wifiPasswordPlaceholder")}
-        type="password"
-      />
-      <SelectField
-        label={t("tools.qrCode.wifiEncryption")}
-        value={(data.encryption as string) || "WPA"}
-        onChange={(v: string) => updateField("encryption", v)}
-        options={[
-          { value: "WPA", label: "WPA/WPA2/WPA3" },
-          { value: "WEP", label: "WEP" },
-          { value: "nopass", label: t("tools.qrCode.wifiNoPassword") },
-        ]}
-      />
-      <CheckboxField
-        label={t("tools.qrCode.wifiHidden")}
-        checked={(data.hidden as boolean) || false}
-        onChange={(v: boolean) => updateField("hidden", v)}
-      />
-    </div>
-  );
-}
-
-function VCardForm({ data, updateField, t }: FormProps) {
-  return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <InputField
-          label={t("tools.qrCode.vcardFirstName")}
-          value={(data.firstName as string) || ""}
-          onChange={(v: string) => updateField("firstName", v)}
-          placeholder={t("tools.qrCode.vcardFirstNamePlaceholder")}
-          required
-        />
-        <InputField
-          label={t("tools.qrCode.vcardLastName")}
-          value={(data.lastName as string) || ""}
-          onChange={(v: string) => updateField("lastName", v)}
-          placeholder={t("tools.qrCode.vcardLastNamePlaceholder")}
-        />
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <InputField
-          label={t("tools.qrCode.vcardOrganization")}
-          value={(data.organization as string) || ""}
-          onChange={(v: string) => updateField("organization", v)}
-          placeholder={t("tools.qrCode.vcardOrganizationPlaceholder")}
-        />
-        <InputField
-          label={t("tools.qrCode.vcardTitle")}
-          value={(data.title as string) || ""}
-          onChange={(v: string) => updateField("title", v)}
-          placeholder={t("tools.qrCode.vcardTitlePlaceholder")}
-        />
-      </div>
-      <InputField
-        label={t("tools.qrCode.vcardEmail")}
-        value={(data.email as string) || ""}
-        onChange={(v: string) => updateField("email", v)}
-        placeholder={t("tools.qrCode.emailPlaceholder")}
-        type="email"
-      />
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <InputField
-          label={t("tools.qrCode.vcardPhone")}
-          value={(data.phone as string) || ""}
-          onChange={(v: string) => updateField("phone", v)}
-          placeholder={t("tools.qrCode.phonePlaceholder")}
-          type="tel"
-        />
-        <InputField
-          label={t("tools.qrCode.vcardMobile")}
-          value={(data.mobile as string) || ""}
-          onChange={(v: string) => updateField("mobile", v)}
-          placeholder={t("tools.qrCode.vcardMobilePlaceholder")}
-          type="tel"
-        />
-      </div>
-      <InputField
-        label={t("tools.qrCode.vcardWebsite")}
-        value={(data.website as string) || ""}
-        onChange={(v: string) => updateField("website", v)}
-        placeholder={t("tools.qrCode.urlPlaceholder")}
-        type="url"
-      />
-      <div className="border-t border-zinc-200 dark:border-dark-border pt-4 mt-4">
-        <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-3">
-          {t("tools.qrCode.vcardAddressOptional")}
-        </p>
-        <div className="space-y-3">
-          <InputField
-            label={t("tools.qrCode.vcardStreet")}
-            value={(data.street as string) || ""}
-            onChange={(v: string) => updateField("street", v)}
-            placeholder={t("tools.qrCode.vcardStreetPlaceholder")}
-          />
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <InputField
-              label={t("tools.qrCode.vcardCity")}
-              value={(data.city as string) || ""}
-              onChange={(v: string) => updateField("city", v)}
-              placeholder={t("tools.qrCode.vcardCityPlaceholder")}
-            />
-            <InputField
-              label={t("tools.qrCode.vcardState")}
-              value={(data.state as string) || ""}
-              onChange={(v: string) => updateField("state", v)}
-              placeholder={t("tools.qrCode.vcardStatePlaceholder")}
-            />
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <InputField
-              label={t("tools.qrCode.vcardZip")}
-              value={(data.zip as string) || ""}
-              onChange={(v: string) => updateField("zip", v)}
-              placeholder={t("tools.qrCode.vcardZipPlaceholder")}
-            />
-            <InputField
-              label={t("tools.qrCode.vcardCountry")}
-              value={(data.country as string) || ""}
-              onChange={(v: string) => updateField("country", v)}
-              placeholder={t("tools.qrCode.vcardCountryPlaceholder")}
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function LocationForm({ data, updateField, t }: FormProps) {
-  return (
-    <div className="space-y-4">
-      <p className="text-xs text-zinc-500 dark:text-zinc-400">
-        {t("tools.qrCode.locationHint")}
-      </p>
-      <InputField
-        label={t("tools.qrCode.locationQuery")}
-        value={(data.query as string) || ""}
-        onChange={(v: string) => updateField("query", v)}
-        placeholder={t("tools.qrCode.locationQueryPlaceholder")}
-      />
-      <div className="flex items-center gap-4 my-3">
-        <div className="flex-1 h-px bg-zinc-200 dark:bg-zinc-700" />
-        <span className="text-xs text-zinc-400">{t("tools.qrCode.or")}</span>
-        <div className="flex-1 h-px bg-zinc-200 dark:bg-zinc-700" />
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <InputField
-          label={t("tools.qrCode.locationLatitude")}
-          value={(data.latitude as string) || ""}
-          onChange={(v: string) => updateField("latitude", v)}
-          placeholder="e.g., 40.7128"
-        />
-        <InputField
-          label={t("tools.qrCode.locationLongitude")}
-          value={(data.longitude as string) || ""}
-          onChange={(v: string) => updateField("longitude", v)}
-          placeholder="e.g., -74.0060"
-        />
-      </div>
-    </div>
-  );
-}
-
-function EventForm({ data, updateField, t }: FormProps) {
-  return (
-    <div className="space-y-4">
-      <InputField
-        label={t("tools.qrCode.eventTitle")}
-        value={(data.title as string) || ""}
-        onChange={(v: string) => updateField("title", v)}
-        placeholder={t("tools.qrCode.eventTitlePlaceholder")}
-        required
-      />
-      <InputField
-        label={t("tools.qrCode.eventLocation")}
-        value={(data.location as string) || ""}
-        onChange={(v: string) => updateField("location", v)}
-        placeholder={t("tools.qrCode.eventLocationPlaceholder")}
-      />
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <InputField
-          label={t("tools.qrCode.eventStartDate")}
-          value={(data.startDate as string) || ""}
-          onChange={(v: string) => updateField("startDate", v)}
-          type="date"
-          required
-        />
-        <InputField
-          label={t("tools.qrCode.eventStartTime")}
-          value={(data.startTime as string) || ""}
-          onChange={(v: string) => updateField("startTime", v)}
-          type="time"
-          required
-        />
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <InputField
-          label={t("tools.qrCode.eventEndDate")}
-          value={(data.endDate as string) || ""}
-          onChange={(v: string) => updateField("endDate", v)}
-          type="date"
-        />
-        <InputField
-          label={t("tools.qrCode.eventEndTime")}
-          value={(data.endTime as string) || ""}
-          onChange={(v: string) => updateField("endTime", v)}
-          type="time"
-        />
-      </div>
-      <InputField
-        label={t("tools.qrCode.eventDescription")}
-        value={(data.description as string) || ""}
-        onChange={(v: string) => updateField("description", v)}
-        placeholder={t("tools.qrCode.eventDescriptionPlaceholder")}
-        multiline
-        rows={3}
-      />
-    </div>
-  );
-}
-
-function TwitterForm({ data, updateField, t }: FormProps) {
-  return (
-    <InputField
-      label={t("tools.qrCode.twitterUsername")}
-      value={(data.username as string) || ""}
-      onChange={(v: string) => updateField("username", v)}
-      placeholder={t("tools.qrCode.twitterPlaceholder")}
-      required
-    />
-  );
-}
-
-function YouTubeForm({ data, updateField, t }: FormProps) {
-  return (
-    <div className="space-y-4">
-      <InputField
-        label={t("tools.qrCode.youtubeVideo")}
-        value={(data.videoId as string) || ""}
-        onChange={(v: string) => updateField("videoId", v)}
-        placeholder={t("tools.qrCode.youtubeVideoPlaceholder")}
-      />
-      <div className="flex items-center gap-4 my-3">
-        <div className="flex-1 h-px bg-zinc-200 dark:bg-zinc-700" />
-        <span className="text-xs text-zinc-400">{t("tools.qrCode.or")}</span>
-        <div className="flex-1 h-px bg-zinc-200 dark:bg-zinc-700" />
-      </div>
-      <InputField
-        label={t("tools.qrCode.youtubeChannel")}
-        value={(data.channelId as string) || ""}
-        onChange={(v: string) => updateField("channelId", v)}
-        placeholder={t("tools.qrCode.youtubeChannelPlaceholder")}
-      />
-    </div>
-  );
-}
-
-function FacebookForm({ data, updateField, t }: FormProps) {
-  return (
-    <div className="space-y-4">
-      <InputField
-        label={t("tools.qrCode.facebookUsername")}
-        value={(data.username as string) || ""}
-        onChange={(v: string) => updateField("username", v)}
-        placeholder={t("tools.qrCode.facebookPlaceholder")}
-      />
-      <p className="text-xs text-zinc-500 dark:text-zinc-400">
-        {t("tools.qrCode.facebookHint")}
-      </p>
-    </div>
-  );
-}
-
-function BitcoinForm({ data, updateField, t }: FormProps) {
-  return (
-    <div className="space-y-4">
-      <InputField
-        label={t("tools.qrCode.bitcoinAddress")}
-        value={(data.address as string) || ""}
-        onChange={(v: string) => updateField("address", v)}
-        placeholder={t("tools.qrCode.bitcoinAddressPlaceholder")}
-        required
-      />
-      <InputField
-        label={t("tools.qrCode.bitcoinAmount")}
-        value={(data.amount as string) || ""}
-        onChange={(v: string) => updateField("amount", v)}
-        placeholder={t("tools.qrCode.bitcoinAmountPlaceholder")}
-      />
-      <InputField
-        label={t("tools.qrCode.bitcoinLabel")}
-        value={(data.label as string) || ""}
-        onChange={(v: string) => updateField("label", v)}
-        placeholder={t("tools.qrCode.bitcoinLabelPlaceholder")}
-      />
-      <InputField
-        label={t("tools.qrCode.bitcoinMessage")}
-        value={(data.message as string) || ""}
-        onChange={(v: string) => updateField("message", v)}
-        placeholder={t("tools.qrCode.bitcoinMessagePlaceholder")}
-        multiline
-        rows={2}
-      />
-    </div>
-  );
-}
-
-function EthereumForm({ data, updateField, t }: FormProps) {
-  return (
-    <div className="space-y-4">
-      <InputField
-        label={t("tools.qrCode.ethereumAddress")}
-        value={(data.address as string) || ""}
-        onChange={(v: string) => updateField("address", v)}
-        placeholder={t("tools.qrCode.ethereumAddressPlaceholder")}
-        required
-      />
-      <InputField
-        label={t("tools.qrCode.ethereumAmount")}
-        value={(data.amount as string) || ""}
-        onChange={(v: string) => updateField("amount", v)}
-        placeholder={t("tools.qrCode.ethereumAmountPlaceholder")}
-      />
-      <InputField
-        label={t("tools.qrCode.ethereumToken")}
-        value={(data.tokenAddress as string) || ""}
-        onChange={(v: string) => updateField("tokenAddress", v)}
-        placeholder={t("tools.qrCode.ethereumTokenPlaceholder")}
-      />
-      <SelectField
-        label={t("tools.qrCode.ethereumNetwork")}
-        value={(data.chainId as string) || ""}
-        onChange={(v: string) => updateField("chainId", v)}
-        options={[
-          { value: "", label: "Mainnet (default)" },
-          { value: "1", label: "Ethereum Mainnet" },
-          { value: "137", label: "Polygon" },
-          { value: "56", label: "BNB Smart Chain" },
-          { value: "42161", label: "Arbitrum One" },
-          { value: "10", label: "Optimism" },
-        ]}
-      />
-      <p className="text-xs text-zinc-500 dark:text-zinc-400">
-        {t("tools.qrCode.ethereumHint")}
-      </p>
-    </div>
-  );
-}
-
-function CardanoForm({ data, updateField, t }: FormProps) {
-  return (
-    <div className="space-y-4">
-      <InputField
-        label={t("tools.qrCode.cardanoAddress")}
-        value={(data.address as string) || ""}
-        onChange={(v: string) => updateField("address", v)}
-        placeholder={t("tools.qrCode.cardanoAddressPlaceholder")}
-        required
-      />
-      <InputField
-        label={t("tools.qrCode.cardanoAmount")}
-        value={(data.amount as string) || ""}
-        onChange={(v: string) => updateField("amount", v)}
-        placeholder={t("tools.qrCode.cardanoAmountPlaceholder")}
-      />
-      <p className="text-xs text-zinc-500 dark:text-zinc-400">
-        {t("tools.qrCode.cardanoHint")}
-      </p>
-    </div>
-  );
-}
-
-function SolanaForm({ data, updateField, t }: FormProps) {
-  return (
-    <div className="space-y-4">
-      <InputField
-        label={t("tools.qrCode.solanaAddress")}
-        value={(data.address as string) || ""}
-        onChange={(v: string) => updateField("address", v)}
-        placeholder={t("tools.qrCode.solanaAddressPlaceholder")}
-        required
-      />
-      <InputField
-        label={t("tools.qrCode.solanaAmount")}
-        value={(data.amount as string) || ""}
-        onChange={(v: string) => updateField("amount", v)}
-        placeholder={t("tools.qrCode.solanaAmountPlaceholder")}
-      />
-      <InputField
-        label={t("tools.qrCode.solanaLabel")}
-        value={(data.label as string) || ""}
-        onChange={(v: string) => updateField("label", v)}
-        placeholder={t("tools.qrCode.solanaLabelPlaceholder")}
-      />
-      <InputField
-        label={t("tools.qrCode.solanaMessage")}
-        value={(data.message as string) || ""}
-        onChange={(v: string) => updateField("message", v)}
-        placeholder={t("tools.qrCode.solanaMessagePlaceholder")}
-        multiline
-        rows={2}
-      />
-      <p className="text-xs text-zinc-500 dark:text-zinc-400">
-        {t("tools.qrCode.solanaHint")}
-      </p>
-    </div>
-  );
-}
-
-function AppStoreForm({ data, updateField, t }: FormProps) {
-  return (
-    <div className="space-y-4">
-      <SelectField
-        label={t("tools.qrCode.appstorePlatform")}
-        value={(data.platform as string) || "ios"}
-        onChange={(v: string) => updateField("platform", v)}
-        options={[
-          { value: "ios", label: "iOS (App Store)" },
-          { value: "android", label: "Android (Google Play)" },
-        ]}
-      />
-      <InputField
-        label={t("tools.qrCode.appstoreId")}
-        value={(data.appId as string) || ""}
-        onChange={(v: string) => updateField("appId", v)}
-        placeholder={
-          (data.platform as string) === "android"
-            ? t("tools.qrCode.appstoreAndroidPlaceholder")
-            : t("tools.qrCode.appstoreIosPlaceholder")
-        }
-        required
-      />
-      <p className="text-xs text-zinc-500 dark:text-zinc-400">
-        {(data.platform as string) === "android"
-          ? t("tools.qrCode.appstoreAndroidHint")
-          : t("tools.qrCode.appstoreIosHint")}
-      </p>
-    </div>
-  );
-}
-
-// ============================================================================
 // Main Component
 // ============================================================================
 
@@ -766,6 +223,7 @@ interface BatchQRItem {
 export default function QRCodeGeneratorPage(): JSX.Element {
   const { t } = useTranslation();
   const router = useRouter();
+  const { user, signInWithGoogle } = useAuth();
 
   // State
   const [contentType, setContentType] = useState<QRContentType>("url");
@@ -788,6 +246,14 @@ export default function QRCodeGeneratorPage(): JSX.Element {
   const [showTypeCategories, setShowTypeCategories] = useState(false);
   const [showAdvancedStyle, setShowAdvancedStyle] = useState(false);
 
+  // Short URL state for URL-type QR codes
+  const [generatedShortUrl, setGeneratedShortUrl] = useState<string | null>(
+    null,
+  );
+  const [shortUrlCopied, setShortUrlCopied] = useState(false);
+  const [enableTracking, setEnableTracking] = useState(false);
+  const [isCreatingShortUrl, setIsCreatingShortUrl] = useState(false);
+
   // Batch mode state
   const [batchInput, setBatchInput] = useState("");
   const [batchItems, setBatchItems] = useState<BatchQRItem[]>([]);
@@ -804,25 +270,52 @@ export default function QRCodeGeneratorPage(): JSX.Element {
   const csvInputRef = useRef<HTMLInputElement>(null);
 
   // Load history on mount
+  // Track if we've processed a URL query to prevent re-processing
+  const hasProcessedUrlQuery = useRef(false);
+
   useEffect(() => {
     setHistory(getHistory());
   }, []);
 
-  // Handle URL query parameter (for integration with URL shortener)
+  // Handle URL query parameter (for integration with URL shortener and returning from sign-in)
   useEffect(() => {
+    // Wait for router to be ready (query params populated after hydration)
+    if (!router.isReady) return;
+
     const { url } = router.query;
-    if (url && typeof url === "string") {
+    if (url && typeof url === "string" && !hasProcessedUrlQuery.current) {
+      hasProcessedUrlQuery.current = true;
+
       // Set content type to URL and pre-fill the URL
       setContentType("url");
       setData({ url: url });
       setHasInteracted(true);
       // Auto-generate the QR code
       setIsGenerated(true);
+
+      // If the URL is already a short URL (from URL shortener), display it
+      // The URL contains ?source=qr which we should strip for display
+      if (url.includes("aigl.ink")) {
+        const displayUrl = url.replace(/[?&]source=qr/i, "");
+        setGeneratedShortUrl(displayUrl);
+      }
+
       // Clear the query param from URL without reload
       router.replace("/tools/qr-code-generator", undefined, { shallow: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router.query]);
+  }, [router.isReady, router.query]);
+
+  // Reset tracking state when URL input changes (so user gets fresh short URL for new value)
+  useEffect(() => {
+    // Only reset if we had tracking enabled and URL changed
+    if (generatedShortUrl && contentType === "url") {
+      setGeneratedShortUrl(null);
+      setEnableTracking(false);
+      setShortUrlCopied(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data.url]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -844,6 +337,27 @@ export default function QRCodeGeneratorPage(): JSX.Element {
     [contentType, data],
   );
 
+  // The actual value encoded in the QR code - uses short URL with ?source=qr only if tracking is enabled
+  const qrEncodedValue = useMemo(() => {
+    // For URL types with tracking enabled and a generated short URL
+    if (contentType === "url" && enableTracking && generatedShortUrl) {
+      // Safely append source=qr param, handling URLs that may already have query params
+      try {
+        const url = new URL(generatedShortUrl);
+        url.searchParams.append("source", "qr");
+        return url.toString();
+      } catch {
+        // Fallback for invalid URLs - check for existing query string
+        if (generatedShortUrl.includes("?")) {
+          return `${generatedShortUrl}&source=qr`;
+        }
+        return `${generatedShortUrl}?source=qr`;
+      }
+    }
+    // For all other cases, use the regular qrValue (original URL)
+    return qrValue;
+  }, [contentType, enableTracking, generatedShortUrl, qrValue]);
+
   const validation = useMemo(
     () => validateQRContent(contentType, data),
     [contentType, data],
@@ -856,6 +370,9 @@ export default function QRCodeGeneratorPage(): JSX.Element {
       setData(getInitialData(type));
       setIsGenerated(false);
       setHasInteracted(false);
+      setGeneratedShortUrl(null);
+      setShortUrlCopied(false);
+      setEnableTracking(false);
       hasTrackedUsage.current = false;
       // Switch away from batch tab if changing to non-URL type
       if (type !== "url" && activeTab === "batch") {
@@ -894,19 +411,87 @@ export default function QRCodeGeneratorPage(): JSX.Element {
     }
   }, [validation.isValid, contentType, qrValue, style.fgColor, style.bgColor]);
 
+  // Handler to enable tracking - creates short URL via API for real tracking
+  const handleEnableTracking = useCallback(async () => {
+    if (contentType !== "url" || !data.url || isCreatingShortUrl) return;
+
+    const urlStr = data.url as string;
+
+    // Only create short URL if not already created
+    if (!generatedShortUrl) {
+      // Check if URL is already a short URL (aigl.ink)
+      if (urlStr.includes("aigl.ink")) {
+        // Already a short URL, set it for tracking
+        try {
+          const shortUrlObj = new URL(urlStr);
+          const baseShortUrl = `${shortUrlObj.origin}${shortUrlObj.pathname}`;
+          setGeneratedShortUrl(baseShortUrl);
+        } catch {
+          setGeneratedShortUrl(urlStr);
+        }
+      } else {
+        // Create short URL via API (works for both logged-in and anonymous users)
+        setIsCreatingShortUrl(true);
+        try {
+          // Extract title for the short URL
+          let title = "QR Code";
+          try {
+            title = `QR Code - ${new URL(urlStr).hostname}`;
+          } catch {
+            title = `QR Code - ${urlStr.slice(0, 30)}`;
+          }
+
+          const response = await fetch("/api/urls", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              originalUrl: urlStr,
+              title,
+            }),
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || "Failed to create short URL");
+          }
+
+          const { shortUrl } = await response.json();
+          setGeneratedShortUrl(shortUrl);
+        } catch (error) {
+          console.error("Failed to create short URL:", error);
+          toast.error("Failed to enable tracking. Please try again.");
+          setIsCreatingShortUrl(false);
+          return;
+        }
+        setIsCreatingShortUrl(false);
+      }
+    }
+
+    setEnableTracking(true);
+  }, [contentType, data.url, generatedShortUrl, isCreatingShortUrl]);
+
   // Helper function to generate a styled QR code canvas with frames and logo
   const generateStyledQRCanvas = useCallback(
     async (value: string, size: number): Promise<HTMLCanvasElement> => {
       const QRCode = (await import("qrcode")).default;
 
-      // Calculate dimensions based on frame style
+      // Scale factor based on size (base size is ~256px for preview)
+      const scaleFactor = size / 256;
+
+      // Calculate dimensions based on frame style (scaled proportionally)
       const hasFrame = frameStyle !== "none";
-      const padding = hasFrame ? 20 : 0;
-      const textHeight = hasFrame && frameStyle !== "banner" ? 24 : 0;
-      const bannerHeight = frameStyle === "banner" ? 28 : 0;
+      const padding = hasFrame ? Math.round(20 * scaleFactor) : 0;
+      const textHeight =
+        hasFrame && frameStyle !== "banner" ? Math.round(24 * scaleFactor) : 0;
+      const bannerHeight =
+        frameStyle === "banner" ? Math.round(28 * scaleFactor) : 0;
       const qrSize = size;
       const totalWidth = qrSize + padding * 2;
       const totalHeight = qrSize + padding * 2 + textHeight + bannerHeight;
+
+      // Font size scaled proportionally
+      const fontSize = Math.round(10 * scaleFactor);
+      const fontStyle = `bold ${fontSize}px Arial`;
 
       // Create the final canvas
       const finalCanvas = document.createElement("canvas");
@@ -921,12 +506,15 @@ export default function QRCodeGeneratorPage(): JSX.Element {
       // Draw frame border if needed
       if (hasFrame) {
         ctx.strokeStyle = style.fgColor;
-        ctx.lineWidth = 2;
+        ctx.lineWidth = Math.max(2, Math.round(2 * scaleFactor));
 
         if (frameStyle === "simple") {
           ctx.strokeRect(1, 1, totalWidth - 2, totalHeight - 2);
         } else if (frameStyle === "rounded" || frameStyle === "badge") {
-          const radius = frameStyle === "badge" ? 16 : 12;
+          const radius =
+            frameStyle === "badge"
+              ? Math.round(16 * scaleFactor)
+              : Math.round(12 * scaleFactor);
           ctx.beginPath();
           ctx.roundRect(1, 1, totalWidth - 2, totalHeight - 2, radius);
           ctx.stroke();
@@ -937,7 +525,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
           ctx.fillRect(1, 1, totalWidth - 2, bannerHeight);
           // Draw banner text
           ctx.fillStyle = style.bgColor;
-          ctx.font = "bold 10px Arial";
+          ctx.font = fontStyle;
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
           ctx.fillText(
@@ -994,10 +582,11 @@ export default function QRCodeGeneratorPage(): JSX.Element {
 
         if (frameStyle === "badge") {
           // Badge style: pill-shaped background
-          ctx.font = "bold 10px Arial";
+          ctx.font = fontStyle;
           const textWidth = ctx.measureText(frameText.toUpperCase()).width;
-          const pillWidth = textWidth + 16;
-          const pillHeight = 18;
+          const pillPadding = Math.round(16 * scaleFactor);
+          const pillWidth = textWidth + pillPadding;
+          const pillHeight = Math.round(18 * scaleFactor);
           const pillX = (totalWidth - pillWidth) / 2;
           const pillY = textY - pillHeight / 2;
 
@@ -1012,7 +601,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
           ctx.fillText(frameText.toUpperCase(), totalWidth / 2, textY);
         } else {
           ctx.fillStyle = style.fgColor;
-          ctx.font = "bold 10px Arial";
+          ctx.font = fontStyle;
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
           ctx.fillText(frameText.toUpperCase(), totalWidth / 2, textY);
@@ -1034,7 +623,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
 
   const handleDownload = useCallback(
     async (format: DownloadFormat) => {
-      if (!qrValue) return;
+      if (!qrEncodedValue) return;
 
       trackToolUsage("QR Code Generator", `download_${format}`);
       const filename = `qrcode-${contentType}-${Date.now()}`;
@@ -1042,7 +631,10 @@ export default function QRCodeGeneratorPage(): JSX.Element {
       try {
         // Generate high-resolution QR code (2048px) for download
         const highResSize = 2048;
-        const canvas = await generateStyledQRCanvas(qrValue, highResSize);
+        const canvas = await generateStyledQRCanvas(
+          qrEncodedValue,
+          highResSize,
+        );
 
         switch (format) {
           case "png":
@@ -1094,7 +686,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
     },
     [
       contentType,
-      qrValue,
+      qrEncodedValue,
       style.size,
       style.fgColor,
       style.bgColor,
@@ -1104,14 +696,14 @@ export default function QRCodeGeneratorPage(): JSX.Element {
   );
 
   const handleCopy = useCallback(async () => {
-    if (!qrValue) return;
+    if (!qrEncodedValue) return;
 
     trackToolUsage("QR Code Generator", "copy_to_clipboard");
 
     try {
       // Generate high-resolution QR code for clipboard
       const highResSize = 1024;
-      const canvas = await generateStyledQRCanvas(qrValue, highResSize);
+      const canvas = await generateStyledQRCanvas(qrEncodedValue, highResSize);
       const success = await copyQRToClipboard(canvas);
       if (success) {
         setCopySuccess(true);
@@ -1136,7 +728,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
         toast.error(t("tools.qrCode.errorCopyFailed"));
       }
     }
-  }, [qrValue, generateStyledQRCanvas, t]);
+  }, [qrEncodedValue, generateStyledQRCanvas, t]);
 
   const handleReset = useCallback(() => {
     setData(getInitialData(contentType));
@@ -1145,11 +737,27 @@ export default function QRCodeGeneratorPage(): JSX.Element {
     setLogoDataUrl(null);
     setFrameStyle("none");
     setFrameText("SCAN ME");
+    setGeneratedShortUrl(null);
+    setShortUrlCopied(false);
+    setEnableTracking(false);
     if (logoInputRef.current) {
       logoInputRef.current.value = "";
     }
     hasTrackedUsage.current = false;
   }, [contentType]);
+
+  // Handle copying short URL
+  const handleCopyShortUrl = useCallback(async () => {
+    if (!generatedShortUrl) return;
+    try {
+      await navigator.clipboard.writeText(generatedShortUrl);
+      setShortUrlCopied(true);
+      toast.success("Short URL copied!");
+      setTimeout(() => setShortUrlCopied(false), 2000);
+    } catch {
+      toast.error("Failed to copy URL");
+    }
+  }, [generatedShortUrl]);
 
   const handleLogoUpload = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1276,11 +884,12 @@ export default function QRCodeGeneratorPage(): JSX.Element {
 
   const handleBatchDownloadSingle = useCallback(
     async (item: BatchQRItem, format: "png" | "jpg" = "png") => {
-      // Generate high-resolution styled QR code for download
+      // Generate high-resolution styled QR code for download (2048px like main download)
+      const highResSize = 2048;
       const filename = `qr-${item.label.replace(/[^a-zA-Z0-9]/g, "-")}-${Date.now()}`;
 
       try {
-        const canvas = await generateStyledQRCanvas(item.value, style.size);
+        const canvas = await generateStyledQRCanvas(item.value, highResSize);
 
         if (format === "png") {
           downloadAsPNG(canvas, filename);
@@ -1292,7 +901,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
         toast.error(t("tools.qrCode.errorDownloadFailed"));
       }
     },
-    [generateStyledQRCanvas, style.size, style.bgColor, t],
+    [generateStyledQRCanvas, style.bgColor, t],
   );
 
   const handleBatchDownloadAll = useCallback(async () => {
@@ -1311,8 +920,9 @@ export default function QRCodeGeneratorPage(): JSX.Element {
       for (let i = 0; i < validItems.length; i++) {
         const item = validItems[i];
 
-        // Generate high-resolution styled QR code with frames and logo
-        const canvas = await generateStyledQRCanvas(item.value, style.size);
+        // Generate high-resolution styled QR code with frames and logo (2048px)
+        const highResSize = 2048;
+        const canvas = await generateStyledQRCanvas(item.value, highResSize);
 
         const blob = await new Promise<Blob | null>((resolve) => {
           canvas.toBlob(resolve, "image/png");
@@ -1351,7 +961,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
       setIsDownloadingBatch(false);
       setBatchDownloadProgress(0);
     }
-  }, [batchItems, generateStyledQRCanvas, style.size, t]);
+  }, [batchItems, generateStyledQRCanvas, t]);
 
   const handleBatchClear = useCallback(() => {
     setBatchInput("");
@@ -2302,7 +1912,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                       )}
                       <div className={frameStyle === "banner" ? "p-3" : ""}>
                         <QRCodeCanvas
-                          value={qrValue}
+                          value={qrEncodedValue}
                           size={Math.min(
                             style.size,
                             frameStyle !== "none" ? 220 : 280,
@@ -2458,10 +2068,164 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                       {t("tools.qrCode.encodedData")}
                     </p>
                     <p className="text-sm text-zinc-700 dark:text-zinc-300 break-all line-clamp-2">
-                      {qrValue}
+                      {qrEncodedValue}
                     </p>
                   </div>
                 )}
+
+                {/* Tracking Option - For URL-type QR codes */}
+                {isGenerated && contentType === "url" && !enableTracking && (
+                  <div className="mt-3">
+                    {user ? (
+                      /* Logged-in user: Direct enable button */
+                      <button
+                        onClick={handleEnableTracking}
+                        disabled={isCreatingShortUrl}
+                        className="w-full flex items-center justify-between p-3 bg-gradient-to-r from-violet-50 to-indigo-50 dark:from-violet-900/20 dark:to-indigo-900/20 border border-violet-200 dark:border-violet-700/50 rounded-lg hover:border-violet-300 dark:hover:border-violet-600 transition-colors group disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <div className="flex items-center gap-2">
+                          {isCreatingShortUrl ? (
+                            <svg
+                              className="animate-spin h-4 w-4 text-violet-500"
+                              viewBox="0 0 24 24"
+                            >
+                              <circle
+                                className="opacity-25"
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                strokeWidth="4"
+                                fill="none"
+                              />
+                              <path
+                                className="opacity-75"
+                                fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                              />
+                            </svg>
+                          ) : (
+                            <ChartBarIcon className="w-4 h-4 text-violet-500 dark:text-violet-400 group-hover:text-violet-600 dark:group-hover:text-violet-300 transition-colors" />
+                          )}
+                          <span className="text-sm font-medium text-zinc-800 dark:text-white">
+                            {isCreatingShortUrl
+                              ? "Creating tracked link..."
+                              : "Add scan tracking"}
+                          </span>
+                        </div>
+                        <span className="text-xs px-2 py-0.5 bg-violet-100 dark:bg-violet-800/50 text-violet-600 dark:text-violet-300 rounded-full">
+                          Free
+                        </span>
+                      </button>
+                    ) : (
+                      /* Anonymous user: Sign in prompt */
+                      <button
+                        onClick={() => {
+                          // Save return URL with the current QR URL
+                          const returnUrl = data.url
+                            ? `/tools/qr-code-generator?url=${encodeURIComponent(data.url as string)}`
+                            : "/tools/qr-code-generator";
+                          localStorage.setItem("auth_redirect", returnUrl);
+                          signInWithGoogle();
+                        }}
+                        className="w-full flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-lg hover:border-violet-300 dark:hover:border-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-colors group"
+                      >
+                        <div className="flex items-center gap-3">
+                          <ChartBarIcon className="w-4 h-4 text-zinc-400 dark:text-zinc-500 group-hover:text-violet-500 dark:group-hover:text-violet-400 transition-colors" />
+                          <div className="text-left">
+                            <span className="text-sm font-medium text-zinc-700 dark:text-zinc-200 block group-hover:text-violet-700 dark:group-hover:text-violet-300 transition-colors">
+                              Track scans
+                            </span>
+                            <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                              Sign in to enable analytics
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 px-2.5 py-1.5 bg-white dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-md group-hover:border-violet-300 dark:group-hover:border-violet-600 transition-colors">
+                          <svg className="w-4 h-4" viewBox="0 0 24 24">
+                            <path
+                              fill="#4285F4"
+                              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                            />
+                            <path
+                              fill="#34A853"
+                              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                            />
+                            <path
+                              fill="#FBBC05"
+                              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                            />
+                            <path
+                              fill="#EA4335"
+                              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                            />
+                          </svg>
+                          <span className="text-xs font-medium text-zinc-600 dark:text-zinc-300">
+                            Sign in
+                          </span>
+                        </div>
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                {/* Tracking Enabled Section - Shows when tracking is active (logged-in users only) */}
+                {isGenerated &&
+                  enableTracking &&
+                  generatedShortUrl &&
+                  contentType === "url" && (
+                    <div className="mt-3 p-3 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800/50 rounded-lg">
+                      <div className="flex items-center justify-between gap-2 mb-2">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                          <span className="text-sm font-medium text-green-700 dark:text-green-300">
+                            Tracking Active
+                          </span>
+                        </div>
+                        <button
+                          onClick={() => setEnableTracking(false)}
+                          className="text-xs text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 px-2 py-1 hover:bg-white/50 dark:hover:bg-black/20 rounded"
+                        >
+                          Disable
+                        </button>
+                      </div>
+                      <div className="flex items-center gap-2 p-2 bg-white/60 dark:bg-black/20 rounded-md">
+                        <LinkIcon className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0" />
+                        <p className="text-sm text-green-800 dark:text-green-200 font-mono truncate flex-1">
+                          {generatedShortUrl}
+                        </p>
+                        <button
+                          onClick={handleCopyShortUrl}
+                          className={`flex items-center gap-1 px-2 py-1 text-xs font-medium rounded transition-all ${
+                            shortUrlCopied
+                              ? "bg-green-500 text-white"
+                              : "bg-green-600 hover:bg-green-700 text-white"
+                          }`}
+                        >
+                          {shortUrlCopied ? (
+                            <>
+                              <CheckIcon className="w-3 h-3" />
+                              Copied
+                            </>
+                          ) : (
+                            <>
+                              <ClipboardCopyIcon className="w-3 h-3" />
+                              Copy
+                            </>
+                          )}
+                        </button>
+                      </div>
+                      <p className="mt-2 text-xs text-green-600/80 dark:text-green-400/80">
+                        View analytics in your{" "}
+                        <Link
+                          href="/dashboard/analytics"
+                          className="underline hover:no-underline font-medium"
+                        >
+                          dashboard
+                        </Link>
+                      </p>
+                    </div>
+                  )}
               </div>
 
               {/* History Section */}

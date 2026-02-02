@@ -8,7 +8,7 @@ import { Toaster, toast } from "react-hot-toast";
 import { Header, Footer } from "@/components";
 import { RelatedTools } from "@/components/tools";
 import { useTranslation } from "@/hooks/useTranslation";
-import { SITE_URL, SITE_NAME } from "@/lib/constants";
+import { SITE_URL, SITE_NAME, LOCALE_MAP } from "@/lib/constants";
 import { trackToolUsage } from "@/lib/gtag";
 import {
   TOOL_TYPES,
@@ -22,21 +22,6 @@ import {
   hasStrokeSupport,
   type ToolType,
 } from "@/lib/pdf-signer";
-
-// ============================================================================
-// LocalStorage Keys
-// ============================================================================
-
-const STORAGE_KEYS = {
-  SAVED_SIGNATURES: "pdf-signer-saved-signatures",
-  SAVED_FULL_NAME: "pdf-signer-full-name",
-} as const;
-
-// ============================================================================
-// History Management for Undo/Redo
-// ============================================================================
-
-const MAX_HISTORY_SIZE = 50;
 import {
   UploadIcon,
   DownloadIcon,
@@ -69,15 +54,23 @@ import {
 } from "@heroicons/react/outline";
 
 // ============================================================================
-// Constants
+// LocalStorage Keys
 // ============================================================================
 
-const LOCALE_MAP: Record<string, string> = {
-  en: "en_US",
-  fr: "fr_FR",
-  es: "es_ES",
-  de: "de_DE",
-};
+const STORAGE_KEYS = {
+  SAVED_SIGNATURES: "pdf-signer-saved-signatures",
+  SAVED_FULL_NAME: "pdf-signer-full-name",
+} as const;
+
+// ============================================================================
+// History Management for Undo/Redo
+// ============================================================================
+
+const MAX_HISTORY_SIZE = 50;
+
+// ============================================================================
+// Constants
+// ============================================================================
 
 const spaceGrotesk = Space_Grotesk({
   weight: "700",

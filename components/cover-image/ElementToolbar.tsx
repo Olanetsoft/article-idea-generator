@@ -241,7 +241,7 @@ export function ElementToolbar({
 
       {/* Dropdown panels */}
       {activePanel && (
-        <div className="absolute top-full left-0 mt-2 z-50 p-4 bg-white dark:bg-gray-900/95 backdrop-blur-lg rounded-xl border border-gray-200 dark:border-white/10 shadow-2xl min-w-[320px]">
+        <div className="absolute top-full left-0 mt-2 z-50 p-4 bg-white dark:bg-gray-900/95 backdrop-blur-lg rounded-xl border border-gray-200 dark:border-white/10 shadow-2xl w-[calc(100vw-2rem)] sm:w-auto sm:min-w-[320px] max-w-[320px]">
           {/* Shapes panel */}
           {activePanel === "shapes" && (
             <div>

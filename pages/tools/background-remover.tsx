@@ -8,7 +8,7 @@ import { Toaster, toast } from "react-hot-toast";
 import { Header, Footer } from "@/components";
 import { RelatedTools } from "@/components/tools";
 import { useTranslation } from "@/hooks/useTranslation";
-import { SITE_URL, SITE_NAME } from "@/lib/constants";
+import { SITE_URL, SITE_NAME, LOCALE_MAP } from "@/lib/constants";
 import { trackToolUsage } from "@/lib/gtag";
 import {
   UploadIcon,
@@ -50,12 +50,6 @@ const PRESET_COLORS = [
   "#800080",
   "#008080",
 ];
-const LOCALE_MAP: Record<string, string> = {
-  en: "en_US",
-  fr: "fr_FR",
-  es: "es_ES",
-  de: "de_DE",
-};
 
 // Reusable Components
 const FeatureCard = ({
@@ -615,6 +609,7 @@ export default function BackgroundRemover() {
                   >
                     {showComparison ? (
                       <div className="relative w-full h-full overflow-hidden">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={originalImage || ""}
                           alt="Original"
@@ -624,6 +619,7 @@ export default function BackgroundRemover() {
                           className="absolute inset-0 overflow-hidden"
                           style={{ width: `${comparisonPos}%` }}
                         >
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             src={processedImage || ""}
                             alt="Result"
@@ -689,6 +685,7 @@ export default function BackgroundRemover() {
                             }}
                           />
                         )}
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={processedImage || ""}
                           alt="Result"
@@ -806,6 +803,7 @@ export default function BackgroundRemover() {
                     </label>
                     {backgroundImage && (
                       <div className="mt-3 relative">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={backgroundImage}
                           alt="Background"

@@ -1,0 +1,318 @@
+import type { NextApiRequest, NextApiResponse } from "next";
+import { createApiClient } from "@/lib/supabase/server";
+import { getClientIP } from "@/lib/url-utils";
+import {
+  checkRateLimit,
+  getRateLimitHeaders,
+  RateLimits,
+} from "@/lib/rate-limit";
+
+// Helper to group and count items
+function groupAndCount<T>(
+  items: T[],
+  keyFn: (item: T) => string | null,
+  defaultKey = "Unknown",
+): Array<{ name: string; count: number }> {
+  const counts: Record<string, number> = {};
+  items.forEach((item) => {
+    const key = keyFn(item) || defaultKey;
+    counts[key] = (counts[key] || 0) + 1;
+  });
+  return Object.entries(counts)
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count);
+}
+
+// Type for the short URL data we need
+interface ShortUrlData {
+  id: string;
+  user_id: string | null;
+  code: string;
+  original_url: string;
+  title: string | null;
+  created_at: string;
+  total_clicks: number;
+  unique_clicks: number;
+}
+
+// Type for click events
+interface ClickEvent {
+  id: string;
+  short_url_id: string;
+  timestamp: string;
+  ip_hash: string | null;
+  user_agent: string | null;
+  referrer: string | null;
+  referrer_domain: string | null;
+  country: string | null;
+  city: string | null;
+  device_type: string | null;
+  browser: string | null;
+  os: string | null;
+  source_type: string | null;
+  utm_source: string | null;
+  utm_medium: string | null;
+  utm_campaign: string | null;
+}
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+) {
+  if (req.method !== "GET") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+
+  // Rate limiting - 30 requests per minute per IP
+  const ip = getClientIP(
+    req.headers as Record<string, string | string[] | undefined>,
+    req.socket.remoteAddress,
+  );
+  const rateLimit = checkRateLimit(ip, RateLimits.analytics);
+
+  // Set rate limit headers
+  const rateLimitHeaders = getRateLimitHeaders(rateLimit);
+  Object.entries(rateLimitHeaders).forEach(([key, value]) => {
+    res.setHeader(key, value);
+  });
+
+  if (!rateLimit.success) {
+    return res.status(429).json({
+      error: "Too many requests. Please try again later.",
+      retryAfter: Math.ceil((rateLimit.resetTime - Date.now()) / 1000),
+    });
+  }
+
+  const supabase = createApiClient(req, res);
+  const { code, period = "30d" } = req.query;
+
+  if (!code || typeof code !== "string") {
+    return res.status(400).json({ error: "URL code is required" });
+  }
+
+  // Get the short URL
+  const { data: shortUrl, error: urlError } = await supabase
+    .from("short_urls")
+    .select(
+      "id, user_id, code, original_url, title, created_at, total_clicks, unique_clicks",
+    )
+    .eq("code", code)
+    .single<ShortUrlData>();
+
+  if (urlError || !shortUrl) {
+    return res.status(404).json({ error: "Short URL not found" });
+  }
+
+  // Check if user owns this URL
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const isOwner = user && shortUrl.user_id === user.id;
+
+  // Basic stats - available to URL owner only
+  // (Public stats would be a privacy concern)
+  if (!isOwner) {
+    return res.status(401).json({
+      error: "Sign in to view analytics for your links",
+      code: shortUrl.code,
+    });
+  }
+
+  // Calculate date range based on period parameter
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  let startDate: Date;
+  let previousPeriodStart: Date;
+  let previousPeriodEnd: Date;
+
+  // Handle custom date range
+  const { startDate: customStart, endDate: customEnd } = req.query;
+
+  switch (period) {
+    case "7d":
+      startDate = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+      previousPeriodEnd = startDate;
+      previousPeriodStart = new Date(
+        today.getTime() - 14 * 24 * 60 * 60 * 1000,
+      );
+      break;
+    case "30d":
+      startDate = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+      previousPeriodEnd = startDate;
+      previousPeriodStart = new Date(
+        today.getTime() - 60 * 24 * 60 * 60 * 1000,
+      );
+      break;
+    case "90d":
+      startDate = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000);
+      previousPeriodEnd = startDate;
+      previousPeriodStart = new Date(
+        today.getTime() - 180 * 24 * 60 * 60 * 1000,
+      );
+      break;
+    case "custom":
+      if (customStart && customEnd) {
+        startDate = new Date(customStart as string);
+        const endDate = new Date(customEnd as string);
+        const periodLength = endDate.getTime() - startDate.getTime();
+        previousPeriodEnd = startDate;
+        previousPeriodStart = new Date(startDate.getTime() - periodLength);
+      } else {
+        startDate = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+        previousPeriodEnd = startDate;
+        previousPeriodStart = new Date(
+          today.getTime() - 60 * 24 * 60 * 60 * 1000,
+        );
+      }
+      break;
+    case "all":
+    default:
+      startDate = new Date(0);
+      previousPeriodEnd = new Date(0);
+      previousPeriodStart = new Date(0);
+  }
+
+  // Get click events with pagination to prevent memory issues
+  // Limit to 10,000 most recent events for analytics computation
+  const MAX_EVENTS = 10000;
+  const { data: clicks, error: clicksError } = await supabase
+    .from("click_events")
+    .select("*")
+    .eq("short_url_id", shortUrl.id)
+    .gte("timestamp", startDate.toISOString())
+    .order("timestamp", { ascending: false })
+    .limit(MAX_EVENTS)
+    .returns<ClickEvent[]>();
+
+  if (clicksError) {
+    console.error("Error fetching clicks:", clicksError);
+    return res.status(500).json({
+      error: "Error fetching click analytics",
+      details: String(clicksError.message || clicksError),
+    });
+  }
+
+  const clickEvents: ClickEvent[] = clicks || [];
+
+  // Use helper for grouping
+  const topCountries = groupAndCount(clickEvents, (c) => c.country).slice(
+    0,
+    10,
+  );
+  const deviceBreakdown = groupAndCount(
+    clickEvents,
+    (c) => c.device_type,
+    "unknown",
+  );
+  const browserBreakdown = groupAndCount(clickEvents, (c) => c.browser);
+  const sourceBreakdown = groupAndCount(
+    clickEvents,
+    (c) => c.source_type,
+    "direct",
+  );
+  const topReferrers = groupAndCount(
+    clickEvents,
+    (c) => c.referrer_domain,
+    "Direct",
+  ).slice(0, 10);
+
+  // Clicks by day (last 30 days)
+  const clicksByDay: Record<string, number> = {};
+  clickEvents.forEach((c) => {
+    const day = new Date(c.timestamp).toISOString().split("T")[0];
+    clicksByDay[day] = (clicksByDay[day] || 0) + 1;
+  });
+  const timeline = Object.entries(clicksByDay)
+    .map(([date, clicks]) => ({ date, clicks }))
+    .sort((a, b) => a.date.localeCompare(b.date));
+
+  // Recent clicks
+  const recentClicks = clickEvents.slice(0, 20).map((c) => ({
+    timestamp: c.timestamp,
+    country: c.country,
+    city: c.city,
+    deviceType: c.device_type,
+    browser: c.browser,
+    os: c.os,
+    referrer: c.referrer_domain,
+    sourceType: c.source_type,
+    utmSource: c.utm_source,
+    utmMedium: c.utm_medium,
+    utmCampaign: c.utm_campaign,
+  }));
+
+  // Calculate QR scans from sourceBreakdown
+  const qrScans = clickEvents.filter((c) => c.source_type === "qr").length;
+
+  // UTM breakdowns
+  const utmSources = groupAndCount(
+    clickEvents.filter((c) => c.utm_source),
+    (c) => c.utm_source,
+  );
+  const utmMediums = groupAndCount(
+    clickEvents.filter((c) => c.utm_medium),
+    (c) => c.utm_medium,
+  );
+  const utmCampaigns = groupAndCount(
+    clickEvents.filter((c) => c.utm_campaign),
+    (c) => c.utm_campaign,
+  );
+
+  // Hourly distribution (0-23)
+  const hourlyClicks: Record<number, number> = {};
+  for (let i = 0; i < 24; i++) hourlyClicks[i] = 0;
+  clickEvents.forEach((c) => {
+    const hour = new Date(c.timestamp).getHours();
+    hourlyClicks[hour] = (hourlyClicks[hour] || 0) + 1;
+  });
+  const hourlyDistribution = Object.entries(hourlyClicks)
+    .map(([hour, clicks]) => ({ hour: parseInt(hour), clicks }))
+    .sort((a, b) => a.hour - b.hour);
+
+  // Calculate trend (compare with previous period)
+  let clicksTrend: number | undefined;
+  let previousPeriodClicks: number | undefined;
+
+  if (period !== "all" && previousPeriodStart.getTime() > 0) {
+    const { count: prevCount } = await supabase
+      .from("click_events")
+      .select("*", { count: "exact", head: true })
+      .eq("short_url_id", shortUrl.id)
+      .gte("timestamp", previousPeriodStart.toISOString())
+      .lt("timestamp", previousPeriodEnd.toISOString());
+
+    previousPeriodClicks = prevCount || 0;
+
+    if (previousPeriodClicks > 0) {
+      clicksTrend =
+        ((clickEvents.length - previousPeriodClicks) / previousPeriodClicks) *
+        100;
+    } else if (clickEvents.length > 0) {
+      clicksTrend = 100; // New clicks with no previous data
+    }
+  }
+
+  return res.status(200).json({
+    code: shortUrl.code,
+    originalUrl: shortUrl.original_url,
+    title: shortUrl.title,
+    createdAt: shortUrl.created_at,
+    totalClicks: shortUrl.total_clicks,
+    uniqueClicks: shortUrl.unique_clicks,
+    qrScans,
+    previousPeriodClicks,
+    clicksTrend,
+    countries: topCountries,
+    devices: deviceBreakdown,
+    browsers: browserBreakdown,
+    sources: sourceBreakdown,
+    referrers: topReferrers,
+    timeline,
+    utmSources,
+    utmMediums,
+    utmCampaigns,
+    hourlyDistribution,
+    recentClicks,
+  });
+}

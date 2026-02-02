@@ -8,8 +8,18 @@ import { Toaster, toast } from "react-hot-toast";
 import { Header, Footer } from "@/components";
 import { RelatedTools } from "@/components/tools";
 import { useTranslation } from "@/hooks/useTranslation";
-import { SITE_URL, SITE_NAME } from "@/lib/constants";
+import { useAuth } from "@/contexts";
+import { SITE_URL, SITE_NAME, LOCALE_MAP } from "@/lib/constants";
 import { trackToolUsage } from "@/lib/gtag";
+import {
+  generateShortCode,
+  saveLocalShortUrl,
+  deleteLocalShortUrl,
+  getLocalShortUrls,
+  SHORT_URL_BASE,
+} from "@/lib/analytics";
+import { isValidUrl, extractTitleFromUrl } from "@/lib/url-utils";
+import type { LocalShortUrl } from "@/types/analytics";
 import {
   ClipboardCopyIcon,
   TrashIcon,
@@ -19,18 +29,12 @@ import {
   QrcodeIcon,
   ClockIcon,
   XIcon,
+  ChartBarIcon,
 } from "@heroicons/react/outline";
 
 // ============================================================================
 // Constants
 // ============================================================================
-
-const LOCALE_MAP: Record<string, string> = {
-  en: "en_US",
-  fr: "fr_FR",
-  es: "es_ES",
-  de: "de_DE",
-};
 
 const spaceGrotesk = Space_Grotesk({
   weight: "700",
@@ -51,6 +55,7 @@ interface ShortenedUrl {
   shortUrl: string;
   createdAt: number;
   clicks?: number;
+  source?: "local" | "supabase";
 }
 
 interface HistoryItem extends ShortenedUrl {}
@@ -58,15 +63,6 @@ interface HistoryItem extends ShortenedUrl {}
 // ============================================================================
 // Utility Functions
 // ============================================================================
-
-function isValidUrl(string: string): boolean {
-  try {
-    const url = new URL(string);
-    return url.protocol === "http:" || url.protocol === "https:";
-  } catch {
-    return false;
-  }
-}
 
 function generateId(): string {
   return Math.random().toString(36).substring(2, 10);
@@ -82,7 +78,11 @@ function formatDate(timestamp: number): string {
   });
 }
 
-function truncateUrl(url: string, maxLength: number = 50): string {
+function truncateUrl(
+  url: string | undefined | null,
+  maxLength: number = 50,
+): string {
+  if (!url) return "";
   if (url.length <= maxLength) return url;
   return url.substring(0, maxLength - 3) + "...";
 }
@@ -91,36 +91,24 @@ function truncateUrl(url: string, maxLength: number = 50): string {
 // API Functions
 // ============================================================================
 
-async function shortenWithTinyUrl(url: string): Promise<string> {
-  const response = await fetch(
-    `https://tinyurl.com/api-create.php?url=${encodeURIComponent(url)}`,
-  );
-  if (!response.ok) throw new Error("TinyURL API failed");
-  return await response.text();
-}
+// Create a short URL with aig.link domain
+function createTrackedShortUrl(
+  originalUrl: string,
+  title?: string,
+): LocalShortUrl {
+  const code = generateShortCode();
+  const shortUrl: LocalShortUrl = {
+    id: code,
+    code,
+    originalUrl,
+    shortUrl: `${SHORT_URL_BASE}/${code}`,
+    title: title || extractTitleFromUrl(originalUrl),
+    createdAt: new Date().toISOString(),
+    clicks: 0,
+  };
 
-async function shortenWithCleanUri(url: string): Promise<string> {
-  const response = await fetch("https://cleanuri.com/api/v1/shorten", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: `url=${encodeURIComponent(url)}`,
-  });
-  if (!response.ok) throw new Error("CleanURI API failed");
-  const data = await response.json();
-  return data.result_url;
-}
-
-async function shortenUrl(url: string): Promise<string> {
-  // Try TinyURL first, fall back to CleanURI
-  try {
-    return await shortenWithTinyUrl(url);
-  } catch {
-    try {
-      return await shortenWithCleanUri(url);
-    } catch {
-      throw new Error("All URL shortening services failed. Please try again.");
-    }
-  }
+  saveLocalShortUrl(shortUrl);
+  return shortUrl;
 }
 
 // ============================================================================
@@ -132,6 +120,7 @@ interface HistoryItemCardProps {
   onCopy: (url: string) => void;
   onDelete: (id: string) => void;
   onGenerateQr: (url: string) => void;
+  onViewAnalytics?: (item: HistoryItem) => void;
   t: (key: string) => string;
 }
 
@@ -140,6 +129,7 @@ function HistoryItemCard({
   onCopy,
   onDelete,
   onGenerateQr,
+  onViewAnalytics,
   t,
 }: HistoryItemCardProps) {
   const [copied, setCopied] = useState(false);
@@ -158,22 +148,32 @@ function HistoryItemCard({
       className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-gray-50 dark:bg-dark-card/50 rounded-xl border border-gray-100 dark:border-dark-border"
     >
       <div className="flex-1 min-w-0">
-        <a
-          href={item.shortUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-violet-600 dark:text-violet-400 font-medium hover:underline flex items-center gap-1.5"
-        >
-          {item.shortUrl}
-          <ExternalLinkIcon className="w-3.5 h-3.5 flex-shrink-0" />
-        </a>
+        <div className="flex items-center gap-2">
+          <a
+            href={item.shortUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-violet-600 dark:text-violet-400 font-medium hover:underline flex items-center gap-1.5"
+          >
+            {item.shortUrl}
+            <ExternalLinkIcon className="w-3.5 h-3.5 flex-shrink-0" />
+          </a>
+        </div>
         <p className="text-sm text-gray-500 dark:text-gray-400 truncate mt-1">
           {truncateUrl(item.originalUrl, 60)}
         </p>
-        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 flex items-center gap-1">
-          <ClockIcon className="w-3 h-3" />
-          {formatDate(item.createdAt)}
-        </p>
+        <div className="flex items-center gap-3 mt-1">
+          <p className="text-xs text-gray-400 dark:text-gray-500 flex items-center gap-1">
+            <ClockIcon className="w-3 h-3" />
+            {formatDate(item.createdAt)}
+          </p>
+          {typeof item.clicks === "number" && (
+            <p className="text-xs text-gray-400 dark:text-gray-500 flex items-center gap-1">
+              <ChartBarIcon className="w-3 h-3" />
+              {item.clicks} {item.clicks === 1 ? "click" : "clicks"}
+            </p>
+          )}
+        </div>
       </div>
 
       <div className="flex items-center gap-2 flex-shrink-0">
@@ -193,6 +193,18 @@ function HistoryItemCard({
               : t("tools.urlShortener.copy")}
           </span>
         </button>
+
+        {/* Only show Stats button for local items - Supabase items should use dashboard analytics */}
+        {onViewAnalytics && item.source !== "supabase" && (
+          <button
+            onClick={() => onViewAnalytics(item)}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-lg hover:bg-gray-50 dark:hover:bg-dark-border/50 transition-colors"
+            title="View analytics"
+          >
+            <ChartBarIcon className="w-4 h-4 text-cyan-500" />
+            <span className="hidden sm:inline">Stats</span>
+          </button>
+        )}
 
         <button
           onClick={() => onGenerateQr(item.shortUrl)}
@@ -217,6 +229,231 @@ function HistoryItemCard({
   );
 }
 
+// Analytics Modal Component
+interface AnalyticsModalProps {
+  item: HistoryItem;
+  onClose: () => void;
+}
+
+function AnalyticsModal({ item, onClose }: AnalyticsModalProps) {
+  const [clickEvents, setClickEvents] = useState<
+    import("@/types/analytics").ClickEvent[]
+  >([]);
+  const [analytics, setAnalytics] = useState<
+    import("@/types/analytics").AnalyticsSummary | null
+  >(null);
+  const [sourceStats, setSourceStats] = useState<{
+    direct: number;
+    qr: number;
+  }>({ direct: 0, qr: 0 });
+
+  useEffect(() => {
+    // Load click events for this URL
+    const {
+      getLocalClickEvents,
+      calculateAnalytics,
+    } = require("@/lib/analytics");
+    const events = getLocalClickEvents(item.id);
+    setClickEvents(events);
+    if (events.length > 0) {
+      setAnalytics(calculateAnalytics(events));
+      // Calculate source breakdown
+      const qrClicks = events.filter(
+        (e: import("@/types/analytics").ClickEvent) => e.sourceType === "qr",
+      ).length;
+      setSourceStats({
+        direct: events.length - qrClicks,
+        qr: qrClicks,
+      });
+    }
+  }, [item.id]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ scale: 0.95, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.95, opacity: 0 }}
+        className="w-full max-w-2xl bg-white dark:bg-dark-card rounded-2xl shadow-xl overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-dark-border">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-cyan-100 dark:bg-cyan-900/30 rounded-lg">
+              <ChartBarIcon className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-900 dark:text-white">
+                Link Analytics
+              </h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-xs">
+                {item.shortUrl}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+          >
+            <XIcon className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="p-6">
+          {analytics ? (
+            <div className="space-y-6">
+              {/* Stats Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div className="p-4 bg-gray-50 dark:bg-dark-card/50 rounded-xl text-center">
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {analytics.totalClicks}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Total Clicks
+                  </p>
+                </div>
+                <div className="p-4 bg-gray-50 dark:bg-dark-card/50 rounded-xl text-center">
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {analytics.uniqueVisitors}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Unique Visitors
+                  </p>
+                </div>
+                <div className="p-4 bg-gray-50 dark:bg-dark-card/50 rounded-xl text-center">
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {analytics.clicksToday}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Today
+                  </p>
+                </div>
+                <div className="p-4 bg-gray-50 dark:bg-dark-card/50 rounded-xl text-center">
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {analytics.clicksLast7Days}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Last 7 Days
+                  </p>
+                </div>
+              </div>
+
+              {/* Source Breakdown */}
+              {(sourceStats.qr > 0 || sourceStats.direct > 0) && (
+                <div>
+                  <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">
+                    Click Sources
+                  </h4>
+                  <div className="flex gap-4">
+                    <div className="flex-1 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <LinkIcon className="w-4 h-4 text-blue-500" />
+                        <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
+                          Direct Links
+                        </span>
+                      </div>
+                      <p className="text-xl font-bold text-blue-600 dark:text-blue-400 mt-1">
+                        {sourceStats.direct}
+                      </p>
+                    </div>
+                    <div className="flex-1 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <QrcodeIcon className="w-4 h-4 text-purple-500" />
+                        <span className="text-sm font-medium text-purple-700 dark:text-purple-300">
+                          QR Scans
+                        </span>
+                      </div>
+                      <p className="text-xl font-bold text-purple-600 dark:text-purple-400 mt-1">
+                        {sourceStats.qr}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Recent Clicks */}
+              {clickEvents.length > 0 && (
+                <div>
+                  <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">
+                    Recent Clicks
+                  </h4>
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                    {clickEvents.slice(0, 10).map((event, index) => (
+                      <div
+                        key={event.id || index}
+                        className="flex items-center justify-between p-3 bg-gray-50 dark:bg-dark-card/50 rounded-lg text-sm"
+                      >
+                        <div className="flex items-center gap-3">
+                          {event.sourceType === "qr" && (
+                            <span className="px-1.5 py-0.5 text-xs font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded">
+                              QR
+                            </span>
+                          )}
+                          <span className="text-gray-500 dark:text-gray-400">
+                            {event.country || "Unknown"}
+                          </span>
+                          <span className="text-gray-400 dark:text-gray-500">
+                            •
+                          </span>
+                          <span className="text-gray-500 dark:text-gray-400 capitalize">
+                            {event.deviceType || "unknown"}
+                          </span>
+                          <span className="text-gray-400 dark:text-gray-500">
+                            •
+                          </span>
+                          <span className="text-gray-500 dark:text-gray-400">
+                            {event.browser || "Unknown"}
+                          </span>
+                        </div>
+                        <span className="text-xs text-gray-400 dark:text-gray-500">
+                          {new Date(event.timestamp).toLocaleString()}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 dark:bg-dark-card/50 flex items-center justify-center">
+                <ChartBarIcon className="w-8 h-8 text-gray-400" />
+              </div>
+              <p className="text-gray-600 dark:text-gray-300 mb-1">
+                No clicks yet
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Share your link to start tracking analytics
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-between p-4 border-t border-gray-200 dark:border-dark-border bg-gray-50 dark:bg-dark-card/50">
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Analytics are stored locally in your browser
+          </p>
+          <button
+            onClick={onClose}
+            className="px-4 py-2 bg-gray-200 dark:bg-dark-border text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-dark-border/80 transition-colors text-sm font-medium"
+          >
+            Close
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 // ============================================================================
 // Main Component
 // ============================================================================
@@ -224,26 +461,81 @@ function HistoryItemCard({
 export default function UrlShortenerPage(): JSX.Element {
   const { t } = useTranslation();
   const router = useRouter();
+  const { user, signInWithGoogle } = useAuth();
   const [url, setUrl] = useState("");
   const [shortUrl, setShortUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [error, setError] = useState("");
+  const [showAnalytics, setShowAnalytics] = useState<HistoryItem | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const hasTrackedUsage = useRef(false);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
 
-  // Load history from localStorage
+  // Load history from localStorage or Supabase
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(HISTORY_STORAGE_KEY);
-      if (stored) {
-        setHistory(JSON.parse(stored));
+    const loadHistory = async () => {
+      if (user) {
+        // Load from Supabase for logged-in users
+        setIsLoadingHistory(true);
+        try {
+          const response = await fetch("/api/urls");
+          if (response.ok) {
+            const { urls } = await response.json();
+            // Use camelCase properties from API response
+            const supabaseHistory: HistoryItem[] = urls.map((url: any) => ({
+              id: url.id,
+              originalUrl: url.originalUrl,
+              shortUrl: url.shortUrl || `${SHORT_URL_BASE}/${url.code}`,
+              createdAt: new Date(url.createdAt).getTime(),
+              clicks: url.totalClicks || 0,
+              source: "supabase" as const,
+            }));
+            setHistory(supabaseHistory);
+          }
+        } catch (err) {
+          console.error("Failed to load URLs from Supabase:", err);
+        } finally {
+          setIsLoadingHistory(false);
+        }
+      } else {
+        // Load from localStorage for anonymous users
+        try {
+          const stored = localStorage.getItem(HISTORY_STORAGE_KEY);
+          if (stored) {
+            const historyItems: HistoryItem[] = JSON.parse(stored);
+
+            // Sync click counts from tracked URL storage
+            const trackedUrls = getLocalShortUrls();
+            const syncedHistory = historyItems.map((item) => {
+              const tracked = trackedUrls.find((t) => t.id === item.id);
+              if (tracked) {
+                return {
+                  ...item,
+                  clicks: tracked.clicks,
+                  source: "local" as const,
+                };
+              }
+              return { ...item, source: "local" as const };
+            });
+
+            setHistory(syncedHistory);
+
+            // Save synced history back
+            localStorage.setItem(
+              HISTORY_STORAGE_KEY,
+              JSON.stringify(syncedHistory),
+            );
+          }
+        } catch {
+          // Ignore localStorage errors
+        }
       }
-    } catch {
-      // Ignore localStorage errors
-    }
-  }, []);
+    };
+
+    loadHistory();
+  }, [user]);
 
   // Save history to localStorage
   const saveHistory = useCallback((items: HistoryItem[]) => {
@@ -289,21 +581,59 @@ export default function UrlShortenerPage(): JSX.Element {
     }
 
     try {
-      const shortened = await shortenUrl(normalizedUrl);
-      setShortUrl(shortened);
+      let shortened: string;
+      let newItem: HistoryItem;
 
-      // Add to history
-      const newItem: HistoryItem = {
-        id: generateId(),
-        originalUrl: normalizedUrl,
-        shortUrl: shortened,
-        createdAt: Date.now(),
-      };
+      // Try API first (works for everyone, associates with user if logged in)
+      try {
+        const response = await fetch("/api/urls", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            originalUrl: normalizedUrl,
+            title: extractTitleFromUrl(normalizedUrl),
+          }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          shortened = data.shortUrl;
+
+          newItem = {
+            id: data.id,
+            originalUrl: normalizedUrl,
+            shortUrl: shortened,
+            createdAt: Date.now(),
+            clicks: 0,
+            source: user ? "supabase" : "local",
+          };
+        } else {
+          throw new Error("API unavailable");
+        }
+      } catch {
+        // Fallback to local creation if API fails
+        const trackedUrl = createTrackedShortUrl(normalizedUrl);
+        shortened = trackedUrl.shortUrl;
+
+        newItem = {
+          id: trackedUrl.id,
+          originalUrl: normalizedUrl,
+          shortUrl: shortened,
+          createdAt: Date.now(),
+          clicks: 0,
+          source: "local",
+        };
+      }
 
       const newHistory = [newItem, ...history].slice(0, MAX_HISTORY_ITEMS);
       setHistory(newHistory);
-      saveHistory(newHistory);
 
+      // Save to localStorage for non-logged-in users
+      if (!user) {
+        saveHistory(newHistory);
+      }
+
+      setShortUrl(shortened);
       toast.success(t("tools.urlShortener.successMessage"));
     } catch (err) {
       const message =
@@ -342,22 +672,79 @@ export default function UrlShortenerPage(): JSX.Element {
     inputRef.current?.focus();
   };
 
-  const handleDeleteHistoryItem = (id: string) => {
+  const handleDeleteHistoryItem = async (id: string) => {
+    const item = history.find((h) => h.id === id);
+
+    if (item?.source === "supabase" && user) {
+      // Delete via API for Supabase items - use id instead of code
+      try {
+        const response = await fetch(`/api/urls?id=${item.id}`, {
+          method: "DELETE",
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to delete URL");
+        }
+      } catch (err) {
+        toast.error("Failed to delete link");
+        return;
+      }
+    } else {
+      // Delete from local storage
+      deleteLocalShortUrl(id);
+    }
+
     const newHistory = history.filter((item) => item.id !== id);
     setHistory(newHistory);
-    saveHistory(newHistory);
+
+    if (!user) {
+      saveHistory(newHistory);
+    }
+
     toast.success(t("tools.urlShortener.deletedMessage"));
   };
 
-  const handleClearHistory = () => {
+  const handleClearHistory = async () => {
+    if (user) {
+      // Delete all Supabase URLs using id instead of code
+      for (const item of history) {
+        if (item.source === "supabase") {
+          try {
+            await fetch(`/api/urls?id=${item.id}`, { method: "DELETE" });
+          } catch {
+            // Continue with other deletions
+          }
+        }
+      }
+    } else {
+      // Clear all local tracked links
+      history.forEach((item) => {
+        deleteLocalShortUrl(item.id);
+      });
+    }
+
     setHistory([]);
-    saveHistory([]);
+
+    if (!user) {
+      saveHistory([]);
+    }
+
     toast.success(t("tools.urlShortener.historyCleared"));
+  };
+
+  const handleViewAnalytics = (item: HistoryItem) => {
+    setShowAnalytics(item);
   };
 
   const handleGenerateQr = (shortUrl: string) => {
     // Navigate to QR code generator with pre-filled URL
-    router.push(`/tools/qr-code-generator?url=${encodeURIComponent(shortUrl)}`);
+    // Add ?source=qr to the short URL so we can track QR code scans vs direct clicks
+    const qrTrackingUrl = shortUrl.includes("?")
+      ? `${shortUrl}&source=qr`
+      : `${shortUrl}?source=qr`;
+    router.push(
+      `/tools/qr-code-generator?url=${encodeURIComponent(qrTrackingUrl)}`,
+    );
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -385,7 +772,7 @@ export default function UrlShortenerPage(): JSX.Element {
         />
         <meta
           name="keywords"
-          content="url shortener, link shortener, shorten url, short link, tiny url, link compressor, free url shortener, custom short links"
+          content="url shortener, link shortener, shorten url, short link, tiny url, link compressor, free url shortener, custom short links, link analytics, click tracking, url analytics, link management, qr code generator"
         />
         <link rel="canonical" href={pageUrl} />
 
@@ -445,15 +832,19 @@ export default function UrlShortenerPage(): JSX.Element {
               },
               featureList: [
                 "Free URL shortening with no limits",
-                "No registration or account required",
+                "No registration required for basic usage",
                 "QR code generation for any shortened link",
+                "Click analytics with geographic data",
+                "Device and browser statistics",
+                "Traffic source and referrer tracking",
+                "UTM parameter support",
+                "Dashboard for link management",
+                "Sync links across devices when signed in",
                 "Local link history saved in browser",
                 "One-click copy to clipboard",
                 "Clean, professional short URLs",
                 "Works with any valid URL",
                 "Mobile-friendly responsive design",
-                "Fast, reliable shortening services",
-                "Privacy-focused - no tracking",
               ],
             }),
           }}
@@ -472,7 +863,7 @@ export default function UrlShortenerPage(): JSX.Element {
                   name: "Is this URL shortener completely free?",
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "Yes, our URL shortener is 100% free with no hidden costs or premium tiers. Shorten unlimited URLs without signing up or providing any personal information.",
+                    text: "Yes, URL shortening is 100% free with no hidden costs. Shorten unlimited URLs without signing up. For advanced features like detailed click analytics and link management dashboard, simply sign in with Google - also free.",
                   },
                 },
                 {
@@ -488,7 +879,7 @@ export default function UrlShortenerPage(): JSX.Element {
                   name: "Can I track clicks on my shortened URLs?",
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "Our tool focuses on simplicity and privacy. For basic link tracking, you can use UTM parameters in your original URL before shortening. For advanced analytics, consider dedicated link management platforms.",
+                    text: "Yes! Sign in with Google to access detailed click analytics including total clicks, unique visitors, geographic location (country/city), device types, browsers, operating systems, traffic sources, and referrers. You can also track UTM parameters for marketing campaigns.",
                   },
                 },
                 {
@@ -520,7 +911,7 @@ export default function UrlShortenerPage(): JSX.Element {
                   name: "Is there a limit to how many URLs I can shorten?",
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "There's no limit. Shorten as many URLs as you need. Your recent links are saved locally in your browser for easy access.",
+                    text: "There's no limit. Shorten as many URLs as you need. Your recent links are saved locally in your browser. Sign in with Google to sync your links across devices and never lose them.",
                   },
                 },
                 {
@@ -642,6 +1033,14 @@ export default function UrlShortenerPage(): JSX.Element {
           >
             {/* Input Section */}
             <div className="p-6">
+              {/* Feature badge */}
+              <div className="flex items-center justify-center mb-4">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-cyan-50 dark:bg-cyan-900/20 text-cyan-700 dark:text-cyan-300 rounded-full text-xs font-medium">
+                  <LinkIcon className="w-3.5 h-3.5" />
+                  Free URL shortening • Sign in for analytics
+                </div>
+              </div>
+
               <div className="flex flex-col sm:flex-row gap-3">
                 <div className="flex-1 relative">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -676,7 +1075,7 @@ export default function UrlShortenerPage(): JSX.Element {
                 <button
                   onClick={handleShorten}
                   disabled={isLoading}
-                  className="px-6 py-3 bg-violet-600 text-white font-medium rounded-xl hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 min-w-[140px]"
+                  className="px-6 py-3 bg-violet-600 text-white font-medium rounded-xl hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 min-w-[100px] sm:min-w-[140px]"
                 >
                   {isLoading ? (
                     <>
@@ -779,6 +1178,103 @@ export default function UrlShortenerPage(): JSX.Element {
             </AnimatePresence>
           </motion.div>
 
+          {/* Sign-in prompt for analytics (only shown to anonymous users) */}
+          {!user && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.15 }}
+              className="mt-6 p-4 bg-gradient-to-r from-cyan-50 to-blue-50 dark:from-cyan-900/20 dark:to-blue-900/20 border border-cyan-200 dark:border-cyan-800/30 rounded-xl"
+            >
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-white dark:bg-dark-card rounded-lg shadow-sm">
+                    <ChartBarIcon className="w-6 h-6 text-cyan-600 dark:text-cyan-400" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-900 dark:text-white">
+                      Want detailed analytics?
+                    </p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Sign in to track clicks, see visitor locations, and sync
+                      links across devices.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={signInWithGoogle}
+                  className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-lg hover:bg-gray-50 dark:hover:bg-dark-border/50 transition-colors text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
+                  <svg className="w-4 h-4" viewBox="0 0 24 24">
+                    <path
+                      fill="#4285F4"
+                      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                    />
+                    <path
+                      fill="#34A853"
+                      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                    />
+                    <path
+                      fill="#FBBC05"
+                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                    />
+                    <path
+                      fill="#EA4335"
+                      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                    />
+                  </svg>
+                  Sign in with Google
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Dashboard link for logged-in users */}
+          {user && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.15 }}
+              className="mt-6 p-4 bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 border border-violet-200 dark:border-violet-800/30 rounded-xl"
+            >
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-white dark:bg-dark-card rounded-lg shadow-sm">
+                    <ChartBarIcon className="w-6 h-6 text-violet-600 dark:text-violet-400" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-900 dark:text-white">
+                      Links saved to your account
+                    </p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      View click analytics, visitor locations, and manage all
+                      your links.
+                    </p>
+                  </div>
+                </div>
+                <Link
+                  href="/dashboard"
+                  className="flex items-center gap-2 px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-colors text-sm font-medium"
+                >
+                  Go to Dashboard
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+                </Link>
+              </div>
+            </motion.div>
+          )}
+
           {/* History Section */}
           {history.length > 0 && (
             <motion.div
@@ -809,6 +1305,7 @@ export default function UrlShortenerPage(): JSX.Element {
                       onCopy={handleCopy}
                       onDelete={handleDeleteHistoryItem}
                       onGenerateQr={handleGenerateQr}
+                      onViewAnalytics={handleViewAnalytics}
                       t={t}
                     />
                   ))}
@@ -1012,6 +1509,16 @@ export default function UrlShortenerPage(): JSX.Element {
       </main>
 
       <Footer />
+
+      {/* Analytics Modal */}
+      <AnimatePresence>
+        {showAnalytics && (
+          <AnalyticsModal
+            item={showAnalytics}
+            onClose={() => setShowAnalytics(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
