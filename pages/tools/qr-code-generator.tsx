@@ -252,7 +252,6 @@ export default function QRCodeGeneratorPage(): JSX.Element {
   );
   const [shortUrlCopied, setShortUrlCopied] = useState(false);
   const [enableTracking, setEnableTracking] = useState(false);
-  const [showTrackingTooltip, setShowTrackingTooltip] = useState(false);
   const [isCreatingShortUrl, setIsCreatingShortUrl] = useState(false);
 
   // Batch mode state
@@ -311,7 +310,6 @@ export default function QRCodeGeneratorPage(): JSX.Element {
       setGeneratedShortUrl(null);
       setEnableTracking(false);
       setShortUrlCopied(false);
-      setShowTrackingTooltip(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data.url]);
@@ -372,7 +370,6 @@ export default function QRCodeGeneratorPage(): JSX.Element {
       setGeneratedShortUrl(null);
       setShortUrlCopied(false);
       setEnableTracking(false);
-      setShowTrackingTooltip(false);
       hasTrackedUsage.current = false;
       // Switch away from batch tab if changing to non-URL type
       if (type !== "url" && activeTab === "batch") {
@@ -468,7 +465,6 @@ export default function QRCodeGeneratorPage(): JSX.Element {
     }
 
     setEnableTracking(true);
-    setShowTrackingTooltip(false);
   }, [contentType, data.url, generatedShortUrl, isCreatingShortUrl]);
 
   // Helper function to generate a styled QR code canvas with frames and logo
@@ -741,7 +737,6 @@ export default function QRCodeGeneratorPage(): JSX.Element {
     setGeneratedShortUrl(null);
     setShortUrlCopied(false);
     setEnableTracking(false);
-    setShowTrackingTooltip(false);
     if (logoInputRef.current) {
       logoInputRef.current.value = "";
     }
@@ -2077,144 +2072,74 @@ export default function QRCodeGeneratorPage(): JSX.Element {
 
                 {/* Tracking Option - For URL-type QR codes */}
                 {isGenerated && contentType === "url" && !enableTracking && (
-                  <div className="mt-3 relative">
-                    <button
-                      onClick={() =>
-                        setShowTrackingTooltip(!showTrackingTooltip)
-                      }
-                      disabled={isCreatingShortUrl}
-                      className="w-full flex items-center justify-between p-3 bg-gradient-to-r from-violet-50 to-indigo-50 dark:from-violet-900/20 dark:to-indigo-900/20 border border-violet-200 dark:border-violet-700/50 rounded-lg hover:border-violet-300 dark:hover:border-violet-600 transition-colors group disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      <div className="flex items-center gap-2">
-                        <ChartBarIcon className="w-4 h-4 text-violet-500 dark:text-violet-400 group-hover:text-violet-600 dark:group-hover:text-violet-300 transition-colors" />
-                        <span className="text-sm font-medium text-zinc-800 dark:text-white group-hover:text-zinc-900 dark:group-hover:text-white">
-                          {isCreatingShortUrl
-                            ? "Creating tracked link..."
-                            : "Add scan tracking"}
+                  <div className="mt-3">
+                    {user ? (
+                      /* Logged-in user: Direct enable button */
+                      <button
+                        onClick={handleEnableTracking}
+                        disabled={isCreatingShortUrl}
+                        className="w-full flex items-center justify-between p-3 bg-gradient-to-r from-violet-50 to-indigo-50 dark:from-violet-900/20 dark:to-indigo-900/20 border border-violet-200 dark:border-violet-700/50 rounded-lg hover:border-violet-300 dark:hover:border-violet-600 transition-colors group disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <div className="flex items-center gap-2">
+                          {isCreatingShortUrl ? (
+                            <svg
+                              className="animate-spin h-4 w-4 text-violet-500"
+                              viewBox="0 0 24 24"
+                            >
+                              <circle
+                                className="opacity-25"
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                strokeWidth="4"
+                                fill="none"
+                              />
+                              <path
+                                className="opacity-75"
+                                fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                              />
+                            </svg>
+                          ) : (
+                            <ChartBarIcon className="w-4 h-4 text-violet-500 dark:text-violet-400 group-hover:text-violet-600 dark:group-hover:text-violet-300 transition-colors" />
+                          )}
+                          <span className="text-sm font-medium text-zinc-800 dark:text-white">
+                            {isCreatingShortUrl
+                              ? "Creating tracked link..."
+                              : "Add scan tracking"}
+                          </span>
+                        </div>
+                        <span className="text-xs px-2 py-0.5 bg-violet-100 dark:bg-violet-800/50 text-violet-600 dark:text-violet-300 rounded-full">
+                          Free
                         </span>
-                      </div>
-                      <span className="text-xs px-2 py-0.5 bg-violet-100 dark:bg-violet-800/50 text-violet-600 dark:text-violet-300 rounded-full">
-                        Free
-                      </span>
-                    </button>
-
-                    {/* Tracking Info Popup */}
-                    {showTrackingTooltip && (
-                      <>
-                        <div
-                          className="fixed inset-0 bg-black/20 dark:bg-black/40 z-40"
-                          onClick={() => setShowTrackingTooltip(false)}
-                        />
-                        <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-md p-5 bg-white dark:bg-dark-card border border-zinc-200 dark:border-dark-border rounded-xl shadow-2xl z-50">
-                          <button
-                            onClick={() => setShowTrackingTooltip(false)}
-                            className="absolute top-3 right-3 p-1 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
-                          >
-                            <XIcon className="w-5 h-5" />
-                          </button>
-                          <div className="flex items-start gap-4">
-                            <div className="p-2.5 bg-violet-100 dark:bg-violet-900/40 rounded-lg flex-shrink-0">
-                              <ChartBarIcon className="w-6 h-6 text-violet-600 dark:text-violet-400" />
-                            </div>
-                            <div className="flex-1">
-                              <h4 className="font-semibold text-lg text-zinc-900 dark:text-white mb-2">
-                                Track QR Code Scans
-                              </h4>
-                              <p className="text-sm text-zinc-600 dark:text-zinc-300 mb-3">
-                                Your QR code will link through{" "}
-                                <span className="font-mono text-violet-600 dark:text-violet-400">
-                                  aigl.ink
-                                </span>{" "}
-                                to track scan analytics.
-                              </p>
-                              <ul className="text-sm text-zinc-600 dark:text-zinc-300 space-y-1.5 mb-4">
-                                <li className="flex items-center gap-2">
-                                  <CheckIcon className="w-4 h-4 text-green-500 flex-shrink-0" />
-                                  Total scans & unique visitors
-                                </li>
-                                <li className="flex items-center gap-2">
-                                  <CheckIcon className="w-4 h-4 text-green-500 flex-shrink-0" />
-                                  Geographic location data
-                                </li>
-                                <li className="flex items-center gap-2">
-                                  <CheckIcon className="w-4 h-4 text-green-500 flex-shrink-0" />
-                                  Device & browser breakdown
-                                </li>
-                              </ul>
-
-                              {/* Auth-aware messaging */}
-                              {user ? (
-                                <div className="p-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg mb-4">
-                                  <p className="text-xs text-green-700 dark:text-green-300 flex items-center gap-1.5">
-                                    <CheckIcon className="w-3.5 h-3.5" />
-                                    Analytics will appear in your dashboard
-                                  </p>
-                                </div>
-                              ) : (
-                                <div className="p-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg mb-4">
-                                  <p className="text-xs text-amber-700 dark:text-amber-300">
-                                    💡{" "}
-                                    <Link
-                                      href="/auth/redirect"
-                                      className="underline hover:no-underline"
-                                    >
-                                      Sign in
-                                    </Link>{" "}
-                                    to view analytics in your dashboard, or
-                                    track anonymously.
-                                  </p>
-                                </div>
-                              )}
-
-                              <div className="flex items-center gap-3">
-                                <button
-                                  onClick={handleEnableTracking}
-                                  disabled={isCreatingShortUrl}
-                                  className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-violet-600 hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors flex items-center justify-center gap-2"
-                                >
-                                  {isCreatingShortUrl ? (
-                                    <>
-                                      <svg
-                                        className="animate-spin h-4 w-4"
-                                        viewBox="0 0 24 24"
-                                      >
-                                        <circle
-                                          className="opacity-25"
-                                          cx="12"
-                                          cy="12"
-                                          r="10"
-                                          stroke="currentColor"
-                                          strokeWidth="4"
-                                          fill="none"
-                                        />
-                                        <path
-                                          className="opacity-75"
-                                          fill="currentColor"
-                                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                        />
-                                      </svg>
-                                      Creating...
-                                    </>
-                                  ) : (
-                                    "Enable Tracking"
-                                  )}
-                                </button>
-                                <button
-                                  onClick={() => setShowTrackingTooltip(false)}
-                                  className="px-4 py-2.5 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-dark-hover rounded-lg transition-colors"
-                                >
-                                  Cancel
-                                </button>
-                              </div>
-                            </div>
+                      </button>
+                    ) : (
+                      /* Anonymous user: Sign in prompt */
+                      <Link
+                        href={`/auth/redirect?returnTo=${encodeURIComponent("/tools/qr-code-generator?url=" + encodeURIComponent((data.url as string) || ""))}`}
+                        className="w-full flex items-center justify-between p-3 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border border-amber-200 dark:border-amber-700/50 rounded-lg hover:border-amber-300 dark:hover:border-amber-600 transition-colors group"
+                      >
+                        <div className="flex items-center gap-2">
+                          <ChartBarIcon className="w-4 h-4 text-amber-500 dark:text-amber-400 group-hover:text-amber-600 dark:group-hover:text-amber-300 transition-colors" />
+                          <div>
+                            <span className="text-sm font-medium text-zinc-800 dark:text-white block">
+                              Track scans
+                            </span>
+                            <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                              Sign in to enable analytics
+                            </span>
                           </div>
                         </div>
-                      </>
+                        <span className="text-xs px-2 py-0.5 bg-amber-100 dark:bg-amber-800/50 text-amber-600 dark:text-amber-300 rounded-full">
+                          Sign in →
+                        </span>
+                      </Link>
                     )}
                   </div>
                 )}
 
-                {/* Tracking Enabled Section - Shows when tracking is active */}
+                {/* Tracking Enabled Section - Shows when tracking is active (logged-in users only) */}
                 {isGenerated &&
                   enableTracking &&
                   generatedShortUrl &&
@@ -2261,27 +2186,13 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                         </button>
                       </div>
                       <p className="mt-2 text-xs text-green-600/80 dark:text-green-400/80">
-                        {user ? (
-                          <>
-                            View analytics in your{" "}
-                            <Link
-                              href="/dashboard/analytics"
-                              className="underline hover:no-underline font-medium"
-                            >
-                              dashboard
-                            </Link>
-                          </>
-                        ) : (
-                          <>
-                            <Link
-                              href="/auth/redirect"
-                              className="underline hover:no-underline font-medium"
-                            >
-                              Sign in
-                            </Link>{" "}
-                            to view detailed analytics for this link
-                          </>
-                        )}
+                        View analytics in your{" "}
+                        <Link
+                          href="/dashboard/analytics"
+                          className="underline hover:no-underline font-medium"
+                        >
+                          dashboard
+                        </Link>
                       </p>
                     </div>
                   )}
