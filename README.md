@@ -103,6 +103,8 @@ Generate article ideas using GPT-4o-mini. Enter a topic, get 4 title suggestions
 
 ### URL Shortener
 
+**Short domain**: [aigl.ink](https://aigl.ink) — All short links use this domain (e.g., `aigl.ink/r/abc123`)
+
 1. Go to [/tools/url-shortener](https://www.articleideagenerator.com/tools/url-shortener)
 2. Paste any long URL
 3. Click **Shorten URL** (no sign-up required)
@@ -194,6 +196,7 @@ Uses [OpenAI GPT-4o-mini](https://openai.com/api/):
 - Tailwind CSS
 - Framer Motion
 - Deployed on Vercel
+- Short URL domain: [aigl.ink](https://aigl.ink)
 
 ## Local Development
 
