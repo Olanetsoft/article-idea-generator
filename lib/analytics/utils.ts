@@ -3,13 +3,23 @@ import { customAlphabet } from "nanoid";
 import {
   SHORT_CODE_LENGTH,
   SHORT_CODE_ALPHABET,
-  MOBILE_REGEX,
-  TABLET_REGEX,
-  REFERRER_LABELS,
   STORAGE_KEYS,
   MAX_LOCAL_URLS,
   MAX_LOCAL_CLICKS,
 } from "./constants";
+// Re-export shared detection utilities for backward compatibility
+export {
+  detectDeviceType,
+  detectBrowser,
+  detectOS,
+  parseReferrer,
+  parseReferrerWithLabel,
+  parseUtmParams,
+  isValidUrl,
+  extractTitleFromUrl,
+  REFERRER_LABELS,
+} from "@/lib/shared/detection";
+import { parseReferrerWithLabel as _parseReferrerWithLabel } from "@/lib/shared/detection";
 import type {
   ShortUrl,
   ClickEvent,
@@ -27,78 +37,6 @@ const nanoid = customAlphabet(SHORT_CODE_ALPHABET, SHORT_CODE_LENGTH);
 
 export function generateShortCode(): string {
   return nanoid();
-}
-
-// Detect device type from user agent
-export function detectDeviceType(userAgent: string): DeviceType {
-  if (TABLET_REGEX.test(userAgent)) return "tablet";
-  if (MOBILE_REGEX.test(userAgent)) return "mobile";
-  return "desktop";
-}
-
-// Parse referrer URL to get domain
-export function parseReferrer(referrer: string | null): string {
-  if (!referrer) return "Direct";
-
-  try {
-    const url = new URL(referrer);
-    const hostname = url.hostname.replace("www.", "");
-    return REFERRER_LABELS[hostname] || hostname;
-  } catch {
-    return "Unknown";
-  }
-}
-
-// Parse UTM parameters from URL
-export function parseUtmParams(url: string): Record<string, string> {
-  const params: Record<string, string> = {};
-
-  try {
-    const urlObj = new URL(url);
-    const utmKeys = [
-      "utm_source",
-      "utm_medium",
-      "utm_campaign",
-      "utm_term",
-      "utm_content",
-    ];
-
-    utmKeys.forEach((key) => {
-      const value = urlObj.searchParams.get(key);
-      if (value) {
-        params[key] = value;
-      }
-    });
-  } catch {
-    // Invalid URL, return empty params
-  }
-
-  return params;
-}
-
-// Browser detection from user agent
-export function detectBrowser(userAgent: string): string {
-  if (userAgent.includes("Firefox")) return "Firefox";
-  if (userAgent.includes("Edg")) return "Edge";
-  if (userAgent.includes("Chrome")) return "Chrome";
-  if (userAgent.includes("Safari")) return "Safari";
-  if (userAgent.includes("Opera") || userAgent.includes("OPR")) return "Opera";
-  return "Other";
-}
-
-// OS detection from user agent
-// Note: iOS/iPhone/iPad checks must come BEFORE Mac OS check because
-// iOS Safari includes "Mac OS" in its user agent string
-export function detectOS(userAgent: string): string {
-  if (userAgent.includes("Windows")) return "Windows";
-  // Check iOS devices BEFORE Mac OS (iOS Safari UA contains "Mac OS")
-  if (userAgent.includes("iPhone")) return "iOS";
-  if (userAgent.includes("iPad")) return "iPadOS";
-  if (userAgent.includes("iOS")) return "iOS";
-  if (userAgent.includes("Mac OS")) return "macOS";
-  if (userAgent.includes("Android")) return "Android";
-  if (userAgent.includes("Linux")) return "Linux";
-  return "Other";
 }
 
 // Local Storage Helpers
@@ -336,16 +274,6 @@ export function aggregateReferrerData(events: ClickEvent[]): ReferrerData[] {
 export function formatShortUrl(code: string, domain?: string): string {
   const baseDomain = domain || "aigl.ink";
   return `${baseDomain}/${code}`;
-}
-
-// Validate URL
-export function isValidUrl(url: string): boolean {
-  try {
-    const parsed = new URL(url);
-    return ["http:", "https:"].includes(parsed.protocol);
-  } catch {
-    return false;
-  }
 }
 
 /**

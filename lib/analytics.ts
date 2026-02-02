@@ -3,6 +3,18 @@
 
 import type { LocalShortUrl, ClickEvent } from "@/types/analytics";
 
+// Re-export shared detection utilities for backward compatibility
+// All detection logic lives in lib/shared/detection.ts
+export {
+  detectDeviceType,
+  detectBrowser,
+  detectOS,
+  parseReferrer,
+  parseUtmParams,
+  isValidUrl,
+  extractTitleFromUrl,
+} from "@/lib/shared/detection";
+
 // ============================================================================
 // Constants
 // Unified with lib/analytics/constants.ts to prevent localStorage conflicts
@@ -140,106 +152,14 @@ export function saveLocalClickEvent(code: string, event: ClickEvent): void {
 }
 
 // ============================================================================
-// Device & Browser Detection (Client-side)
-// ============================================================================
-
-/**
- * Detect device type from user agent
- * Note: Tablet check runs FIRST to prevent iPad/tablets being misclassified as mobile
- * (iPad user agents often include "Mobile" in the string)
- */
-export function detectDeviceType(
-  ua: string,
-): "mobile" | "tablet" | "desktop" | undefined {
-  if (!ua) return undefined;
-  const lower = ua.toLowerCase();
-  // Check tablet FIRST (iPad, Android tablets, Kindle, etc.)
-  if (/tablet|ipad|android(?!.*mobile)|kindle|silk/i.test(lower)) {
-    return "tablet";
-  }
-  // Then check mobile (phones)
-  if (
-    /mobile|iphone|ipod|android.*mobile|windows phone|blackberry/i.test(lower)
-  ) {
-    return "mobile";
-  }
-  return "desktop";
-}
-
-/**
- * Detect browser from user agent
- */
-export function detectBrowser(ua: string): string | undefined {
-  if (!ua) return undefined;
-  if (ua.includes("Firefox/")) return "Firefox";
-  if (ua.includes("Edg/")) return "Edge";
-  if (ua.includes("Chrome/")) return "Chrome";
-  if (ua.includes("Safari/") && !ua.includes("Chrome/")) return "Safari";
-  if (ua.includes("Opera/") || ua.includes("OPR/")) return "Opera";
-  return "Other";
-}
-
-/**
- * Detect OS from user agent
- * Note: iOS/iPhone/iPad checks must come BEFORE Mac OS since iOS devices
- * may include "Mac OS" in their user agent strings
- */
-export function detectOS(ua: string): string | undefined {
-  if (!ua) return undefined;
-  // Check iOS/iPhone/iPad FIRST (before Mac OS check)
-  if (ua.includes("iOS") || ua.includes("iPhone") || ua.includes("iPad"))
-    return "iOS";
-  if (ua.includes("Android")) return "Android";
-  if (ua.includes("Windows")) return "Windows";
-  if (ua.includes("Mac OS")) return "macOS";
-  if (ua.includes("Linux")) return "Linux";
-  return "Other";
-}
-
-// ============================================================================
-// Referrer & UTM Parsing
-// ============================================================================
-
-/**
- * Parse referrer URL to get domain
- */
-export function parseReferrer(referrer: string | null): string | undefined {
-  if (!referrer) return undefined;
-  try {
-    const url = new URL(referrer);
-    return url.hostname.replace("www.", "");
-  } catch {
-    return undefined;
-  }
-}
-
-/**
- * Parse UTM parameters from URL
- */
-export function parseUtmParams(url: string): {
-  utm_source?: string;
-  utm_medium?: string;
-  utm_campaign?: string;
-} {
-  try {
-    const urlObj = new URL(url);
-    return {
-      utm_source: urlObj.searchParams.get("utm_source") || undefined,
-      utm_medium: urlObj.searchParams.get("utm_medium") || undefined,
-      utm_campaign: urlObj.searchParams.get("utm_campaign") || undefined,
-    };
-  } catch {
-    return {};
-  }
-}
-
-// ============================================================================
 // Fingerprinting (Privacy-Friendly)
+// Note: For SHA-256 based fingerprinting, use generateFingerprint from
+// @/lib/analytics/utils which uses Web Crypto API
 // ============================================================================
 
 /**
- * Generate a simple fingerprint for unique visitor tracking
- * This is a privacy-friendly approach that doesn't use invasive tracking
+ * Generate a simple fingerprint for unique visitor tracking (legacy sync version)
+ * @deprecated Use generateFingerprint from @/lib/analytics/utils for SHA-256
  */
 export function generateFingerprint(
   userAgent: string,
@@ -261,6 +181,9 @@ export function generateFingerprint(
 // URL Utilities
 // ============================================================================
 
+// Import extractTitleFromUrl from shared to use in createTrackedShortUrl
+import { extractTitleFromUrl as _extractTitleFromUrl } from "@/lib/shared/detection";
+
 /**
  * Create a tracked short URL (for localStorage-based URLs)
  */
@@ -271,27 +194,10 @@ export function createTrackedShortUrl(originalUrl: string): LocalShortUrl {
     code,
     shortUrl: `${SHORT_URL_BASE}/${code}`,
     originalUrl,
-    title: extractTitleFromUrl(originalUrl),
+    title: _extractTitleFromUrl(originalUrl),
     createdAt: new Date().toISOString(),
     clicks: 0,
   };
   saveLocalShortUrl(shortUrl);
   return shortUrl;
-}
-
-/**
- * Extract a reasonable title from a URL
- */
-function extractTitleFromUrl(url: string): string {
-  try {
-    const urlObj = new URL(url);
-    const hostname = urlObj.hostname.replace("www.", "");
-    const path = urlObj.pathname.replace(/\//g, " ").trim();
-    if (path && path.length > 2) {
-      return `${hostname} - ${path.substring(0, 30)}`;
-    }
-    return hostname;
-  } catch {
-    return "Untitled Link";
-  }
 }

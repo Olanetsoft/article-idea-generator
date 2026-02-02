@@ -61,33 +61,5 @@ export const ANALYTICS_PERIODS = [
   { value: "all", label: "All time" },
 ] as const;
 
-// Device type detection patterns
-// Note: iPad is NOT in MOBILE_REGEX - it should match TABLET_REGEX
-// The tablet check must run BEFORE mobile check in detectDeviceType
-export const MOBILE_REGEX =
-  /Android.*Mobile|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i;
-export const TABLET_REGEX = /iPad|Android(?!.*Mobile)|Tablet|Kindle|Silk/i;
-
-// Common referrer domains to label
-export const REFERRER_LABELS: Record<string, string> = {
-  "t.co": "Twitter/X",
-  "twitter.com": "Twitter/X",
-  "x.com": "Twitter/X",
-  "facebook.com": "Facebook",
-  "fb.me": "Facebook",
-  "linkedin.com": "LinkedIn",
-  "lnkd.in": "LinkedIn",
-  "instagram.com": "Instagram",
-  "reddit.com": "Reddit",
-  "youtube.com": "YouTube",
-  "youtu.be": "YouTube",
-  "tiktok.com": "TikTok",
-  "pinterest.com": "Pinterest",
-  "whatsapp.com": "WhatsApp",
-  "telegram.org": "Telegram",
-  "discord.com": "Discord",
-  "github.com": "GitHub",
-  "medium.com": "Medium",
-  "dev.to": "Dev.to",
-  "hashnode.com": "Hashnode",
-};
+// Re-export REFERRER_LABELS from shared for backward compatibility
+export { REFERRER_LABELS } from "@/lib/shared/detection";

@@ -1,49 +1,17 @@
 // Shared utilities for URL shortener and analytics
 import crypto from "crypto";
 
-// ============================================================================
-// URL Utilities
-// ============================================================================
-
-/**
- * Extract a reasonable title from a URL
- */
-export function extractTitleFromUrl(url: string): string {
-  try {
-    const urlObj = new URL(url);
-    const hostname = urlObj.hostname.replace("www.", "");
-    const path = urlObj.pathname.replace(/\//g, " ").trim();
-    if (path && path.length > 2) {
-      return `${hostname} - ${path.substring(0, 30)}`;
-    }
-    return hostname;
-  } catch {
-    return "Untitled Link";
-  }
-}
-
-/**
- * Validate if a string is a valid URL
- */
-export function isValidUrl(string: string): boolean {
-  try {
-    const url = new URL(string);
-    return url.protocol === "http:" || url.protocol === "https:";
-  } catch {
-    return false;
-  }
-}
-
-/**
- * Normalize URL by adding protocol if missing
- */
-export function normalizeUrl(url: string): string {
-  const trimmed = url.trim();
-  if (!trimmed.startsWith("http://") && !trimmed.startsWith("https://")) {
-    return "https://" + trimmed;
-  }
-  return trimmed;
-}
+// Re-export shared detection utilities for backward compatibility
+// All detection logic lives in lib/shared/detection.ts
+export {
+  detectDeviceType,
+  detectBrowser,
+  detectOS,
+  parseReferrer,
+  isValidUrl,
+  extractTitleFromUrl,
+  normalizeUrl,
+} from "@/lib/shared/detection";
 
 // ============================================================================
 // Privacy Utilities
@@ -57,68 +25,12 @@ export function hashIP(ip: string): string {
 }
 
 // ============================================================================
-// User Agent Detection
-// ============================================================================
-
-/**
- * Detect device type from user agent
- * Note: Tablet check runs BEFORE mobile check so iPad matches tablet, not mobile
- */
-export function detectDeviceType(
-  ua: string,
-): "mobile" | "tablet" | "desktop" | null {
-  if (!ua) return null;
-  const lower = ua.toLowerCase();
-  // Check tablet FIRST (iPad, Android tablets, Kindle, etc.)
-  if (/tablet|ipad|android(?!.*mobile)|kindle|silk/i.test(lower)) {
-    return "tablet";
-  }
-  // Then check mobile (iPhone, Android phones, etc.)
-  if (
-    /mobile|iphone|ipod|android.*mobile|windows phone|blackberry/i.test(lower)
-  ) {
-    return "mobile";
-  }
-  return "desktop";
-}
-
-/**
- * Detect browser from user agent
- */
-export function detectBrowser(ua: string): string | null {
-  if (!ua) return null;
-  if (ua.includes("Firefox/")) return "Firefox";
-  if (ua.includes("Edg/")) return "Edge";
-  if (ua.includes("Chrome/")) return "Chrome";
-  if (ua.includes("Safari/") && !ua.includes("Chrome/")) return "Safari";
-  if (ua.includes("Opera/") || ua.includes("OPR/")) return "Opera";
-  return "Other";
-}
-
-/**
- * Detect OS from user agent
- * Note: iOS/iPhone/iPad checks must come BEFORE Mac OS check because
- * iOS Safari includes "Mac OS" in its user agent string
- */
-export function detectOS(ua: string): string | null {
-  if (!ua) return null;
-  if (ua.includes("Windows")) return "Windows";
-  // Check iOS devices BEFORE Mac OS (iOS Safari UA contains "Mac OS")
-  if (ua.includes("iPhone")) return "iOS";
-  if (ua.includes("iPad")) return "iPadOS";
-  if (ua.includes("iOS")) return "iOS";
-  if (ua.includes("Mac OS")) return "macOS";
-  if (ua.includes("Android")) return "Android";
-  if (ua.includes("Linux")) return "Linux";
-  return "Other";
-}
-
-// ============================================================================
 // Referrer Utilities
 // ============================================================================
 
 /**
  * Parse referrer domain from full URL
+ * @deprecated Use parseReferrer from @/lib/shared/detection instead
  */
 export function parseReferrerDomain(referrer: string | null): string | null {
   if (!referrer) return null;
