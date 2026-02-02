@@ -436,13 +436,22 @@ export default function QRCodeGeneratorPage(): JSX.Element {
         const code = generateShortCode();
         const shortUrl = `${SHORT_URL_BASE}/${code}`;
 
+        // Safely extract hostname for title
+        let title = "QR Code";
+        try {
+          title = `QR Code - ${new URL(urlStr).hostname}`;
+        } catch {
+          // Invalid URL, use fallback title
+          title = `QR Code - ${urlStr.slice(0, 30)}`;
+        }
+
         // Save to local storage for tracking
         saveLocalShortUrl({
           id: code,
           code,
           originalUrl: urlStr,
           shortUrl,
-          title: `QR Code - ${new URL(urlStr).hostname}`,
+          title,
           createdAt: new Date().toISOString(),
           clicks: 0,
         });
@@ -870,11 +879,12 @@ export default function QRCodeGeneratorPage(): JSX.Element {
 
   const handleBatchDownloadSingle = useCallback(
     async (item: BatchQRItem, format: "png" | "jpg" = "png") => {
-      // Generate high-resolution styled QR code for download
+      // Generate high-resolution styled QR code for download (2048px like main download)
+      const highResSize = 2048;
       const filename = `qr-${item.label.replace(/[^a-zA-Z0-9]/g, "-")}-${Date.now()}`;
 
       try {
-        const canvas = await generateStyledQRCanvas(item.value, style.size);
+        const canvas = await generateStyledQRCanvas(item.value, highResSize);
 
         if (format === "png") {
           downloadAsPNG(canvas, filename);
@@ -886,7 +896,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
         toast.error(t("tools.qrCode.errorDownloadFailed"));
       }
     },
-    [generateStyledQRCanvas, style.size, style.bgColor, t],
+    [generateStyledQRCanvas, style.bgColor, t],
   );
 
   const handleBatchDownloadAll = useCallback(async () => {
@@ -905,8 +915,9 @@ export default function QRCodeGeneratorPage(): JSX.Element {
       for (let i = 0; i < validItems.length; i++) {
         const item = validItems[i];
 
-        // Generate high-resolution styled QR code with frames and logo
-        const canvas = await generateStyledQRCanvas(item.value, style.size);
+        // Generate high-resolution styled QR code with frames and logo (2048px)
+        const highResSize = 2048;
+        const canvas = await generateStyledQRCanvas(item.value, highResSize);
 
         const blob = await new Promise<Blob | null>((resolve) => {
           canvas.toBlob(resolve, "image/png");
@@ -945,7 +956,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
       setIsDownloadingBatch(false);
       setBatchDownloadProgress(0);
     }
-  }, [batchItems, generateStyledQRCanvas, style.size, t]);
+  }, [batchItems, generateStyledQRCanvas, t]);
 
   const handleBatchClear = useCallback(() => {
     setBatchInput("");
