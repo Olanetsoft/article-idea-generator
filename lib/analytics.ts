@@ -145,19 +145,23 @@ export function saveLocalClickEvent(code: string, event: ClickEvent): void {
 
 /**
  * Detect device type from user agent
+ * Note: Tablet check runs FIRST to prevent iPad/tablets being misclassified as mobile
+ * (iPad user agents often include "Mobile" in the string)
  */
 export function detectDeviceType(
   ua: string,
 ): "mobile" | "tablet" | "desktop" | undefined {
   if (!ua) return undefined;
   const lower = ua.toLowerCase();
+  // Check tablet FIRST (iPad, Android tablets, Kindle, etc.)
+  if (/tablet|ipad|android(?!.*mobile)|kindle|silk/i.test(lower)) {
+    return "tablet";
+  }
+  // Then check mobile (phones)
   if (
     /mobile|iphone|ipod|android.*mobile|windows phone|blackberry/i.test(lower)
   ) {
     return "mobile";
-  }
-  if (/tablet|ipad|android(?!.*mobile)|kindle|silk/i.test(lower)) {
-    return "tablet";
   }
   return "desktop";
 }
@@ -177,15 +181,18 @@ export function detectBrowser(ua: string): string | undefined {
 
 /**
  * Detect OS from user agent
+ * Note: iOS/iPhone/iPad checks must come BEFORE Mac OS since iOS devices
+ * may include "Mac OS" in their user agent strings
  */
 export function detectOS(ua: string): string | undefined {
   if (!ua) return undefined;
+  // Check iOS/iPhone/iPad FIRST (before Mac OS check)
+  if (ua.includes("iOS") || ua.includes("iPhone") || ua.includes("iPad"))
+    return "iOS";
+  if (ua.includes("Android")) return "Android";
   if (ua.includes("Windows")) return "Windows";
   if (ua.includes("Mac OS")) return "macOS";
   if (ua.includes("Linux")) return "Linux";
-  if (ua.includes("Android")) return "Android";
-  if (ua.includes("iOS") || ua.includes("iPhone") || ua.includes("iPad"))
-    return "iOS";
   return "Other";
 }
 
