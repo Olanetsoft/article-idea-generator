@@ -19,8 +19,33 @@ export const STORAGE_KEYS = {
 export const API_ENDPOINTS = {
   SHORTEN: "/api/urls",
   REDIRECT: "/r",
-  ANALYTICS: "/api/urls/analytics",
+  // Note: For analytics, use getAnalyticsEndpoint() helper instead
+  ANALYTICS_BASE: "/api/urls",
 } as const;
+
+/**
+ * Build the analytics API endpoint URL for a specific short code.
+ * @param code - The short URL code
+ * @param params - Optional query parameters (period, startDate, endDate, etc.)
+ * @returns Full API URL string, e.g., "/api/urls/abc123/analytics?period=30d"
+ */
+export function getAnalyticsEndpoint(
+  code: string,
+  params?: Record<string, string | undefined>,
+): string {
+  const base = `/api/urls/${encodeURIComponent(code)}/analytics`;
+  if (!params) return base;
+
+  const searchParams = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== "") {
+      searchParams.append(key, value);
+    }
+  });
+
+  const queryString = searchParams.toString();
+  return queryString ? `${base}?${queryString}` : base;
+}
 
 // Limits
 export const MAX_URL_LENGTH = 2048;
@@ -37,9 +62,11 @@ export const ANALYTICS_PERIODS = [
 ] as const;
 
 // Device type detection patterns
+// Note: iPad is NOT in MOBILE_REGEX - it should match TABLET_REGEX
+// The tablet check must run BEFORE mobile check in detectDeviceType
 export const MOBILE_REGEX =
-  /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
-export const TABLET_REGEX = /iPad|Android(?!.*Mobile)|Tablet/i;
+  /Android.*Mobile|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i;
+export const TABLET_REGEX = /iPad|Android(?!.*Mobile)|Tablet|Kindle|Silk/i;
 
 // Common referrer domains to label
 export const REFERRER_LABELS: Record<string, string> = {

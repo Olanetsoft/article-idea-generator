@@ -12,6 +12,7 @@ import {
   generateFingerprint,
   parseUtmParams,
 } from "@/lib/analytics";
+import { hashStringAsync } from "@/lib/analytics/utils";
 import { createServerClient } from "@/lib/supabase/server";
 import type { ClickEvent, LocalShortUrl } from "@/types/analytics";
 
@@ -89,10 +90,12 @@ export default function RedirectPage({
 
     // Track the click (async to handle fingerprint generation)
     const trackClick = async () => {
+      // Hash the IP first for privacy - never pass raw IP to fingerprint
+      const hashedIp = await hashStringAsync(clickData.ip || "");
       // Generate fingerprint using SHA-256 (async Web Crypto API)
       const fingerprint = await generateFingerprint(
         clickData.userAgent,
-        clickData.ip,
+        hashedIp,
         typeof navigator !== "undefined" ? navigator.language : "",
       );
 

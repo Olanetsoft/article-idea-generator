@@ -87,13 +87,17 @@ export function detectBrowser(userAgent: string): string {
 }
 
 // OS detection from user agent
+// Note: iOS/iPhone/iPad checks must come BEFORE Mac OS check because
+// iOS Safari includes "Mac OS" in its user agent string
 export function detectOS(userAgent: string): string {
   if (userAgent.includes("Windows")) return "Windows";
-  if (userAgent.includes("Mac OS")) return "macOS";
-  if (userAgent.includes("Linux")) return "Linux";
-  if (userAgent.includes("Android")) return "Android";
-  if (userAgent.includes("iOS") || userAgent.includes("iPhone")) return "iOS";
+  // Check iOS devices BEFORE Mac OS (iOS Safari UA contains "Mac OS")
+  if (userAgent.includes("iPhone")) return "iOS";
   if (userAgent.includes("iPad")) return "iPadOS";
+  if (userAgent.includes("iOS")) return "iOS";
+  if (userAgent.includes("Mac OS")) return "macOS";
+  if (userAgent.includes("Android")) return "Android";
+  if (userAgent.includes("Linux")) return "Linux";
   return "Other";
 }
 
@@ -342,6 +346,42 @@ export function isValidUrl(url: string): boolean {
   } catch {
     return false;
   }
+}
+
+/**
+ * Hash a string using SHA-256 (browser-compatible, async).
+ * Returns first 16 characters of the hex hash for privacy-preserving storage.
+ * Use this for hashing IP addresses before passing to fingerprint generation.
+ */
+export async function hashStringAsync(value: string): Promise<string> {
+  // Use Web Crypto API for SHA-256 hashing (browser)
+  if (typeof window !== "undefined" && window.crypto?.subtle) {
+    const encoder = new TextEncoder();
+    const dataBuffer = encoder.encode(value);
+    const hashBuffer = await window.crypto.subtle.digest("SHA-256", dataBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("")
+      .substring(0, 16);
+  }
+
+  // Fallback for Node.js environment (server-side)
+  if (typeof require !== "undefined") {
+    try {
+      const crypto = require("crypto");
+      return crypto
+        .createHash("sha256")
+        .update(value)
+        .digest("hex")
+        .substring(0, 16);
+    } catch {
+      // Fallback to empty string if crypto unavailable
+    }
+  }
+
+  // Last resort - return empty string (should not happen in practice)
+  return "";
 }
 
 /**

@@ -14,6 +14,7 @@ import {
 } from "@/components";
 import { useAuth } from "@/contexts";
 import { SITE_NAME } from "@/lib/constants";
+import { getAnalyticsEndpoint } from "@/lib/analytics/constants";
 
 // Inline SVG Icons (heroicons not installed)
 function ShareIcon({ className }: { className?: string }) {
@@ -239,14 +240,12 @@ export default function AnalyticsPage() {
       setError(null);
 
       try {
-        let url = `/api/urls/${selectedCode}/analytics?period=${period}`;
-        if (
-          period === "custom" &&
-          customDateRange.start &&
-          customDateRange.end
-        ) {
-          url += `&startDate=${customDateRange.start}&endDate=${customDateRange.end}`;
-        }
+        // Build URL using the endpoint helper
+        const url = getAnalyticsEndpoint(selectedCode, {
+          period,
+          startDate: period === "custom" ? customDateRange.start : undefined,
+          endDate: period === "custom" ? customDateRange.end : undefined,
+        });
 
         const response = await fetch(url);
         if (!response.ok) throw new Error("Failed to fetch analytics");

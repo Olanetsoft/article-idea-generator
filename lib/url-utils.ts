@@ -62,19 +62,22 @@ export function hashIP(ip: string): string {
 
 /**
  * Detect device type from user agent
+ * Note: Tablet check runs BEFORE mobile check so iPad matches tablet, not mobile
  */
 export function detectDeviceType(
   ua: string,
 ): "mobile" | "tablet" | "desktop" | null {
   if (!ua) return null;
   const lower = ua.toLowerCase();
+  // Check tablet FIRST (iPad, Android tablets, Kindle, etc.)
+  if (/tablet|ipad|android(?!.*mobile)|kindle|silk/i.test(lower)) {
+    return "tablet";
+  }
+  // Then check mobile (iPhone, Android phones, etc.)
   if (
     /mobile|iphone|ipod|android.*mobile|windows phone|blackberry/i.test(lower)
   ) {
     return "mobile";
-  }
-  if (/tablet|ipad|android(?!.*mobile)|kindle|silk/i.test(lower)) {
-    return "tablet";
   }
   return "desktop";
 }
@@ -94,15 +97,19 @@ export function detectBrowser(ua: string): string | null {
 
 /**
  * Detect OS from user agent
+ * Note: iOS/iPhone/iPad checks must come BEFORE Mac OS check because
+ * iOS Safari includes "Mac OS" in its user agent string
  */
 export function detectOS(ua: string): string | null {
   if (!ua) return null;
   if (ua.includes("Windows")) return "Windows";
+  // Check iOS devices BEFORE Mac OS (iOS Safari UA contains "Mac OS")
+  if (ua.includes("iPhone")) return "iOS";
+  if (ua.includes("iPad")) return "iPadOS";
+  if (ua.includes("iOS")) return "iOS";
   if (ua.includes("Mac OS")) return "macOS";
-  if (ua.includes("Linux")) return "Linux";
   if (ua.includes("Android")) return "Android";
-  if (ua.includes("iOS") || ua.includes("iPhone") || ua.includes("iPad"))
-    return "iOS";
+  if (ua.includes("Linux")) return "Linux";
   return "Other";
 }
 
