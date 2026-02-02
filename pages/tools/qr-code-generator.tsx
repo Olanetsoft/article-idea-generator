@@ -460,14 +460,23 @@ export default function QRCodeGeneratorPage(): JSX.Element {
     async (value: string, size: number): Promise<HTMLCanvasElement> => {
       const QRCode = (await import("qrcode")).default;
 
-      // Calculate dimensions based on frame style
+      // Scale factor based on size (base size is ~256px for preview)
+      const scaleFactor = size / 256;
+
+      // Calculate dimensions based on frame style (scaled proportionally)
       const hasFrame = frameStyle !== "none";
-      const padding = hasFrame ? 20 : 0;
-      const textHeight = hasFrame && frameStyle !== "banner" ? 24 : 0;
-      const bannerHeight = frameStyle === "banner" ? 28 : 0;
+      const padding = hasFrame ? Math.round(20 * scaleFactor) : 0;
+      const textHeight =
+        hasFrame && frameStyle !== "banner" ? Math.round(24 * scaleFactor) : 0;
+      const bannerHeight =
+        frameStyle === "banner" ? Math.round(28 * scaleFactor) : 0;
       const qrSize = size;
       const totalWidth = qrSize + padding * 2;
       const totalHeight = qrSize + padding * 2 + textHeight + bannerHeight;
+
+      // Font size scaled proportionally
+      const fontSize = Math.round(10 * scaleFactor);
+      const fontStyle = `bold ${fontSize}px Arial`;
 
       // Create the final canvas
       const finalCanvas = document.createElement("canvas");
@@ -482,12 +491,15 @@ export default function QRCodeGeneratorPage(): JSX.Element {
       // Draw frame border if needed
       if (hasFrame) {
         ctx.strokeStyle = style.fgColor;
-        ctx.lineWidth = 2;
+        ctx.lineWidth = Math.max(2, Math.round(2 * scaleFactor));
 
         if (frameStyle === "simple") {
           ctx.strokeRect(1, 1, totalWidth - 2, totalHeight - 2);
         } else if (frameStyle === "rounded" || frameStyle === "badge") {
-          const radius = frameStyle === "badge" ? 16 : 12;
+          const radius =
+            frameStyle === "badge"
+              ? Math.round(16 * scaleFactor)
+              : Math.round(12 * scaleFactor);
           ctx.beginPath();
           ctx.roundRect(1, 1, totalWidth - 2, totalHeight - 2, radius);
           ctx.stroke();
@@ -498,7 +510,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
           ctx.fillRect(1, 1, totalWidth - 2, bannerHeight);
           // Draw banner text
           ctx.fillStyle = style.bgColor;
-          ctx.font = "bold 10px Arial";
+          ctx.font = fontStyle;
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
           ctx.fillText(
@@ -555,10 +567,11 @@ export default function QRCodeGeneratorPage(): JSX.Element {
 
         if (frameStyle === "badge") {
           // Badge style: pill-shaped background
-          ctx.font = "bold 10px Arial";
+          ctx.font = fontStyle;
           const textWidth = ctx.measureText(frameText.toUpperCase()).width;
-          const pillWidth = textWidth + 16;
-          const pillHeight = 18;
+          const pillPadding = Math.round(16 * scaleFactor);
+          const pillWidth = textWidth + pillPadding;
+          const pillHeight = Math.round(18 * scaleFactor);
           const pillX = (totalWidth - pillWidth) / 2;
           const pillY = textY - pillHeight / 2;
 
@@ -573,7 +586,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
           ctx.fillText(frameText.toUpperCase(), totalWidth / 2, textY);
         } else {
           ctx.fillStyle = style.fgColor;
-          ctx.font = "bold 10px Arial";
+          ctx.font = fontStyle;
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
           ctx.fillText(frameText.toUpperCase(), totalWidth / 2, textY);
