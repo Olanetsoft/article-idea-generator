@@ -17,10 +17,14 @@ interface ClickEvent {
   referrer: string | null;
   referrer_domain: string | null;
   country: string | null;
+  country_name: string | null;
   city: string | null;
+  region: string | null;
   device_type: string | null;
   browser: string | null;
+  browser_version: string | null;
   os: string | null;
+  os_version: string | null;
   source_type: string | null;
   utm_source: string | null;
   utm_medium: string | null;
@@ -131,12 +135,17 @@ export default async function handler(
   // Format data for export
   const exportData = clickEvents.map((click) => ({
     timestamp: click.timestamp,
-    country: click.country || "Unknown",
+    country_code: click.country || "",
+    country: click.country_name || click.country || "Unknown",
+    region: click.region || "",
     city: click.city || "Unknown",
     device: click.device_type || "Unknown",
     browser: click.browser || "Unknown",
+    browser_version: click.browser_version || "",
     os: click.os || "Unknown",
+    os_version: click.os_version || "",
     referrer: click.referrer_domain || "Direct",
+    full_referrer: click.referrer || "",
     source: click.source_type || "direct",
     utm_source: click.utm_source || "",
     utm_medium: click.utm_medium || "",
@@ -177,12 +186,17 @@ export default async function handler(
   // Default to CSV
   const headers = [
     "Timestamp",
+    "Country Code",
     "Country",
+    "Region",
     "City",
     "Device",
     "Browser",
+    "Browser Version",
     "OS",
+    "OS Version",
     "Referrer",
+    "Full Referrer URL",
     "Source",
     "UTM Source",
     "UTM Medium",
@@ -194,12 +208,17 @@ export default async function handler(
     ...exportData.map((row) =>
       [
         `"${escapeCsvValue(row.timestamp)}"`,
+        `"${escapeCsvValue(row.country_code)}"`,
         `"${escapeCsvValue(row.country)}"`,
+        `"${escapeCsvValue(row.region)}"`,
         `"${escapeCsvValue(row.city)}"`,
         `"${escapeCsvValue(row.device)}"`,
         `"${escapeCsvValue(row.browser)}"`,
+        `"${escapeCsvValue(row.browser_version)}"`,
         `"${escapeCsvValue(row.os)}"`,
+        `"${escapeCsvValue(row.os_version)}"`,
         `"${escapeCsvValue(row.referrer)}"`,
+        `"${escapeCsvValue(row.full_referrer)}"`,
         `"${escapeCsvValue(row.source)}"`,
         `"${escapeCsvValue(row.utm_source)}"`,
         `"${escapeCsvValue(row.utm_medium)}"`,
