@@ -9,9 +9,19 @@ export { default as ToolCard } from "./ToolCard";
 export { default as ResizablePanel } from "./ResizablePanel";
 export { default as ErrorPageLayout, ErrorActions } from "./ErrorPageLayout";
 export { default as AbstractDisplay } from "./AbstractDisplay/AbstractDisplay";
+export { DashboardLayout } from "./DashboardLayout";
 
 // Tool components
 export { StatsPanel, type TextStats } from "./tools";
+
+// Analytics components
+export {
+  ClicksChart,
+  DeviceChart,
+  GeoChart,
+  ReferrerList,
+  SourceComparison,
+} from "./analytics";
 
 // Skeleton components
 export {
