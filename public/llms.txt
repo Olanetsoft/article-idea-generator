@@ -104,15 +104,22 @@ Perfect for developers, API testers, and anyone working with JSON data.
 ### URL Shortener
 URL: https://articleideagenerator.com/tools/url-shortener
 
-Free online URL shortener that provides:
+Free online URL shortener with click analytics that provides:
 - Instant URL shortening with no signup required
 - QR code generation for shortened links
-- Link history saved locally
-- One-click copy to clipboard
-- Clean, shareable short links
-- Works with any valid URL
+- Link history saved locally (or synced when signed in)
 
-Perfect for social media, marketing campaigns, print materials, and messaging.
+**Analytics (sign in with Google for)**:
+- Click tracking (total, unique, QR scans)
+- Visitor geographic locations (country, city)
+- Device and browser statistics
+- Operating system breakdown
+- Traffic source and referrer analysis
+- UTM parameter tracking for marketing campaigns
+- Dashboard for managing all links
+- Sync links across devices
+
+Perfect for social media, marketing campaigns, print materials, and link tracking.
 
 ### PDF Signer
 URL: https://articleideagenerator.com/tools/pdf-signer

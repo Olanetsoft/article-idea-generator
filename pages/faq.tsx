@@ -154,6 +154,30 @@ export default function FAQ(): JSX.Element {
                     text: t("faq.a8"),
                   },
                 },
+                {
+                  "@type": "Question",
+                  name: t("faq.q9"),
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: t("faq.a9"),
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: t("faq.q10"),
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: t("faq.a10"),
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: t("faq.q11"),
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: t("faq.a11"),
+                  },
+                },
               ],
             }),
           }}
@@ -285,6 +309,34 @@ export default function FAQ(): JSX.Element {
             </summary>
             <p className="mt-3 text-gray-600 dark:text-gray-400 leading-relaxed">
               {t("faq.a8")}
+            </p>
+          </details>
+
+          {/* URL Shortener & Analytics FAQs */}
+          <details className="bg-white dark:bg-dark-card p-5 rounded-lg border border-gray-200 dark:border-dark-border group">
+            <summary className="font-semibold text-gray-900 dark:text-zinc-200 cursor-pointer text-lg">
+              {t("faq.q9")}
+            </summary>
+            <p className="mt-3 text-gray-600 dark:text-gray-400 leading-relaxed">
+              {t("faq.a9")}
+            </p>
+          </details>
+
+          <details className="bg-white dark:bg-dark-card p-5 rounded-lg border border-gray-200 dark:border-dark-border group">
+            <summary className="font-semibold text-gray-900 dark:text-zinc-200 cursor-pointer text-lg">
+              {t("faq.q10")}
+            </summary>
+            <p className="mt-3 text-gray-600 dark:text-gray-400 leading-relaxed">
+              {t("faq.a10")}
+            </p>
+          </details>
+
+          <details className="bg-white dark:bg-dark-card p-5 rounded-lg border border-gray-200 dark:border-dark-border group">
+            <summary className="font-semibold text-gray-900 dark:text-zinc-200 cursor-pointer text-lg">
+              {t("faq.q11")}
+            </summary>
+            <p className="mt-3 text-gray-600 dark:text-gray-400 leading-relaxed">
+              {t("faq.a11")}
             </p>
           </details>
         </div>

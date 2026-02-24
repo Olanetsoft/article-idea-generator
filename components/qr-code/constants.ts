@@ -1,15 +1,11 @@
 import type { QRContentType, QRStyleSettings } from "@/types/qr-code";
 
+// Re-export LOCALE_MAP from shared constants for backward compatibility
+export { LOCALE_MAP } from "@/lib/constants";
+
 // ============================================================================
 // Constants
 // ============================================================================
-
-export const LOCALE_MAP: Record<string, string> = {
-  en: "en_US",
-  fr: "fr_FR",
-  es: "es_ES",
-  de: "de_DE",
-};
 
 // QR Content Type Config
 export const QR_TYPES: {

@@ -729,7 +729,7 @@ Format: Just the abstract text, nothing else.`;
                                   <ShareIcon className="h-5 w-5 text-[#8b5cf6] dark:text-gray-100" />
                                 </button>
                                 {showShareMenu === index && (
-                                  <div className="absolute right-0 mt-1 bg-white dark:bg-dark-card rounded-md shadow-lg border border-zinc-200 dark:border-dark-border z-10 min-w-[140px]">
+                                  <div className="absolute right-0 mt-1 bg-white dark:bg-dark-card rounded-md shadow-lg border border-zinc-200 dark:border-dark-border z-10 min-w-[120px] sm:min-w-[140px]">
                                     <button
                                       onClick={() => {
                                         shareOnTwitter(cleanTitle);
