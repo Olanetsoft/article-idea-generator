@@ -40,7 +40,9 @@ function Section({ icon, title, children }: SectionProps) {
           {title}
         </h2>
       </div>
-      <div className="text-gray-600 dark:text-gray-400 space-y-4">{children}</div>
+      <div className="text-gray-600 dark:text-gray-400 space-y-4">
+        {children}
+      </div>
     </div>
   );
 }
@@ -215,7 +217,8 @@ export default function PrivacyPolicy() {
               <ul className="space-y-2">
                 <li className="flex items-start gap-2">
                   <span className="text-violet-500 mt-1">•</span>
-                  To provide and maintain our URL shortening and QR code services
+                  To provide and maintain our URL shortening and QR code
+                  services
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-violet-500 mt-1">•</span>
@@ -293,13 +296,17 @@ export default function PrivacyPolicy() {
                   <span className="font-medium text-gray-900 dark:text-white">
                     Access
                   </span>
-                  <p className="text-sm mt-1">Request a copy of your personal data</p>
+                  <p className="text-sm mt-1">
+                    Request a copy of your personal data
+                  </p>
                 </div>
                 <div className="p-3 bg-gray-50 dark:bg-dark-bg rounded-lg">
                   <span className="font-medium text-gray-900 dark:text-white">
                     Rectification
                   </span>
-                  <p className="text-sm mt-1">Request correction of inaccurate data</p>
+                  <p className="text-sm mt-1">
+                    Request correction of inaccurate data
+                  </p>
                 </div>
                 <div className="p-3 bg-gray-50 dark:bg-dark-bg rounded-lg">
                   <span className="font-medium text-gray-900 dark:text-white">
@@ -311,19 +318,25 @@ export default function PrivacyPolicy() {
                   <span className="font-medium text-gray-900 dark:text-white">
                     Portability
                   </span>
-                  <p className="text-sm mt-1">Request your data in a portable format</p>
+                  <p className="text-sm mt-1">
+                    Request your data in a portable format
+                  </p>
                 </div>
                 <div className="p-3 bg-gray-50 dark:bg-dark-bg rounded-lg">
                   <span className="font-medium text-gray-900 dark:text-white">
                     Object
                   </span>
-                  <p className="text-sm mt-1">Object to processing of your data</p>
+                  <p className="text-sm mt-1">
+                    Object to processing of your data
+                  </p>
                 </div>
                 <div className="p-3 bg-gray-50 dark:bg-dark-bg rounded-lg">
                   <span className="font-medium text-gray-900 dark:text-white">
                     Withdraw Consent
                   </span>
-                  <p className="text-sm mt-1">Withdraw consent via cookie settings</p>
+                  <p className="text-sm mt-1">
+                    Withdraw consent via cookie settings
+                  </p>
                 </div>
               </div>
               <p className="mt-4">

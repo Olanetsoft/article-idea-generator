@@ -327,22 +327,30 @@ export default function SharedAnalyticsPage({
                   Top Countries
                 </h3>
                 <div className="space-y-3">
-                  {analytics.countries.slice(0, 5).map((country) => (
-                    <div key={country.name} className="flex items-center gap-3">
-                      <span className="text-gray-700 flex-1">
-                        {country.name}
-                      </span>
-                      <span className="text-gray-500">{country.count}</span>
-                      <div className="w-24 h-2 bg-gray-100 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-violet-500 rounded-full"
-                          style={{
-                            width: `${(country.count / analytics.totalClicks) * 100}%`,
-                          }}
-                        />
+                  {analytics.countries.slice(0, 5).map((country) => {
+                    const percent = analytics.totalClicks
+                      ? (country.count / analytics.totalClicks) * 100
+                      : 0;
+                    return (
+                      <div
+                        key={country.name}
+                        className="flex items-center gap-3"
+                      >
+                        <span className="text-gray-700 flex-1">
+                          {country.name}
+                        </span>
+                        <span className="text-gray-500">{country.count}</span>
+                        <div className="w-24 h-2 bg-gray-100 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-violet-500 rounded-full"
+                            style={{
+                              width: `${percent}%`,
+                            }}
+                          />
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 
@@ -352,22 +360,30 @@ export default function SharedAnalyticsPage({
                   Devices
                 </h3>
                 <div className="space-y-3">
-                  {analytics.devices.map((device) => (
-                    <div key={device.name} className="flex items-center gap-3">
-                      <span className="text-gray-700 flex-1 capitalize">
-                        {device.name}
-                      </span>
-                      <span className="text-gray-500">{device.count}</span>
-                      <div className="w-24 h-2 bg-gray-100 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-blue-500 rounded-full"
-                          style={{
-                            width: `${(device.count / analytics.totalClicks) * 100}%`,
-                          }}
-                        />
+                  {analytics.devices.map((device) => {
+                    const percent = analytics.totalClicks
+                      ? (device.count / analytics.totalClicks) * 100
+                      : 0;
+                    return (
+                      <div
+                        key={device.name}
+                        className="flex items-center gap-3"
+                      >
+                        <span className="text-gray-700 flex-1 capitalize">
+                          {device.name}
+                        </span>
+                        <span className="text-gray-500">{device.count}</span>
+                        <div className="w-24 h-2 bg-gray-100 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-blue-500 rounded-full"
+                            style={{
+                              width: `${percent}%`,
+                            }}
+                          />
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             </div>

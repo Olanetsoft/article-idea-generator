@@ -69,11 +69,37 @@ export default async function handler(
   }
 
   const supabase = createApiClient(req, res);
-  const { code, format = "csv", period = "30d" } = req.query;
+  const { code } = req.query;
+
+  // Validate and normalize query params to prevent injection via arrays/objects
+  const ALLOWED_FORMATS = ["csv", "json"] as const;
+  const ALLOWED_PERIODS = ["7d", "30d", "90d", "all"] as const;
+
+  const rawFormat = Array.isArray(req.query.format)
+    ? req.query.format[0]
+    : req.query.format;
+  const rawPeriod = Array.isArray(req.query.period)
+    ? req.query.period[0]
+    : req.query.period;
+
+  const format: (typeof ALLOWED_FORMATS)[number] = ALLOWED_FORMATS.includes(
+    rawFormat as (typeof ALLOWED_FORMATS)[number],
+  )
+    ? (rawFormat as (typeof ALLOWED_FORMATS)[number])
+    : "csv";
+
+  const period: (typeof ALLOWED_PERIODS)[number] = ALLOWED_PERIODS.includes(
+    rawPeriod as (typeof ALLOWED_PERIODS)[number],
+  )
+    ? (rawPeriod as (typeof ALLOWED_PERIODS)[number])
+    : "30d";
 
   if (!code || typeof code !== "string") {
     return res.status(400).json({ error: "URL code is required" });
   }
+
+  // Sanitize code for use in filenames (alphanumeric + hyphen only)
+  const safeCode = code.replace(/[^a-zA-Z0-9-]/g, "");
 
   // Get the short URL
   const { data: shortUrl, error: urlError } = await supabase
@@ -112,8 +138,6 @@ export default async function handler(
     case "all":
       startDate = new Date(0);
       break;
-    default:
-      startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
   }
 
   // Get click events
@@ -157,7 +181,7 @@ export default async function handler(
     res.setHeader("Content-Type", "application/json");
     res.setHeader(
       "Content-Disposition",
-      `attachment; filename="analytics-${code}-${period}.json"`,
+      `attachment; filename="analytics-${safeCode}-${period}.json"`,
     );
     return res.status(200).json({
       shortUrl: {
@@ -230,7 +254,7 @@ export default async function handler(
   res.setHeader("Content-Type", "text/csv");
   res.setHeader(
     "Content-Disposition",
-    `attachment; filename="analytics-${code}-${period}.csv"`,
+    `attachment; filename="analytics-${safeCode}-${period}.csv"`,
   );
   return res.status(200).send(csvRows.join("\n"));
 }

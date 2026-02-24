@@ -15,6 +15,13 @@ export {
   extractTitleFromUrl,
 } from "@/lib/shared/detection";
 
+// Re-export cryptographically strong SHA-256 fingerprint from analytics/utils
+export { generateFingerprint } from "@/lib/analytics/utils";
+
+// Import and re-export cryptographically stronger nanoid-based short code generator
+import { generateShortCode as _generateShortCode } from "@/lib/analytics/utils";
+export const generateShortCode = _generateShortCode;
+
 // ============================================================================
 // Constants
 // Unified with lib/analytics/constants.ts to prevent localStorage conflicts
@@ -27,20 +34,9 @@ const LOCAL_CLICKS_KEY = "aig-click-events";
 
 // ============================================================================
 // Short Code Generation
+// NOTE: generateShortCode is now re-exported from @/lib/analytics/utils
+// which uses nanoid for cryptographically stronger randomness
 // ============================================================================
-
-/**
- * Generate a random short code
- */
-export function generateShortCode(length: number = 6): string {
-  const chars =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let result = "";
-  for (let i = 0; i < length; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return result;
-}
 
 // ============================================================================
 // Local Storage - Short URLs
@@ -119,12 +115,16 @@ export function incrementLocalClickCount(code: string): void {
 
 /**
  * Get click events for a specific short URL
+ * Uses the unified single-key object pattern consistent with lib/analytics/utils.ts
  */
 export function getLocalClickEvents(code: string): ClickEvent[] {
   if (typeof window === "undefined") return [];
   try {
-    const stored = localStorage.getItem(`${LOCAL_CLICKS_KEY}_${code}`);
-    return stored ? JSON.parse(stored) : [];
+    const stored = localStorage.getItem(LOCAL_CLICKS_KEY);
+    const eventsMap: Record<string, ClickEvent[]> = stored
+      ? JSON.parse(stored)
+      : {};
+    return eventsMap[code] || [];
   } catch {
     return [];
   }
@@ -132,18 +132,24 @@ export function getLocalClickEvents(code: string): ClickEvent[] {
 
 /**
  * Save a click event to local storage
+ * Uses the unified single-key object pattern consistent with lib/analytics/utils.ts
  */
 export function saveLocalClickEvent(code: string, event: ClickEvent): void {
   if (typeof window === "undefined") return;
   try {
-    const events = getLocalClickEvents(code);
-    events.unshift(event);
+    const stored = localStorage.getItem(LOCAL_CLICKS_KEY);
+    const eventsMap: Record<string, ClickEvent[]> = stored
+      ? JSON.parse(stored)
+      : {};
+
+    if (!eventsMap[code]) {
+      eventsMap[code] = [];
+    }
+    eventsMap[code].unshift(event);
     // Keep only last 100 events per URL
-    const trimmed = events.slice(0, 100);
-    localStorage.setItem(
-      `${LOCAL_CLICKS_KEY}_${code}`,
-      JSON.stringify(trimmed),
-    );
+    eventsMap[code] = eventsMap[code].slice(0, 100);
+
+    localStorage.setItem(LOCAL_CLICKS_KEY, JSON.stringify(eventsMap));
     // Also increment click count
     incrementLocalClickCount(code);
   } catch (error) {
@@ -153,15 +159,17 @@ export function saveLocalClickEvent(code: string, event: ClickEvent): void {
 
 // ============================================================================
 // Fingerprinting (Privacy-Friendly)
-// Note: For SHA-256 based fingerprinting, use generateFingerprint from
-// @/lib/analytics/utils which uses Web Crypto API
+// NOTE: The preferred async SHA-256 generateFingerprint is re-exported from
+// @/lib/analytics/utils at the top of this file
 // ============================================================================
 
 /**
  * Generate a simple fingerprint for unique visitor tracking (legacy sync version)
  * @deprecated Use generateFingerprint from @/lib/analytics/utils for SHA-256
+ * This legacy function uses a weak 32-bit hash and should only be used where
+ * async operations are not possible.
  */
-export function generateFingerprint(
+export function generateFingerprintLegacy(
   userAgent: string,
   ip: string,
   language: string,
@@ -188,7 +196,7 @@ import { extractTitleFromUrl as _extractTitleFromUrl } from "@/lib/shared/detect
  * Create a tracked short URL (for localStorage-based URLs)
  */
 export function createTrackedShortUrl(originalUrl: string): LocalShortUrl {
-  const code = generateShortCode();
+  const code = _generateShortCode();
   const shortUrl: LocalShortUrl = {
     id: `local_${code}`,
     code,

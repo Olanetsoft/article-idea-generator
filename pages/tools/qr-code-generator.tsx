@@ -308,8 +308,8 @@ export default function QRCodeGeneratorPage(): JSX.Element {
 
   // Reset tracking state when URL input changes (so user gets fresh short URL for new value)
   useEffect(() => {
-    // Only reset if we had tracking enabled and URL changed
-    if (generatedShortUrl && contentType === "url") {
+    // Only reset if tracking was enabled and URL changed — preserve prefilled short URLs
+    if (generatedShortUrl && contentType === "url" && enableTracking) {
       setGeneratedShortUrl(null);
       setEnableTracking(false);
       setShortUrlCopied(false);

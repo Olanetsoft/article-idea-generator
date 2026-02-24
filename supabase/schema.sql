@@ -284,9 +284,48 @@ CREATE INDEX IF NOT EXISTS idx_analytics_share_tokens_short_url_id ON public.ana
 ALTER TABLE public.analytics_share_tokens ENABLE ROW LEVEL SECURITY;
 
 -- Share tokens policies
--- Anyone can read active share tokens (for validation)
-CREATE POLICY "Anyone can read active share tokens" ON public.analytics_share_tokens
-  FOR SELECT USING (is_active = TRUE);
+-- NOTE: Direct SELECT access is restricted. Use validate_share_token() function instead.
+-- This prevents enumeration of active tokens while still allowing single-token validation.
+
+-- SECURITY DEFINER function for validating a single share token
+-- This allows callers to validate a specific token without having direct table access
+-- The function validates token existence, expiry, and active status in one atomic call
+CREATE OR REPLACE FUNCTION public.validate_share_token(token_value text)
+RETURNS TABLE (
+  short_url_id UUID,
+  is_valid BOOLEAN
+) AS $$
+BEGIN
+  -- Return the short_url_id if token is valid, otherwise return NULL with is_valid=false
+  RETURN QUERY
+  SELECT
+    t.short_url_id,
+    TRUE as is_valid
+  FROM public.analytics_share_tokens t
+  WHERE t.token = token_value
+    AND t.is_active = TRUE
+    AND (t.expires_at IS NULL OR t.expires_at > NOW())
+  LIMIT 1;
+
+  -- If no rows returned, the token is invalid
+  IF NOT FOUND THEN
+    RETURN QUERY SELECT NULL::UUID, FALSE;
+  END IF;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Grant execute to all users (including anonymous)
+GRANT EXECUTE ON FUNCTION public.validate_share_token(text) TO anon, authenticated;
+
+-- Owner-only SELECT policy (users can only read their own tokens)
+CREATE POLICY "Users can read own share tokens" ON public.analytics_share_tokens
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1 FROM public.short_urls
+      WHERE short_urls.id = analytics_share_tokens.short_url_id
+      AND short_urls.user_id = auth.uid()
+    )
+  );
 
 -- Users can create share tokens for their own URLs
 CREATE POLICY "Users can create share tokens for own URLs" ON public.analytics_share_tokens
