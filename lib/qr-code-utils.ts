@@ -469,13 +469,17 @@ export function validateURL(url: string): ValidationResult {
   if (!url) {
     return { isValid: false, error: "URL is required" };
   }
-  // URL validation - supports protocols, paths, query params (UTM), and fragments
-  const urlRegex =
-    /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})(:\d+)?(\/[^\s?#]*)?(\?[^\s#]*)?(#[^\s]*)?$/i;
-  if (!urlRegex.test(url)) {
+  // Auto-add https:// if no protocol, then validate with the URL API
+  const urlToTest = /^https?:\/\//i.test(url) ? url : `https://${url}`;
+  try {
+    const parsed = new URL(urlToTest);
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+      return { isValid: false, error: "Invalid URL format" };
+    }
+    return { isValid: true };
+  } catch {
     return { isValid: false, error: "Invalid URL format" };
   }
-  return { isValid: true };
 }
 
 /**
