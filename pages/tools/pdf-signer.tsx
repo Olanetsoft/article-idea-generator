@@ -2043,6 +2043,17 @@ export default function PDFSigner() {
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-white to-gray-50 dark:from-dark-bg dark:to-darkOffset">
       <Head>
+        {/* Signature fonts (only this tool uses them) */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Dancing+Script&family=Great+Vibes&family=Pacifico&family=Caveat&family=Satisfy&display=swap"
+          rel="stylesheet"
+        />
         <title>{t("tools.pdfSigner.pageTitle")}</title>
         <meta
           name="description"

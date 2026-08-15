@@ -1182,6 +1182,12 @@ export default function CoverImageGeneratorPage(): JSX.Element {
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-white to-gray-50 dark:from-dark-bg dark:to-darkOffset">
       <Head>
+        {/* Dev icons (only this tool uses them) */}
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="anonymous" />
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css"
+        />
         <title>{t("tools.coverImage.pageTitle")}</title>
         <meta
           name="description"
