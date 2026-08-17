@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useId, useState } from "react";
 import { ChevronDownIcon } from "@heroicons/react/outline";
 import { StylePresetsSection } from "./StylePresetsSection";
 import { LogoUploadSection } from "./LogoUploadSection";
@@ -32,6 +32,7 @@ export function BatchStylePanel({
   t,
 }: BatchStylePanelProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const contentId = useId();
 
   const handlePresetSelect = (preset: {
     fgColor: string;
@@ -54,23 +55,36 @@ export function BatchStylePanel({
     <div className="border border-zinc-200 dark:border-dark-border rounded-lg overflow-hidden">
       {/* Header - Collapsible */}
       <button
+        type="button"
         onClick={() => setIsExpanded(!isExpanded)}
+        aria-expanded={isExpanded}
+        aria-controls={contentId}
         className="w-full flex items-center justify-between px-4 py-3 bg-zinc-50 dark:bg-zinc-800/50 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
       >
         <span className="flex items-center gap-2">
-          <span className="text-base">🎨</span>
+          <span className="text-base" aria-hidden="true">
+            🎨
+          </span>
           {t("tools.qrCode.batchStyleOptions")}
         </span>
         <ChevronDownIcon
+          aria-hidden="true"
           className={`w-5 h-5 transition-transform ${isExpanded ? "rotate-180" : ""}`}
         />
       </button>
 
       {/* Content */}
       {isExpanded && (
-        <div className="p-4 space-y-5 bg-white dark:bg-dark-card">
+        <div id={contentId} className="p-4 space-y-5 bg-white dark:bg-dark-card">
           {/* Quick Presets */}
-          <StylePresetsSection onSelect={handlePresetSelect} t={t} compact />
+          <StylePresetsSection
+            onSelect={handlePresetSelect}
+            t={t}
+            compact
+            selectedFgColor={style.fgColor}
+            selectedBgColor={style.bgColor}
+            selectedFrameStyle={frameStyle}
+          />
 
           {/* Logo Upload */}
           <LogoUploadSection

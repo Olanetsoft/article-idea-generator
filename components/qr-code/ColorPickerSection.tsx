@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useId, useState } from "react";
 import { COLOR_PRESETS } from "@/types/qr-code";
 import type { QRStyleSettings } from "@/types/qr-code";
 
@@ -9,98 +9,149 @@ interface ColorPickerSectionProps {
   compact?: boolean;
 }
 
+const HEX_COLOR_RE = /^#[0-9A-Fa-f]{6}$/;
+
 export function ColorPickerSection({
   style,
   onColorChange,
   t,
   compact = false,
 }: ColorPickerSectionProps) {
+  const presetsHeadingId = useId();
+  const fgColorId = useId();
+  const bgColorId = useId();
+  // Local drafts so invalid partial hex input is never committed to the style
+  const [fgDraft, setFgDraft] = useState(style.fgColor);
+  const [bgDraft, setBgDraft] = useState(style.bgColor);
+
+  useEffect(() => {
+    setFgDraft(style.fgColor);
+  }, [style.fgColor]);
+
+  useEffect(() => {
+    setBgDraft(style.bgColor);
+  }, [style.bgColor]);
+
+  const handleHexChange = (type: "fgColor" | "bgColor", value: string) => {
+    if (type === "fgColor") {
+      setFgDraft(value);
+    } else {
+      setBgDraft(value);
+    }
+    if (HEX_COLOR_RE.test(value)) {
+      onColorChange(type, value);
+    }
+  };
+
   return (
     <div className="space-y-4">
       {/* Color Presets */}
-      <div>
-        <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+      <div role="group" aria-labelledby={presetsHeadingId}>
+        <span
+          id={presetsHeadingId}
+          className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
+        >
           {t("tools.qrCode.colorPresets")}
-        </label>
+        </span>
         <div
           className={`grid ${compact ? "grid-cols-4" : "grid-cols-2 sm:grid-cols-4"} gap-2`}
         >
-          {COLOR_PRESETS.map((preset) => (
-            <button
-              key={preset.id}
-              onClick={() => {
-                onColorChange("fgColor", preset.fgColor);
-                onColorChange("bgColor", preset.bgColor);
-              }}
-              className={`flex flex-col items-center gap-1 ${compact ? "p-1.5" : "p-2"} rounded-lg border transition-all ${
-                style.fgColor === preset.fgColor &&
-                style.bgColor === preset.bgColor
-                  ? "border-violet-500 bg-violet-50 dark:bg-violet-900/20"
-                  : "border-zinc-200 dark:border-dark-border hover:border-zinc-300 dark:hover:border-zinc-600"
-              }`}
-            >
-              <div
-                className={`${compact ? "w-6 h-6" : "w-8 h-8"} rounded-md border border-zinc-300 dark:border-zinc-600`}
-                style={{ backgroundColor: preset.bgColor }}
+          {COLOR_PRESETS.map((preset) => {
+            const isSelected =
+              style.fgColor === preset.fgColor &&
+              style.bgColor === preset.bgColor;
+
+            return (
+              <button
+                key={preset.id}
+                type="button"
+                onClick={() => {
+                  onColorChange("fgColor", preset.fgColor);
+                  onColorChange("bgColor", preset.bgColor);
+                }}
+                aria-pressed={isSelected}
+                className={`flex flex-col items-center gap-1 ${compact ? "p-1.5" : "p-2"} rounded-lg border transition-colors ${
+                  isSelected
+                    ? "border-violet-500 bg-violet-50 dark:bg-violet-900/20"
+                    : "border-zinc-200 dark:border-dark-border hover:border-zinc-300 dark:hover:border-zinc-600"
+                }`}
               >
                 <div
-                  className="w-full h-full rounded-md"
-                  style={{
-                    backgroundColor: preset.fgColor,
-                    clipPath:
-                      "polygon(20% 20%, 40% 20%, 40% 40%, 20% 40%, 20% 60%, 40% 60%, 40% 80%, 60% 80%, 60% 60%, 80% 60%, 80% 40%, 60% 40%, 60% 20%, 80% 20%, 80% 40%, 60% 40%)",
-                  }}
-                />
-              </div>
-              <span
-                className={`${compact ? "text-[10px]" : "text-xs"} text-zinc-600 dark:text-zinc-400`}
-              >
-                {preset.name}
-              </span>
-            </button>
-          ))}
+                  aria-hidden="true"
+                  className={`${compact ? "w-6 h-6" : "w-8 h-8"} rounded-md border border-zinc-300 dark:border-zinc-600`}
+                  style={{ backgroundColor: preset.bgColor }}
+                >
+                  <div
+                    className="w-full h-full rounded-md"
+                    style={{
+                      backgroundColor: preset.fgColor,
+                      clipPath:
+                        "polygon(20% 20%, 40% 20%, 40% 40%, 20% 40%, 20% 60%, 40% 60%, 40% 80%, 60% 80%, 60% 60%, 80% 60%, 80% 40%, 60% 40%, 60% 20%, 80% 20%, 80% 40%, 60% 40%)",
+                    }}
+                  />
+                </div>
+                <span className="text-xs text-zinc-600 dark:text-zinc-400">
+                  {preset.name}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
       {/* Custom Colors */}
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1.5">
+          <label
+            htmlFor={fgColorId}
+            className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1.5"
+          >
             {t("tools.qrCode.foregroundColor")}
           </label>
           <div className="flex items-center gap-2">
             <input
+              id={fgColorId}
               type="color"
               value={style.fgColor}
               onChange={(e) => onColorChange("fgColor", e.target.value)}
-              className={`${compact ? "w-6 h-6" : "w-8 h-8"} rounded cursor-pointer border border-zinc-300 dark:border-zinc-600`}
+              className="w-8 h-8 rounded cursor-pointer border border-zinc-300 dark:border-zinc-600"
             />
             <input
               type="text"
-              value={style.fgColor}
-              onChange={(e) => onColorChange("fgColor", e.target.value)}
+              value={fgDraft}
+              onChange={(e) => handleHexChange("fgColor", e.target.value)}
+              aria-label={`${t("tools.qrCode.foregroundColor")} (hex)`}
               className="flex-1 px-2 py-1.5 text-xs border rounded bg-white dark:bg-dark-card border-zinc-200 dark:border-dark-border focus:ring-1 focus:ring-violet-500 focus:border-transparent focus:outline-none text-zinc-900 dark:text-white uppercase"
               maxLength={7}
+              pattern="#[0-9A-Fa-f]{6}"
+              spellCheck={false}
             />
           </div>
         </div>
         <div>
-          <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1.5">
+          <label
+            htmlFor={bgColorId}
+            className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1.5"
+          >
             {t("tools.qrCode.backgroundColor")}
           </label>
           <div className="flex items-center gap-2">
             <input
+              id={bgColorId}
               type="color"
               value={style.bgColor}
               onChange={(e) => onColorChange("bgColor", e.target.value)}
-              className={`${compact ? "w-6 h-6" : "w-8 h-8"} rounded cursor-pointer border border-zinc-300 dark:border-zinc-600`}
+              className="w-8 h-8 rounded cursor-pointer border border-zinc-300 dark:border-zinc-600"
             />
             <input
               type="text"
-              value={style.bgColor}
-              onChange={(e) => onColorChange("bgColor", e.target.value)}
+              value={bgDraft}
+              onChange={(e) => handleHexChange("bgColor", e.target.value)}
+              aria-label={`${t("tools.qrCode.backgroundColor")} (hex)`}
               className="flex-1 px-2 py-1.5 text-xs border rounded bg-white dark:bg-dark-card border-zinc-200 dark:border-dark-border focus:ring-1 focus:ring-violet-500 focus:border-transparent focus:outline-none text-zinc-900 dark:text-white uppercase"
               maxLength={7}
+              pattern="#[0-9A-Fa-f]{6}"
+              spellCheck={false}
             />
           </div>
         </div>

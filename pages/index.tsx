@@ -1,6 +1,13 @@
 import Head from "next/head";
 import Link from "next/link";
-import React, { useState, FormEvent, useEffect, lazy, Suspense } from "react";
+import React, {
+  useState,
+  FormEvent,
+  useEffect,
+  useRef,
+  lazy,
+  Suspense,
+} from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import { Toaster, toast } from "react-hot-toast";
@@ -22,6 +29,7 @@ import {
   AbstractDisplay,
 } from "@/components";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useDismiss } from "@/hooks/useDismiss";
 import {
   trackGenerateTitles,
   trackGenerateAbstract,
@@ -35,7 +43,10 @@ import {
 // Lazy load Footer for better initial load performance
 const Footer = dynamic(() => import("@/components/Footer"), {
   loading: () => (
-    <div className="h-16 animate-pulse bg-gray-100 dark:bg-dark-card" />
+    <div
+      className="h-20 w-full animate-pulse bg-gray-100 dark:bg-dark-card"
+      aria-hidden="true"
+    />
   ),
   ssr: true,
 });
@@ -53,6 +64,7 @@ const fetchOptions = {
 
 export default function Home(): JSX.Element {
   const { t, locale } = useTranslation();
+  const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
   const [abstractLoading, setAbstractLoading] = useState<boolean>(false);
   const [seoEnabled, setSeoEnabled] = useState<boolean>(false);
@@ -65,6 +77,22 @@ export default function Home(): JSX.Element {
   const [isListening, setIsListening] = useState<boolean>(false);
   const [speechSupported, setSpeechSupported] = useState<boolean>(false);
   const [seoKeywords, setSeoKeywords] = useState<string[]>([]);
+  const shareMenuRef = useRef<HTMLDivElement>(null);
+
+  // Dismiss the share menu on outside click / Escape
+  useDismiss(shareMenuRef, showShareMenu !== null, () =>
+    setShowShareMenu(null),
+  );
+
+  // Prefill topic from the URL (?topic=) so shared links work
+  useEffect(() => {
+    if (!router.isReady) return;
+    const topic = router.query.topic;
+    if (typeof topic === "string" && topic.trim()) {
+      setText(topic);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router.isReady]);
 
   // Check for speech recognition support on mount
   useEffect(() => {
@@ -136,10 +164,6 @@ export default function Home(): JSX.Element {
     recognition.onresult = (event: any) => {
       const transcript = event.results[0][0].transcript;
       setText(transcript);
-      const inputElement = document.getElementById(
-        "search-box",
-      ) as HTMLInputElement;
-      if (inputElement) inputElement.value = transcript;
       toast.success(t("success.voiceCaptured"));
     };
 
@@ -177,6 +201,12 @@ export default function Home(): JSX.Element {
     setLoading(true);
     saveSearch(text); // Save to recent searches
     trackGenerateTitles(text, seoEnabled);
+    // Keep the searched topic in the URL (matches the SearchAction JSON-LD)
+    router.replace(
+      { pathname: router.pathname, query: { ...router.query, topic: text } },
+      undefined,
+      { shallow: true },
+    );
 
     const systemMessage = `You are an expert content strategist and SEO specialist. Generate compelling, clear, and engaging article titles that capture reader attention while accurately representing the topic. You also identify the most important SEO keywords for the given topic.`;
 
@@ -450,7 +480,10 @@ Format: Just the abstract text, nothing else.`;
 
       <Header />
 
-      <div className="flex flex-col items-center pt-8 sm:pt-14 w-full px-4 lg:px-0 max-w-screen-md flex-grow pb-8">
+      <main
+        id="main-content"
+        className="flex flex-col items-center pt-8 sm:pt-14 w-full px-4 lg:px-0 max-w-screen-md flex-grow pb-8"
+      >
         <h1
           className={`${spaceGrotesk.className} text-2xl font-bold text-gray-900 dark:text-zinc-300 leading-tight mb-2 text-center sm:text-4xl lg:text-5xl xl:text-6xl`}
         >
@@ -464,13 +497,18 @@ Format: Just the abstract text, nothing else.`;
             e.preventDefault();
             generateArticleTitle();
           }}
-          className="flex w-full mt-5 transition-all ease-linear hover:shadow-lg focus-within:shadow-lg focus-within:ring-2 focus-within:ring-violet-500 rounded-full border border-[#8b5cf6] dark:border-[#8b5cf6] p-1.5 pl-5 items-center bg-white dark:bg-dark-card"
+          className="flex w-full mt-5 transition-shadow ease-linear hover:shadow-lg focus-within:shadow-lg focus-within:ring-2 focus-within:ring-violet-500 rounded-full border border-accent-500 dark:border-accent-500 p-1.5 pl-5 items-center bg-white dark:bg-dark-card"
         >
-          <SearchIcon className="h-5 mr-3 text-[#8b5cf6] dark:text-gray-100" />
+          <SearchIcon
+            className="h-5 mr-3 text-accent-500 dark:text-gray-100"
+            aria-hidden="true"
+          />
           <input
             onChange={(e) => setText(e.target.value)}
             value={text}
-            type="text"
+            type="search"
+            name="topic"
+            enterKeyHint="search"
             className="flex-grow focus:outline-none dark:text-white bg-transparent text-gray-700 py-2 caret-violet-500 dark:caret-violet-400 placeholder:text-gray-400 dark:placeholder:text-gray-500"
             placeholder={t("home.placeholder")}
             id="search-box"
@@ -482,19 +520,20 @@ Format: Just the abstract text, nothing else.`;
               type="button"
               onClick={startVoiceInput}
               disabled={isListening || loading}
-              className={`mr-2 min-w-[36px] min-h-[36px] rounded-full flex items-center justify-center transition focus:outline-none focus:ring-2 focus:ring-violet-500 ${
+              className={`mr-2 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center transition focus:outline-none focus:ring-2 focus:ring-violet-500 ${
                 isListening
                   ? "bg-red-500 hover:bg-red-600 animate-pulse"
                   : "hover:bg-gray-100 dark:hover:bg-zinc-700"
               } disabled:opacity-50 disabled:cursor-not-allowed`}
-              aria-label={isListening ? "Listening..." : "Use voice input"}
-              title={isListening ? "Listening..." : "Speak your topic"}
+              aria-label={isListening ? "Listening…" : "Use voice input"}
+              title={isListening ? "Listening…" : "Speak your topic"}
             >
               <MicrophoneIcon
+                aria-hidden="true"
                 className={`h-5 w-5 ${
                   isListening
                     ? "text-white"
-                    : "text-[#8b5cf6] dark:text-gray-100"
+                    : "text-accent-500 dark:text-gray-100"
                 }`}
               />
             </button>
@@ -518,13 +557,7 @@ Format: Just the abstract text, nothing else.`;
               {recentSearches.map((search, idx) => (
                 <button
                   key={idx}
-                  onClick={() => {
-                    setText(search);
-                    const inputElement = document.getElementById(
-                      "search-box",
-                    ) as HTMLInputElement;
-                    if (inputElement) inputElement.value = search;
-                  }}
+                  onClick={() => setText(search)}
                   className="px-3 py-1.5 text-xs sm:text-sm bg-gray-100 dark:bg-zinc-700 hover:bg-gray-200 dark:hover:bg-zinc-600 focus:outline-none focus:ring-2 focus:ring-violet-500 rounded-full transition text-gray-700 dark:text-gray-300"
                 >
                   {search}
@@ -551,10 +584,10 @@ Format: Just the abstract text, nothing else.`;
                   return newValue;
                 });
               }}
-              className="opacity-0 absolute h-8 w-8 cursor-pointer"
+              className="peer opacity-0 absolute h-8 w-8 cursor-pointer"
               disabled={loading}
             />
-            <div className="bg-transparent border-2 rounded-md border-violet-400 w-5 h-5 flex justify-center items-center mr-2 cursor-pointer flex-shrink-0">
+            <div className="bg-transparent border-2 rounded-md border-violet-400 w-5 h-5 flex justify-center items-center mr-2 cursor-pointer flex-shrink-0 peer-focus-visible:ring-2 peer-focus-visible:ring-violet-500 peer-focus-visible:ring-offset-2 dark:peer-focus-visible:ring-offset-black">
               {seoEnabled && (
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -563,6 +596,7 @@ Format: Just the abstract text, nothing else.`;
                   strokeWidth="4"
                   stroke="#4f46e5"
                   className="w-4 h-4"
+                  aria-hidden="true"
                 >
                   <path
                     strokeLinecap="round"
@@ -577,14 +611,16 @@ Format: Just the abstract text, nothing else.`;
             </span>
           </label>
           {loading && (
-            <div>
+            <div role="status" aria-live="polite">
+              <span className="sr-only">Loading</span>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
                 strokeWidth={2}
                 stroke="currentColor"
-                className="w-6 h-6 animate-spin text-black-600 dark:text-gray-100"
+                className="w-6 h-6 animate-spin text-gray-600 dark:text-gray-100"
+                aria-hidden="true"
               >
                 <path
                   strokeLinecap="round"
@@ -631,7 +667,8 @@ Format: Just the abstract text, nothing else.`;
                           viewBox="0 0 24 24"
                           strokeWidth={2}
                           stroke="currentColor"
-                          className="w-4 h-4 text-[#8b5cf6] dark:text-gray-100 flex-shrink-0"
+                          className="w-4 h-4 text-accent-500 dark:text-gray-100 flex-shrink-0"
+                          aria-hidden="true"
                         >
                           <path
                             strokeLinecap="round"
@@ -677,30 +714,22 @@ Format: Just the abstract text, nothing else.`;
 
                     return (
                       <div className="flex flex-col gap-2" key={index}>
-                        <div className="w-full bg-zinc-100 dark:bg-darkOffset dark:text-gray-100 rounded-md p-3 hover:bg-gray-100 transition border-zinc-200 border dark:border-dark-border">
+                        <div className="w-full bg-zinc-100 dark:bg-darkOffset dark:text-gray-100 rounded-md p-3 hover:bg-gray-100 dark:hover:bg-zinc-800 transition border-zinc-200 border dark:border-dark-border">
                           <div className="flex justify-between items-start gap-3">
-                            <div
-                              className="flex-grow cursor-copy"
+                            <button
+                              type="button"
+                              className="flex-grow cursor-copy text-left rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
                               onClick={() => {
                                 navigator.clipboard.writeText(cleanTitle);
                                 trackCopyTitle(cleanTitle);
                                 toast.success(t("success.copied"));
                               }}
-                              role="button"
-                              tabIndex={0}
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter" || e.key === " ") {
-                                  navigator.clipboard.writeText(cleanTitle);
-                                  trackCopyTitle(cleanTitle);
-                                  toast.success(t("success.copied"));
-                                }
-                              }}
                               aria-label={`Copy title: ${cleanTitle}`}
                             >
-                              <p className="text-zinc-800 dark:text-zinc-300 font-bold break-words mb-2">
+                              <span className="block text-zinc-800 dark:text-zinc-300 font-bold break-words mb-2">
                                 {cleanTitle}
-                              </p>
-                              <div className="flex items-center gap-2 text-xs">
+                              </span>
+                              <span className="flex items-center gap-2 text-xs">
                                 <span
                                   className={`${
                                     isOptimalLength
@@ -712,10 +741,17 @@ Format: Just the abstract text, nothing else.`;
                                   {isOptimalLength &&
                                     `✓ ${t("home.optimalSeo")}`}
                                 </span>
-                              </div>
-                            </div>
+                              </span>
+                            </button>
                             <div className="flex gap-1 flex-shrink-0">
-                              <div className="relative">
+                              <div
+                                className="relative"
+                                ref={
+                                  showShareMenu === index
+                                    ? shareMenuRef
+                                    : undefined
+                                }
+                              >
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();
@@ -723,10 +759,14 @@ Format: Just the abstract text, nothing else.`;
                                       showShareMenu === index ? null : index,
                                     );
                                   }}
-                                  className="min-w-[36px] min-h-[36px] flex items-center justify-center hover:bg-zinc-200 dark:hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-violet-500 rounded-md transition"
+                                  className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-zinc-200 dark:hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-violet-500 rounded-md transition"
                                   aria-label="Share title"
+                                  aria-expanded={showShareMenu === index}
                                 >
-                                  <ShareIcon className="h-5 w-5 text-[#8b5cf6] dark:text-gray-100" />
+                                  <ShareIcon
+                                    className="h-5 w-5 text-accent-500 dark:text-gray-100"
+                                    aria-hidden="true"
+                                  />
                                 </button>
                                 {showShareMenu === index && (
                                   <div className="absolute right-0 mt-1 bg-white dark:bg-dark-card rounded-md shadow-lg border border-zinc-200 dark:border-dark-border z-10 min-w-[120px] sm:min-w-[140px]">
@@ -741,6 +781,7 @@ Format: Just the abstract text, nothing else.`;
                                         className="w-4 h-4"
                                         fill="currentColor"
                                         viewBox="0 0 24 24"
+                                        aria-hidden="true"
                                       >
                                         <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                                       </svg>
@@ -757,6 +798,7 @@ Format: Just the abstract text, nothing else.`;
                                         className="w-4 h-4"
                                         fill="currentColor"
                                         viewBox="0 0 24 24"
+                                        aria-hidden="true"
                                       >
                                         <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
                                       </svg>
@@ -770,11 +812,14 @@ Format: Just the abstract text, nothing else.`;
                                   e.stopPropagation();
                                   generateAbstractForArticles(cleanTitle);
                                 }}
-                                className="min-w-[36px] min-h-[36px] flex items-center justify-center hover:bg-zinc-200 dark:hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-violet-500 rounded-md transition disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-zinc-200 dark:hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-violet-500 rounded-md transition disabled:opacity-50 disabled:cursor-not-allowed"
                                 aria-label="Generate abstract for this title"
                                 disabled={loading || abstractLoading}
                               >
-                                <DocumentSearchIcon className="h-5 w-5 text-[#8b5cf6] dark:text-gray-100" />
+                                <DocumentSearchIcon
+                                  className="h-5 w-5 text-accent-500 dark:text-gray-100"
+                                  aria-hidden="true"
+                                />
                               </button>
                             </div>
                           </div>
@@ -888,7 +933,7 @@ Format: Just the abstract text, nothing else.`;
             </div>
           </section>
         )}
-      </div>
+      </main>
       <Footer />
     </div>
   );

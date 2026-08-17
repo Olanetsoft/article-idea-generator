@@ -15,6 +15,10 @@ export function URLForm({ data, updateField, t }: FormProps) {
       onChange={(v: string) => updateField("url", v)}
       placeholder={t("tools.qrCode.urlPlaceholder")}
       type="url"
+      name="url"
+      autoComplete="url"
+      inputMode="url"
+      spellCheck={false}
       required
     />
   );
@@ -43,6 +47,10 @@ export function EmailForm({ data, updateField, t }: FormProps) {
         onChange={(v: string) => updateField("email", v)}
         placeholder={t("tools.qrCode.emailPlaceholder")}
         type="email"
+        name="email"
+        autoComplete="email"
+        inputMode="email"
+        spellCheck={false}
         required
       />
       <InputField
@@ -71,6 +79,9 @@ export function PhoneForm({ data, updateField, t }: FormProps) {
       onChange={(v: string) => updateField("phone", v)}
       placeholder={t("tools.qrCode.phonePlaceholder")}
       type="tel"
+      name="phone"
+      autoComplete="tel"
+      inputMode="tel"
       required
     />
   );
@@ -85,6 +96,9 @@ export function SMSForm({ data, updateField, t }: FormProps) {
         onChange={(v: string) => updateField("phone", v)}
         placeholder={t("tools.qrCode.phonePlaceholder")}
         type="tel"
+        name="phone"
+        autoComplete="tel"
+        inputMode="tel"
         required
       />
       <InputField

@@ -23,7 +23,7 @@ export function Skeleton({
 
   if (lines > 1) {
     return (
-      <div className={`space-y-3 ${className}`}>
+      <div className={`space-y-3 ${className}`} aria-hidden="true">
         {Array.from({ length: lines }).map((_, i) => (
           <div
             key={i}
@@ -42,6 +42,7 @@ export function Skeleton({
     <div
       className={`${baseClasses} ${variantClasses[variant]} ${className}`}
       style={style}
+      aria-hidden="true"
     />
   );
 }

@@ -30,7 +30,7 @@ function StatItem({ label, value, highlight = false }: StatItemProps) {
         {label}
       </p>
       <p
-        className={`text-lg sm:text-2xl font-bold ${
+        className={`text-lg sm:text-2xl font-bold tabular-nums ${
           highlight
             ? "text-violet-600 dark:text-violet-400"
             : "text-zinc-900 dark:text-white"
@@ -50,13 +50,13 @@ export default function StatsPanel({ stats }: StatsPanelProps) {
   const { t } = useTranslation();
 
   return (
-    <div className="w-full lg:w-80 space-y-4">
+    <div className="w-full lg:w-80 space-y-4" aria-live="polite">
       {/* Main Stats Grid */}
       <div className="bg-zinc-100 dark:bg-darkOffset rounded-lg p-4 border border-zinc-200 dark:border-dark-border">
         <h3 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-3">
           {t("tools.wordCounter.stats")}
         </h3>
-        <div className="grid grid-cols-2 min-[400px]:grid-cols-3 sm:grid-cols-5 lg:grid-cols-2 gap-2 sm:gap-3">
+        <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-5 lg:grid-cols-2 gap-2 sm:gap-3">
           <StatItem
             label={t("tools.wordCounter.words")}
             value={stats.words.toLocaleString()}
@@ -91,7 +91,7 @@ export default function StatsPanel({ stats }: StatsPanelProps) {
             <span className="block sm:inline text-xs sm:text-sm text-zinc-600 dark:text-zinc-400">
               {t("tools.wordCounter.readingTime")}
             </span>
-            <span className="block sm:inline text-sm sm:text-sm font-semibold text-zinc-900 dark:text-white">
+            <span className="block sm:inline text-sm sm:text-sm font-semibold tabular-nums text-zinc-900 dark:text-white">
               {stats.readingTime} {t("tools.wordCounter.minutes")}
             </span>
           </div>
@@ -99,7 +99,7 @@ export default function StatsPanel({ stats }: StatsPanelProps) {
             <span className="block sm:inline text-xs sm:text-sm text-zinc-600 dark:text-zinc-400">
               {t("tools.wordCounter.speakingTime")}
             </span>
-            <span className="block sm:inline text-sm sm:text-sm font-semibold text-zinc-900 dark:text-white">
+            <span className="block sm:inline text-sm sm:text-sm font-semibold tabular-nums text-zinc-900 dark:text-white">
               {stats.speakingTime} {t("tools.wordCounter.minutes")}
             </span>
           </div>
@@ -124,7 +124,7 @@ export default function StatsPanel({ stats }: StatsPanelProps) {
                   </span>
                   {word}
                 </span>
-                <span className="text-zinc-900 dark:text-white font-medium ml-1 sm:ml-0">
+                <span className="text-zinc-900 dark:text-white font-medium tabular-nums ml-1 sm:ml-0">
                   {count}x
                 </span>
               </div>

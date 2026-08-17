@@ -8,10 +8,12 @@ import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { Space_Grotesk } from "@next/font/google";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Toaster } from "react-hot-toast";
 import { Header, Footer } from "@/components";
 import { RelatedTools } from "@/components/tools";
+import Modal from "@/components/ui/Modal";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useCoverImage } from "@/hooks/useCoverImage";
 import { SITE_URL, SITE_NAME, LOCALE_MAP } from "@/lib/constants";
@@ -29,7 +31,6 @@ import {
   SparklesIcon,
   CollectionIcon,
   PencilIcon,
-  ReplyIcon,
 } from "@heroicons/react/outline";
 
 // Import constants and utilities
@@ -200,7 +201,10 @@ function ContentTab({ hook, t }: TabContentProps): JSX.Element {
       {/* Author Input */}
       <div>
         <div className="flex items-center justify-between mb-2">
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+          <label
+            htmlFor="ci-author"
+            className="text-sm font-medium text-gray-700 dark:text-gray-300"
+          >
             {t("tools.coverImage.authorLabel")}
           </label>
           <FormCheckbox
@@ -210,6 +214,8 @@ function ContentTab({ hook, t }: TabContentProps): JSX.Element {
           />
         </div>
         <FormInput
+          id="ci-author"
+          name="author"
           value={settings.author}
           onChange={(val) => updateSetting("author", val)}
           placeholder={t("tools.coverImage.authorPlaceholder")}
@@ -246,9 +252,9 @@ function ContentTab({ hook, t }: TabContentProps): JSX.Element {
               <Button
                 variant="danger"
                 onClick={removeLogo}
-                icon={<TrashIcon className="w-5 h-5" />}
+                icon={<TrashIcon className="w-5 h-5" aria-hidden="true" />}
               >
-                {""}
+                <span className="sr-only">Remove logo</span>
               </Button>
             )}
           </div>
@@ -266,16 +272,23 @@ function ContentTab({ hook, t }: TabContentProps): JSX.Element {
                   key={icon.id}
                   onClick={() => updateSetting("devIcon", icon.id)}
                   title={icon.name}
-                  className={`w-10 h-10 flex items-center justify-center rounded-lg transition-all ${
+                  aria-label={icon.name}
+                  aria-pressed={settings.devIcon === icon.id}
+                  className={`w-10 h-10 flex items-center justify-center rounded-lg transition-colors ${
                     settings.devIcon === icon.id
                       ? "bg-violet-100 dark:bg-violet-900/30 ring-2 ring-violet-500"
                       : "bg-white dark:bg-dark-card hover:bg-gray-100 dark:hover:bg-dark-border"
                   }`}
                 >
                   {icon.icon ? (
-                    <i className={`devicon-${icon.icon}-plain text-xl`} />
+                    <i
+                      className={`devicon-${icon.icon}-plain text-xl`}
+                      aria-hidden="true"
+                    />
                   ) : (
-                    <span className="text-xs text-gray-400">∅</span>
+                    <span className="text-xs text-gray-400" aria-hidden="true">
+                      ∅
+                    </span>
                   )}
                 </button>
               ))}
@@ -497,10 +510,6 @@ interface EditorTabProps extends TabContentProps {
   onAddBadge: (text: string, bgColor: string, textColor: string) => void;
   onAddEmoji: (emoji: string) => void;
   onAddImage: (src: string) => void;
-  canUndo: boolean;
-  canRedo: boolean;
-  onUndo: () => void;
-  onRedo: () => void;
 }
 
 function EditorTab({
@@ -513,10 +522,6 @@ function EditorTab({
   onAddBadge,
   onAddEmoji,
   onAddImage,
-  canUndo,
-  canRedo,
-  onUndo,
-  onRedo,
 }: EditorTabProps): JSX.Element {
   return (
     <>
@@ -524,7 +529,7 @@ function EditorTab({
       <div className="p-4 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 rounded-xl mb-4">
         <div className="flex items-start gap-3">
           <div className="p-2 bg-amber-500/20 rounded-lg">
-            <SparklesIcon className="w-5 h-5 text-amber-500" />
+            <SparklesIcon className="w-5 h-5 text-amber-500" aria-hidden="true" />
           </div>
           <div>
             <h4 className="font-semibold text-gray-900 dark:text-white text-sm flex items-center gap-2">
@@ -573,35 +578,6 @@ function EditorTab({
           />
         </div>
 
-        {/* Undo/Redo Controls - Coming Soon */}
-        <div className="opacity-50 pointer-events-none">
-          <div className="flex items-center justify-between mb-1">
-            <FormLabel>History</FormLabel>
-            <span className="text-[10px] px-2 py-0.5 bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-full">
-              Coming Soon
-            </span>
-          </div>
-          <div className="flex gap-2">
-            <Button
-              onClick={onUndo}
-              disabled={true}
-              variant="secondary"
-              className="flex-1"
-              icon={<ReplyIcon className="w-4 h-4" />}
-            >
-              Undo
-            </Button>
-            <Button
-              onClick={onRedo}
-              disabled={true}
-              variant="secondary"
-              className="flex-1"
-              icon={<ReplyIcon className="w-4 h-4 transform scale-x-[-1]" />}
-            >
-              Redo
-            </Button>
-          </div>
-        </div>
       </div>
     </>
   );
@@ -620,6 +596,7 @@ function ExportTab({ hook, t }: TabContentProps): JSX.Element {
     handleCopySettings,
     handleReset,
   } = hook;
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
 
   return (
     <>
@@ -660,10 +637,14 @@ function ExportTab({ hook, t }: TabContentProps): JSX.Element {
       {settings.sizePreset === "custom" && (
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
+            <label
+              htmlFor="ci-custom-width"
+              className="text-xs text-gray-500 dark:text-gray-400 mb-1 block"
+            >
               Width (px)
             </label>
             <FormInput
+              id="ci-custom-width"
               type="number"
               value={settings.customWidth}
               onChange={(val) =>
@@ -675,10 +656,14 @@ function ExportTab({ hook, t }: TabContentProps): JSX.Element {
             />
           </div>
           <div>
-            <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
+            <label
+              htmlFor="ci-custom-height"
+              className="text-xs text-gray-500 dark:text-gray-400 mb-1 block"
+            >
               Height (px)
             </label>
             <FormInput
+              id="ci-custom-height"
               type="number"
               value={settings.customHeight}
               onChange={(val) =>
@@ -694,7 +679,7 @@ function ExportTab({ hook, t }: TabContentProps): JSX.Element {
 
       {/* Output Size Display */}
       <div className="p-3 bg-gray-50 dark:bg-dark-bg rounded-xl">
-        <p className="text-sm text-gray-600 dark:text-gray-400">
+        <p className="text-sm tabular-nums text-gray-600 dark:text-gray-400">
           <span className="font-medium">
             {t("tools.coverImage.outputSize")}:
           </span>{" "}
@@ -762,13 +747,22 @@ function ExportTab({ hook, t }: TabContentProps): JSX.Element {
           {t("tools.coverImage.copySettings")}
         </Button>
         <Button
-          onClick={handleReset}
+          onClick={() => setShowResetConfirm(true)}
           variant="danger"
-          icon={<TrashIcon className="w-4 h-4" />}
+          icon={<TrashIcon className="w-4 h-4" aria-hidden="true" />}
         >
-          {""}
+          <span className="sr-only">Reset all settings</span>
         </Button>
       </div>
+
+      <ConfirmDialog
+        isOpen={showResetConfirm}
+        onClose={() => setShowResetConfirm(false)}
+        onConfirm={handleReset}
+        title="Reset design?"
+        message="This will discard your entire design and restore the default settings. This cannot be undone."
+        confirmLabel="Reset"
+      />
     </>
   );
 }
@@ -876,7 +870,7 @@ function Preview({ hook, t, backgroundSettings }: PreviewProps): JSX.Element {
       <div className="p-4 sm:p-6">
         <div
           ref={previewRef}
-          className="relative w-full overflow-hidden shadow-xl transition-all"
+          className="relative w-full overflow-hidden shadow-xl transition-[border-radius,background]"
           style={previewStyle}
         >
           {/* Background Image Layer */}
@@ -1023,50 +1017,36 @@ function TemplatesModal({
   onApply,
   t,
 }: TemplatesModalProps): JSX.Element | null {
-  if (!show) return null;
-
   return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-        onClick={onClose}
-      >
-        <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.9, opacity: 0 }}
-          className="bg-white dark:bg-dark-card rounded-2xl p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-            {t("tools.coverImage.chooseTemplate")}
-          </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {TEMPLATES.map((template) => (
-              <button
-                key={template.id}
-                onClick={() => onApply(template.id)}
-                className="flex flex-col items-center gap-2 p-4 bg-gray-50 dark:bg-dark-bg rounded-xl hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-colors border border-transparent hover:border-violet-400"
-              >
-                <span className="text-3xl">{template.preview}</span>
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  {template.name}
-                </span>
-              </button>
-            ))}
-          </div>
+    <Modal
+      isOpen={show}
+      onClose={onClose}
+      title={t("tools.coverImage.chooseTemplate")}
+      maxWidthClassName="max-w-2xl"
+    >
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {TEMPLATES.map((template) => (
           <button
-            onClick={onClose}
-            className="mt-4 w-full py-2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+            key={template.id}
+            onClick={() => onApply(template.id)}
+            className="flex flex-col items-center gap-2 p-4 bg-gray-50 dark:bg-dark-bg rounded-xl hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-colors border border-transparent hover:border-violet-400"
           >
-            {t("tools.coverImage.cancel")}
+            <span className="text-3xl" aria-hidden="true">
+              {template.preview}
+            </span>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              {template.name}
+            </span>
           </button>
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>
+        ))}
+      </div>
+      <button
+        onClick={onClose}
+        className="mt-4 w-full py-2 min-h-[44px] text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+      >
+        {t("tools.coverImage.cancel")}
+      </button>
+    </Modal>
   );
 }
 
@@ -1102,40 +1082,17 @@ export default function CoverImageGeneratorPage(): JSX.Element {
       },
     });
 
-  const [canUndo, setCanUndo] = useState(false);
-  const [canRedo, setCanRedo] = useState(false);
-
-  // Element handlers (placeholder - will connect to canvas editor)
-  const handleAddText = useCallback(() => {
-    console.log("Add text element");
-  }, []);
-
-  const handleAddShape = useCallback((type: ShapeElement["shapeType"]) => {
-    console.log("Add shape:", type);
-  }, []);
-
+  // Element handlers (no-op placeholders until the canvas editor ships;
+  // the element toolbar is rendered disabled)
+  const handleAddText = useCallback(() => {}, []);
+  const handleAddShape = useCallback((_type: ShapeElement["shapeType"]) => {},
+  []);
   const handleAddBadge = useCallback(
-    (text: string, bgColor: string, textColor: string) => {
-      console.log("Add badge:", text, bgColor, textColor);
-    },
+    (_text: string, _bgColor: string, _textColor: string) => {},
     [],
   );
-
-  const handleAddEmoji = useCallback((emoji: string) => {
-    console.log("Add emoji:", emoji);
-  }, []);
-
-  const handleAddImage = useCallback((src: string) => {
-    console.log("Add image:", src);
-  }, []);
-
-  const handleUndo = useCallback(() => {
-    console.log("Undo");
-  }, []);
-
-  const handleRedo = useCallback(() => {
-    console.log("Redo");
-  }, []);
+  const handleAddEmoji = useCallback((_emoji: string) => {}, []);
+  const handleAddImage = useCallback((_src: string) => {}, []);
 
   // SEO configuration
   const { locale: currentLocale, locales, defaultLocale } = router;
@@ -1166,10 +1123,6 @@ export default function CoverImageGeneratorPage(): JSX.Element {
             onAddBadge={handleAddBadge}
             onAddEmoji={handleAddEmoji}
             onAddImage={handleAddImage}
-            canUndo={canUndo}
-            canRedo={canRedo}
-            onUndo={handleUndo}
-            onRedo={handleRedo}
           />
         );
       case "export":
@@ -1253,9 +1206,6 @@ export default function CoverImageGeneratorPage(): JSX.Element {
                 "Save settings locally for reuse",
                 "8 quick-start templates",
                 "Background image upload with filters",
-                "Advanced editor with Fabric.js",
-                "Add text, shapes, badges, emojis",
-                "Undo/redo support",
               ],
             }),
           }}
@@ -1306,7 +1256,7 @@ export default function CoverImageGeneratorPage(): JSX.Element {
                   name: "What is the Editor tab?",
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "The Editor tab provides an advanced canvas editor powered by Fabric.js. You can add multiple text layers, shapes (rectangles, circles, triangles), badges, emojis, and images. All elements can be moved, resized, rotated, and customized.",
+                    text: "The Editor tab lets you upload a custom background image and fine-tune it with filters like blur, brightness, contrast, saturation, and a color overlay. Additional element tools (text layers, shapes, badges, and emojis) are planned for a future update.",
                   },
                 },
                 {
@@ -1382,30 +1332,33 @@ export default function CoverImageGeneratorPage(): JSX.Element {
       <Toaster position="top-center" toastOptions={{ duration: 3000 }} />
       <Header />
 
-      <main className="flex flex-col items-center w-full flex-1 px-4 sm:px-6 lg:px-8 pt-2 sm:pt-4 pb-8 max-w-7xl mx-auto">
+      <main
+        id="main-content"
+        className="flex flex-col items-center w-full flex-1 px-4 sm:px-6 lg:px-8 pt-2 sm:pt-4 pb-8 max-w-7xl mx-auto"
+      >
         {/* Breadcrumb */}
-        <nav className="w-full max-w-6xl mb-4">
+        <nav className="w-full max-w-6xl mb-4" aria-label="Breadcrumb">
           <ol className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
             <li>
               <Link
                 href="/"
                 className="hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
               >
-                Home
+                {t("header.home")}
               </Link>
             </li>
-            <li>/</li>
+            <li aria-hidden="true">/</li>
             <li>
               <Link
                 href="/tools"
                 className="hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
               >
-                Tools
+                {t("header.tools")}
               </Link>
             </li>
-            <li>/</li>
+            <li aria-hidden="true">/</li>
             <li className="text-gray-900 dark:text-white font-medium">
-              Cover Image Generator
+              {t("tools.coverImage.name")}
             </li>
           </ol>
         </nav>
@@ -1418,7 +1371,7 @@ export default function CoverImageGeneratorPage(): JSX.Element {
           className="text-center mb-6 sm:mb-8 w-full max-w-3xl"
         >
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 rounded-full text-xs font-medium mb-4">
-            <PhotographIcon className="w-3.5 h-3.5" />
+            <PhotographIcon className="w-3.5 h-3.5" aria-hidden="true" />
             {t("tools.coverImage.badge")}
           </div>
 
@@ -1438,14 +1391,14 @@ export default function CoverImageGeneratorPage(): JSX.Element {
               onClick={() => setShowTemplates(true)}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-lg hover:border-violet-400 transition-colors"
             >
-              <SparklesIcon className="w-4 h-4 text-violet-500" />
+              <SparklesIcon className="w-4 h-4 text-violet-500" aria-hidden="true" />
               {t("tools.coverImage.quickTemplates")}
             </button>
             <button
               onClick={handleRandomize}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-lg hover:border-violet-400 transition-colors"
             >
-              <RefreshIcon className="w-4 h-4 text-violet-500" />
+              <RefreshIcon className="w-4 h-4 text-violet-500" aria-hidden="true" />
               {t("tools.coverImage.randomize")}
             </button>
           </div>
@@ -1475,13 +1428,15 @@ export default function CoverImageGeneratorPage(): JSX.Element {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
+                    aria-label={t(tab.labelKey)}
+                    aria-pressed={activeTab === tab.id}
                     className={`flex-1 min-w-[80px] flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium transition-colors whitespace-nowrap ${
                       activeTab === tab.id
                         ? "text-violet-600 dark:text-violet-400 border-b-2 border-violet-600 dark:border-violet-400 bg-violet-50 dark:bg-violet-900/10"
                         : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
                     }`}
                   >
-                    {tab.icon}
+                    <span aria-hidden="true">{tab.icon}</span>
                     <span className="hidden sm:inline">{t(tab.labelKey)}</span>
                   </button>
                 ))}
@@ -1584,6 +1539,7 @@ export default function CoverImageGeneratorPage(): JSX.Element {
                     </span>
                     <svg
                       className="w-5 h-5 text-gray-500 transform group-open:rotate-180 transition-transform flex-shrink-0"
+                      aria-hidden="true"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"

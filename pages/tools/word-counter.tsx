@@ -6,6 +6,7 @@ import { Space_Grotesk } from "@next/font/google";
 import { Header, Footer } from "@/components";
 import { RelatedTools } from "@/components/tools";
 import { StatsPanel, type TextStats } from "@/components/tools";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import { useTranslation } from "@/hooks/useTranslation";
 import { SITE_URL, SITE_NAME, LOCALE_MAP } from "@/lib/constants";
 import { trackToolUsage } from "@/lib/gtag";
@@ -150,6 +151,7 @@ export default function WordCounterPage(): JSX.Element {
   const { t } = useTranslation();
   const [text, setText] = useState("");
   const [stats, setStats] = useState<TextStats>(DEFAULT_STATS);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
   const hasTrackedUsage = useRef(false);
 
   const analyzeText = useCallback((inputText: string) => {
@@ -493,9 +495,12 @@ export default function WordCounterPage(): JSX.Element {
 
       <Header />
 
-      <main className="flex flex-col items-center justify-center w-full flex-1 px-4 py-8 sm:py-12">
+      <main
+        id="main-content"
+        className="flex flex-col items-center justify-center w-full flex-1 px-4 py-8 sm:py-12"
+      >
         {/* Breadcrumb */}
-        <nav className="w-full max-w-screen-lg mb-6">
+        <nav className="w-full max-w-screen-lg mb-6" aria-label="Breadcrumb">
           <ol className="flex items-center text-sm text-zinc-500 dark:text-zinc-400">
             <li>
               <Link
@@ -505,7 +510,7 @@ export default function WordCounterPage(): JSX.Element {
                 {t("header.home")}
               </Link>
             </li>
-            <li className="mx-2">/</li>
+            <li className="mx-2" aria-hidden="true">/</li>
             <li>
               <Link
                 href="/tools"
@@ -514,7 +519,7 @@ export default function WordCounterPage(): JSX.Element {
                 {t("header.tools")}
               </Link>
             </li>
-            <li className="mx-2">/</li>
+            <li className="mx-2" aria-hidden="true">/</li>
             <li className="text-zinc-900 dark:text-white font-medium">
               {t("tools.wordCounter.name")}
             </li>
@@ -546,13 +551,17 @@ export default function WordCounterPage(): JSX.Element {
             />
             <div className="flex items-center justify-between mt-3">
               <button
-                onClick={clearText}
+                type="button"
+                onClick={() => setShowClearConfirm(true)}
                 disabled={!text}
-                className="px-4 py-2 text-sm font-medium text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-dark-card hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 min-h-[44px] text-sm font-medium text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-dark-card hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {t("tools.wordCounter.clear")}
               </button>
-              <span className="text-sm text-zinc-500 dark:text-zinc-400">
+              <span
+                className="text-sm tabular-nums text-zinc-500 dark:text-zinc-400"
+                aria-live="polite"
+              >
                 {stats.words.toLocaleString()}{" "}
                 {t("tools.wordCounter.wordsLabel")}
               </span>
@@ -581,6 +590,7 @@ export default function WordCounterPage(): JSX.Element {
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <path
                 strokeLinecap="round"
@@ -614,6 +624,7 @@ export default function WordCounterPage(): JSX.Element {
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
+                  aria-hidden="true"
                 >
                   <path
                     strokeLinecap="round"
@@ -655,6 +666,7 @@ export default function WordCounterPage(): JSX.Element {
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
+                  aria-hidden="true"
                 >
                   <path
                     strokeLinecap="round"
@@ -740,6 +752,7 @@ export default function WordCounterPage(): JSX.Element {
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
+                    aria-hidden="true"
                   >
                     <path
                       strokeLinecap="round"
@@ -761,6 +774,16 @@ export default function WordCounterPage(): JSX.Element {
         <RelatedTools
           currentToolId="word-counter"
           title="Related Writing Tools"
+          containerClassName="max-w-screen-lg"
+        />
+
+        <ConfirmDialog
+          isOpen={showClearConfirm}
+          onClose={() => setShowClearConfirm(false)}
+          onConfirm={clearText}
+          title="Clear text?"
+          message="This will remove all text you have entered. This cannot be undone."
+          confirmLabel="Clear"
         />
       </main>
 

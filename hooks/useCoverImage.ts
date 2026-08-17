@@ -247,10 +247,17 @@ export function useCoverImage(): UseCoverImageReturn {
   }, [t]);
 
   // Copy settings to clipboard
-  const handleCopySettings = useCallback(() => {
+  const handleCopySettings = useCallback(async () => {
     const exportSettings = { ...settings, customLogo: null };
-    navigator.clipboard.writeText(JSON.stringify(exportSettings, null, 2));
-    toast.success(t("tools.coverImage.settingsCopied"));
+    try {
+      await navigator.clipboard.writeText(
+        JSON.stringify(exportSettings, null, 2),
+      );
+      toast.success(t("tools.coverImage.settingsCopied"));
+    } catch (error) {
+      console.error("Failed to copy settings:", error);
+      toast.error("Failed to copy settings to clipboard");
+    }
   }, [settings, t]);
 
   return {

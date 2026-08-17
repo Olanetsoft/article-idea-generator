@@ -7,6 +7,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Toaster, toast } from "react-hot-toast";
 import { Header, Footer } from "@/components";
 import { RelatedTools } from "@/components/tools";
+import Modal from "@/components/ui/Modal";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useAuth } from "@/contexts";
 import { SITE_URL, SITE_NAME, LOCALE_MAP } from "@/lib/constants";
@@ -16,8 +18,10 @@ import {
   saveLocalShortUrl,
   deleteLocalShortUrl,
   getLocalShortUrls,
+  getLocalClickEvents,
   SHORT_URL_BASE,
 } from "@/lib/analytics";
+import { calculateAnalytics } from "@/lib/analytics/utils";
 import { isValidUrl, extractTitleFromUrl } from "@/lib/url-utils";
 import type { LocalShortUrl } from "@/types/analytics";
 import {
@@ -84,7 +88,7 @@ function truncateUrl(
 ): string {
   if (!url) return "";
   if (url.length <= maxLength) return url;
-  return url.substring(0, maxLength - 3) + "...";
+  return url.substring(0, maxLength - 1) + "…";
 }
 
 // ============================================================================
@@ -156,7 +160,10 @@ function HistoryItemCard({
             className="text-violet-600 dark:text-violet-400 font-medium hover:underline flex items-center gap-1.5"
           >
             {item.shortUrl}
-            <ExternalLinkIcon className="w-3.5 h-3.5 flex-shrink-0" />
+            <ExternalLinkIcon
+              className="w-3.5 h-3.5 flex-shrink-0"
+              aria-hidden="true"
+            />
           </a>
         </div>
         <p className="text-sm text-gray-500 dark:text-gray-400 truncate mt-1">
@@ -164,12 +171,12 @@ function HistoryItemCard({
         </p>
         <div className="flex items-center gap-3 mt-1">
           <p className="text-xs text-gray-400 dark:text-gray-500 flex items-center gap-1">
-            <ClockIcon className="w-3 h-3" />
+            <ClockIcon className="w-3 h-3" aria-hidden="true" />
             {formatDate(item.createdAt)}
           </p>
           {typeof item.clicks === "number" && (
-            <p className="text-xs text-gray-400 dark:text-gray-500 flex items-center gap-1">
-              <ChartBarIcon className="w-3 h-3" />
+            <p className="text-xs tabular-nums text-gray-400 dark:text-gray-500 flex items-center gap-1">
+              <ChartBarIcon className="w-3 h-3" aria-hidden="true" />
               {item.clicks} {item.clicks === 1 ? "click" : "clicks"}
             </p>
           )}
@@ -179,13 +186,21 @@ function HistoryItemCard({
       <div className="flex items-center gap-2 flex-shrink-0">
         <button
           onClick={handleCopy}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-lg hover:bg-gray-50 dark:hover:bg-dark-border/50 transition-colors"
+          className="flex items-center gap-1.5 px-3 py-1.5 min-h-[44px] text-sm bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-lg hover:bg-gray-50 dark:hover:bg-dark-border/50 transition-colors"
+          aria-label={
+            copied
+              ? t("tools.urlShortener.copied")
+              : t("tools.urlShortener.copy")
+          }
           title={t("tools.urlShortener.copy")}
         >
           {copied ? (
-            <CheckIcon className="w-4 h-4 text-green-500" />
+            <CheckIcon className="w-4 h-4 text-green-500" aria-hidden="true" />
           ) : (
-            <ClipboardCopyIcon className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+            <ClipboardCopyIcon
+              className="w-4 h-4 text-gray-500 dark:text-gray-400"
+              aria-hidden="true"
+            />
           )}
           <span className="hidden sm:inline">
             {copied
@@ -198,20 +213,25 @@ function HistoryItemCard({
         {onViewAnalytics && item.source !== "supabase" && (
           <button
             onClick={() => onViewAnalytics(item)}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-lg hover:bg-gray-50 dark:hover:bg-dark-border/50 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 min-h-[44px] text-sm bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-lg hover:bg-gray-50 dark:hover:bg-dark-border/50 transition-colors"
+            aria-label="View analytics"
             title="View analytics"
           >
-            <ChartBarIcon className="w-4 h-4 text-cyan-500" />
+            <ChartBarIcon className="w-4 h-4 text-cyan-500" aria-hidden="true" />
             <span className="hidden sm:inline">Stats</span>
           </button>
         )}
 
         <button
           onClick={() => onGenerateQr(item.shortUrl)}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-lg hover:bg-gray-50 dark:hover:bg-dark-border/50 transition-colors"
+          className="flex items-center gap-1.5 px-3 py-1.5 min-h-[44px] text-sm bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-lg hover:bg-gray-50 dark:hover:bg-dark-border/50 transition-colors"
+          aria-label={t("tools.urlShortener.generateQr")}
           title={t("tools.urlShortener.generateQr")}
         >
-          <QrcodeIcon className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+          <QrcodeIcon
+            className="w-4 h-4 text-gray-500 dark:text-gray-400"
+            aria-hidden="true"
+          />
           <span className="hidden sm:inline">
             {t("tools.urlShortener.qrCode")}
           </span>
@@ -219,10 +239,11 @@ function HistoryItemCard({
 
         <button
           onClick={() => onDelete(item.id)}
-          className="p-1.5 text-gray-400 hover:text-red-500 transition-colors"
+          className="p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors"
+          aria-label={t("tools.urlShortener.delete")}
           title={t("tools.urlShortener.delete")}
         >
-          <XIcon className="w-4 h-4" />
+          <XIcon className="w-4 h-4" aria-hidden="true" />
         </button>
       </div>
     </motion.div>
@@ -249,10 +270,6 @@ function AnalyticsModal({ item, onClose }: AnalyticsModalProps) {
 
   useEffect(() => {
     // Load click events for this URL
-    const {
-      getLocalClickEvents,
-      calculateAnalytics,
-    } = require("@/lib/analytics");
     const events = getLocalClickEvents(item.id);
     setClickEvents(events);
     if (events.length > 0) {
@@ -269,25 +286,23 @@ function AnalyticsModal({ item, onClose }: AnalyticsModalProps) {
   }, [item.id]);
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-      onClick={onClose}
+    <Modal
+      isOpen
+      onClose={onClose}
+      title="Link Analytics"
+      hideTitle
+      maxWidthClassName="max-w-2xl"
+      className="!p-0 overflow-hidden"
     >
-      <motion.div
-        initial={{ scale: 0.95, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.95, opacity: 0 }}
-        className="w-full max-w-2xl bg-white dark:bg-dark-card rounded-2xl shadow-xl overflow-hidden"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div>
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-dark-border">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-cyan-100 dark:bg-cyan-900/30 rounded-lg">
-              <ChartBarIcon className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />
+              <ChartBarIcon
+                className="w-5 h-5 text-cyan-600 dark:text-cyan-400"
+                aria-hidden="true"
+              />
             </div>
             <div>
               <h3 className="font-semibold text-gray-900 dark:text-white">
@@ -300,9 +315,10 @@ function AnalyticsModal({ item, onClose }: AnalyticsModalProps) {
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+            aria-label="Close analytics"
+            className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
           >
-            <XIcon className="w-5 h-5" />
+            <XIcon className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
 
@@ -313,7 +329,7 @@ function AnalyticsModal({ item, onClose }: AnalyticsModalProps) {
               {/* Stats Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div className="p-4 bg-gray-50 dark:bg-dark-card/50 rounded-xl text-center">
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                  <p className="text-2xl font-bold tabular-nums text-gray-900 dark:text-white">
                     {analytics.totalClicks}
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -321,7 +337,7 @@ function AnalyticsModal({ item, onClose }: AnalyticsModalProps) {
                   </p>
                 </div>
                 <div className="p-4 bg-gray-50 dark:bg-dark-card/50 rounded-xl text-center">
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                  <p className="text-2xl font-bold tabular-nums text-gray-900 dark:text-white">
                     {analytics.uniqueVisitors}
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -329,7 +345,7 @@ function AnalyticsModal({ item, onClose }: AnalyticsModalProps) {
                   </p>
                 </div>
                 <div className="p-4 bg-gray-50 dark:bg-dark-card/50 rounded-xl text-center">
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                  <p className="text-2xl font-bold tabular-nums text-gray-900 dark:text-white">
                     {analytics.clicksToday}
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -337,7 +353,7 @@ function AnalyticsModal({ item, onClose }: AnalyticsModalProps) {
                   </p>
                 </div>
                 <div className="p-4 bg-gray-50 dark:bg-dark-card/50 rounded-xl text-center">
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                  <p className="text-2xl font-bold tabular-nums text-gray-900 dark:text-white">
                     {analytics.clicksLast7Days}
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -355,23 +371,29 @@ function AnalyticsModal({ item, onClose }: AnalyticsModalProps) {
                   <div className="flex gap-4">
                     <div className="flex-1 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                       <div className="flex items-center gap-2">
-                        <LinkIcon className="w-4 h-4 text-blue-500" />
+                        <LinkIcon
+                          className="w-4 h-4 text-blue-500"
+                          aria-hidden="true"
+                        />
                         <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
                           Direct Links
                         </span>
                       </div>
-                      <p className="text-xl font-bold text-blue-600 dark:text-blue-400 mt-1">
+                      <p className="text-xl font-bold tabular-nums text-blue-600 dark:text-blue-400 mt-1">
                         {sourceStats.direct}
                       </p>
                     </div>
                     <div className="flex-1 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
                       <div className="flex items-center gap-2">
-                        <QrcodeIcon className="w-4 h-4 text-purple-500" />
+                        <QrcodeIcon
+                          className="w-4 h-4 text-purple-500"
+                          aria-hidden="true"
+                        />
                         <span className="text-sm font-medium text-purple-700 dark:text-purple-300">
                           QR Scans
                         </span>
                       </div>
-                      <p className="text-xl font-bold text-purple-600 dark:text-purple-400 mt-1">
+                      <p className="text-xl font-bold tabular-nums text-purple-600 dark:text-purple-400 mt-1">
                         {sourceStats.qr}
                       </p>
                     </div>
@@ -385,7 +407,7 @@ function AnalyticsModal({ item, onClose }: AnalyticsModalProps) {
                   <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">
                     Recent Clicks
                   </h4>
-                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                  <div className="space-y-2 max-h-48 overflow-y-auto overscroll-contain">
                     {clickEvents.slice(0, 10).map((event, index) => (
                       <div
                         key={event.id || index}
@@ -425,7 +447,10 @@ function AnalyticsModal({ item, onClose }: AnalyticsModalProps) {
           ) : (
             <div className="text-center py-12">
               <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 dark:bg-dark-card/50 flex items-center justify-center">
-                <ChartBarIcon className="w-8 h-8 text-gray-400" />
+                <ChartBarIcon
+                  className="w-8 h-8 text-gray-400"
+                  aria-hidden="true"
+                />
               </div>
               <p className="text-gray-600 dark:text-gray-300 mb-1">
                 No clicks yet
@@ -444,13 +469,13 @@ function AnalyticsModal({ item, onClose }: AnalyticsModalProps) {
           </p>
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-gray-200 dark:bg-dark-border text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-dark-border/80 transition-colors text-sm font-medium"
+            className="px-4 py-2 min-h-[44px] bg-gray-200 dark:bg-dark-border text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-dark-border/80 transition-colors text-sm font-medium"
           >
             Close
           </button>
         </div>
-      </motion.div>
-    </motion.div>
+      </div>
+    </Modal>
   );
 }
 
@@ -469,6 +494,8 @@ export default function UrlShortenerPage(): JSX.Element {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [error, setError] = useState("");
   const [showAnalytics, setShowAnalytics] = useState<HistoryItem | null>(null);
+  const [showClearHistoryConfirm, setShowClearHistoryConfirm] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const hasTrackedUsage = useRef(false);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
@@ -747,8 +774,9 @@ export default function UrlShortenerPage(): JSX.Element {
     );
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !isLoading) {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isLoading) {
       handleShorten();
     }
   };
@@ -972,30 +1000,33 @@ export default function UrlShortenerPage(): JSX.Element {
 
       <Header />
 
-      <main className="flex flex-col items-center w-full flex-1 px-4 sm:px-6 lg:px-8 pt-2 sm:pt-4 pb-8 max-w-7xl mx-auto">
+      <main
+        id="main-content"
+        className="flex flex-col items-center w-full flex-1 px-4 sm:px-6 lg:px-8 pt-2 sm:pt-4 pb-8 max-w-7xl mx-auto"
+      >
         {/* Breadcrumb */}
-        <nav className="w-full max-w-3xl mb-4">
+        <nav className="w-full max-w-3xl mb-4" aria-label="Breadcrumb">
           <ol className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
             <li>
               <Link
                 href="/"
                 className="hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
               >
-                Home
+                {t("header.home")}
               </Link>
             </li>
-            <li>/</li>
+            <li aria-hidden="true">/</li>
             <li>
               <Link
                 href="/tools"
                 className="hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
               >
-                Tools
+                {t("header.tools")}
               </Link>
             </li>
-            <li>/</li>
+            <li aria-hidden="true">/</li>
             <li className="text-gray-900 dark:text-white font-medium">
-              URL Shortener
+              {t("tools.urlShortener.name")}
             </li>
           </ol>
         </nav>
@@ -1008,7 +1039,7 @@ export default function UrlShortenerPage(): JSX.Element {
           className="text-center mb-6 sm:mb-8 w-full max-w-3xl"
         >
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 rounded-full text-xs font-medium mb-4">
-            <LinkIcon className="w-3.5 h-3.5" />
+            <LinkIcon className="w-3.5 h-3.5" aria-hidden="true" />
             {t("tools.urlShortener.badge")}
           </div>
 
@@ -1036,27 +1067,38 @@ export default function UrlShortenerPage(): JSX.Element {
               {/* Feature badge */}
               <div className="flex items-center justify-center mb-4">
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-cyan-50 dark:bg-cyan-900/20 text-cyan-700 dark:text-cyan-300 rounded-full text-xs font-medium">
-                  <LinkIcon className="w-3.5 h-3.5" />
+                  <LinkIcon className="w-3.5 h-3.5" aria-hidden="true" />
                   Free URL shortening • Sign in for analytics
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-3">
+              <form
+                onSubmit={handleSubmit}
+                className="flex flex-col sm:flex-row gap-3"
+              >
                 <div className="flex-1 relative">
+                  <label htmlFor="url-input" className="sr-only">
+                    {t("tools.urlShortener.placeholder")}
+                  </label>
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <LinkIcon className="h-5 w-5 text-gray-400" />
+                    <LinkIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
                   </div>
                   <input
                     ref={inputRef}
+                    id="url-input"
+                    name="url"
                     type="url"
+                    autoComplete="url"
+                    spellCheck={false}
                     value={url}
                     onChange={(e) => {
                       setUrl(e.target.value);
                       setError("");
                     }}
-                    onKeyDown={handleKeyDown}
                     placeholder={t("tools.urlShortener.placeholder")}
-                    className={`w-full pl-11 pr-10 py-3 bg-gray-50 dark:bg-dark-card/50 border rounded-xl text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all ${
+                    aria-invalid={error ? true : undefined}
+                    aria-describedby={error ? "url-error" : undefined}
+                    className={`w-full pl-11 pr-10 py-3 bg-gray-50 dark:bg-dark-card/50 border rounded-xl text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-colors ${
                       error
                         ? "border-red-300 dark:border-red-500"
                         : "border-gray-200 dark:border-dark-border"
@@ -1064,16 +1106,18 @@ export default function UrlShortenerPage(): JSX.Element {
                   />
                   {url && (
                     <button
+                      type="button"
                       onClick={handleClear}
+                      aria-label="Clear URL input"
                       className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                     >
-                      <TrashIcon className="h-5 w-5" />
+                      <TrashIcon className="h-5 w-5" aria-hidden="true" />
                     </button>
                   )}
                 </div>
 
                 <button
-                  onClick={handleShorten}
+                  type="submit"
                   disabled={isLoading}
                   className="px-6 py-3 bg-violet-600 text-white font-medium rounded-xl hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 min-w-[100px] sm:min-w-[140px]"
                 >
@@ -1084,6 +1128,7 @@ export default function UrlShortenerPage(): JSX.Element {
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
                         viewBox="0 0 24 24"
+                        aria-hidden="true"
                       >
                         <circle
                           className="opacity-25"
@@ -1105,18 +1150,21 @@ export default function UrlShortenerPage(): JSX.Element {
                     t("tools.urlShortener.shorten")
                   )}
                 </button>
-              </div>
+              </form>
 
               {/* Error message */}
-              {error && (
-                <motion.p
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mt-2 text-sm text-red-500"
-                >
-                  {error}
-                </motion.p>
-              )}
+              <div aria-live="polite">
+                {error && (
+                  <motion.p
+                    id="url-error"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-2 text-sm text-red-500"
+                  >
+                    {error}
+                  </motion.p>
+                )}
+              </div>
             </div>
 
             {/* Result Section */}
@@ -1142,7 +1190,10 @@ export default function UrlShortenerPage(): JSX.Element {
                         >
                           {shortUrl}
                         </a>
-                        <ExternalLinkIcon className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                        <ExternalLinkIcon
+                          className="w-4 h-4 text-gray-400 flex-shrink-0"
+                          aria-hidden="true"
+                        />
                       </div>
 
                       <div className="flex gap-2">
@@ -1151,9 +1202,12 @@ export default function UrlShortenerPage(): JSX.Element {
                           className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-3 bg-violet-600 text-white font-medium rounded-xl hover:bg-violet-700 transition-colors"
                         >
                           {copied ? (
-                            <CheckIcon className="w-5 h-5" />
+                            <CheckIcon className="w-5 h-5" aria-hidden="true" />
                           ) : (
-                            <ClipboardCopyIcon className="w-5 h-5" />
+                            <ClipboardCopyIcon
+                              className="w-5 h-5"
+                              aria-hidden="true"
+                            />
                           )}
                           {copied
                             ? t("tools.urlShortener.copied")
@@ -1163,9 +1217,10 @@ export default function UrlShortenerPage(): JSX.Element {
                         <button
                           onClick={() => handleGenerateQr(shortUrl)}
                           className="flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 dark:bg-dark-card text-gray-700 dark:text-gray-300 font-medium rounded-xl hover:bg-gray-200 dark:hover:bg-dark-border transition-colors border border-gray-200 dark:border-dark-border"
+                          aria-label={t("tools.urlShortener.generateQr")}
                           title={t("tools.urlShortener.generateQr")}
                         >
-                          <QrcodeIcon className="w-5 h-5" />
+                          <QrcodeIcon className="w-5 h-5" aria-hidden="true" />
                           <span className="hidden sm:inline">
                             {t("tools.urlShortener.qrCode")}
                           </span>
@@ -1205,7 +1260,7 @@ export default function UrlShortenerPage(): JSX.Element {
                   onClick={signInWithGoogle}
                   className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-lg hover:bg-gray-50 dark:hover:bg-dark-border/50 transition-colors text-sm font-medium text-gray-700 dark:text-gray-300"
                 >
-                  <svg className="w-4 h-4" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" aria-hidden="true">
                     <path
                       fill="#4285F4"
                       d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -1262,6 +1317,7 @@ export default function UrlShortenerPage(): JSX.Element {
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
+                    aria-hidden="true"
                   >
                     <path
                       strokeLinecap="round"
@@ -1285,12 +1341,12 @@ export default function UrlShortenerPage(): JSX.Element {
             >
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                  <ClockIcon className="w-5 h-5 text-gray-500" />
+                  <ClockIcon className="w-5 h-5 text-gray-500" aria-hidden="true" />
                   {t("tools.urlShortener.recentLinks")}
                 </h2>
                 <button
-                  onClick={handleClearHistory}
-                  className="text-sm text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400 transition-colors"
+                  onClick={() => setShowClearHistoryConfirm(true)}
+                  className="text-sm min-h-[44px] px-2 text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400 transition-colors"
                 >
                   {t("tools.urlShortener.clearHistory")}
                 </button>
@@ -1303,7 +1359,7 @@ export default function UrlShortenerPage(): JSX.Element {
                       key={item.id}
                       item={item}
                       onCopy={handleCopy}
-                      onDelete={handleDeleteHistoryItem}
+                      onDelete={(id) => setPendingDeleteId(id)}
                       onGenerateQr={handleGenerateQr}
                       onViewAnalytics={handleViewAnalytics}
                       t={t}
@@ -1367,7 +1423,9 @@ export default function UrlShortenerPage(): JSX.Element {
                   key={index}
                   className="p-4 bg-white dark:bg-dark-card rounded-xl border border-gray-100 dark:border-dark-border"
                 >
-                  <div className="text-2xl mb-2">{feature.icon}</div>
+                  <div className="text-2xl mb-2" aria-hidden="true">
+                    {feature.icon}
+                  </div>
                   <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
                     {t(feature.titleKey)}
                   </h3>
@@ -1450,7 +1508,7 @@ export default function UrlShortenerPage(): JSX.Element {
                 },
                 {
                   q: "Can I track clicks on my shortened URLs?",
-                  a: "Our tool focuses on simplicity and privacy. For basic link tracking, you can use UTM parameters in your original URL before shortening.",
+                  a: "Yes! Every link includes built-in analytics. Click the Stats button next to any link to see total clicks, unique visitors, and QR-scan vs direct-click breakdowns. Sign in with Google for detailed analytics including geographic location, devices, browsers, traffic sources, and UTM campaign tracking.",
                 },
                 {
                   q: "Is it safe to click on shortened URLs?",
@@ -1486,6 +1544,7 @@ export default function UrlShortenerPage(): JSX.Element {
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
+                      aria-hidden="true"
                     >
                       <path
                         strokeLinecap="round"
@@ -1504,21 +1563,48 @@ export default function UrlShortenerPage(): JSX.Element {
           </motion.section>
 
           {/* Related Tools */}
-          <RelatedTools currentToolId="url-shortener" />
+          <RelatedTools
+            currentToolId="url-shortener"
+            containerClassName="max-w-3xl"
+          />
         </div>
       </main>
 
       <Footer />
 
       {/* Analytics Modal */}
-      <AnimatePresence>
-        {showAnalytics && (
-          <AnalyticsModal
-            item={showAnalytics}
-            onClose={() => setShowAnalytics(null)}
-          />
-        )}
-      </AnimatePresence>
+      {showAnalytics && (
+        <AnalyticsModal
+          item={showAnalytics}
+          onClose={() => setShowAnalytics(null)}
+        />
+      )}
+
+      {/* Confirm: clear all history */}
+      <ConfirmDialog
+        isOpen={showClearHistoryConfirm}
+        onClose={() => setShowClearHistoryConfirm(false)}
+        onConfirm={handleClearHistory}
+        title="Clear all links?"
+        message={
+          user
+            ? "This permanently deletes all your saved links and their analytics from your account. This cannot be undone."
+            : "This permanently deletes all your saved links and their locally stored analytics. This cannot be undone."
+        }
+        confirmLabel="Delete all"
+      />
+
+      {/* Confirm: delete single link */}
+      <ConfirmDialog
+        isOpen={pendingDeleteId !== null}
+        onClose={() => setPendingDeleteId(null)}
+        onConfirm={() => {
+          if (pendingDeleteId) handleDeleteHistoryItem(pendingDeleteId);
+        }}
+        title="Delete this link?"
+        message="This permanently deletes the short link and its analytics. Anyone using the link will no longer be redirected. This cannot be undone."
+        confirmLabel="Delete"
+      />
     </div>
   );
 }

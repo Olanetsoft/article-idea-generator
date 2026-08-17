@@ -3,9 +3,14 @@
 // Upload background images with filters (blur, overlay, brightness, etc.)
 // ============================================================================
 
-import React, { useRef } from "react";
+import React, { useEffect, useId, useRef, useState } from "react";
+import { toast } from "react-hot-toast";
 import type { BackgroundSettings } from "@/lib/cover-image/editor-types";
 import { DEFAULT_IMAGE_FILTERS } from "@/lib/cover-image/editor-types";
+
+const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024; // matches the "up to 5MB" copy
+const ACCEPTED_IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp"];
+const HEX_COLOR_RE = /^#[0-9A-Fa-f]{6}$/;
 
 interface BackgroundControlsProps {
   settings: BackgroundSettings;
@@ -32,21 +37,49 @@ function FilterSlider({
   unit = "%",
   onChange,
 }: FilterSliderProps) {
+  const id = useId();
+  // Track the value locally and debounce the commit so canvas redraws don't
+  // run on every pixel of a drag
+  const [localValue, setLocalValue] = useState(value);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange;
+
+  useEffect(() => {
+    setLocalValue(value);
+  }, [value]);
+
+  useEffect(
+    () => () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    },
+    [],
+  );
+
+  const handleChange = (next: number) => {
+    setLocalValue(next);
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => onChangeRef.current(next), 150);
+  };
+
   return (
     <div className="space-y-1">
       <div className="flex justify-between text-xs">
-        <span className="text-gray-500 dark:text-white/60">{label}</span>
+        <label htmlFor={id} className="text-gray-500 dark:text-white/60">
+          {label}
+        </label>
         <span className="text-gray-700 dark:text-white/80">
-          {value}
+          {localValue}
           {unit}
         </span>
       </div>
       <input
+        id={id}
         type="range"
         min={min}
         max={max}
-        value={value}
-        onChange={(e) => onChange(parseInt(e.target.value))}
+        value={localValue}
+        onChange={(e) => handleChange(parseInt(e.target.value))}
         className="w-full h-1.5 bg-gray-300 dark:bg-white/20 rounded-lg appearance-none cursor-pointer accent-purple-500"
       />
     </div>
@@ -58,10 +91,30 @@ export function BackgroundControls({
   onChange,
 }: BackgroundControlsProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const overlayColorId = useId();
+  const overlayHexId = useId();
+  // Draft for the overlay hex field so invalid partial input is never committed
+  const [overlayHexDraft, setOverlayHexDraft] = useState(settings.overlay.color);
+
+  useEffect(() => {
+    setOverlayHexDraft(settings.overlay.color);
+  }, [settings.overlay.color]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // Enforce the promised "PNG, JPG, WEBP up to 5MB" limit
+    if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
+      toast.error("Unsupported file type. Please use PNG, JPG, or WEBP.");
+      e.target.value = "";
+      return;
+    }
+    if (file.size > MAX_IMAGE_SIZE_BYTES) {
+      toast.error("Image is too large. Maximum size is 5MB.");
+      e.target.value = "";
+      return;
+    }
 
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -134,15 +187,18 @@ export function BackgroundControls({
                 }}
               />
               <button
+                type="button"
                 onClick={handleRemoveImage}
-                className="absolute top-2 right-2 p-1.5 bg-red-500/80 hover:bg-red-500 rounded-full transition-colors"
+                className="absolute top-2 right-2 p-2.5 bg-red-500/80 hover:bg-red-500 text-white rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                aria-label="Remove background image"
                 title="Remove background image"
               >
                 <svg
-                  className="w-3 h-3"
+                  className="w-3.5 h-3.5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
+                  aria-hidden="true"
                 >
                   <path
                     strokeLinecap="round"
@@ -203,6 +259,7 @@ export function BackgroundControls({
 
               {/* Reset filters button */}
               <button
+                type="button"
                 onClick={() =>
                   onChange({
                     ...settings,
@@ -221,14 +278,15 @@ export function BackgroundControls({
                 <h4 className="text-xs font-semibold text-gray-500 dark:text-white/60 uppercase tracking-wider">
                   Color Overlay
                 </h4>
-                <label className="relative inline-flex items-center cursor-pointer">
+                <label className="relative inline-flex items-center cursor-pointer p-3 -m-3">
                   <input
                     type="checkbox"
                     checked={settings.overlay.enabled}
                     onChange={(e) => updateOverlay("enabled", e.target.checked)}
+                    aria-label="Enable color overlay"
                     className="sr-only peer"
                   />
-                  <div className="w-9 h-5 bg-gray-300 dark:bg-white/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-purple-500"></div>
+                  <div className="relative w-9 h-5 bg-gray-300 dark:bg-white/20 rounded-full peer peer-focus-visible:ring-2 peer-focus-visible:ring-purple-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-transform peer-checked:bg-purple-500"></div>
                 </label>
               </div>
 
@@ -236,20 +294,36 @@ export function BackgroundControls({
                 <>
                   {/* Overlay color */}
                   <div className="space-y-1">
-                    <label className="text-xs text-gray-500 dark:text-white/60">
+                    <label
+                      htmlFor={overlayColorId}
+                      className="text-xs text-gray-500 dark:text-white/60"
+                    >
                       Overlay Color
                     </label>
                     <div className="flex gap-2">
                       <input
+                        id={overlayColorId}
                         type="color"
                         value={settings.overlay.color}
                         onChange={(e) => updateOverlay("color", e.target.value)}
-                        className="w-10 h-8 rounded cursor-pointer border border-gray-200 dark:border-white/10"
+                        className="w-10 h-10 rounded cursor-pointer border border-gray-200 dark:border-white/10"
                       />
                       <input
+                        id={overlayHexId}
                         type="text"
-                        value={settings.overlay.color}
-                        onChange={(e) => updateOverlay("color", e.target.value)}
+                        value={overlayHexDraft}
+                        onChange={(e) => {
+                          const next = e.target.value;
+                          setOverlayHexDraft(next);
+                          // Only commit fully valid hex values
+                          if (HEX_COLOR_RE.test(next)) {
+                            updateOverlay("color", next);
+                          }
+                        }}
+                        maxLength={7}
+                        pattern="#[0-9A-Fa-f]{6}"
+                        spellCheck={false}
+                        aria-label="Overlay color hex value"
                         className="flex-1 px-2 py-1 bg-white dark:bg-white/10 border border-gray-200 dark:border-white/20 rounded text-xs text-gray-900 dark:text-white"
                       />
                     </div>
@@ -269,6 +343,7 @@ export function BackgroundControls({
           </div>
         ) : (
           <button
+            type="button"
             onClick={() => fileInputRef.current?.click()}
             className="w-full p-6 border-2 border-dashed border-gray-300 dark:border-white/20 hover:border-purple-500/50 rounded-lg transition-colors text-center group"
           >
@@ -277,6 +352,7 @@ export function BackgroundControls({
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <path
                 strokeLinecap="round"
@@ -313,6 +389,7 @@ export function BackgroundControls({
             {PRESET_BACKGROUNDS.map((preset, index) => (
               <button
                 key={index}
+                type="button"
                 onClick={() =>
                   onChange({
                     ...settings,
@@ -320,12 +397,14 @@ export function BackgroundControls({
                     image: preset.url,
                   })
                 }
-                className="aspect-video rounded-lg overflow-hidden border border-gray-200 dark:border-white/10 hover:border-purple-500/50 transition-all hover:scale-105"
+                className="aspect-video rounded-lg overflow-hidden border border-gray-200 dark:border-white/10 hover:border-purple-500/50 transition-[border-color,transform] hover:scale-105"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={preset.thumbnail}
                   alt={preset.name}
+                  width={200}
+                  height={100}
                   className="w-full h-full object-cover"
                 />
               </button>

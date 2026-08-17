@@ -98,21 +98,26 @@ export function DeviceChart({
               key={item.name}
               className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 min-w-0">
                 <div
                   className="w-3 h-3 rounded-full flex-shrink-0"
                   style={{ backgroundColor: colors[index % colors.length] }}
+                  aria-hidden="true"
                 />
-                <span className="text-gray-700 dark:text-gray-300">
-                  {type === "device" && DEVICE_ICONS[item.name.toLowerCase()]}{" "}
-                  {type === "browser" && BROWSER_ICONS[item.name]} {item.name}
+                <span className="text-gray-700 dark:text-gray-300 min-w-0 truncate">
+                  <span aria-hidden="true">
+                    {type === "device" &&
+                      DEVICE_ICONS[item.name.toLowerCase()]}{" "}
+                    {type === "browser" && BROWSER_ICONS[item.name]}
+                  </span>{" "}
+                  {item.name}
                 </span>
               </div>
-              <div className="flex items-center gap-3">
-                <span className="text-gray-500 dark:text-gray-400 text-sm">
+              <div className="flex items-center gap-3 flex-shrink-0">
+                <span className="text-gray-500 dark:text-gray-400 text-sm tabular-nums">
                   {item.count.toLocaleString()}
                 </span>
-                <span className="text-gray-400 dark:text-gray-500 text-sm w-12 text-right">
+                <span className="text-gray-400 dark:text-gray-500 text-sm w-12 text-right tabular-nums">
                   {item.percentage}%
                 </span>
               </div>

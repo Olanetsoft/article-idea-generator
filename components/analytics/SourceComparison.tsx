@@ -51,7 +51,7 @@ export function SourceComparison({
       <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
         QR vs Direct Traffic
       </h3>
-      <div className="flex items-center gap-6">
+      <div className="flex flex-col sm:flex-row items-center gap-6">
         {/* Donut Chart */}
         <div className="h-40 w-40 flex-shrink-0 relative">
           <ClientPieChart>
@@ -76,8 +76,8 @@ export function SourceComparison({
           </ClientPieChart>
           {/* Center label */}
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-            <span className="text-2xl font-bold text-gray-900 dark:text-white">
-              {total}
+            <span className="text-2xl font-bold text-gray-900 dark:text-white tabular-nums">
+              {total.toLocaleString()}
             </span>
             <span className="text-xs text-gray-500 dark:text-gray-400">
               Total
@@ -86,24 +86,27 @@ export function SourceComparison({
         </div>
 
         {/* Stats */}
-        <div className="flex-1 space-y-4">
+        <div className="flex-1 w-full min-w-0 space-y-4">
           {chartData.map((item) => (
             <div key={item.name} className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 min-w-0">
                 <div
-                  className="w-3 h-3 rounded-full"
+                  className="w-3 h-3 rounded-full flex-shrink-0"
                   style={{ backgroundColor: item.color }}
+                  aria-hidden="true"
                 />
-                <span className="text-lg">{item.icon}</span>
-                <span className="text-gray-700 dark:text-gray-300">
+                <span className="text-lg" aria-hidden="true">
+                  {item.icon}
+                </span>
+                <span className="text-gray-700 dark:text-gray-300 min-w-0 truncate">
                   {item.name}
                 </span>
               </div>
-              <div className="text-right">
-                <span className="text-gray-900 dark:text-white font-semibold">
+              <div className="text-right flex-shrink-0">
+                <span className="text-gray-900 dark:text-white font-semibold tabular-nums">
                   {item.value.toLocaleString()}
                 </span>
-                <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">
+                <span className="text-gray-500 dark:text-gray-400 text-sm ml-2 tabular-nums">
                   ({item.percentage}%)
                 </span>
               </div>

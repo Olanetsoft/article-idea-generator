@@ -123,7 +123,7 @@ export default function ToolsPage(): JSX.Element {
 
       <Header />
 
-      <main className="flex-1 w-full max-w-screen-lg px-4 py-6 sm:py-12">
+      <main id="main-content" className="flex-1 w-full max-w-screen-lg px-4 py-6 sm:py-12">
         {/* Breadcrumb */}
         <nav className="text-sm mb-4 sm:mb-6" aria-label="Breadcrumb">
           <ol className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
@@ -145,7 +145,7 @@ export default function ToolsPage(): JSX.Element {
         {/* Hero Section */}
         <section className="text-center mb-8 sm:mb-12">
           <h1
-            className={`${spaceGrotesk.className} text-2xl sm:text-4xl md:text-5xl font-bold text-gray-900 dark:text-zinc-100 mb-3 sm:mb-4`}
+            className={`${spaceGrotesk.className} text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 dark:text-zinc-100 mb-3 sm:mb-4`}
           >
             {t("tools.heroTitle")}
           </h1>
@@ -159,7 +159,7 @@ export default function ToolsPage(): JSX.Element {
             className="inline-flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-lg transition text-sm sm:text-base"
           >
             {t("tools.cta")}
-            <ArrowRightIcon className="w-4 h-4" />
+            <ArrowRightIcon className="w-4 h-4" aria-hidden="true" />
           </Link>
         </section>
 
@@ -195,7 +195,7 @@ export default function ToolsPage(): JSX.Element {
             className="inline-flex items-center gap-2 text-violet-600 dark:text-violet-400 font-semibold hover:underline text-sm sm:text-base"
           >
             {t("tools.tryGenerator")}
-            <ArrowRightIcon className="w-4 h-4" />
+            <ArrowRightIcon className="w-4 h-4" aria-hidden="true" />
           </Link>
         </section>
       </main>

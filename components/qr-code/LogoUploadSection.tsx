@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useId } from "react";
 import { PhotographIcon, XIcon } from "@heroicons/react/outline";
 
 interface LogoUploadSectionProps {
@@ -16,8 +16,7 @@ export function LogoUploadSection({
   t,
   compact = false,
 }: LogoUploadSectionProps) {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const inputId = `logo-upload-${Math.random().toString(36).substr(2, 9)}`;
+  const inputId = useId();
 
   return (
     <div>
@@ -25,7 +24,6 @@ export function LogoUploadSection({
         {t("tools.qrCode.addLogo")}
       </label>
       <input
-        ref={inputRef}
         type="file"
         accept="image/*"
         onChange={onUpload}
@@ -40,6 +38,8 @@ export function LogoUploadSection({
           <img
             src={logoDataUrl}
             alt="Logo preview"
+            width={compact ? 32 : 48}
+            height={compact ? 32 : 48}
             className={`${compact ? "w-8 h-8" : "w-12 h-12"} object-contain rounded`}
           />
           <div className="flex-1 min-w-0">
@@ -55,11 +55,16 @@ export function LogoUploadSection({
             )}
           </div>
           <button
+            type="button"
             onClick={onRemove}
-            className="p-1.5 text-zinc-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+            className="p-2.5 -m-1 text-zinc-400 hover:text-red-500 dark:hover:text-red-400 transition-colors rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
+            aria-label={t("tools.qrCode.removeLogo")}
             title={t("tools.qrCode.removeLogo")}
           >
-            <XIcon className={`${compact ? "w-4 h-4" : "w-5 h-5"}`} />
+            <XIcon
+              aria-hidden="true"
+              className={`${compact ? "w-4 h-4" : "w-5 h-5"}`}
+            />
           </button>
         </div>
       ) : (

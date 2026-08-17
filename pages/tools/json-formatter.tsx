@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useMemo } from "react";
+import { useState, useCallback, useRef, useMemo, useEffect } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { Toaster, toast } from "react-hot-toast";
 import { Header, Footer } from "@/components";
 import { RelatedTools } from "@/components/tools";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import { useTranslation } from "@/hooks/useTranslation";
 import { SITE_URL, SITE_NAME, LOCALE_MAP } from "@/lib/constants";
 import { trackToolUsage } from "@/lib/gtag";
@@ -185,7 +186,9 @@ function StatBadge({ label, value, icon }: StatBadgeProps) {
     <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 dark:bg-dark-card rounded-full text-xs">
       {icon}
       <span className="text-gray-500 dark:text-gray-400">{label}:</span>
-      <span className="font-medium text-gray-900 dark:text-white">{value}</span>
+      <span className="font-medium tabular-nums text-gray-900 dark:text-white">
+        {value}
+      </span>
     </div>
   );
 }
@@ -198,18 +201,29 @@ export default function JsonFormatterPage(): JSX.Element {
   const { t } = useTranslation();
   const router = useRouter();
   const [input, setInput] = useState("");
+  const [debouncedInput, setDebouncedInput] = useState("");
   const [output, setOutput] = useState("");
   const [indent, setIndent] = useState<number | "tab">(2);
   const [copied, setCopied] = useState(false);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
   const hasTrackedUsage = useRef(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Debounce the expensive parse/validate work so it doesn't run per keystroke
+  useEffect(() => {
+    const id = setTimeout(() => setDebouncedInput(input), 300);
+    return () => clearTimeout(id);
+  }, [input]);
+
   // Computed values
-  const validation = useMemo(() => validateJson(input), [input]);
+  const validation = useMemo(
+    () => validateJson(debouncedInput),
+    [debouncedInput],
+  );
   const stats = useMemo(
-    () => (validation.isValid ? analyzeJson(input) : null),
-    [input, validation.isValid],
+    () => (validation.isValid ? analyzeJson(debouncedInput) : null),
+    [debouncedInput, validation.isValid],
   );
 
   // Handlers
@@ -249,12 +263,17 @@ export default function JsonFormatterPage(): JSX.Element {
     const textToCopy = output || input;
     if (!textToCopy.trim()) return;
 
-    navigator.clipboard.writeText(textToCopy).then(() => {
-      setCopied(true);
-      toast.success(t("tools.jsonFormatter.successCopied"));
-      trackToolUsage("JSON Formatter", "copy");
-      setTimeout(() => setCopied(false), 2000);
-    });
+    navigator.clipboard
+      .writeText(textToCopy)
+      .then(() => {
+        setCopied(true);
+        toast.success(t("tools.jsonFormatter.successCopied"));
+        trackToolUsage("JSON Formatter", "copy");
+        setTimeout(() => setCopied(false), 2000);
+      })
+      .catch(() => {
+        toast.error("Failed to copy to clipboard");
+      });
   }, [input, output, t]);
 
   const handlePaste = useCallback(async () => {
@@ -557,30 +576,33 @@ export default function JsonFormatterPage(): JSX.Element {
 
       <Header />
 
-      <main className="flex flex-col items-center w-full flex-1 px-4 sm:px-6 lg:px-8 pt-2 sm:pt-4 pb-8 max-w-7xl mx-auto">
+      <main
+        id="main-content"
+        className="flex flex-col items-center w-full flex-1 px-4 sm:px-6 lg:px-8 pt-2 sm:pt-4 pb-8 max-w-7xl mx-auto"
+      >
         {/* Breadcrumb */}
-        <nav className="w-full max-w-5xl mb-4">
+        <nav className="w-full max-w-5xl mb-4" aria-label="Breadcrumb">
           <ol className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
             <li>
               <Link
                 href="/"
                 className="hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
               >
-                Home
+                {t("header.home")}
               </Link>
             </li>
-            <li>/</li>
+            <li aria-hidden="true">/</li>
             <li>
               <Link
                 href="/tools"
                 className="hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
               >
-                Tools
+                {t("header.tools")}
               </Link>
             </li>
-            <li>/</li>
+            <li aria-hidden="true">/</li>
             <li className="text-gray-900 dark:text-white font-medium">
-              JSON Formatter
+              {t("tools.jsonFormatter.name")}
             </li>
           </ol>
         </nav>
@@ -593,7 +615,7 @@ export default function JsonFormatterPage(): JSX.Element {
           className="text-center mb-6 sm:mb-8 w-full max-w-3xl"
         >
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 rounded-full text-xs font-medium mb-4">
-            <CodeIcon className="w-3.5 h-3.5" />
+            <CodeIcon className="w-3.5 h-3.5" aria-hidden="true" />
             {t("tools.jsonFormatter.badge")}
           </div>
 
@@ -629,7 +651,8 @@ export default function JsonFormatterPage(): JSX.Element {
                         : parseInt(e.target.value),
                     )
                   }
-                  className="px-3 py-1.5 text-sm border border-gray-200 dark:border-dark-border rounded-lg bg-white dark:bg-dark-card text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  aria-label="Indentation"
+                  className="px-3 py-1.5 min-h-[44px] text-sm border border-gray-200 dark:border-dark-border rounded-lg bg-white dark:bg-dark-card text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-violet-500"
                 >
                   {INDENT_OPTIONS.map((opt) => (
                     <option key={opt.value} value={opt.value}>
@@ -642,7 +665,7 @@ export default function JsonFormatterPage(): JSX.Element {
                 <button
                   onClick={handleFormat}
                   disabled={!input.trim() || !validation.isValid}
-                  className="px-4 py-1.5 text-sm font-medium bg-violet-600 text-white rounded-lg hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="px-4 py-1.5 min-h-[44px] text-sm font-medium bg-violet-600 text-white rounded-lg hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   {t("tools.jsonFormatter.format")}
                 </button>
@@ -651,7 +674,7 @@ export default function JsonFormatterPage(): JSX.Element {
                 <button
                   onClick={handleMinify}
                   disabled={!input.trim() || !validation.isValid}
-                  className="px-4 py-1.5 text-sm font-medium bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="px-4 py-1.5 min-h-[44px] text-sm font-medium bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   {t("tools.jsonFormatter.minify")}
                 </button>
@@ -669,9 +692,10 @@ export default function JsonFormatterPage(): JSX.Element {
                 />
                 <label
                   htmlFor="json-file-upload"
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 cursor-pointer transition-colors"
+                  aria-label={t("tools.jsonFormatter.upload")}
+                  className="flex items-center gap-1.5 px-3 py-1.5 min-h-[44px] text-sm text-gray-600 dark:text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 cursor-pointer transition-colors"
                 >
-                  <UploadIcon className="w-4 h-4" />
+                  <UploadIcon className="w-4 h-4" aria-hidden="true" />
                   <span className="hidden sm:inline">
                     {t("tools.jsonFormatter.upload")}
                   </span>
@@ -680,9 +704,10 @@ export default function JsonFormatterPage(): JSX.Element {
                 {/* Paste */}
                 <button
                   onClick={handlePaste}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
+                  aria-label={t("tools.jsonFormatter.paste")}
+                  className="flex items-center gap-1.5 px-3 py-1.5 min-h-[44px] text-sm text-gray-600 dark:text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
                 >
-                  <ClipboardIcon className="w-4 h-4" />
+                  <ClipboardIcon className="w-4 h-4" aria-hidden="true" />
                   <span className="hidden sm:inline">
                     {t("tools.jsonFormatter.paste")}
                   </span>
@@ -692,12 +717,17 @@ export default function JsonFormatterPage(): JSX.Element {
                 <button
                   onClick={handleCopy}
                   disabled={!input.trim() && !output.trim()}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  aria-label={
+                    copied
+                      ? t("tools.jsonFormatter.copied")
+                      : t("tools.jsonFormatter.copy")
+                  }
+                  className="flex items-center gap-1.5 px-3 py-1.5 min-h-[44px] text-sm text-gray-600 dark:text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   {copied ? (
-                    <CheckIcon className="w-4 h-4 text-green-500" />
+                    <CheckIcon className="w-4 h-4 text-green-500" aria-hidden="true" />
                   ) : (
-                    <ClipboardCopyIcon className="w-4 h-4" />
+                    <ClipboardCopyIcon className="w-4 h-4" aria-hidden="true" />
                   )}
                   <span className="hidden sm:inline">
                     {copied
@@ -710,9 +740,10 @@ export default function JsonFormatterPage(): JSX.Element {
                 <button
                   onClick={handleDownload}
                   disabled={!input.trim() && !output.trim()}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  aria-label={t("tools.jsonFormatter.download")}
+                  className="flex items-center gap-1.5 px-3 py-1.5 min-h-[44px] text-sm text-gray-600 dark:text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
-                  <DownloadIcon className="w-4 h-4" />
+                  <DownloadIcon className="w-4 h-4" aria-hidden="true" />
                   <span className="hidden sm:inline">
                     {t("tools.jsonFormatter.download")}
                   </span>
@@ -720,11 +751,13 @@ export default function JsonFormatterPage(): JSX.Element {
 
                 {/* Clear */}
                 <button
-                  onClick={handleClear}
+                  onClick={() => setShowClearConfirm(true)}
                   disabled={!input.trim()}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  aria-label="Clear input"
+                  title="Clear input"
+                  className="flex items-center gap-1.5 px-3 py-1.5 min-h-[44px] text-sm text-gray-600 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
-                  <TrashIcon className="w-4 h-4" />
+                  <TrashIcon className="w-4 h-4" aria-hidden="true" />
                 </button>
               </div>
             </div>
@@ -742,12 +775,15 @@ export default function JsonFormatterPage(): JSX.Element {
                   onChange={handleInputChange}
                   placeholder={t("tools.jsonFormatter.placeholder")}
                   spellCheck={false}
-                  className="w-full h-64 sm:h-80 lg:h-[500px] pt-10 px-4 pb-4 bg-transparent text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none resize-none font-mono text-sm"
+                  aria-label={t("tools.jsonFormatter.input")}
+                  className="w-full h-64 sm:h-80 lg:h-[500px] pt-10 px-4 pb-4 bg-transparent text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-violet-500 resize-none font-mono text-sm"
                 />
 
                 {/* Validation indicator */}
                 {input.trim() && (
                   <div
+                    role="status"
+                    aria-live="polite"
                     className={`absolute bottom-4 left-4 flex items-center gap-1.5 text-xs ${
                       validation.isValid
                         ? "text-green-600 dark:text-green-400"
@@ -756,12 +792,12 @@ export default function JsonFormatterPage(): JSX.Element {
                   >
                     {validation.isValid ? (
                       <>
-                        <CheckCircleIcon className="w-4 h-4" />
+                        <CheckCircleIcon className="w-4 h-4" aria-hidden="true" />
                         {t("tools.jsonFormatter.valid")}
                       </>
                     ) : (
                       <>
-                        <ExclamationCircleIcon className="w-4 h-4" />
+                        <ExclamationCircleIcon className="w-4 h-4" aria-hidden="true" />
                         {validation.errorPosition
                           ? `Line ${validation.errorPosition.line}, Col ${validation.errorPosition.column}`
                           : t("tools.jsonFormatter.invalid")}
@@ -781,7 +817,8 @@ export default function JsonFormatterPage(): JSX.Element {
                   readOnly
                   placeholder={t("tools.jsonFormatter.outputPlaceholder")}
                   spellCheck={false}
-                  className="w-full h-64 sm:h-80 lg:h-[500px] pt-10 px-4 pb-4 bg-transparent text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none resize-none font-mono text-sm"
+                  aria-label={t("tools.jsonFormatter.output")}
+                  className="w-full h-64 sm:h-80 lg:h-[500px] pt-10 px-4 pb-4 bg-transparent text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-violet-500 resize-none font-mono text-sm"
                 />
               </div>
             </div>
@@ -889,7 +926,9 @@ export default function JsonFormatterPage(): JSX.Element {
                   key={index}
                   className="p-4 bg-white dark:bg-dark-card rounded-xl border border-gray-200 dark:border-dark-border"
                 >
-                  <span className="text-2xl mb-2 block">{feature.icon}</span>
+                  <span className="text-2xl mb-2 block" aria-hidden="true">
+                    {feature.icon}
+                  </span>
                   <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
                     {t(feature.titleKey)}
                   </h3>
@@ -961,6 +1000,7 @@ export default function JsonFormatterPage(): JSX.Element {
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
+                      aria-hidden="true"
                     >
                       <path
                         strokeLinecap="round"
@@ -979,8 +1019,20 @@ export default function JsonFormatterPage(): JSX.Element {
           </motion.section>
 
           {/* Related Tools */}
-          <RelatedTools currentToolId="json-formatter" />
+          <RelatedTools
+            currentToolId="json-formatter"
+            containerClassName="max-w-5xl"
+          />
         </div>
+
+        <ConfirmDialog
+          isOpen={showClearConfirm}
+          onClose={() => setShowClearConfirm(false)}
+          onConfirm={handleClear}
+          title="Clear input?"
+          message="This will remove the JSON in the input and output areas. This cannot be undone."
+          confirmLabel="Clear"
+        />
       </main>
 
       <Footer />

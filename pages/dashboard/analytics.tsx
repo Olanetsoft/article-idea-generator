@@ -12,6 +12,8 @@ import {
   ReferrerList,
   SourceComparison,
 } from "@/components";
+import Modal from "@/components/ui/Modal";
+import { useDismiss } from "@/hooks/useDismiss";
 import { useAuth } from "@/contexts";
 import { SITE_NAME } from "@/lib/constants";
 import { getAnalyticsEndpoint } from "@/lib/analytics/constants";
@@ -24,6 +26,7 @@ function ShareIcon({ className }: { className?: string }) {
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
+      aria-hidden="true"
     >
       <path
         strokeLinecap="round"
@@ -42,6 +45,7 @@ function LinkIcon({ className }: { className?: string }) {
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
+      aria-hidden="true"
     >
       <path
         strokeLinecap="round"
@@ -60,6 +64,7 @@ function XMarkIcon({ className }: { className?: string }) {
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
+      aria-hidden="true"
     >
       <path
         strokeLinecap="round"
@@ -152,8 +157,60 @@ export default function AnalyticsPage() {
   const [isCreatingShare, setIsCreatingShare] = useState(false);
   const [shareExpiry, setShareExpiry] = useState<string>("never");
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const dropdownTriggerRef = useRef<HTMLButtonElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const autoRefreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const hasReadQueryRef = useRef(false);
+
+  // Read period + custom date range from the URL once on mount
+  useEffect(() => {
+    if (!router.isReady || hasReadQueryRef.current) return;
+    hasReadQueryRef.current = true;
+    const { period: qPeriod, start, end } = router.query;
+    if (
+      typeof qPeriod === "string" &&
+      ["7d", "30d", "90d", "all", "custom"].includes(qPeriod)
+    ) {
+      setPeriod(qPeriod as "7d" | "30d" | "90d" | "all" | "custom");
+      if (qPeriod === "custom") {
+        setShowCustomDatePicker(true);
+        setCustomDateRange({
+          start: typeof start === "string" ? start : "",
+          end: typeof end === "string" ? end : "",
+        });
+      }
+    }
+  }, [router.isReady, router.query]);
+
+  // Reflect analytics view state in the URL via shallow routing
+  const updateUrlQuery = useCallback(
+    (updates: {
+      code?: string | null;
+      period?: string;
+      start?: string;
+      end?: string;
+    }) => {
+      const query: Record<string, string> = {};
+      const nextCode = updates.code !== undefined ? updates.code : selectedCode;
+      const nextPeriod = updates.period !== undefined ? updates.period : period;
+      const nextStart =
+        updates.start !== undefined ? updates.start : customDateRange.start;
+      const nextEnd =
+        updates.end !== undefined ? updates.end : customDateRange.end;
+      if (nextCode) query.code = nextCode;
+      if (nextPeriod && nextPeriod !== "30d") query.period = nextPeriod;
+      if (nextPeriod === "custom") {
+        if (nextStart) query.start = nextStart;
+        if (nextEnd) query.end = nextEnd;
+      }
+      router.push(
+        { pathname: "/dashboard/analytics", query },
+        undefined,
+        { shallow: true },
+      );
+    },
+    [router, selectedCode, period, customDateRange],
+  );
 
   // Filter links based on search query (defined early for use in keyboard navigation)
   const filteredLinks = links.filter((link) => {
@@ -166,21 +223,16 @@ export default function AnalyticsPage() {
     );
   });
 
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setIsDropdownOpen(false);
-        setSearchQuery("");
-        setHighlightedIndex(0);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+  // Close dropdown on outside click / Escape, returning focus to the trigger
+  const closeDropdown = useCallback(() => {
+    setIsDropdownOpen(false);
+    setSearchQuery("");
+    setHighlightedIndex(0);
   }, []);
+
+  useDismiss(dropdownRef, isDropdownOpen, closeDropdown, {
+    returnFocusRef: dropdownTriggerRef,
+  });
 
   // Focus search input when dropdown opens
   useEffect(() => {
@@ -213,26 +265,27 @@ export default function AnalyticsPage() {
             setSelectedCode(link.code);
             setIsDropdownOpen(false);
             setSearchQuery("");
-            router.push(`/dashboard/analytics?code=${link.code}`, undefined, {
-              shallow: true,
-            });
+            updateUrlQuery({ code: link.code });
           }
-          break;
-        case "Escape":
-          setIsDropdownOpen(false);
-          setSearchQuery("");
           break;
       }
     }
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isDropdownOpen, highlightedIndex, filteredLinks, router]);
+  }, [isDropdownOpen, highlightedIndex, filteredLinks, updateUrlQuery]);
 
   // Auto-refresh analytics every 30 seconds when enabled
   const fetchAnalyticsData = useCallback(
     async (showLoading = true) => {
       if (!selectedCode) return;
+      // Don't fire for a custom range until both dates are chosen
+      if (
+        period === "custom" &&
+        (!customDateRange.start || !customDateRange.end)
+      ) {
+        return;
+      }
 
       if (showLoading) {
         setIsLoadingAnalytics(true);
@@ -455,13 +508,20 @@ export default function AnalyticsPage() {
           >
             {/* Link Selector - Custom Dropdown */}
             <motion.div variants={itemVariants} className="mb-8">
-              <label className="block text-gray-500 dark:text-gray-400 text-sm mb-2">
+              <label
+                htmlFor="link-selector"
+                className="block text-gray-500 dark:text-gray-400 text-sm mb-2"
+              >
                 Select a link to view analytics
               </label>
               <div ref={dropdownRef} className="relative w-full max-w-lg">
                 <button
                   type="button"
+                  id="link-selector"
+                  ref={dropdownTriggerRef}
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  aria-expanded={isDropdownOpen}
+                  aria-haspopup="listbox"
                   className="w-full px-4 py-3 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl text-left flex items-center justify-between gap-3 hover:border-gray-300 dark:hover:border-zinc-700 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-colors"
                 >
                   {selectedLink ? (
@@ -477,13 +537,14 @@ export default function AnalyticsPage() {
                       </p>
                     </div>
                   ) : (
-                    <span className="text-gray-400">Select a link...</span>
+                    <span className="text-gray-400">Select a link…</span>
                   )}
                   <svg
                     className={`w-5 h-5 text-gray-400 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
+                    aria-hidden="true"
                   >
                     <path
                       strokeLinecap="round"
@@ -511,6 +572,7 @@ export default function AnalyticsPage() {
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
+                            aria-hidden="true"
                           >
                             <path
                               strokeLinecap="round"
@@ -519,10 +581,15 @@ export default function AnalyticsPage() {
                               d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                             />
                           </svg>
+                          <label htmlFor="link-search" className="sr-only">
+                            Search links
+                          </label>
                           <input
                             ref={searchInputRef}
-                            type="text"
-                            placeholder="Search links..."
+                            id="link-search"
+                            type="search"
+                            name="link-search"
+                            placeholder="Search links…"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="w-full pl-9 pr-4 py-2 text-sm bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
@@ -534,7 +601,7 @@ export default function AnalyticsPage() {
                       </div>
 
                       {/* Links List */}
-                      <div className="max-h-64 overflow-y-auto">
+                      <div className="max-h-64 overflow-y-auto overscroll-contain">
                         {filteredLinks.length === 0 ? (
                           <div className="px-4 py-8 text-center text-gray-500 dark:text-gray-400 text-sm">
                             No links match your search
@@ -548,11 +615,7 @@ export default function AnalyticsPage() {
                                 setSelectedCode(link.code);
                                 setIsDropdownOpen(false);
                                 setSearchQuery("");
-                                router.push(
-                                  `/dashboard/analytics?code=${link.code}`,
-                                  undefined,
-                                  { shallow: true },
-                                );
+                                updateUrlQuery({ code: link.code });
                               }}
                               className={`w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors border-b border-gray-100 dark:border-zinc-800 last:border-0 ${
                                 selectedCode === link.code
@@ -622,11 +685,8 @@ export default function AnalyticsPage() {
                       key={p}
                       onClick={() => {
                         setPeriod(p);
-                        if (p === "custom") {
-                          setShowCustomDatePicker(true);
-                        } else {
-                          setShowCustomDatePicker(false);
-                        }
+                        setShowCustomDatePicker(p === "custom");
+                        updateUrlQuery({ period: p });
                       }}
                       className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
                         period === p
@@ -651,27 +711,41 @@ export default function AnalyticsPage() {
               {/* Custom Date Range Picker */}
               {showCustomDatePicker && (
                 <div className="flex items-center gap-2">
+                  <label htmlFor="custom-start-date" className="sr-only">
+                    Start date
+                  </label>
                   <input
+                    id="custom-start-date"
                     type="date"
+                    name="start-date"
                     value={customDateRange.start}
-                    onChange={(e) =>
+                    onChange={(e) => {
                       setCustomDateRange((prev) => ({
                         ...prev,
                         start: e.target.value,
-                      }))
-                    }
+                      }));
+                      updateUrlQuery({ start: e.target.value });
+                    }}
                     className="px-3 py-1.5 text-sm bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-lg focus:outline-none focus:border-violet-500"
                   />
-                  <span className="text-gray-400">to</span>
+                  <span className="text-gray-400" aria-hidden="true">
+                    to
+                  </span>
+                  <label htmlFor="custom-end-date" className="sr-only">
+                    End date
+                  </label>
                   <input
+                    id="custom-end-date"
                     type="date"
+                    name="end-date"
                     value={customDateRange.end}
-                    onChange={(e) =>
+                    onChange={(e) => {
                       setCustomDateRange((prev) => ({
                         ...prev,
                         end: e.target.value,
-                      }))
-                    }
+                      }));
+                      updateUrlQuery({ end: e.target.value });
+                    }}
                     className="px-3 py-1.5 text-sm bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-lg focus:outline-none focus:border-violet-500"
                   />
                 </div>
@@ -698,6 +772,7 @@ export default function AnalyticsPage() {
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
+                    aria-hidden="true"
                   >
                     <path
                       strokeLinecap="round"
@@ -708,11 +783,15 @@ export default function AnalyticsPage() {
                   </svg>
                   {autoRefreshEnabled ? "Live" : "Paused"}
                 </button>
-                {lastRefreshed && (
-                  <span className="text-xs text-gray-400">
-                    Updated {formatTimestamp(lastRefreshed.toISOString())}
-                  </span>
-                )}
+                <span
+                  role="status"
+                  aria-live="polite"
+                  className="text-xs text-gray-400 tabular-nums"
+                >
+                  {lastRefreshed
+                    ? `Updated ${formatTimestamp(lastRefreshed.toISOString())}`
+                    : ""}
+                </span>
               </div>
 
               {/* Export Buttons */}
@@ -725,19 +804,24 @@ export default function AnalyticsPage() {
                   disabled={isExporting || !analytics}
                   className="px-3 py-1.5 bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
                 >
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                    />
-                  </svg>
+                  {isExporting ? (
+                    <ExportSpinner />
+                  ) : (
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                      />
+                    </svg>
+                  )}
                   CSV
                 </button>
                 <button
@@ -745,19 +829,24 @@ export default function AnalyticsPage() {
                   disabled={isExporting || !analytics}
                   className="px-3 py-1.5 bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
                 >
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                    />
-                  </svg>
+                  {isExporting ? (
+                    <ExportSpinner />
+                  ) : (
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                      />
+                    </svg>
+                  )}
                   JSON
                 </button>
               </div>
@@ -781,8 +870,9 @@ export default function AnalyticsPage() {
                       </a>
                       <button
                         onClick={handleCopyShortUrl}
-                        className="p-1.5 rounded-lg hover:bg-violet-100 dark:hover:bg-violet-500/20 transition-colors"
+                        className="min-w-[44px] min-h-[44px] inline-flex items-center justify-center rounded-lg hover:bg-violet-100 dark:hover:bg-violet-500/20 transition-colors"
                         title="Copy short URL"
+                        aria-label={copied ? "Short URL copied" : "Copy short URL"}
                       >
                         {copied ? (
                           <svg
@@ -790,6 +880,7 @@ export default function AnalyticsPage() {
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
+                            aria-hidden="true"
                           >
                             <path
                               strokeLinecap="round"
@@ -804,6 +895,7 @@ export default function AnalyticsPage() {
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
+                            aria-hidden="true"
                           >
                             <path
                               strokeLinecap="round"
@@ -819,8 +911,9 @@ export default function AnalyticsPage() {
                           setShareUrl(null);
                           setShowShareModal(true);
                         }}
-                        className="p-1.5 rounded-lg hover:bg-violet-100 dark:hover:bg-violet-500/20 transition-colors"
+                        className="min-w-[44px] min-h-[44px] inline-flex items-center justify-center rounded-lg hover:bg-violet-100 dark:hover:bg-violet-500/20 transition-colors"
                         title="Share analytics"
+                        aria-label="Share analytics"
                       >
                         <ShareIcon className="w-4 h-4 text-violet-500" />
                       </button>
@@ -840,138 +933,110 @@ export default function AnalyticsPage() {
             )}
 
             {/* Share Analytics Modal */}
-            <AnimatePresence>
-              {showShareModal && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-                  onClick={() => setShowShareModal(false)}
-                >
-                  <motion.div
-                    initial={{ scale: 0.95, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0.95, opacity: 0 }}
-                    className="bg-white dark:bg-zinc-900 rounded-2xl p-6 max-w-md w-full shadow-xl"
-                    onClick={(e) => e.stopPropagation()}
+            <Modal
+              isOpen={showShareModal}
+              onClose={() => setShowShareModal(false)}
+              title="Share Analytics"
+            >
+              <button
+                onClick={() => setShowShareModal(false)}
+                aria-label="Close share dialog"
+                className="absolute top-4 right-4 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
+              >
+                <XMarkIcon className="w-5 h-5 text-gray-500" />
+              </button>
+
+              {!shareUrl ? (
+                <>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
+                    Create a shareable link to let others view analytics for
+                    this URL without signing in.
+                  </p>
+
+                  <div className="mb-4">
+                    <label
+                      htmlFor="share-expiry"
+                      className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                    >
+                      Link Expiration
+                    </label>
+                    <select
+                      id="share-expiry"
+                      name="share-expiry"
+                      value={shareExpiry}
+                      onChange={(e) => setShareExpiry(e.target.value)}
+                      className="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-gray-900 dark:text-white"
+                    >
+                      <option value="never">Never expire</option>
+                      <option value="24h">24 hours</option>
+                      <option value="7d">7 days</option>
+                      <option value="30d">30 days</option>
+                    </select>
+                  </div>
+
+                  <button
+                    onClick={handleCreateShareLink}
+                    disabled={isCreatingShare}
+                    className="w-full py-2.5 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                        Share Analytics
-                      </h3>
-                      <button
-                        onClick={() => setShowShareModal(false)}
-                        className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-800"
-                      >
-                        <XMarkIcon className="w-5 h-5 text-gray-500" />
-                      </button>
-                    </div>
-
-                    {!shareUrl ? (
+                    {isCreatingShare ? (
                       <>
-                        <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
-                          Create a shareable link to let others view analytics
-                          for this URL without signing in.
-                        </p>
-
-                        <div className="mb-4">
-                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Link Expiration
-                          </label>
-                          <select
-                            value={shareExpiry}
-                            onChange={(e) => setShareExpiry(e.target.value)}
-                            className="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-gray-900 dark:text-white"
-                          >
-                            <option value="never">Never expire</option>
-                            <option value="24h">24 hours</option>
-                            <option value="7d">7 days</option>
-                            <option value="30d">30 days</option>
-                          </select>
-                        </div>
-
-                        <button
-                          onClick={handleCreateShareLink}
-                          disabled={isCreatingShare}
-                          className="w-full py-2.5 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                        >
-                          {isCreatingShare ? (
-                            <>
-                              <svg
-                                className="w-4 h-4 animate-spin"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                              >
-                                <circle
-                                  className="opacity-25"
-                                  cx="12"
-                                  cy="12"
-                                  r="10"
-                                  stroke="currentColor"
-                                  strokeWidth="4"
-                                />
-                                <path
-                                  className="opacity-75"
-                                  fill="currentColor"
-                                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                />
-                              </svg>
-                              Creating...
-                            </>
-                          ) : (
-                            <>
-                              <LinkIcon className="w-4 h-4" />
-                              Create Share Link
-                            </>
-                          )}
-                        </button>
+                        <ExportSpinner />
+                        Creating…
                       </>
                     ) : (
                       <>
-                        <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
-                          Your shareable analytics link is ready!
-                        </p>
-
-                        <div className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-zinc-800 rounded-lg mb-4">
-                          <input
-                            type="text"
-                            readOnly
-                            value={shareUrl}
-                            className="flex-1 bg-transparent text-sm text-gray-700 dark:text-gray-300 outline-none"
-                          />
-                          <button
-                            onClick={handleCopyShareUrl}
-                            className="p-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-colors"
-                          >
-                            <svg
-                              className="w-4 h-4"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-                              />
-                            </svg>
-                          </button>
-                        </div>
-
-                        <button
-                          onClick={() => setShareUrl(null)}
-                          className="w-full py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors text-sm"
-                        >
-                          Create another link
-                        </button>
+                        <LinkIcon className="w-4 h-4" />
+                        Create Share Link
                       </>
                     )}
-                  </motion.div>
-                </motion.div>
+                  </button>
+                </>
+              ) : (
+                <>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
+                    Your shareable analytics link is ready!
+                  </p>
+
+                  <div className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-zinc-800 rounded-lg mb-4">
+                    <input
+                      type="text"
+                      readOnly
+                      value={shareUrl}
+                      aria-label="Shareable analytics URL"
+                      className="flex-1 min-w-0 bg-transparent text-sm text-gray-700 dark:text-gray-300 outline-none"
+                    />
+                    <button
+                      onClick={handleCopyShareUrl}
+                      aria-label="Copy share link"
+                      className="p-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-colors"
+                    >
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+
+                  <button
+                    onClick={() => setShareUrl(null)}
+                    className="w-full py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors text-sm"
+                  >
+                    Create another link
+                  </button>
+                </>
               )}
-            </AnimatePresence>
+            </Modal>
 
             {error ? (
               <motion.div
@@ -995,7 +1060,33 @@ export default function AnalyticsPage() {
 // Truncate URL helper
 function truncateUrl(url: string, maxLength: number = 50): string {
   if (url.length <= maxLength) return url;
-  return url.substring(0, maxLength - 3) + "...";
+  return url.substring(0, maxLength - 1) + "…";
+}
+
+// Small spinner shown on export buttons while an export is running
+function ExportSpinner() {
+  return (
+    <svg
+      className="w-4 h-4 animate-spin"
+      fill="none"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
+      <circle
+        className="opacity-25"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        strokeWidth="4"
+      />
+      <path
+        className="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+      />
+    </svg>
+  );
 }
 
 // Loading skeleton component
@@ -1247,7 +1338,7 @@ function StatCard({
         </div>
       </div>
       <div className="flex items-end gap-2">
-        <p className="text-2xl font-bold text-gray-900 dark:text-white">
+        <p className="text-2xl font-bold text-gray-900 dark:text-white tabular-nums">
           {value.toLocaleString()}
         </p>
         {trend !== undefined && trend !== 0 && (
@@ -1332,7 +1423,7 @@ function RecentClicksTable({
                   key={i}
                   className="border-b border-gray-100 dark:border-zinc-800/50 last:border-0 hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors"
                 >
-                  <td className="px-4 py-3 text-gray-700 dark:text-gray-300 text-sm">
+                  <td className="px-4 py-3 text-gray-700 dark:text-gray-300 text-sm tabular-nums">
                     {formatTimestamp(click.timestamp)}
                   </td>
                   <td className="px-4 py-3 text-gray-700 dark:text-gray-300 text-sm">
@@ -1381,7 +1472,7 @@ function formatTimestamp(timestamp: string): string {
   if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
   if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
 
-  return date.toLocaleDateString("en-US", {
+  return date.toLocaleDateString(undefined, {
     month: "short",
     day: "numeric",
     hour: "numeric",
@@ -1429,7 +1520,9 @@ function TimeOfDayChart({
           {data.map((item, i) => (
             <div key={i} className="text-center">
               <div
-                className={`h-8 sm:h-10 md:h-12 rounded ${getIntensity(item.clicks)} transition-colors cursor-pointer hover:ring-2 hover:ring-violet-400`}
+                role="img"
+                aria-label={`${formatHour(item.hour)}: ${item.clicks} clicks`}
+                className={`h-8 sm:h-10 md:h-12 rounded ${getIntensity(item.clicks)} transition-colors hover:ring-2 hover:ring-violet-400`}
                 title={`${formatHour(item.hour)}: ${item.clicks} clicks`}
               />
               {/* Show labels at 12am, 6am, 12pm, 6pm */}
@@ -1442,10 +1535,18 @@ function TimeOfDayChart({
           ))}
         </div>
         <div className="flex flex-wrap justify-between text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-2 gap-1">
-          <span>🌙 Night</span>
-          <span>🌅 Morning</span>
-          <span>☀️ Afternoon</span>
-          <span>🌆 Evening</span>
+          <span>
+            <span aria-hidden="true">🌙</span> Night
+          </span>
+          <span>
+            <span aria-hidden="true">🌅</span> Morning
+          </span>
+          <span>
+            <span aria-hidden="true">☀️</span> Afternoon
+          </span>
+          <span>
+            <span aria-hidden="true">🌆</span> Evening
+          </span>
         </div>
         <div className="flex items-center justify-end gap-1 sm:gap-2 mt-4">
           <span className="text-[10px] sm:text-xs text-gray-400">Less</span>
@@ -1516,7 +1617,7 @@ function UTMBreakdown({
       <div className="p-4">
         {activeData.length === 0 ? (
           <p className="text-gray-500 dark:text-gray-400 text-center py-4">
-            No UTM data tracked yet. Add ?utm_source=... to your links.
+            No UTM data tracked yet. Add ?utm_source=… to your links.
           </p>
         ) : (
           <div className="space-y-3">
@@ -1528,8 +1629,9 @@ function UTMBreakdown({
                     <span className="text-sm font-medium text-gray-900 dark:text-white truncate">
                       {item.name || "(direct)"}
                     </span>
-                    <span className="text-sm text-gray-500 dark:text-gray-400">
-                      {item.count} ({((item.count / total) * 100).toFixed(1)}%)
+                    <span className="text-sm text-gray-500 dark:text-gray-400 tabular-nums">
+                      {item.count.toLocaleString()} (
+                      {((item.count / total) * 100).toFixed(1)}%)
                     </span>
                   </div>
                   <div className="h-1.5 bg-gray-100 dark:bg-zinc-800 rounded-full overflow-hidden">
