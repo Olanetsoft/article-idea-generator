@@ -2,6 +2,7 @@ import { useAuth } from "@/contexts";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import Head from "next/head";
+import toast, { Toaster } from "react-hot-toast";
 import { Header, Footer } from "@/components";
 
 interface DashboardLayoutProps {
@@ -30,6 +31,14 @@ export function DashboardLayout({
   const { user, isLoading, signInWithGoogle } = useAuth();
   const router = useRouter();
 
+  const handleSignIn = async () => {
+    try {
+      await signInWithGoogle();
+    } catch {
+      toast.error("Sign-in failed. Please try again.");
+    }
+  };
+
   const isActiveRoute = (item: NavItem) => {
     if (item.exactMatch) {
       return router.pathname === item.href;
@@ -42,14 +51,17 @@ export function DashboardLayout({
     return (
       <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-black">
         <Header />
-        <main className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <div className="relative w-12 h-12 mx-auto mb-4">
+        <main
+          id="main-content"
+          className="flex-1 flex items-center justify-center"
+        >
+          <div className="text-center" role="status" aria-live="polite">
+            <div className="relative w-12 h-12 mx-auto mb-4" aria-hidden="true">
               <div className="absolute inset-0 rounded-full border-2 border-gray-200 dark:border-zinc-700" />
               <div className="absolute inset-0 rounded-full border-2 border-violet-500 border-t-transparent animate-spin" />
             </div>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Loading your dashboard...
+              Loading your dashboard…
             </p>
           </div>
         </main>
@@ -67,7 +79,10 @@ export function DashboardLayout({
         </Head>
         <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-black">
           <Header />
-          <main className="flex-1 flex items-center justify-center px-4">
+          <main
+            id="main-content"
+            className="flex-1 flex items-center justify-center px-4"
+          >
             <div className="text-center p-8 max-w-md">
               <div className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-violet-100 dark:bg-violet-500/10 flex items-center justify-center">
                 <svg
@@ -91,10 +106,10 @@ export function DashboardLayout({
                 Access your dashboard to manage links and view analytics.
               </p>
               <button
-                onClick={signInWithGoogle}
-                className="inline-flex items-center justify-center gap-2.5 w-full px-5 py-2.5 bg-white dark:bg-zinc-800 text-gray-700 dark:text-gray-200 font-medium rounded-lg border border-gray-300 dark:border-zinc-700 hover:bg-gray-50 dark:hover:bg-zinc-700 hover:border-gray-400 dark:hover:border-zinc-600 transition-all duration-200 shadow-sm"
+                onClick={handleSignIn}
+                className="inline-flex items-center justify-center gap-2.5 w-full px-5 py-2.5 bg-white dark:bg-zinc-800 text-gray-700 dark:text-gray-200 font-medium rounded-lg border border-gray-300 dark:border-zinc-700 hover:bg-gray-50 dark:hover:bg-zinc-700 hover:border-gray-400 dark:hover:border-zinc-600 transition-colors duration-200 shadow-sm"
               >
-                <svg className="w-5 h-5" viewBox="0 0 24 24">
+                <svg className="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true">
                   <path
                     fill="#4285F4"
                     d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -125,6 +140,10 @@ export function DashboardLayout({
             </div>
           </main>
           <Footer />
+          <Toaster
+            position="top-center"
+            toastOptions={{ duration: 3000 }}
+          />
         </div>
       </>
     );
@@ -145,13 +164,17 @@ export function DashboardLayout({
           <div className="max-w-6xl mx-auto px-4 sm:px-6">
             <div className="flex items-center justify-between">
               {/* Tab Navigation */}
-              <nav className="flex items-center -mb-px overflow-x-auto scrollbar-hide">
+              <nav
+                aria-label="Dashboard"
+                className="flex items-center -mb-px overflow-x-auto scrollbar-hide"
+              >
                 {navItems.map((item) => {
                   const isActive = isActiveRoute(item);
                   return (
                     <Link
                       key={item.href}
                       href={item.href}
+                      aria-current={isActive ? "page" : undefined}
                       className={`relative px-4 py-3.5 text-sm font-medium whitespace-nowrap transition-colors ${
                         isActive
                           ? "text-violet-600 dark:text-violet-400"
@@ -179,6 +202,7 @@ export function DashboardLayout({
                   stroke="currentColor"
                   viewBox="0 0 24 24"
                   strokeWidth={2}
+                  aria-hidden="true"
                 >
                   <path
                     strokeLinecap="round"
@@ -195,7 +219,7 @@ export function DashboardLayout({
         {/* Mobile CTA - Fixed bottom on small screens */}
         <Link
           href="/tools/url-shortener"
-          className="sm:hidden fixed bottom-6 right-6 z-40 flex items-center gap-2 px-4 py-3 bg-violet-600 text-white font-medium rounded-full hover:bg-violet-700 active:bg-violet-800 transition-colors shadow-lg"
+          className="sm:hidden fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom))] right-6 z-40 flex items-center gap-2 px-4 py-3 bg-violet-600 text-white font-medium rounded-full hover:bg-violet-700 active:bg-violet-800 transition-colors shadow-lg"
         >
           <svg
             className="w-5 h-5"
@@ -203,6 +227,7 @@ export function DashboardLayout({
             stroke="currentColor"
             viewBox="0 0 24 24"
             strokeWidth={2}
+            aria-hidden="true"
           >
             <path
               strokeLinecap="round"
@@ -213,8 +238,11 @@ export function DashboardLayout({
           New Link
         </Link>
 
-        {/* Main Content */}
-        <main className="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-8">
+        {/* Main Content - extra bottom padding on mobile keeps the FAB from covering content */}
+        <main
+          id="main-content"
+          className="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 py-6 pb-24 sm:py-8 sm:pb-8"
+        >
           <div className="mb-6">
             <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white">
               {title}
@@ -229,6 +257,7 @@ export function DashboardLayout({
         </main>
 
         <Footer />
+        <Toaster position="top-center" toastOptions={{ duration: 3000 }} />
       </div>
     </>
   );

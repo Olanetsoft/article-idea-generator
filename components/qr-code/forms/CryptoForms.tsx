@@ -15,6 +15,9 @@ export function BitcoinForm({ data, updateField, t }: FormProps) {
         value={(data.address as string) || ""}
         onChange={(v: string) => updateField("address", v)}
         placeholder={t("tools.qrCode.bitcoinAddressPlaceholder")}
+        name="address"
+        autoComplete="off"
+        spellCheck={false}
         required
       />
       <InputField
@@ -22,6 +25,9 @@ export function BitcoinForm({ data, updateField, t }: FormProps) {
         value={(data.amount as string) || ""}
         onChange={(v: string) => updateField("amount", v)}
         placeholder={t("tools.qrCode.bitcoinAmountPlaceholder")}
+        name="amount"
+        inputMode="decimal"
+        spellCheck={false}
       />
       <InputField
         label={t("tools.qrCode.bitcoinLabel")}
@@ -49,6 +55,9 @@ export function EthereumForm({ data, updateField, t }: FormProps) {
         value={(data.address as string) || ""}
         onChange={(v: string) => updateField("address", v)}
         placeholder={t("tools.qrCode.ethereumAddressPlaceholder")}
+        name="address"
+        autoComplete="off"
+        spellCheck={false}
         required
       />
       <InputField
@@ -56,12 +65,18 @@ export function EthereumForm({ data, updateField, t }: FormProps) {
         value={(data.amount as string) || ""}
         onChange={(v: string) => updateField("amount", v)}
         placeholder={t("tools.qrCode.ethereumAmountPlaceholder")}
+        name="amount"
+        inputMode="decimal"
+        spellCheck={false}
       />
       <InputField
         label={t("tools.qrCode.ethereumToken")}
         value={(data.tokenAddress as string) || ""}
         onChange={(v: string) => updateField("tokenAddress", v)}
         placeholder={t("tools.qrCode.ethereumTokenPlaceholder")}
+        name="tokenAddress"
+        autoComplete="off"
+        spellCheck={false}
       />
       <SelectField
         label={t("tools.qrCode.ethereumNetwork")}
@@ -91,6 +106,9 @@ export function CardanoForm({ data, updateField, t }: FormProps) {
         value={(data.address as string) || ""}
         onChange={(v: string) => updateField("address", v)}
         placeholder={t("tools.qrCode.cardanoAddressPlaceholder")}
+        name="address"
+        autoComplete="off"
+        spellCheck={false}
         required
       />
       <InputField
@@ -98,6 +116,9 @@ export function CardanoForm({ data, updateField, t }: FormProps) {
         value={(data.amount as string) || ""}
         onChange={(v: string) => updateField("amount", v)}
         placeholder={t("tools.qrCode.cardanoAmountPlaceholder")}
+        name="amount"
+        inputMode="decimal"
+        spellCheck={false}
       />
       <p className="text-xs text-zinc-500 dark:text-zinc-400">
         {t("tools.qrCode.cardanoHint")}
@@ -114,6 +135,9 @@ export function SolanaForm({ data, updateField, t }: FormProps) {
         value={(data.address as string) || ""}
         onChange={(v: string) => updateField("address", v)}
         placeholder={t("tools.qrCode.solanaAddressPlaceholder")}
+        name="address"
+        autoComplete="off"
+        spellCheck={false}
         required
       />
       <InputField
@@ -121,6 +145,9 @@ export function SolanaForm({ data, updateField, t }: FormProps) {
         value={(data.amount as string) || ""}
         onChange={(v: string) => updateField("amount", v)}
         placeholder={t("tools.qrCode.solanaAmountPlaceholder")}
+        name="amount"
+        inputMode="decimal"
+        spellCheck={false}
       />
       <InputField
         label={t("tools.qrCode.solanaLabel")}

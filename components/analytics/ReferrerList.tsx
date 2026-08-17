@@ -73,26 +73,28 @@ function ReferrerRow({
     <div className="group">
       <div className="flex items-center justify-between mb-1">
         <div className="flex items-center gap-2">
-          <span className="text-gray-400 dark:text-gray-500 text-sm w-5">
+          <span className="text-gray-400 dark:text-gray-500 text-sm w-5 tabular-nums">
             {index + 1}.
           </span>
-          <span className="text-base">{item.icon}</span>
+          <span className="text-base" aria-hidden="true">
+            {item.icon}
+          </span>
           <span className="text-gray-700 dark:text-gray-300 text-sm truncate max-w-[120px] sm:max-w-[200px]">
             {item.name}
           </span>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-gray-500 dark:text-gray-400 text-sm">
+          <span className="text-gray-500 dark:text-gray-400 text-sm tabular-nums">
             {item.count.toLocaleString()}
           </span>
-          <span className="text-gray-400 dark:text-gray-500 text-sm w-12 text-right">
+          <span className="text-gray-400 dark:text-gray-500 text-sm w-12 text-right tabular-nums">
             {item.percentage}%
           </span>
         </div>
       </div>
       <div className="ml-7 h-1.5 bg-gray-200 dark:bg-zinc-700 rounded-full overflow-hidden">
         <div
-          className="h-full bg-gradient-to-r from-violet-500 to-violet-400 rounded-full transition-all duration-500"
+          className="h-full bg-gradient-to-r from-violet-500 to-violet-400 rounded-full transition-[width] duration-500"
           style={{ width: `${item.percentage}%` }}
         />
       </div>

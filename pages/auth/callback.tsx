@@ -6,7 +6,7 @@ import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 export default function AuthCallbackPage() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
-  const [status, setStatus] = useState("Initializing...");
+  const [status, setStatus] = useState("Initializing…");
   const hasRun = useRef(false);
 
   useEffect(() => {
@@ -14,14 +14,10 @@ export default function AuthCallbackPage() {
     if (hasRun.current) return;
 
     // Wait for router to be ready
-    if (!router.isReady) {
-      console.log("[Auth Callback] Router not ready yet");
-      return;
-    }
+    if (!router.isReady) return;
 
     hasRun.current = true;
-    console.log("[Auth Callback] Starting authentication...");
-    setStatus("Processing authentication...");
+    setStatus("Processing authentication…");
 
     const handleCallback = async () => {
       if (!isSupabaseConfigured) {
@@ -52,7 +48,6 @@ export default function AuthCallbackPage() {
 
       // Get the code from URL
       const code = urlParams.get("code");
-      console.log("[Auth Callback] Auth code present:", !!code);
 
       if (!code) {
         console.error("[Auth Callback] No auth code in URL");
@@ -62,21 +57,14 @@ export default function AuthCallbackPage() {
       }
 
       try {
-        setStatus("Exchanging code for session...");
-        console.log(
-          "[Auth Callback] Calling exchangeCodeForSession with code:",
-          code.substring(0, 8) + "...",
-        );
-
-        // Exchange the code for a session with timeout
-        const startTime = Date.now();
+        setStatus("Exchanging code for session…");
 
         // Create a promise that rejects after 15 seconds
         const timeoutPromise = new Promise<never>((_, reject) => {
           setTimeout(() => {
             reject(
               new Error(
-                "Exchange timed out - but auth may have succeeded. Checking session...",
+                "Exchange timed out - but auth may have succeeded. Checking session…",
               ),
             );
           }, 15000);
@@ -89,18 +77,11 @@ export default function AuthCallbackPage() {
             timeoutPromise,
           ]);
         } catch (timeoutError) {
-          console.log(
-            "[Auth Callback] Timeout occurred, checking if session exists...",
-          );
-
           // The network request completed but promise didn't resolve
           // Check if we have a session anyway
           const { data: sessionData } = await supabase.auth.getSession();
           if (sessionData?.session) {
-            console.log(
-              "[Auth Callback] Session found after timeout! Redirecting...",
-            );
-            setStatus("Authentication successful! Redirecting...");
+            setStatus("Authentication successful! Redirecting…");
             const redirectTo =
               localStorage.getItem("auth_redirect") || "/tools";
             localStorage.removeItem("auth_redirect");
@@ -110,17 +91,6 @@ export default function AuthCallbackPage() {
 
           throw timeoutError;
         }
-
-        const elapsed = Date.now() - startTime;
-
-        console.log("[Auth Callback] Exchange completed in", elapsed, "ms");
-        console.log("[Auth Callback] Full result:", result);
-        console.log("[Auth Callback] Exchange result:", {
-          hasData: !!result.data,
-          hasSession: !!result.data?.session,
-          hasUser: !!result.data?.user,
-          error: result.error?.message,
-        });
 
         const { data, error: authError } = result;
 
@@ -138,8 +108,7 @@ export default function AuthCallbackPage() {
           return;
         }
 
-        setStatus("Authentication successful! Redirecting...");
-        console.log("[Auth Callback] Success! Redirecting...");
+        setStatus("Authentication successful! Redirecting…");
 
         // Small delay to ensure session is persisted
         await new Promise((resolve) => setTimeout(resolve, 100));
@@ -165,16 +134,22 @@ export default function AuthCallbackPage() {
   return (
     <>
       <Head>
-        <title>Signing in... | Article Idea Generator</title>
+        <title>Signing in… | Article Idea Generator</title>
         <meta name="robots" content="noindex, nofollow" />
       </Head>
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-        <div className="text-center p-8">
+      <main
+        id="main-content"
+        className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-black"
+      >
+        <div className="text-center p-8" role="status" aria-live="polite">
           {error ? (
             <>
-              <div className="w-16 h-16 mx-auto mb-6 flex items-center justify-center rounded-full bg-red-500/20">
+              <div
+                className="w-16 h-16 mx-auto mb-6 flex items-center justify-center rounded-full bg-red-100 dark:bg-red-500/20"
+                aria-hidden="true"
+              >
                 <svg
-                  className="w-8 h-8 text-red-500"
+                  className="w-8 h-8 text-red-600 dark:text-red-400"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -187,26 +162,35 @@ export default function AuthCallbackPage() {
                   />
                 </svg>
               </div>
-              <h1 className="text-2xl font-semibold text-white mb-2">
+              <h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
                 Authentication Failed
               </h1>
-              <p className="text-red-400 text-sm mb-4">{error}</p>
-              <p className="text-slate-400 text-xs">Redirecting you back...</p>
+              <p className="text-red-600 dark:text-red-400 text-sm mb-4">
+                {error}
+              </p>
+              <p className="text-gray-500 dark:text-gray-400 text-xs">
+                Redirecting you back…
+              </p>
             </>
           ) : (
             <>
-              <div className="relative w-16 h-16 mx-auto mb-6">
-                <div className="absolute inset-0 rounded-full border-4 border-slate-700" />
-                <div className="absolute inset-0 rounded-full border-4 border-cyan-500 border-t-transparent animate-spin" />
+              <div
+                className="relative w-16 h-16 mx-auto mb-6"
+                aria-hidden="true"
+              >
+                <div className="absolute inset-0 rounded-full border-4 border-gray-200 dark:border-zinc-700" />
+                <div className="absolute inset-0 rounded-full border-4 border-violet-500 border-t-transparent animate-spin" />
               </div>
-              <h1 className="text-2xl font-semibold text-white mb-2">
-                Signing you in...
+              <h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
+                Signing you in…
               </h1>
-              <p className="text-slate-400 text-sm">{status}</p>
+              <p className="text-gray-500 dark:text-gray-400 text-sm">
+                {status}
+              </p>
             </>
           )}
         </div>
-      </div>
+      </main>
     </>
   );
 }

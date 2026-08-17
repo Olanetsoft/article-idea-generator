@@ -11,8 +11,8 @@ module.exports = {
   darkMode: "class",
   theme: {
     extend: {
-      fontFamily: {
-        sansSerif: "sans-serif",
+      screens: {
+        xs: "475px",
       },
       backgroundColor: {
         darkOffset: "#111111",

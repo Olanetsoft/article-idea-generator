@@ -27,7 +27,20 @@ export function useTranslation() {
       }
     }
 
-    return value || key;
+    if (typeof value === "string" && value) {
+      return value;
+    }
+
+    // Missing key: humanize the last segment (e.g. "frameTextLabel" ->
+    // "Frame Text Label") instead of exposing the raw dotted path
+    const lastSegment = keys[keys.length - 1] || key;
+    return lastSegment
+      .replace(/[_-]+/g, " ")
+      .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+      .split(" ")
+      .filter(Boolean)
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
   };
 
   const changeLocale = (newLocale: string) => {

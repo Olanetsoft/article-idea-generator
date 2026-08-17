@@ -1,8 +1,13 @@
 import { GetServerSideProps } from "next";
 import Head from "next/head";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createServerClient } from "@/lib/supabase/server";
+
+// Shared card treatment matching the dashboard (border, no shadow)
+const CARD_STYLES =
+  "bg-white dark:bg-zinc-900 rounded-xl p-6 border border-gray-200 dark:border-zinc-800";
 
 interface SharedAnalyticsProps {
   error?: string;
@@ -38,6 +43,7 @@ function ChartBarIcon({ className }: { className?: string }) {
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
+      aria-hidden="true"
     >
       <path
         strokeLinecap="round"
@@ -56,6 +62,7 @@ function CursorArrowRaysIcon({ className }: { className?: string }) {
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
+      aria-hidden="true"
     >
       <path
         strokeLinecap="round"
@@ -74,6 +81,7 @@ function GlobeAltIcon({ className }: { className?: string }) {
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
+      aria-hidden="true"
     >
       <path
         strokeLinecap="round"
@@ -92,6 +100,7 @@ function DevicePhoneMobileIcon({ className }: { className?: string }) {
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
+      aria-hidden="true"
     >
       <path
         strokeLinecap="round"
@@ -110,6 +119,7 @@ function ClockIcon({ className }: { className?: string }) {
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
+      aria-hidden="true"
     >
       <path
         strokeLinecap="round"
@@ -126,51 +136,83 @@ export default function SharedAnalyticsPage({
   code,
   token,
 }: SharedAnalyticsProps) {
+  const router = useRouter();
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const [period, setPeriod] = useState<string>("30d");
+  const hasReadQueryRef = useRef(false);
+
+  // Read initial period from the URL once
+  useEffect(() => {
+    if (!router.isReady || hasReadQueryRef.current) return;
+    hasReadQueryRef.current = true;
+    const { period: qPeriod } = router.query;
+    if (
+      typeof qPeriod === "string" &&
+      ["24h", "7d", "30d", "all"].includes(qPeriod)
+    ) {
+      setPeriod(qPeriod);
+    }
+  }, [router.isReady, router.query]);
+
+  const handlePeriodChange = (p: string) => {
+    setPeriod(p);
+    const query = { ...router.query };
+    if (p === "30d") {
+      delete query.period;
+    } else {
+      query.period = p;
+    }
+    router.replace({ pathname: router.pathname, query }, undefined, {
+      shallow: true,
+    });
+  };
+
+  const fetchAnalytics = useCallback(async () => {
+    if (!code || !token) return;
+    setLoading(true);
+    setFetchError(null);
+    try {
+      const res = await fetch(
+        `/api/analytics/shared?token=${token}&period=${period}`,
+      );
+      if (!res.ok) {
+        throw new Error("Failed to load analytics");
+      }
+      const data = await res.json();
+      setAnalytics(data);
+    } catch {
+      setFetchError(
+        "We couldn't load these analytics. Please check your connection and try again.",
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, [code, token, period]);
 
   useEffect(() => {
-    if (!code || !token) return;
-
-    const fetchAnalytics = async () => {
-      setLoading(true);
-      try {
-        const res = await fetch(
-          `/api/analytics/shared?token=${token}&period=${period}`,
-        );
-        if (res.ok) {
-          const data = await res.json();
-          setAnalytics(data);
-        }
-      } catch {
-        console.error("Failed to fetch analytics");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchAnalytics();
-  }, [code, token, period]);
+  }, [fetchAnalytics]);
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-black flex items-center justify-center">
         <Head>
           <title>Analytics Not Found | aigl.ink</title>
         </Head>
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+        <main id="main-content" className="text-center p-8">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
             Analytics Not Available
           </h1>
-          <p className="text-gray-600">{error}</p>
-        </div>
+          <p className="text-gray-600 dark:text-gray-400">{error}</p>
+        </main>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-black">
       <Head>
         <title>
           Shared Analytics {analytics?.code ? `- ${analytics.code}` : ""} |
@@ -178,35 +220,40 @@ export default function SharedAnalyticsPage({
         </title>
       </Head>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main
+        id="main-content"
+        className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
+      >
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-2">
-            <ChartBarIcon className="h-6 w-6 text-violet-600" />
-            <span className="text-sm text-gray-500">Shared Analytics</span>
+            <ChartBarIcon className="h-6 w-6 text-violet-600 dark:text-violet-400" />
+            <span className="text-sm text-gray-500 dark:text-gray-400">
+              Shared Analytics
+            </span>
           </div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            {analytics
+              ? analytics.title || analytics.code
+              : "Link Analytics"}
+          </h1>
           {analytics && (
-            <>
-              <h1 className="text-2xl font-bold text-gray-900">
-                {analytics.title || analytics.code}
-              </h1>
-              <p className="text-gray-500 text-sm truncate max-w-xl">
-                {analytics.originalUrl}
-              </p>
-            </>
+            <p className="text-gray-500 dark:text-gray-400 text-sm truncate max-w-xl">
+              {analytics.originalUrl}
+            </p>
           )}
         </div>
 
         {/* Period Selector */}
-        <div className="mb-6 flex gap-2">
+        <div className="mb-6 flex flex-wrap gap-2">
           {["24h", "7d", "30d", "all"].map((p) => (
             <button
               key={p}
-              onClick={() => setPeriod(p)}
+              onClick={() => handlePeriodChange(p)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 period === p
                   ? "bg-violet-600 text-white"
-                  : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
+                  : "bg-white dark:bg-zinc-900 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 border border-gray-200 dark:border-zinc-800"
               }`}
             >
               {p === "24h"
@@ -221,16 +268,35 @@ export default function SharedAnalyticsPage({
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <div
+            role="status"
+            aria-live="polite"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8"
+          >
+            <span className="sr-only">Loading analytics…</span>
             {[...Array(4)].map((_, i) => (
               <div
                 key={i}
-                className="bg-white rounded-xl p-6 shadow-sm animate-pulse"
+                className={`${CARD_STYLES} animate-pulse`}
+                aria-hidden="true"
               >
-                <div className="h-4 bg-gray-200 rounded w-24 mb-2"></div>
-                <div className="h-8 bg-gray-200 rounded w-16"></div>
+                <div className="h-4 bg-gray-200 dark:bg-zinc-700 rounded w-24 mb-2"></div>
+                <div className="h-8 bg-gray-200 dark:bg-zinc-700 rounded w-16"></div>
               </div>
             ))}
+          </div>
+        ) : fetchError ? (
+          <div
+            role="alert"
+            className="p-6 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 text-red-600 dark:text-red-400"
+          >
+            <p className="mb-4">{fetchError}</p>
+            <button
+              onClick={fetchAnalytics}
+              className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors"
+            >
+              Try again
+            </button>
           </div>
         ) : analytics ? (
           <>
@@ -238,24 +304,28 @@ export default function SharedAnalyticsPage({
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
               <StatCard
                 icon={
-                  <CursorArrowRaysIcon className="h-5 w-5 text-violet-600" />
+                  <CursorArrowRaysIcon className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                 }
                 label="Total Clicks"
                 value={analytics.totalClicks}
               />
               <StatCard
-                icon={<CursorArrowRaysIcon className="h-5 w-5 text-blue-600" />}
+                icon={
+                  <CursorArrowRaysIcon className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                }
                 label="Unique Clicks"
                 value={analytics.uniqueClicks}
               />
               <StatCard
-                icon={<GlobeAltIcon className="h-5 w-5 text-green-600" />}
+                icon={
+                  <GlobeAltIcon className="h-5 w-5 text-green-600 dark:text-green-400" />
+                }
                 label="Countries"
                 value={analytics.countries.length}
               />
               <StatCard
                 icon={
-                  <DevicePhoneMobileIcon className="h-5 w-5 text-orange-600" />
+                  <DevicePhoneMobileIcon className="h-5 w-5 text-orange-600 dark:text-orange-400" />
                 }
                 label="QR Scans"
                 value={analytics.qrScans}
@@ -265,67 +335,79 @@ export default function SharedAnalyticsPage({
             {/* Charts Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
               {/* Click Timeline */}
-              <div className="bg-white rounded-xl p-6 shadow-sm">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              <div className={CARD_STYLES}>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                   Click Timeline
-                </h3>
+                </h2>
                 <div className="h-64 flex items-end gap-1">
-                  {analytics.timeline.slice(-30).map((day, i) => {
+                  {(() => {
+                    const timelineWindow = analytics.timeline.slice(-30);
+                    // Scale against the max of the rendered window, not the
+                    // full timeline, so bar heights are correct
                     const maxClicks = Math.max(
-                      ...analytics.timeline.map((d) => d.clicks),
+                      ...timelineWindow.map((d) => d.clicks),
                       1,
                     );
-                    const height = (day.clicks / maxClicks) * 100;
-                    return (
-                      <div
-                        key={i}
-                        className="flex-1 bg-violet-500 rounded-t hover:bg-violet-600 transition-colors"
-                        style={{ height: `${Math.max(height, 2)}%` }}
-                        title={`${day.date}: ${day.clicks} clicks`}
-                      />
-                    );
-                  })}
+                    return timelineWindow.map((day, i) => {
+                      const height = (day.clicks / maxClicks) * 100;
+                      return (
+                        <div
+                          key={i}
+                          role="img"
+                          aria-label={`${day.date}: ${day.clicks} clicks`}
+                          className="flex-1 bg-violet-500 rounded-t hover:bg-violet-600 transition-colors"
+                          style={{ height: `${Math.max(height, 2)}%` }}
+                          title={`${day.date}: ${day.clicks} clicks`}
+                        />
+                      );
+                    });
+                  })()}
                 </div>
               </div>
 
               {/* Time of Day Heatmap */}
-              <div className="bg-white rounded-xl p-6 shadow-sm">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <div className={CARD_STYLES}>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                   <ClockIcon className="h-5 w-5" />
                   Time of Day
-                </h3>
-                <div className="grid grid-cols-12 gap-1">
-                  {analytics.hourlyDistribution.map(({ hour, clicks }) => {
-                    const maxClicks = Math.max(
-                      ...analytics.hourlyDistribution.map((h) => h.clicks),
-                      1,
-                    );
-                    const intensity = clicks / maxClicks;
-                    return (
-                      <div
-                        key={hour}
-                        className="aspect-square rounded flex items-center justify-center text-xs"
-                        style={{
-                          backgroundColor: `rgba(139, 92, 246, ${Math.max(intensity, 0.1)})`,
-                          color: intensity > 0.5 ? "white" : "#6b7280",
-                        }}
-                        title={`${hour}:00 - ${clicks} clicks`}
-                      >
-                        {hour}
-                      </div>
-                    );
-                  })}
+                </h2>
+                {/* Scrolls horizontally on small screens so cells stay usable */}
+                <div className="overflow-x-auto">
+                  <div className="grid grid-cols-12 gap-1 min-w-[420px]">
+                    {analytics.hourlyDistribution.map(({ hour, clicks }) => {
+                      const maxClicks = Math.max(
+                        ...analytics.hourlyDistribution.map((h) => h.clicks),
+                        1,
+                      );
+                      const intensity = clicks / maxClicks;
+                      return (
+                        <div
+                          key={hour}
+                          role="img"
+                          aria-label={`${hour}:00 – ${clicks} clicks`}
+                          className="aspect-square rounded flex items-center justify-center text-xs tabular-nums"
+                          style={{
+                            backgroundColor: `rgba(139, 92, 246, ${Math.max(intensity, 0.1)})`,
+                            color: intensity > 0.5 ? "white" : "#6b7280",
+                          }}
+                          title={`${hour}:00 - ${clicks} clicks`}
+                        >
+                          {hour}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-                <p className="text-xs text-gray-500 mt-2 text-center">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center">
                   Hour of day (0-23)
                 </p>
               </div>
 
               {/* Top Countries */}
-              <div className="bg-white rounded-xl p-6 shadow-sm">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              <div className={CARD_STYLES}>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                   Top Countries
-                </h3>
+                </h2>
                 <div className="space-y-3">
                   {analytics.countries.slice(0, 5).map((country) => {
                     const percent = analytics.totalClicks
@@ -336,11 +418,13 @@ export default function SharedAnalyticsPage({
                         key={country.name}
                         className="flex items-center gap-3"
                       >
-                        <span className="text-gray-700 flex-1">
+                        <span className="text-gray-700 dark:text-gray-300 flex-1 min-w-0 truncate">
                           {country.name}
                         </span>
-                        <span className="text-gray-500">{country.count}</span>
-                        <div className="w-24 h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <span className="text-gray-500 dark:text-gray-400 tabular-nums">
+                          {country.count.toLocaleString()}
+                        </span>
+                        <div className="w-24 h-2 bg-gray-100 dark:bg-zinc-800 rounded-full overflow-hidden">
                           <div
                             className="h-full bg-violet-500 rounded-full"
                             style={{
@@ -355,10 +439,10 @@ export default function SharedAnalyticsPage({
               </div>
 
               {/* Device Types */}
-              <div className="bg-white rounded-xl p-6 shadow-sm">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              <div className={CARD_STYLES}>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                   Devices
-                </h3>
+                </h2>
                 <div className="space-y-3">
                   {analytics.devices.map((device) => {
                     const percent = analytics.totalClicks
@@ -369,11 +453,13 @@ export default function SharedAnalyticsPage({
                         key={device.name}
                         className="flex items-center gap-3"
                       >
-                        <span className="text-gray-700 flex-1 capitalize">
+                        <span className="text-gray-700 dark:text-gray-300 flex-1 min-w-0 truncate capitalize">
                           {device.name}
                         </span>
-                        <span className="text-gray-500">{device.count}</span>
-                        <div className="w-24 h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <span className="text-gray-500 dark:text-gray-400 tabular-nums">
+                          {device.count.toLocaleString()}
+                        </span>
+                        <div className="w-24 h-2 bg-gray-100 dark:bg-zinc-800 rounded-full overflow-hidden">
                           <div
                             className="h-full bg-blue-500 rounded-full"
                             style={{
@@ -392,10 +478,10 @@ export default function SharedAnalyticsPage({
             {(analytics.utmSources.length > 0 ||
               analytics.utmMediums.length > 0 ||
               analytics.utmCampaigns.length > 0) && (
-              <div className="bg-white rounded-xl p-6 shadow-sm mb-8">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              <div className={`${CARD_STYLES} mb-8`}>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                   UTM Parameters
-                </h3>
+                </h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <UTMList title="Sources" items={analytics.utmSources} />
                   <UTMList title="Mediums" items={analytics.utmMediums} />
@@ -406,17 +492,19 @@ export default function SharedAnalyticsPage({
 
             {/* Top Referrers */}
             {analytics.referrers.length > 0 && (
-              <div className="bg-white rounded-xl p-6 shadow-sm">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              <div className={CARD_STYLES}>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                   Top Referrers
-                </h3>
+                </h2>
                 <div className="space-y-3">
                   {analytics.referrers.slice(0, 10).map((ref) => (
                     <div key={ref.name} className="flex items-center gap-3">
-                      <span className="text-gray-700 flex-1 truncate">
+                      <span className="text-gray-700 dark:text-gray-300 flex-1 min-w-0 truncate">
                         {ref.name}
                       </span>
-                      <span className="text-gray-500">{ref.count}</span>
+                      <span className="text-gray-500 dark:text-gray-400 tabular-nums">
+                        {ref.count.toLocaleString()}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -425,21 +513,26 @@ export default function SharedAnalyticsPage({
           </>
         ) : (
           <div className="text-center py-12">
-            <p className="text-gray-500">No analytics data available</p>
+            <p className="text-gray-500 dark:text-gray-400">
+              No analytics data available
+            </p>
           </div>
         )}
 
         {/* Footer */}
-        <div className="mt-12 text-center text-sm text-gray-500">
+        <div className="mt-12 text-center text-sm text-gray-500 dark:text-gray-400">
           <p>
             Powered by{" "}
-            <Link href="/" className="text-violet-600 hover:underline">
+            <Link
+              href="/"
+              className="text-violet-600 dark:text-violet-400 hover:underline"
+            >
               aigl.ink
             </Link>{" "}
             - AI-Powered URL Shortener
           </p>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
@@ -454,12 +547,14 @@ function StatCard({
   value: number;
 }) {
   return (
-    <div className="bg-white rounded-xl p-6 shadow-sm">
+    <div className={CARD_STYLES}>
       <div className="flex items-center gap-2 mb-1">
-        {icon}
-        <span className="text-sm text-gray-500">{label}</span>
+        <span aria-hidden="true">{icon}</span>
+        <span className="text-sm text-gray-500 dark:text-gray-400">
+          {label}
+        </span>
       </div>
-      <p className="text-2xl font-bold text-gray-900">
+      <p className="text-2xl font-bold text-gray-900 dark:text-white tabular-nums">
         {value.toLocaleString()}
       </p>
     </div>
@@ -476,20 +571,28 @@ function UTMList({
   if (items.length === 0) {
     return (
       <div>
-        <h4 className="font-medium text-gray-700 mb-2">{title}</h4>
-        <p className="text-sm text-gray-400">No data</p>
+        <h3 className="font-medium text-gray-700 dark:text-gray-300 mb-2">
+          {title}
+        </h3>
+        <p className="text-sm text-gray-400 dark:text-gray-500">No data</p>
       </div>
     );
   }
 
   return (
     <div>
-      <h4 className="font-medium text-gray-700 mb-2">{title}</h4>
+      <h3 className="font-medium text-gray-700 dark:text-gray-300 mb-2">
+        {title}
+      </h3>
       <div className="space-y-2">
         {items.slice(0, 5).map((item) => (
           <div key={item.name} className="flex justify-between text-sm">
-            <span className="text-gray-600 truncate">{item.name}</span>
-            <span className="text-gray-400">{item.count}</span>
+            <span className="text-gray-600 dark:text-gray-400 truncate">
+              {item.name}
+            </span>
+            <span className="text-gray-400 dark:text-gray-500 tabular-nums">
+              {item.count.toLocaleString()}
+            </span>
           </div>
         ))}
       </div>

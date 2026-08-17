@@ -11,8 +11,15 @@ const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
 });
 
+const FAQ_COUNT = 11;
+
 export default function FAQ(): JSX.Element {
   const { t } = useTranslation();
+
+  const faqItems = Array.from({ length: FAQ_COUNT }, (_, i) => ({
+    question: t(`faq.q${i + 1}`),
+    answer: t(`faq.a${i + 1}`),
+  }));
 
   return (
     <div className="flex flex-col items-center m-0 min-h-screen">
@@ -89,96 +96,14 @@ export default function FAQ(): JSX.Element {
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "FAQPage",
-              mainEntity: [
-                {
-                  "@type": "Question",
-                  name: t("faq.q1"),
-                  acceptedAnswer: {
-                    "@type": "Answer",
-                    text: t("faq.a1"),
-                  },
+              mainEntity: faqItems.map((item) => ({
+                "@type": "Question",
+                name: item.question,
+                acceptedAnswer: {
+                  "@type": "Answer",
+                  text: item.answer,
                 },
-                {
-                  "@type": "Question",
-                  name: t("faq.q2"),
-                  acceptedAnswer: {
-                    "@type": "Answer",
-                    text: t("faq.a2"),
-                  },
-                },
-                {
-                  "@type": "Question",
-                  name: t("faq.q3"),
-                  acceptedAnswer: {
-                    "@type": "Answer",
-                    text: t("faq.a3"),
-                  },
-                },
-                {
-                  "@type": "Question",
-                  name: t("faq.q4"),
-                  acceptedAnswer: {
-                    "@type": "Answer",
-                    text: t("faq.a4"),
-                  },
-                },
-                {
-                  "@type": "Question",
-                  name: t("faq.q5"),
-                  acceptedAnswer: {
-                    "@type": "Answer",
-                    text: t("faq.a5"),
-                  },
-                },
-                {
-                  "@type": "Question",
-                  name: t("faq.q6"),
-                  acceptedAnswer: {
-                    "@type": "Answer",
-                    text: t("faq.a6"),
-                  },
-                },
-                {
-                  "@type": "Question",
-                  name: t("faq.q7"),
-                  acceptedAnswer: {
-                    "@type": "Answer",
-                    text: t("faq.a7"),
-                  },
-                },
-                {
-                  "@type": "Question",
-                  name: t("faq.q8"),
-                  acceptedAnswer: {
-                    "@type": "Answer",
-                    text: t("faq.a8"),
-                  },
-                },
-                {
-                  "@type": "Question",
-                  name: t("faq.q9"),
-                  acceptedAnswer: {
-                    "@type": "Answer",
-                    text: t("faq.a9"),
-                  },
-                },
-                {
-                  "@type": "Question",
-                  name: t("faq.q10"),
-                  acceptedAnswer: {
-                    "@type": "Answer",
-                    text: t("faq.a10"),
-                  },
-                },
-                {
-                  "@type": "Question",
-                  name: t("faq.q11"),
-                  acceptedAnswer: {
-                    "@type": "Answer",
-                    text: t("faq.a11"),
-                  },
-                },
-              ],
+              })),
             }),
           }}
         />
@@ -209,7 +134,10 @@ export default function FAQ(): JSX.Element {
 
       <Header />
 
-      <div className="flex flex-col items-center pt-8 sm:pt-14 w-full px-4 lg:px-0 max-w-screen-md flex-grow pb-8">
+      <main
+        id="main-content"
+        className="flex flex-col items-center pt-8 sm:pt-14 w-full px-4 lg:px-0 max-w-screen-md flex-grow pb-8"
+      >
         {/* Breadcrumb */}
         <nav className="w-full mb-4 text-sm" aria-label="Breadcrumb">
           <ol className="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
@@ -221,7 +149,7 @@ export default function FAQ(): JSX.Element {
                 {t("header.home")}
               </Link>
             </li>
-            <li>
+            <li aria-hidden="true">
               <span className="mx-2">/</span>
             </li>
             <li className="text-gray-900 dark:text-gray-200 font-semibold">
@@ -240,105 +168,19 @@ export default function FAQ(): JSX.Element {
         </p>
 
         <div className="w-full space-y-4 mb-8">
-          <details className="bg-white dark:bg-dark-card p-5 rounded-lg border border-gray-200 dark:border-dark-border group">
-            <summary className="font-semibold text-gray-900 dark:text-zinc-200 cursor-pointer text-lg">
-              {t("faq.q1")}
-            </summary>
-            <p className="mt-3 text-gray-600 dark:text-gray-400 leading-relaxed">
-              {t("faq.a1")}
-            </p>
-          </details>
-
-          <details className="bg-white dark:bg-dark-card p-5 rounded-lg border border-gray-200 dark:border-dark-border group">
-            <summary className="font-semibold text-gray-900 dark:text-zinc-200 cursor-pointer text-lg">
-              {t("faq.q2")}
-            </summary>
-            <p className="mt-3 text-gray-600 dark:text-gray-400 leading-relaxed">
-              {t("faq.a2")}
-            </p>
-          </details>
-
-          <details className="bg-white dark:bg-dark-card p-5 rounded-lg border border-gray-200 dark:border-dark-border group">
-            <summary className="font-semibold text-gray-900 dark:text-zinc-200 cursor-pointer text-lg">
-              {t("faq.q3")}
-            </summary>
-            <p className="mt-3 text-gray-600 dark:text-gray-400 leading-relaxed">
-              {t("faq.a3")}
-            </p>
-          </details>
-
-          <details className="bg-white dark:bg-dark-card p-5 rounded-lg border border-gray-200 dark:border-dark-border group">
-            <summary className="font-semibold text-gray-900 dark:text-zinc-200 cursor-pointer text-lg">
-              {t("faq.q4")}
-            </summary>
-            <p className="mt-3 text-gray-600 dark:text-gray-400 leading-relaxed">
-              {t("faq.a4")}
-            </p>
-          </details>
-
-          <details className="bg-white dark:bg-dark-card p-5 rounded-lg border border-gray-200 dark:border-dark-border group">
-            <summary className="font-semibold text-gray-900 dark:text-zinc-200 cursor-pointer text-lg">
-              {t("faq.q5")}
-            </summary>
-            <p className="mt-3 text-gray-600 dark:text-gray-400 leading-relaxed">
-              {t("faq.a5")}
-            </p>
-          </details>
-
-          <details className="bg-white dark:bg-dark-card p-5 rounded-lg border border-gray-200 dark:border-dark-border group">
-            <summary className="font-semibold text-gray-900 dark:text-zinc-200 cursor-pointer text-lg">
-              {t("faq.q6")}
-            </summary>
-            <p className="mt-3 text-gray-600 dark:text-gray-400 leading-relaxed">
-              {t("faq.a6")}
-            </p>
-          </details>
-
-          <details className="bg-white dark:bg-dark-card p-5 rounded-lg border border-gray-200 dark:border-dark-border group">
-            <summary className="font-semibold text-gray-900 dark:text-zinc-200 cursor-pointer text-lg">
-              {t("faq.q7")}
-            </summary>
-            <p className="mt-3 text-gray-600 dark:text-gray-400 leading-relaxed">
-              {t("faq.a7")}
-            </p>
-          </details>
-
-          <details className="bg-white dark:bg-dark-card p-5 rounded-lg border border-gray-200 dark:border-dark-border group">
-            <summary className="font-semibold text-gray-900 dark:text-zinc-200 cursor-pointer text-lg">
-              {t("faq.q8")}
-            </summary>
-            <p className="mt-3 text-gray-600 dark:text-gray-400 leading-relaxed">
-              {t("faq.a8")}
-            </p>
-          </details>
-
-          {/* URL Shortener & Analytics FAQs */}
-          <details className="bg-white dark:bg-dark-card p-5 rounded-lg border border-gray-200 dark:border-dark-border group">
-            <summary className="font-semibold text-gray-900 dark:text-zinc-200 cursor-pointer text-lg">
-              {t("faq.q9")}
-            </summary>
-            <p className="mt-3 text-gray-600 dark:text-gray-400 leading-relaxed">
-              {t("faq.a9")}
-            </p>
-          </details>
-
-          <details className="bg-white dark:bg-dark-card p-5 rounded-lg border border-gray-200 dark:border-dark-border group">
-            <summary className="font-semibold text-gray-900 dark:text-zinc-200 cursor-pointer text-lg">
-              {t("faq.q10")}
-            </summary>
-            <p className="mt-3 text-gray-600 dark:text-gray-400 leading-relaxed">
-              {t("faq.a10")}
-            </p>
-          </details>
-
-          <details className="bg-white dark:bg-dark-card p-5 rounded-lg border border-gray-200 dark:border-dark-border group">
-            <summary className="font-semibold text-gray-900 dark:text-zinc-200 cursor-pointer text-lg">
-              {t("faq.q11")}
-            </summary>
-            <p className="mt-3 text-gray-600 dark:text-gray-400 leading-relaxed">
-              {t("faq.a11")}
-            </p>
-          </details>
+          {faqItems.map((item, index) => (
+            <details
+              key={index}
+              className="bg-white dark:bg-dark-card p-5 rounded-lg border border-gray-200 dark:border-dark-border group"
+            >
+              <summary className="font-semibold text-gray-900 dark:text-zinc-200 cursor-pointer text-lg">
+                {item.question}
+              </summary>
+              <p className="mt-3 text-gray-600 dark:text-gray-400 leading-relaxed">
+                {item.answer}
+              </p>
+            </details>
+          ))}
         </div>
 
         <div className="w-full bg-violet-50 dark:bg-violet-900/20 p-6 rounded-lg border border-violet-200 dark:border-violet-800 text-center">
@@ -350,12 +192,12 @@ export default function FAQ(): JSX.Element {
           </p>
           <Link
             href="/"
-            className="inline-block px-6 py-3 bg-violet-500 hover:bg-violet-600 text-white font-semibold rounded-lg transition"
+            className="inline-block px-6 py-3 bg-violet-500 hover:bg-violet-600 text-white font-semibold rounded-lg transition focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 dark:ring-offset-black"
           >
             {t("faq.ctaButton")}
           </Link>
         </div>
-      </div>
+      </main>
 
       <Footer />
     </div>

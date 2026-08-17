@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { Toaster, toast } from "react-hot-toast";
 import { Header, Footer } from "@/components";
 import { RelatedTools } from "@/components/tools";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import { useTranslation } from "@/hooks/useTranslation";
 import { SITE_URL, SITE_NAME, LOCALE_MAP } from "@/lib/constants";
 import { trackToolUsage } from "@/lib/gtag";
@@ -22,7 +23,6 @@ import {
   AdjustmentsIcon,
   CheckCircleIcon,
   XIcon,
-  ChevronLeftIcon,
 } from "@heroicons/react/outline";
 
 // Types & Constants
@@ -82,7 +82,10 @@ const ColorButton = ({
   onClick: () => void;
 }) => (
   <button
+    type="button"
     onClick={onClick}
+    aria-label={`Background color ${color}`}
+    aria-pressed={selected}
     className={`w-8 h-8 rounded-lg border-2 transition-transform hover:scale-110 ${selected ? "border-violet-500 ring-2 ring-violet-200" : "border-gray-200 dark:border-dark-border"}`}
     style={{ backgroundColor: color }}
   />
@@ -98,7 +101,9 @@ const TabButton = ({
   children: React.ReactNode;
 }) => (
   <button
+    type="button"
     onClick={onClick}
+    aria-pressed={active}
     className={`text-sm font-medium px-3 py-1.5 rounded-lg transition-colors ${active ? "bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-border"}`}
   >
     {children}
@@ -115,7 +120,9 @@ const BgTypeButton = ({
   onClick: () => void;
 }) => (
   <button
+    type="button"
     onClick={onClick}
+    aria-pressed={selected}
     className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${selected ? "bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 border border-violet-300 dark:border-violet-700" : "bg-gray-100 dark:bg-dark-border text-gray-600 dark:text-gray-400 border border-transparent hover:bg-gray-200 dark:hover:bg-dark-card"}`}
   >
     {label}
@@ -142,6 +149,8 @@ export default function BackgroundRemover() {
   const [recentColors, setRecentColors] = useState<string[]>([]);
   const [showComparison, setShowComparison] = useState(false);
   const [comparisonPos, setComparisonPos] = useState(50);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
 
   // Load recent colors
   useEffect(() => {
@@ -167,7 +176,10 @@ export default function BackgroundRemover() {
     if (file.size > MAX_FILE_SIZE)
       return toast.error("File size must be less than 20MB");
 
-    setProcessedImage(null);
+    setProcessedImage((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return null;
+    });
     setForegroundBlob(null);
     setBackgroundType("transparent");
 
@@ -178,12 +190,12 @@ export default function BackgroundRemover() {
     setStatus("loading");
     setProgress({
       value: 0,
-      message: "Loading AI model (first time may take ~30s)...",
+      message: "Loading AI model (first time may take ~30s)…",
     });
 
     try {
       const { removeBackground } = await import("@imgly/background-removal");
-      setProgress({ value: 20, message: "Initializing AI model..." });
+      setProgress({ value: 20, message: "Initializing AI model…" });
 
       const blob = await removeBackground(file, {
         progress: (key, current, total) => {
@@ -193,10 +205,10 @@ export default function BackgroundRemover() {
               ? 70
               : 90;
           const msg = key.includes("fetch")
-            ? "Downloading AI model..."
+            ? "Downloading AI model…"
             : key.includes("inference")
-              ? "Running AI inference..."
-              : "Processing...";
+              ? "Running AI inference…"
+              : "Processing…";
           setProgress({
             value: Math.min(
               base + (total > 0 ? (current / total) * 20 : 0),
@@ -225,6 +237,7 @@ export default function BackgroundRemover() {
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
       e.preventDefault();
+      setIsDragOver(false);
       const file = e.dataTransfer.files[0];
       if (file) handleFileSelect(file);
     },
@@ -239,8 +252,10 @@ export default function BackgroundRemover() {
     if (!ctx) return null;
 
     const fgImg = new Image();
-    fgImg.src = URL.createObjectURL(foregroundBlob);
+    const fgUrl = URL.createObjectURL(foregroundBlob);
+    fgImg.src = fgUrl;
     await new Promise((r) => (fgImg.onload = r));
+    URL.revokeObjectURL(fgUrl);
     canvas.width = fgImg.width;
     canvas.height = fgImg.height;
 
@@ -309,7 +324,10 @@ export default function BackgroundRemover() {
 
   const handleReset = useCallback(() => {
     setOriginalImage(null);
-    setProcessedImage(null);
+    setProcessedImage((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return null;
+    });
     setForegroundBlob(null);
     setStatus("idle");
     setProgress({ value: 0, message: "" });
@@ -452,16 +470,36 @@ export default function BackgroundRemover() {
       <Toaster position="top-center" />
       <canvas ref={canvasRef} className="hidden" />
 
-      <main className="flex-grow flex flex-col items-center px-4 py-8 sm:py-12">
-        <div className="w-full max-w-6xl mb-6">
-          <Link
-            href="/tools"
-            className="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
-          >
-            <ChevronLeftIcon className="w-4 h-4" />
-            {t("tools.backToTools")}
-          </Link>
-        </div>
+      <main
+        id="main-content"
+        className="flex-grow flex flex-col items-center px-4 py-8 sm:py-12"
+      >
+        {/* Breadcrumb */}
+        <nav className="w-full max-w-6xl mb-6 text-sm" aria-label="Breadcrumb">
+          <ol className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+            <li>
+              <Link
+                href="/"
+                className="hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
+              >
+                {t("header.home")}
+              </Link>
+            </li>
+            <li aria-hidden="true">/</li>
+            <li>
+              <Link
+                href="/tools"
+                className="hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
+              >
+                {t("header.tools")}
+              </Link>
+            </li>
+            <li aria-hidden="true">/</li>
+            <li className="text-gray-900 dark:text-white font-medium">
+              {t("tools.backgroundRemover.name")}
+            </li>
+          </ol>
+        </nav>
 
         {/* Hero */}
         <motion.div
@@ -470,7 +508,7 @@ export default function BackgroundRemover() {
           className="text-center mb-8"
         >
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 rounded-full text-xs font-medium mb-4">
-            <SparklesIcon className="w-3.5 h-3.5" />
+            <SparklesIcon className="w-3.5 h-3.5" aria-hidden="true" />
             {t("tools.backgroundRemover.badge")}
           </div>
           <h1
@@ -490,7 +528,10 @@ export default function BackgroundRemover() {
           className="mb-8"
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-full">
-            <ShieldCheckIcon className="w-4 h-4 text-green-600 dark:text-green-400" />
+            <ShieldCheckIcon
+              className="w-4 h-4 text-green-600 dark:text-green-400"
+              aria-hidden="true"
+            />
             <span className="text-sm font-medium text-green-700 dark:text-green-300">
               {t("tools.backgroundRemover.privacyBadge")}
             </span>
@@ -507,22 +548,35 @@ export default function BackgroundRemover() {
             >
               <input
                 ref={fileInputRef}
+                id="br-file-input"
                 type="file"
                 accept="image/png,image/jpeg,image/webp"
                 onChange={(e) =>
                   e.target.files?.[0] && handleFileSelect(e.target.files[0])
                 }
-                className="hidden"
+                aria-label={t("tools.backgroundRemover.uploadTitle")}
+                className="sr-only"
               />
-              <div
+              <label
+                htmlFor="br-file-input"
                 onDrop={handleDrop}
-                onDragOver={(e) => e.preventDefault()}
-                onClick={() => fileInputRef.current?.click()}
-                className="p-12 sm:p-16 cursor-pointer hover:bg-gray-50 dark:hover:bg-dark-border/30 transition-colors"
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setIsDragOver(true);
+                }}
+                onDragLeave={() => setIsDragOver(false)}
+                className={`block p-12 sm:p-16 cursor-pointer transition-colors ${
+                  isDragOver
+                    ? "bg-violet-50 dark:bg-violet-900/20"
+                    : "hover:bg-gray-50 dark:hover:bg-dark-border/30"
+                }`}
               >
                 <div className="flex flex-col items-center text-center">
                   <div className="w-20 h-20 bg-violet-100 dark:bg-violet-900/30 rounded-2xl flex items-center justify-center mb-6">
-                    <PhotographIcon className="w-10 h-10 text-violet-600 dark:text-violet-400" />
+                    <PhotographIcon
+                      className="w-10 h-10 text-violet-600 dark:text-violet-400"
+                      aria-hidden="true"
+                    />
                   </div>
                   <h3
                     className={`text-xl font-semibold text-gray-900 dark:text-white mb-2 ${spaceGrotesk.className}`}
@@ -532,14 +586,14 @@ export default function BackgroundRemover() {
                   <p className="text-gray-500 dark:text-gray-400 mb-6">
                     {t("tools.backgroundRemover.uploadSubtitle")}
                   </p>
-                  <button className="px-6 py-3 bg-violet-600 text-white font-medium rounded-xl hover:bg-violet-700 transition-colors">
+                  <span className="inline-block px-6 py-3 bg-violet-600 text-white font-medium rounded-xl hover:bg-violet-700 transition-colors">
                     {t("tools.backgroundRemover.selectFile")}
-                  </button>
+                  </span>
                   <p className="text-sm text-gray-400 mt-4">
                     {t("tools.backgroundRemover.maxSize")}
                   </p>
                 </div>
-              </div>
+              </label>
             </motion.div>
           ) : isProcessing ? (
             /* Processing */
@@ -550,23 +604,36 @@ export default function BackgroundRemover() {
             >
               <div className="w-20 h-20 mx-auto mb-6 relative">
                 <div className="absolute inset-0 border-4 border-violet-200 dark:border-violet-900 rounded-full" />
-                <SparklesIcon className="absolute inset-0 m-auto w-8 h-8 text-violet-600 animate-pulse" />
+                <SparklesIcon
+                  className="absolute inset-0 m-auto w-8 h-8 text-violet-600 animate-pulse"
+                  aria-hidden="true"
+                />
               </div>
               <h3
                 className={`text-xl font-semibold text-gray-900 dark:text-white mb-2 ${spaceGrotesk.className}`}
               >
                 {t("tools.backgroundRemover.processing")}
               </h3>
-              <p className="text-gray-500 dark:text-gray-400 mb-4">
+              <p
+                className="text-gray-500 dark:text-gray-400 mb-4"
+                aria-live="polite"
+              >
                 {progress.message}
               </p>
-              <div className="w-full max-w-xs mx-auto bg-gray-200 dark:bg-dark-border rounded-full h-2">
+              <div
+                role="progressbar"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={Math.round(progress.value)}
+                aria-label={t("tools.backgroundRemover.processing")}
+                className="w-full max-w-xs mx-auto bg-gray-200 dark:bg-dark-border rounded-full h-2"
+              >
                 <div
-                  className="bg-violet-600 h-2 rounded-full transition-all duration-300"
+                  className="bg-violet-600 h-2 rounded-full transition-[width] duration-300"
                   style={{ width: `${progress.value}%` }}
                 />
               </div>
-              <p className="text-sm text-gray-400 mt-2">
+              <p className="text-sm tabular-nums text-gray-400 mt-2">
                 {Math.round(progress.value)}%
               </p>
             </motion.div>
@@ -595,10 +662,11 @@ export default function BackgroundRemover() {
                       </TabButton>
                     </div>
                     <button
-                      onClick={handleReset}
+                      type="button"
+                      onClick={() => setShowResetConfirm(true)}
                       className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-violet-600 transition-colors"
                     >
-                      <RefreshIcon className="w-4 h-4" />
+                      <RefreshIcon className="w-4 h-4" aria-hidden="true" />
                       {t("tools.backgroundRemover.tryAnother")}
                     </button>
                   </div>
@@ -625,7 +693,7 @@ export default function BackgroundRemover() {
                             alt="Result"
                             className="absolute inset-0 w-full h-full object-contain"
                             style={{
-                              minWidth: `${100 / (comparisonPos / 100)}%`,
+                              minWidth: `${100 / (Math.max(comparisonPos, 1) / 100)}%`,
                             }}
                           />
                         </div>
@@ -634,7 +702,10 @@ export default function BackgroundRemover() {
                           style={{ left: `${comparisonPos}%` }}
                         >
                           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-white rounded-full shadow-lg flex items-center justify-center">
-                            <AdjustmentsIcon className="w-4 h-4 text-gray-600" />
+                            <AdjustmentsIcon
+                              className="w-4 h-4 text-gray-600"
+                              aria-hidden="true"
+                            />
                           </div>
                         </div>
                         <input
@@ -645,6 +716,7 @@ export default function BackgroundRemover() {
                           onChange={(e) =>
                             setComparisonPos(Number(e.target.value))
                           }
+                          aria-label="Compare result with original"
                           className="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize"
                         />
                         <div className="absolute bottom-4 left-4 px-2 py-1 bg-black/50 text-white text-xs rounded">
@@ -701,14 +773,14 @@ export default function BackgroundRemover() {
                     onClick={() => handleDownload("png")}
                     className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-violet-600 text-white font-medium rounded-xl hover:bg-violet-700 transition-colors"
                   >
-                    <DownloadIcon className="w-5 h-5" />
+                    <DownloadIcon className="w-5 h-5" aria-hidden="true" />
                     {t("tools.backgroundRemover.downloadPng")}
                   </button>
                   <button
                     onClick={() => handleDownload("jpg")}
                     className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-gray-100 dark:bg-dark-border text-gray-700 dark:text-gray-300 font-medium rounded-xl hover:bg-gray-200 transition-colors"
                   >
-                    <DownloadIcon className="w-5 h-5" />
+                    <DownloadIcon className="w-5 h-5" aria-hidden="true" />
                     {t("tools.backgroundRemover.downloadJpg")}
                   </button>
                 </div>
@@ -739,20 +811,24 @@ export default function BackgroundRemover() {
                 {backgroundType === "solid" && (
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <label
+                        htmlFor="br-bg-color"
+                        className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                      >
                         {t("tools.backgroundRemover.chooseColor")}
                       </label>
                       <input
+                        id="br-bg-color"
                         type="color"
                         value={backgroundColor}
                         onChange={(e) => setBackgroundColor(e.target.value)}
                         className="w-full h-10 rounded-lg cursor-pointer"
                       />
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <div role="group" aria-label="Preset colors">
+                      <span className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Preset Colors
-                      </label>
+                      </span>
                       <div className="grid grid-cols-6 gap-2">
                         {PRESET_COLORS.map((c) => (
                           <ColorButton
@@ -765,14 +841,17 @@ export default function BackgroundRemover() {
                       </div>
                     </div>
                     {recentColors.length > 0 && (
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <div
+                        role="group"
+                        aria-label={t("tools.backgroundRemover.recentColors")}
+                      >
+                        <span className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                           {t("tools.backgroundRemover.recentColors")}
-                        </label>
+                        </span>
                         <div className="flex flex-wrap gap-2">
-                          {recentColors.map((c, i) => (
+                          {recentColors.map((c) => (
                             <ColorButton
-                              key={i}
+                              key={c}
                               color={c}
                               selected={backgroundColor === c}
                               onClick={() => setBackgroundColor(c)}
@@ -786,15 +865,25 @@ export default function BackgroundRemover() {
 
                 {backgroundType === "image" && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label
+                      htmlFor="br-bg-image"
+                      className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                    >
                       {t("tools.backgroundRemover.uploadBackground")}
                     </label>
-                    <label className="flex items-center justify-center gap-2 p-4 border-2 border-dashed border-gray-300 dark:border-dark-border rounded-xl cursor-pointer hover:border-violet-400 transition-colors">
-                      <UploadIcon className="w-5 h-5 text-gray-400" />
+                    <label
+                      htmlFor="br-bg-image"
+                      className="flex items-center justify-center gap-2 p-4 border-2 border-dashed border-gray-300 dark:border-dark-border rounded-xl cursor-pointer hover:border-violet-400 transition-colors"
+                    >
+                      <UploadIcon
+                        className="w-5 h-5 text-gray-400"
+                        aria-hidden="true"
+                      />
                       <span className="text-sm text-gray-600 dark:text-gray-400">
                         Click to upload
                       </span>
                       <input
+                        id="br-bg-image"
                         type="file"
                         accept="image/*"
                         onChange={handleBgImageUpload}
@@ -810,10 +899,12 @@ export default function BackgroundRemover() {
                           className="w-full h-24 object-cover rounded-lg"
                         />
                         <button
+                          type="button"
                           onClick={() => setBackgroundImage(null)}
+                          aria-label="Remove background image"
                           className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
                         >
-                          <XIcon className="w-4 h-4" />
+                          <XIcon className="w-4 h-4" aria-hidden="true" />
                         </button>
                       </div>
                     )}
@@ -822,11 +913,15 @@ export default function BackgroundRemover() {
 
                 {backgroundType === "blur" && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label
+                      htmlFor="br-blur-intensity"
+                      className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                    >
                       {t("tools.backgroundRemover.blurIntensity")}:{" "}
                       {blurIntensity}px
                     </label>
                     <input
+                      id="br-blur-intensity"
                       type="range"
                       min="5"
                       max="30"
@@ -897,6 +992,7 @@ export default function BackgroundRemover() {
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
+                        aria-hidden="true"
                       >
                         <path
                           strokeLinecap="round"
@@ -918,6 +1014,15 @@ export default function BackgroundRemover() {
           {/* Related Tools */}
           <RelatedTools currentToolId="background-remover" />
         </div>
+
+        <ConfirmDialog
+          isOpen={showResetConfirm}
+          onClose={() => setShowResetConfirm(false)}
+          onConfirm={handleReset}
+          title="Start over?"
+          message="This will discard the processed result and any background settings. You will need to process the image again."
+          confirmLabel="Start over"
+        />
       </main>
 
       <Footer />

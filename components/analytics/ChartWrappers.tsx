@@ -1,6 +1,4 @@
 // @ts-nocheck - Recharts has type incompatibility with React 18
-"use client";
-
 import { useEffect, useState, ReactNode } from "react";
 import {
   AreaChart,
@@ -37,7 +35,7 @@ export function ClientAreaChart({
 
   if (!mounted) {
     return (
-      <div className="h-full w-full animate-pulse bg-slate-700/30 rounded" />
+      <div className="h-full w-full animate-pulse bg-gray-100 dark:bg-dark-card rounded" />
     );
   }
 
@@ -63,7 +61,7 @@ export function ClientPieChart({ children, ...props }: ChartWrapperProps) {
 
   if (!mounted) {
     return (
-      <div className="h-full w-full animate-pulse bg-slate-700/30 rounded-full" />
+      <div className="h-full w-full animate-pulse bg-gray-100 dark:bg-dark-card rounded-full" />
     );
   }
 
@@ -87,7 +85,7 @@ export function ClientBarChart({
 
   if (!mounted) {
     return (
-      <div className="h-full w-full animate-pulse bg-slate-700/30 rounded" />
+      <div className="h-full w-full animate-pulse bg-gray-100 dark:bg-dark-card rounded" />
     );
   }
 

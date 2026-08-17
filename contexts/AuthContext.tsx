@@ -16,6 +16,8 @@ interface AuthContextType {
   session: Session | null;
   isLoading: boolean;
   isConfigured: boolean;
+  /** Last sign-in/sign-out failure, if any */
+  error: string | null;
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
@@ -35,6 +37,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [supabase] = useState(getSupabaseClient);
 
   // Fetch user profile
@@ -87,10 +90,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const initAuth = async () => {
       try {
         // Add timeout to prevent infinite loading if getSession hangs
-        // (can happen with corrupted cookies or SSR issues)
+        // (can happen with corrupted cookies or SSR issues). Generous enough
+        // that slow networks don't flash the sign-in screen for signed-in
+        // users; onAuthStateChange will still correct the state afterwards.
         const timeoutPromise = new Promise<{ data: { session: null } }>(
           (resolve) => {
-            setTimeout(() => resolve({ data: { session: null } }), 3000);
+            setTimeout(() => resolve({ data: { session: null } }), 10000);
           },
         );
 
@@ -165,6 +170,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
     try {
+      setError(null);
       // Save the current page URL to redirect back after sign-in
       // Only set if not already set (callers may have set a custom return URL)
       if (!localStorage.getItem("auth_redirect")) {
@@ -188,6 +194,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     } catch (error) {
       console.error("Error signing in with Google:", error);
+      setError(error instanceof Error ? error.message : "Sign-in failed");
       throw error;
     }
   }, [supabase]);
@@ -199,6 +206,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
     try {
+      setError(null);
       const { error } = await supabase.auth.signOut();
       if (error) {
         throw error;
@@ -208,6 +216,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(null);
     } catch (error) {
       console.error("Error signing out:", error);
+      setError(error instanceof Error ? error.message : "Sign-out failed");
       throw error;
     }
   }, [supabase]);
@@ -218,6 +227,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     session,
     isLoading,
     isConfigured: isSupabaseConfigured,
+    error,
     signInWithGoogle,
     signOut,
     refreshProfile,

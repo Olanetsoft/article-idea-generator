@@ -3,13 +3,14 @@
 // Provides buttons for adding shapes, badges, emojis, and images
 // ============================================================================
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useCallback, useId } from "react";
 import type { ShapeElement } from "@/lib/cover-image/editor-types";
 import {
   BADGE_PRESETS,
   EMOJI_PRESETS,
   SHAPE_PRESETS,
 } from "@/lib/cover-image/editor-types";
+import { useDismiss } from "@/hooks/useDismiss";
 
 interface ElementToolbarProps {
   onAddText: () => void;
@@ -37,8 +38,23 @@ export function ElementToolbar({
     textColor: "#FFFFFF",
   });
   const imageInputRef = useRef<HTMLInputElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const activeTriggerRef = useRef<HTMLElement | null>(null);
+  const badgeTextId = useId();
+  const badgeBgId = useId();
+  const badgeTextColorId = useId();
 
-  const togglePanel = (panel: ToolbarPanel) => {
+  const closePanel = useCallback(() => setActivePanel(null), []);
+  // Outside click + Escape (with focus return to the trigger) for the panels
+  useDismiss(rootRef, activePanel !== null, closePanel, {
+    returnFocusRef: activeTriggerRef as React.RefObject<HTMLElement>,
+  });
+
+  const togglePanel = (
+    panel: ToolbarPanel,
+    e?: React.MouseEvent<HTMLButtonElement>,
+  ) => {
+    activeTriggerRef.current = e?.currentTarget ?? null;
     setActivePanel(activePanel === panel ? null : panel);
   };
 
@@ -60,11 +76,12 @@ export function ElementToolbar({
   };
 
   return (
-    <div className="relative">
+    <div className="relative" ref={rootRef}>
       {/* Main toolbar buttons - scrollable on small screens */}
       <div className="flex items-center gap-2 p-2 bg-gray-100 dark:bg-white/5 backdrop-blur-sm rounded-lg border border-gray-200 dark:border-white/10 overflow-x-auto">
         {/* Add Text */}
         <button
+          type="button"
           onClick={onAddText}
           disabled={disabled}
           className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-white/10 hover:bg-gray-50 dark:hover:bg-white/20 text-gray-700 dark:text-white rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm dark:shadow-none flex-shrink-0"
@@ -75,6 +92,7 @@ export function ElementToolbar({
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
+            aria-hidden="true"
           >
             <path
               strokeLinecap="round"
@@ -89,11 +107,13 @@ export function ElementToolbar({
         {/* Shapes dropdown */}
         <div className="relative flex-shrink-0">
           <button
-            onClick={() => togglePanel("shapes")}
+            type="button"
+            onClick={(e) => togglePanel("shapes", e)}
             disabled={disabled}
+            aria-expanded={activePanel === "shapes"}
             className={`flex items-center gap-2 px-3 py-2 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
               activePanel === "shapes"
-                ? "bg-purple-100 dark:bg-purple-500/30 text-purple-700 dark:text-purple-300"
+                ? "bg-violet-100 dark:bg-violet-500/30 text-violet-700 dark:text-violet-300"
                 : "bg-white dark:bg-white/10 hover:bg-gray-50 dark:hover:bg-white/20 text-gray-700 dark:text-white shadow-sm dark:shadow-none"
             }`}
             title="Add Shape"
@@ -103,6 +123,7 @@ export function ElementToolbar({
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <path
                 strokeLinecap="round"
@@ -117,6 +138,7 @@ export function ElementToolbar({
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <path
                 strokeLinecap="round"
@@ -131,11 +153,13 @@ export function ElementToolbar({
         {/* Badges dropdown */}
         <div className="relative flex-shrink-0">
           <button
-            onClick={() => togglePanel("badges")}
+            type="button"
+            onClick={(e) => togglePanel("badges", e)}
             disabled={disabled}
+            aria-expanded={activePanel === "badges"}
             className={`flex items-center gap-2 px-3 py-2 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
               activePanel === "badges"
-                ? "bg-purple-100 dark:bg-purple-500/30 text-purple-700 dark:text-purple-300"
+                ? "bg-violet-100 dark:bg-violet-500/30 text-violet-700 dark:text-violet-300"
                 : "bg-white dark:bg-white/10 hover:bg-gray-50 dark:hover:bg-white/20 text-gray-700 dark:text-white shadow-sm dark:shadow-none"
             }`}
             title="Add Badge"
@@ -145,6 +169,7 @@ export function ElementToolbar({
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <path
                 strokeLinecap="round"
@@ -159,6 +184,7 @@ export function ElementToolbar({
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <path
                 strokeLinecap="round"
@@ -173,22 +199,27 @@ export function ElementToolbar({
         {/* Emoji dropdown */}
         <div className="relative flex-shrink-0">
           <button
-            onClick={() => togglePanel("emojis")}
+            type="button"
+            onClick={(e) => togglePanel("emojis", e)}
             disabled={disabled}
+            aria-expanded={activePanel === "emojis"}
             className={`flex items-center gap-2 px-3 py-2 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
               activePanel === "emojis"
-                ? "bg-purple-100 dark:bg-purple-500/30 text-purple-700 dark:text-purple-300"
+                ? "bg-violet-100 dark:bg-violet-500/30 text-violet-700 dark:text-violet-300"
                 : "bg-white dark:bg-white/10 hover:bg-gray-50 dark:hover:bg-white/20 text-gray-700 dark:text-white shadow-sm dark:shadow-none"
             }`}
             title="Add Emoji"
           >
-            <span className="text-base">😊</span>
+            <span className="text-base" aria-hidden="true">
+              😊
+            </span>
             <span className="text-sm font-medium">Emoji</span>
             <svg
               className="w-3 h-3"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <path
                 strokeLinecap="round"
@@ -202,6 +233,7 @@ export function ElementToolbar({
 
         {/* Image upload */}
         <button
+          type="button"
           onClick={() => imageInputRef.current?.click()}
           disabled={disabled}
           className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-white/10 hover:bg-gray-50 dark:hover:bg-white/20 text-gray-700 dark:text-white rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm dark:shadow-none flex-shrink-0"
@@ -212,6 +244,7 @@ export function ElementToolbar({
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
+            aria-hidden="true"
           >
             <path
               strokeLinecap="round"
@@ -231,15 +264,7 @@ export function ElementToolbar({
         />
       </div>
 
-      {/* Click outside to close - must be before dropdown for proper z-index */}
-      {activePanel && (
-        <div
-          className="fixed inset-0 z-40"
-          onClick={() => setActivePanel(null)}
-        />
-      )}
-
-      {/* Dropdown panels */}
+      {/* Dropdown panels (outside click + Escape handled by useDismiss) */}
       {activePanel && (
         <div className="absolute top-full left-0 mt-2 z-50 p-4 bg-white dark:bg-gray-900/95 backdrop-blur-lg rounded-xl border border-gray-200 dark:border-white/10 shadow-2xl w-[calc(100vw-2rem)] sm:w-auto sm:min-w-[320px] max-w-[320px]">
           {/* Shapes panel */}
@@ -252,6 +277,7 @@ export function ElementToolbar({
                 {SHAPE_PRESETS.map((shape) => (
                   <button
                     key={shape.id}
+                    type="button"
                     onClick={() => {
                       onAddShape(shape.shapeType);
                       setActivePanel(null);
@@ -278,11 +304,12 @@ export function ElementToolbar({
                 {BADGE_PRESETS.map((badge) => (
                   <button
                     key={badge.id}
+                    type="button"
                     onClick={() => {
                       onAddBadge(badge.text, badge.bgColor, badge.textColor);
                       setActivePanel(null);
                     }}
-                    className="flex items-center justify-center p-2 rounded-lg transition-colors hover:scale-105"
+                    className="flex items-center justify-center p-2 rounded-lg transition-transform hover:scale-105"
                     style={{ backgroundColor: badge.bgColor }}
                   >
                     <span
@@ -299,21 +326,29 @@ export function ElementToolbar({
                 Custom Badge
               </h4>
               <div className="space-y-3">
+                <label htmlFor={badgeTextId} className="sr-only">
+                  Badge text
+                </label>
                 <input
+                  id={badgeTextId}
                   type="text"
                   value={customBadge.text}
                   onChange={(e) =>
                     setCustomBadge({ ...customBadge, text: e.target.value })
                   }
-                  placeholder="Badge text..."
-                  className="w-full px-3 py-2 bg-gray-100 dark:bg-white/10 border border-gray-300 dark:border-white/20 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/40 focus:outline-none focus:border-purple-500"
+                  placeholder="Badge text…"
+                  className="w-full px-3 py-2 bg-gray-100 dark:bg-white/10 border border-gray-300 dark:border-white/20 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/40 focus:outline-none focus:border-violet-500"
                 />
                 <div className="flex gap-2">
                   <div className="flex-1">
-                    <label className="text-xs text-gray-500 dark:text-white/60 mb-1 block">
+                    <label
+                      htmlFor={badgeBgId}
+                      className="text-xs text-gray-500 dark:text-white/60 mb-1 block"
+                    >
                       Background
                     </label>
                     <input
+                      id={badgeBgId}
                       type="color"
                       value={customBadge.bgColor}
                       onChange={(e) =>
@@ -322,14 +357,19 @@ export function ElementToolbar({
                           bgColor: e.target.value,
                         })
                       }
-                      className="w-full h-8 rounded cursor-pointer"
+                      aria-label="Badge background color"
+                      className="w-full h-10 rounded cursor-pointer"
                     />
                   </div>
                   <div className="flex-1">
-                    <label className="text-xs text-gray-500 dark:text-white/60 mb-1 block">
+                    <label
+                      htmlFor={badgeTextColorId}
+                      className="text-xs text-gray-500 dark:text-white/60 mb-1 block"
+                    >
                       Text
                     </label>
                     <input
+                      id={badgeTextColorId}
                       type="color"
                       value={customBadge.textColor}
                       onChange={(e) =>
@@ -338,11 +378,13 @@ export function ElementToolbar({
                           textColor: e.target.value,
                         })
                       }
-                      className="w-full h-8 rounded cursor-pointer"
+                      aria-label="Badge text color"
+                      className="w-full h-10 rounded cursor-pointer"
                     />
                   </div>
                 </div>
                 <button
+                  type="button"
                   onClick={() => {
                     if (customBadge.text.trim()) {
                       onAddBadge(
@@ -359,7 +401,7 @@ export function ElementToolbar({
                     }
                   }}
                   disabled={!customBadge.text.trim()}
-                  className="w-full py-2 bg-purple-500 hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-sm font-medium transition-colors"
+                  className="w-full py-2 bg-violet-600 hover:bg-violet-700 text-white disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-sm font-medium transition-colors"
                 >
                   Add Custom Badge
                 </button>
@@ -373,18 +415,20 @@ export function ElementToolbar({
               <h4 className="text-sm font-semibold text-gray-700 dark:text-white/80 mb-3">
                 Pick an Emoji
               </h4>
-              <div className="grid grid-cols-8 gap-1 max-h-[240px] overflow-y-auto">
+              <div className="grid grid-cols-6 sm:grid-cols-8 gap-1 max-h-[240px] overflow-y-auto overscroll-contain">
                 {EMOJI_PRESETS.map((preset) => (
                   <button
                     key={preset.id}
+                    type="button"
                     onClick={() => {
                       onAddEmoji(preset.emoji);
                       setActivePanel(null);
                     }}
                     className="p-2 text-2xl hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg transition-colors"
+                    aria-label={preset.name}
                     title={preset.name}
                   >
-                    {preset.emoji}
+                    <span aria-hidden="true">{preset.emoji}</span>
                   </button>
                 ))}
               </div>

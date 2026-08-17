@@ -4,10 +4,10 @@
  */
 
 import { useState, useCallback, useRef, useMemo, useEffect } from "react";
+import { toast } from "react-hot-toast";
 import type {
   QRContentType,
   QRStyleSettings,
-  DEFAULT_QR_STYLE,
   QRHistoryItem,
 } from "@/types/qr-code";
 import {
@@ -17,12 +17,60 @@ import {
   downloadAsJPG,
   downloadAsSVG,
   copyQRToClipboard,
-  saveToHistory,
   getHistory,
   clearHistory,
   deleteHistoryItem,
 } from "@/lib/qr-code-utils";
 import { trackToolUsage } from "@/lib/gtag";
+
+/**
+ * History item enriched with the full form data snapshot so an entry can be
+ * fully restored (older items saved without `data` fall back gracefully).
+ */
+export interface QRHistoryEntry extends QRHistoryItem {
+  data?: Record<string, unknown>;
+}
+
+// Must match the key used by lib/qr-code-utils history helpers
+const HISTORY_KEY = "qr-code-history";
+const MAX_HISTORY_ITEMS = 10;
+
+const getHistoryEntries = (): QRHistoryEntry[] =>
+  getHistory() as QRHistoryEntry[];
+
+/**
+ * Save a QR code to history, persisting the form data alongside the encoded
+ * value so `loadFromHistory` can restore the exact QR the user generated.
+ */
+function saveHistoryEntry(
+  type: QRContentType,
+  value: string,
+  data: Record<string, unknown>,
+  fgColor: string,
+  bgColor: string,
+): void {
+  if (typeof window === "undefined") return;
+
+  try {
+    const history = getHistoryEntries();
+    const newItem: QRHistoryEntry = {
+      id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      type,
+      value,
+      timestamp: Date.now(),
+      style: { fgColor, bgColor },
+      data,
+    };
+
+    // Add to beginning, remove duplicates by value
+    const filtered = history.filter((item) => item.value !== value);
+    const updated = [newItem, ...filtered].slice(0, MAX_HISTORY_ITEMS);
+
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(updated));
+  } catch {
+    // Ignore storage errors
+  }
+}
 
 // Default style settings
 const defaultStyle: QRStyleSettings = {
@@ -113,8 +161,8 @@ interface UseQRCodeReturn {
   resetAll: () => void;
 
   // History
-  history: QRHistoryItem[];
-  loadFromHistory: (item: QRHistoryItem) => void;
+  history: QRHistoryEntry[];
+  loadFromHistory: (item: QRHistoryEntry) => void;
   deleteFromHistory: (id: string) => void;
   clearAllHistory: () => void;
   refreshHistory: () => void;
@@ -128,7 +176,7 @@ export function useQRCode(): UseQRCodeReturn {
   );
   const [style, setStyle] = useState<QRStyleSettings>(defaultStyle);
   const [isGenerated, setIsGenerated] = useState(false);
-  const [history, setHistory] = useState<QRHistoryItem[]>([]);
+  const [history, setHistory] = useState<QRHistoryEntry[]>([]);
 
   // Refs
   const qrRef = useRef<HTMLDivElement>(null);
@@ -136,7 +184,7 @@ export function useQRCode(): UseQRCodeReturn {
 
   // Load history on mount
   useEffect(() => {
-    setHistory(getHistory());
+    setHistory(getHistoryEntries());
   }, []);
 
   // Computed values
@@ -200,20 +248,30 @@ export function useQRCode(): UseQRCodeReturn {
 
     setIsGenerated(true);
 
-    // Save to history
+    // Save to history (including the form data so it can be restored later)
     if (qrValue) {
-      saveToHistory(contentType, qrValue, style.fgColor, style.bgColor);
-      setHistory(getHistory());
+      saveHistoryEntry(contentType, qrValue, data, style.fgColor, style.bgColor);
+      setHistory(getHistoryEntries());
     }
 
     return true;
-  }, [validation.isValid, contentType, qrValue, style.fgColor, style.bgColor]);
+  }, [
+    validation.isValid,
+    contentType,
+    qrValue,
+    data,
+    style.fgColor,
+    style.bgColor,
+  ]);
 
   // Download QR code
   const download = useCallback(
     (format: "png" | "svg" | "jpg") => {
       const canvas = qrRef.current?.querySelector("canvas");
-      if (!canvas) return;
+      if (!canvas) {
+        toast.error("QR code is not ready yet. Generate one first.");
+        return;
+      }
 
       trackToolUsage("QR Code Generator", `download_${format}`);
       const filename = `qrcode-${contentType}-${Date.now()}`;
@@ -257,10 +315,21 @@ export function useQRCode(): UseQRCodeReturn {
   }, [contentType]);
 
   // History management
-  const loadFromHistory = useCallback((item: QRHistoryItem) => {
-    setContentTypeState(item.type);
-    // For simplicity, we just set the generated state with the raw value
-    // In a more complex implementation, we'd parse the value back to data
+  const loadFromHistory = useCallback((item: QRHistoryEntry) => {
+    if (item.data) {
+      // Restore the full form data so the preview shows the exact QR clicked
+      setContentTypeState(item.type);
+      setData({ ...getInitialData(item.type), ...item.data });
+    } else if (item.type === "text" || item.type === "url") {
+      // Legacy entries without data: the raw value maps directly to the field
+      setContentTypeState(item.type);
+      setData(item.type === "text" ? { text: item.value } : { url: item.value });
+    } else {
+      // Legacy entries for structured types: re-encode the raw payload as text
+      // so the rendered QR still matches the one the user clicked
+      setContentTypeState("text");
+      setData({ text: item.value });
+    }
     setIsGenerated(true);
     setStyle((prev) => ({
       ...prev,
@@ -271,7 +340,7 @@ export function useQRCode(): UseQRCodeReturn {
 
   const deleteFromHistory = useCallback((id: string) => {
     deleteHistoryItem(id);
-    setHistory(getHistory());
+    setHistory(getHistoryEntries());
   }, []);
 
   const clearAllHistory = useCallback(() => {
@@ -280,7 +349,7 @@ export function useQRCode(): UseQRCodeReturn {
   }, []);
 
   const refreshHistory = useCallback(() => {
-    setHistory(getHistory());
+    setHistory(getHistoryEntries());
   }, []);
 
   return {
