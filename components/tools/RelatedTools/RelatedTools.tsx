@@ -32,12 +32,15 @@ interface RelatedToolsProps {
   currentToolId: string;
   maxTools?: number;
   title?: string;
+  /** Max-width class so the section aligns with the host page's container */
+  containerClassName?: string;
 }
 
 export const RelatedTools = ({
   currentToolId,
   maxTools = 3,
   title = "Explore More Free Tools",
+  containerClassName = "max-w-6xl",
 }: RelatedToolsProps) => {
   const { t } = useTranslation();
 
@@ -48,37 +51,52 @@ export const RelatedTools = ({
     .slice(0, maxTools);
 
   return (
-    <section className="w-full max-w-6xl mt-12 sm:mt-16">
+    <section className={`w-full ${containerClassName} mt-12 sm:mt-16`}>
       <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-6">
         {title}
       </h2>
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {relatedTools.map((tool) => {
           const Icon = iconMap[tool.icon] || DocumentTextIcon;
+          const cardBody = (
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 bg-violet-100 dark:bg-violet-900/30 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-violet-200 dark:group-hover:bg-violet-900/50 transition-colors">
+                <Icon className="w-5 h-5 text-violet-600 dark:text-violet-400" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-gray-900 dark:text-white mb-1 group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">
+                  {t(tool.nameKey)}
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+                  {t(tool.descriptionKey)}
+                </p>
+                {!tool.available && (
+                  <span className="text-xs px-2 py-0.5 bg-zinc-200 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-400 rounded-full mt-2 inline-block font-medium">
+                    Coming Soon
+                  </span>
+                )}
+              </div>
+            </div>
+          );
+
+          if (!tool.available) {
+            return (
+              <div
+                key={tool.id}
+                className="p-5 bg-white dark:bg-dark-card rounded-xl border border-gray-200 dark:border-dark-border opacity-60"
+              >
+                {cardBody}
+              </div>
+            );
+          }
+
           return (
             <Link
               key={tool.id}
-              href={tool.available ? tool.href : "/tools"}
-              className="group p-5 bg-white dark:bg-dark-card rounded-xl border border-gray-200 dark:border-dark-border hover:border-violet-500 dark:hover:border-violet-500 hover:shadow-lg transition-all"
+              href={tool.href}
+              className="group p-5 bg-white dark:bg-dark-card rounded-xl border border-gray-200 dark:border-dark-border hover:border-violet-500 dark:hover:border-violet-500 hover:shadow-lg transition-[border-color,box-shadow] focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
             >
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 bg-violet-100 dark:bg-violet-900/30 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-violet-200 dark:group-hover:bg-violet-900/50 transition-colors">
-                  <Icon className="w-5 h-5 text-violet-600 dark:text-violet-400" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-gray-900 dark:text-white mb-1 group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">
-                    {t(tool.nameKey)}
-                  </h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
-                    {t(tool.descriptionKey)}
-                  </p>
-                  {!tool.available && (
-                    <span className="text-xs text-violet-600 dark:text-violet-400 mt-2 inline-block font-medium">
-                      Coming Soon
-                    </span>
-                  )}
-                </div>
-              </div>
+              {cardBody}
             </Link>
           );
         })}
@@ -96,6 +114,7 @@ export const RelatedTools = ({
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
+            aria-hidden="true"
           >
             <path
               strokeLinecap="round"

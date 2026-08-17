@@ -5,7 +5,8 @@ import { useRouter } from "next/router";
 import Script from "next/script";
 import { Analytics } from "@vercel/analytics/react";
 import { ThemeProvider } from "next-themes";
-import { Inter } from "@next/font/google";
+import { MotionConfig } from "framer-motion";
+import { Inter, Space_Grotesk } from "@next/font/google";
 import ErrorBoundary from "../components/ErrorBoundary";
 import { AuthProvider } from "@/contexts";
 import { GA_MEASUREMENT_ID, pageview } from "@/lib/gtag";
@@ -16,6 +17,13 @@ const inter = Inter({
   weight: ["400", "500", "600", "700"],
   display: "swap",
   variable: "--font-inter",
+});
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  display: "swap",
+  variable: "--font-space-grotesk",
 });
 
 export default function App({ Component, pageProps }: AppProps) {
@@ -78,12 +86,22 @@ export default function App({ Component, pageProps }: AppProps) {
       <ThemeProvider enableSystem={true} attribute="class">
         <AuthProvider>
           <ErrorBoundary>
-            <main className={inter.className}>
-              <Component {...pageProps} />
-              {/* Vercel Analytics - Only load if user has consented */}
-              {analyticsEnabled && <Analytics />}
-              <CookieConsent />
-            </main>
+            <MotionConfig reducedMotion="user">
+              <div
+                className={`${inter.variable} ${spaceGrotesk.variable} ${inter.className}`}
+              >
+                <a
+                  href="#main-content"
+                  className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-violet-600 focus:px-4 focus:py-2 focus:text-white focus:outline-none focus:ring-2 focus:ring-violet-300"
+                >
+                  Skip to content
+                </a>
+                <Component {...pageProps} />
+                {/* Vercel Analytics - Only load if user has consented */}
+                {analyticsEnabled && <Analytics />}
+                <CookieConsent />
+              </div>
+            </MotionConfig>
           </ErrorBoundary>
         </AuthProvider>
       </ThemeProvider>

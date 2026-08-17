@@ -169,11 +169,17 @@ export default function RedirectPage({
           <title>Link Not Found | Article Idea Generator</title>
           <meta name="robots" content="noindex, nofollow" />
         </Head>
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+        <main
+          id="main-content"
+          className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-black"
+        >
           <div className="text-center p-8 max-w-md">
-            <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-red-500/20 flex items-center justify-center">
+            <div
+              className="w-20 h-20 mx-auto mb-6 rounded-full bg-red-100 dark:bg-red-500/20 flex items-center justify-center"
+              aria-hidden="true"
+            >
               <svg
-                className="w-10 h-10 text-red-400"
+                className="w-10 h-10 text-red-600 dark:text-red-400"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -186,25 +192,26 @@ export default function RedirectPage({
                 />
               </svg>
             </div>
-            <h1 className="text-3xl font-bold text-white mb-3">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">
               Link Not Found
             </h1>
-            <p className="text-slate-400 mb-6">
+            <p className="text-gray-500 dark:text-gray-400 mb-6">
               The shortened link{" "}
-              <code className="text-cyan-400 bg-slate-800 px-2 py-1 rounded">
-                aigl.ink/{code}
+              <code className="text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-zinc-800 px-2 py-1 rounded">
+                aigl.ink/r/{code}
               </code>{" "}
               doesn&apos;t exist or has expired.
             </p>
             <Link
               href="/tools/url-shortener"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-all duration-200 shadow-lg shadow-cyan-500/25"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-violet-600 text-white font-semibold rounded-lg hover:bg-violet-700 transition-colors duration-200 shadow-sm"
             >
               <svg
                 className="w-5 h-5"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
+                aria-hidden="true"
               >
                 <path
                   strokeLinecap="round"
@@ -216,7 +223,7 @@ export default function RedirectPage({
               Create a Short Link
             </Link>
           </div>
-        </div>
+        </main>
       </>
     );
   }
@@ -228,19 +235,22 @@ export default function RedirectPage({
         <title>
           {urlData?.title
             ? `Redirecting to ${urlData.title}`
-            : "Redirecting..."}{" "}
+            : "Redirecting…"}{" "}
           | aigl.ink
         </title>
         <meta name="robots" content="noindex, nofollow" />
       </Head>
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-zinc-900 dark:via-zinc-900 dark:to-zinc-800">
-        <div className="text-center p-8">
-          <div className="relative w-16 h-16 mx-auto mb-6">
+      <main
+        id="main-content"
+        className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-zinc-900 dark:via-zinc-900 dark:to-zinc-800"
+      >
+        <div className="text-center p-8" role="status" aria-live="polite">
+          <div className="relative w-16 h-16 mx-auto mb-6" aria-hidden="true">
             <div className="absolute inset-0 rounded-full border-4 border-gray-200 dark:border-zinc-700" />
             <div className="absolute inset-0 rounded-full border-4 border-violet-500 border-t-transparent animate-spin" />
           </div>
           <h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
-            Redirecting...
+            Redirecting…
           </h1>
           <p className="text-gray-500 dark:text-gray-400 text-sm">
             You&apos;re being redirected to your destination
@@ -251,7 +261,7 @@ export default function RedirectPage({
             </p>
           )}
         </div>
-      </div>
+      </main>
     </>
   );
 }

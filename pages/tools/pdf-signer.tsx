@@ -3,10 +3,12 @@ import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { Space_Grotesk } from "@next/font/google";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Toaster, toast } from "react-hot-toast";
 import { Header, Footer } from "@/components";
 import { RelatedTools } from "@/components/tools";
+import Modal from "@/components/ui/Modal";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import { useTranslation } from "@/hooks/useTranslation";
 import { SITE_URL, SITE_NAME, LOCALE_MAP } from "@/lib/constants";
 import { trackToolUsage } from "@/lib/gtag";
@@ -431,19 +433,15 @@ const SignaturePadModal = ({ onSave, onClose }: SignaturePadProps) => {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-      onClick={(e) => e.target === e.currentTarget && onClose()}
+    <Modal
+      isOpen
+      onClose={onClose}
+      title="Create Signature"
+      hideTitle
+      maxWidthClassName="max-w-lg"
+      className="!p-0 overflow-hidden"
     >
-      <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.9, opacity: 0 }}
-        className="bg-white dark:bg-dark-card rounded-2xl shadow-xl max-w-lg w-full overflow-hidden"
-      >
+      <div>
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-dark-border">
           <h3
             className={`text-lg font-semibold text-gray-900 dark:text-white ${spaceGrotesk.className}`}
@@ -452,9 +450,10 @@ const SignaturePadModal = ({ onSave, onClose }: SignaturePadProps) => {
           </h3>
           <button
             onClick={onClose}
-            className="p-1 hover:bg-gray-100 dark:hover:bg-dark-border rounded-lg transition-colors"
+            aria-label="Close signature dialog"
+            className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-gray-100 dark:hover:bg-dark-border rounded-lg transition-colors"
           >
-            <XIcon className="w-5 h-5 text-gray-500" />
+            <XIcon className="w-5 h-5 text-gray-500" aria-hidden="true" />
           </button>
         </div>
 
@@ -474,7 +473,7 @@ const SignaturePadModal = ({ onSave, onClose }: SignaturePadProps) => {
                   : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
               }`}
             >
-              <span>{tab.icon}</span>
+              <span aria-hidden="true">{tab.icon}</span>
               {tab.label}
             </button>
           ))}
@@ -491,6 +490,7 @@ const SignaturePadModal = ({ onSave, onClose }: SignaturePadProps) => {
                   ref={canvasRef}
                   width={450}
                   height={150}
+                  aria-label="Signature drawing area"
                   className="w-full cursor-crosshair touch-none"
                   onMouseDown={startDrawing}
                   onMouseMove={draw}
@@ -502,10 +502,11 @@ const SignaturePadModal = ({ onSave, onClose }: SignaturePadProps) => {
                 />
                 <button
                   onClick={clearCanvas}
-                  className="absolute top-2 right-2 p-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                  aria-label="Clear signature drawing"
                   title="Clear"
+                  className="absolute top-2 right-2 p-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
                 >
-                  <RefreshIcon className="w-4 h-4 text-gray-600" />
+                  <RefreshIcon className="w-4 h-4 text-gray-600" aria-hidden="true" />
                 </button>
               </div>
             </div>
@@ -514,21 +515,27 @@ const SignaturePadModal = ({ onSave, onClose }: SignaturePadProps) => {
           {mode === "type" && (
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label
+                  htmlFor="signature-typed-name"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >
                   Type your full name
                 </label>
                 <input
+                  id="signature-typed-name"
+                  name="name"
                   type="text"
+                  autoComplete="name"
                   value={typedName}
                   onChange={(e) => setTypedName(e.target.value)}
                   placeholder="John Doe"
                   className="w-full px-4 py-3 border border-gray-300 dark:border-dark-border rounded-xl bg-white dark:bg-dark-bg text-gray-900 dark:text-white focus:ring-2 focus:ring-violet-500 focus:border-transparent"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <div role="group" aria-label="Choose a style">
+                <span className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Choose a style
-                </label>
+                </span>
                 <div className="grid grid-cols-2 gap-2">
                   {SIGNATURE_FONTS.map((font) => (
                     <button
@@ -591,8 +598,8 @@ const SignaturePadModal = ({ onSave, onClose }: SignaturePadProps) => {
             Create Signature
           </button>
         </div>
-      </motion.div>
-    </motion.div>
+      </div>
+    </Modal>
   );
 };
 
@@ -625,6 +632,7 @@ const ElementToolbar = ({
         <select
           value={element.fontSize || 14}
           onChange={(e) => onUpdate({ fontSize: Number(e.target.value) })}
+          aria-label="Font size"
           className="text-xs p-1 border border-gray-200 dark:border-dark-border rounded bg-white dark:bg-dark-bg text-gray-700 dark:text-gray-300"
         >
           {FONT_SIZES.map((size) => (
@@ -644,6 +652,7 @@ const ElementToolbar = ({
               : "#000000")
           }
           onChange={(e) => onUpdate({ color: e.target.value })}
+          aria-label="Color"
           className="text-xs p-1 border border-gray-200 dark:border-dark-border rounded bg-white dark:bg-dark-bg text-gray-700 dark:text-gray-300"
         >
           {(element.type === "highlight"
@@ -661,6 +670,7 @@ const ElementToolbar = ({
         <select
           value={element.strokeWidth || 2}
           onChange={(e) => onUpdate({ strokeWidth: Number(e.target.value) })}
+          aria-label="Stroke width"
           className="text-xs p-1 border border-gray-200 dark:border-dark-border rounded bg-white dark:bg-dark-bg text-gray-700 dark:text-gray-300"
         >
           {STROKE_WIDTHS.map((width) => (
@@ -673,10 +683,11 @@ const ElementToolbar = ({
 
       <button
         onClick={onDelete}
-        className="p-1.5 hover:bg-red-100 dark:hover:bg-red-900/30 rounded transition-colors"
+        aria-label="Delete element"
         title="Delete"
+        className="p-1.5 hover:bg-red-100 dark:hover:bg-red-900/30 rounded transition-colors"
       >
-        <TrashIcon className="w-4 h-4 text-red-500" />
+        <TrashIcon className="w-4 h-4 text-red-500" aria-hidden="true" />
       </button>
     </motion.div>
   );
@@ -696,19 +707,20 @@ interface ResizeHandleProps {
 
 const ResizeHandle = ({ position, onResizeStart }: ResizeHandleProps) => {
   const positionStyles: Record<string, string> = {
-    nw: "-top-1.5 -left-1.5 cursor-nw-resize",
-    ne: "-top-1.5 -right-1.5 cursor-ne-resize",
-    sw: "-bottom-1.5 -left-1.5 cursor-sw-resize",
-    se: "-bottom-1.5 -right-1.5 cursor-se-resize",
-    n: "-top-1.5 left-1/2 -translate-x-1/2 cursor-n-resize",
-    s: "-bottom-1.5 left-1/2 -translate-x-1/2 cursor-s-resize",
-    e: "top-1/2 -right-1.5 -translate-y-1/2 cursor-e-resize",
-    w: "top-1/2 -left-1.5 -translate-y-1/2 cursor-w-resize",
+    nw: "-top-2 -left-2 cursor-nw-resize",
+    ne: "-top-2 -right-2 cursor-ne-resize",
+    sw: "-bottom-2 -left-2 cursor-sw-resize",
+    se: "-bottom-2 -right-2 cursor-se-resize",
+    n: "-top-2 left-1/2 -translate-x-1/2 cursor-n-resize",
+    s: "-bottom-2 left-1/2 -translate-x-1/2 cursor-s-resize",
+    e: "top-1/2 -right-2 -translate-y-1/2 cursor-e-resize",
+    w: "top-1/2 -left-2 -translate-y-1/2 cursor-w-resize",
   };
 
   return (
     <div
-      className={`absolute w-3 h-3 bg-white border-2 border-violet-500 rounded-sm hover:bg-violet-100 ${positionStyles[position]}`}
+      aria-hidden="true"
+      className={`absolute w-4 h-4 touch-none bg-white border-2 border-violet-500 rounded-sm hover:bg-violet-100 ${positionStyles[position]}`}
       onMouseDown={(e) => {
         e.stopPropagation();
         onResizeStart(e, position);
@@ -742,6 +754,10 @@ interface PDFViewerProps {
   onSelectElement: (id: string | null) => void;
   onUpdateElement: (id: string, updates: Partial<PlacedElement>) => void;
   onDeleteElement: (id: string) => void;
+  /** Called when a drag/resize interaction begins (suspends undo history) */
+  onInteractionStart: () => void;
+  /** Called when a drag/resize interaction ends (commits one undo entry) */
+  onInteractionEnd: () => void;
 }
 
 const PDFViewer = ({
@@ -761,9 +777,13 @@ const PDFViewer = ({
   onSelectElement,
   onUpdateElement,
   onDeleteElement,
+  onInteractionStart,
+  onInteractionEnd,
 }: PDFViewerProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const hasFitToWidth = useRef(false);
   const [canvasDimensions, setCanvasDimensions] = useState({
     width: 0,
     height: 0,
@@ -820,7 +840,8 @@ const PDFViewer = ({
       try {
         // @ts-ignore - Dynamic import for pdf.js
         const pdfjsLib = await import("pdfjs-dist");
-        pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+        // Self-hosted worker: keeps files fully local and works offline
+        pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.js";
 
         const loadingTask = pdfjsLib.getDocument(pdfUrl);
         const pdf = await loadingTask.promise;
@@ -834,6 +855,33 @@ const PDFViewer = ({
 
     loadPdf();
   }, [pdfUrl]);
+
+  // Fit-to-width: compute an initial zoom so the page doesn't overflow
+  // the container on narrow screens (users can still zoom in manually)
+  useEffect(() => {
+    if (!pdfDoc || hasFitToWidth.current) return;
+    let cancelled = false;
+    const fit = async () => {
+      try {
+        const page = await pdfDoc.getPage(1);
+        const viewport = page.getViewport({ scale: 1 });
+        const available = (scrollContainerRef.current?.clientWidth ?? 0) - 32;
+        if (!cancelled && available > 0 && viewport.width > available) {
+          const fitZoom =
+            Math.floor((available / viewport.width) * 100) / 100;
+          onZoomChange(Math.max(0.25, Math.min(1, fitZoom)));
+        }
+        hasFitToWidth.current = true;
+      } catch {
+        // Ignore fit errors; default zoom stays
+      }
+    };
+    fit();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pdfDoc]);
 
   // Render current page
   useEffect(() => {
@@ -991,6 +1039,7 @@ const PDFViewer = ({
     const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
     const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
 
+    onInteractionStart();
     setDragState({
       isDragging: true,
       elementId,
@@ -1038,7 +1087,8 @@ const PDFViewer = ({
       elementStartX: 0,
       elementStartY: 0,
     });
-  }, []);
+    onInteractionEnd();
+  }, [onInteractionEnd]);
 
   // Resize handlers
   const handleResizeStart = (
@@ -1053,6 +1103,7 @@ const PDFViewer = ({
     const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
     const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
 
+    onInteractionStart();
     setResizeState({
       isResizing: true,
       elementId,
@@ -1148,7 +1199,8 @@ const PDFViewer = ({
       startElementX: 0,
       startElementY: 0,
     });
-  }, []);
+    onInteractionEnd();
+  }, [onInteractionEnd]);
 
   // Global mouse/touch event listeners for drag and resize
   useEffect(() => {
@@ -1191,43 +1243,62 @@ const PDFViewer = ({
           <button
             onClick={() => onPageChange(Math.max(1, currentPage - 1))}
             disabled={currentPage <= 1}
+            aria-label="Previous page"
             className="p-1.5 sm:p-2 hover:bg-gray-200 dark:hover:bg-dark-card rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            <ChevronLeftIcon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600 dark:text-gray-400" />
+            <ChevronLeftIcon
+              className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600 dark:text-gray-400"
+              aria-hidden="true"
+            />
           </button>
-          <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">
+          <span className="text-xs sm:text-sm tabular-nums text-gray-600 dark:text-gray-400 whitespace-nowrap">
             {currentPage}/{totalPages}
           </span>
           <button
             onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
             disabled={currentPage >= totalPages}
+            aria-label="Next page"
             className="p-1.5 sm:p-2 hover:bg-gray-200 dark:hover:bg-dark-card rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            <ChevronRightIcon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600 dark:text-gray-400" />
+            <ChevronRightIcon
+              className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600 dark:text-gray-400"
+              aria-hidden="true"
+            />
           </button>
         </div>
 
         <div className="flex items-center gap-1 sm:gap-2">
           <button
-            onClick={() => onZoomChange(Math.max(0.5, zoom - 0.25))}
+            onClick={() => onZoomChange(Math.max(0.25, zoom - 0.25))}
+            aria-label="Zoom out"
             className="p-1.5 sm:p-2 hover:bg-gray-200 dark:hover:bg-dark-card rounded-lg transition-colors"
           >
-            <ZoomOutIcon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600 dark:text-gray-400" />
+            <ZoomOutIcon
+              className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600 dark:text-gray-400"
+              aria-hidden="true"
+            />
           </button>
-          <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 min-w-[45px] sm:min-w-[60px] text-center">
+          <span className="text-xs sm:text-sm tabular-nums text-gray-600 dark:text-gray-400 min-w-[45px] sm:min-w-[60px] text-center">
             {Math.round(zoom * 100)}%
           </span>
           <button
             onClick={() => onZoomChange(Math.min(2, zoom + 0.25))}
+            aria-label="Zoom in"
             className="p-1.5 sm:p-2 hover:bg-gray-200 dark:hover:bg-dark-card rounded-lg transition-colors"
           >
-            <ZoomInIcon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600 dark:text-gray-400" />
+            <ZoomInIcon
+              className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600 dark:text-gray-400"
+              aria-hidden="true"
+            />
           </button>
         </div>
       </div>
 
       {/* Canvas Container */}
-      <div className="flex-1 overflow-auto bg-gray-200 dark:bg-dark-bg p-4">
+      <div
+        ref={scrollContainerRef}
+        className="flex-1 overflow-auto bg-gray-200 dark:bg-dark-bg p-4"
+      >
         <div
           ref={containerRef}
           className="relative mx-auto bg-white shadow-lg"
@@ -1248,7 +1319,12 @@ const PDFViewer = ({
           {pageElements.map((element) => (
             <div
               key={element.id}
-              className={`absolute select-none ${
+              role="button"
+              tabIndex={0}
+              aria-label={`${element.type} element${
+                selectedElement === element.id ? " (selected)" : ""
+              }. Press Enter to select, arrow keys to move, Delete to remove.`}
+              className={`absolute select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 ${
                 selectedElement === element.id
                   ? "ring-2 ring-violet-500 z-20"
                   : "hover:ring-2 hover:ring-violet-300 z-10"
@@ -1264,6 +1340,13 @@ const PDFViewer = ({
               onClick={(e) => {
                 e.stopPropagation();
                 onSelectElement(element.id);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onSelectElement(element.id);
+                }
               }}
             >
               {selectedElement === element.id && (
@@ -1357,7 +1440,8 @@ const PDFViewer = ({
                   onChange={(e) =>
                     onUpdateElement(element.id, { content: e.target.value })
                   }
-                  className="w-full h-full px-2 text-gray-900 bg-transparent border-none focus:outline-none"
+                  aria-label="Text element content"
+                  className="w-full h-full px-2 text-gray-900 bg-transparent border-none focus:outline-none focus-visible:ring-1 focus-visible:ring-violet-500"
                   style={{ fontSize: element.fontSize || 14 }}
                   onClick={(e) => e.stopPropagation()}
                   onMouseDown={(e) => e.stopPropagation()}
@@ -1467,7 +1551,7 @@ const PDFViewer = ({
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={element.content}
-                  alt="Image"
+                  alt="Placed image"
                   className="w-full h-full object-contain pointer-events-none"
                   draggable={false}
                 />
@@ -1504,6 +1588,7 @@ export default function PDFSigner() {
   const [showSignaturePad, setShowSignaturePad] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
 
   // Undo/Redo history state
   const [history, setHistory] = useState<HistoryState[]>([
@@ -1511,6 +1596,10 @@ export default function PDFSigner() {
   ]);
   const [historyIndex, setHistoryIndex] = useState(0);
   const isUndoRedoAction = useRef(false);
+  // True while a drag/resize is in progress: suspends history writes so a
+  // single drag produces one undo entry instead of one per mousemove
+  const isInteracting = useRef(false);
+  const [historyCommitNonce, setHistoryCommitNonce] = useState(0);
 
   // Saved signatures from localStorage
   const [savedSignatures, setSavedSignatures] = useState<SavedSignature[]>([]);
@@ -1547,10 +1636,16 @@ export default function PDFSigner() {
     }
   }, [fullName]);
 
-  // Track element changes for undo/redo (skip if undo/redo action)
+  // Track element changes for undo/redo (skip if undo/redo action).
+  // While a drag/resize interaction is in progress, history writes are
+  // suspended; one entry is committed on interaction end (via the nonce).
   useEffect(() => {
     if (isUndoRedoAction.current) {
       isUndoRedoAction.current = false;
+      return;
+    }
+
+    if (isInteracting.current) {
       return;
     }
 
@@ -1572,7 +1667,29 @@ export default function PDFSigner() {
     setHistory(newHistory);
     setHistoryIndex(newHistory.length - 1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [elements]);
+  }, [elements, historyCommitNonce]);
+
+  // Drag/resize interaction lifecycle (from PDFViewer)
+  const handleInteractionStart = useCallback(() => {
+    isInteracting.current = true;
+  }, []);
+
+  const handleInteractionEnd = useCallback(() => {
+    isInteracting.current = false;
+    // Re-run the history effect once with the final element positions
+    setHistoryCommitNonce((n) => n + 1);
+  }, []);
+
+  // Warn before leaving the page when there is unsaved work
+  useEffect(() => {
+    if (elements.length === 0) return;
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [elements.length]);
 
   // Undo function
   const handleUndo = useCallback(() => {
@@ -1750,7 +1867,8 @@ export default function PDFSigner() {
     // Get total pages
     try {
       const pdfjsLib = await import("pdfjs-dist");
-      pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+      // Self-hosted worker: keeps files fully local and works offline
+      pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.js";
       const loadingTask = pdfjsLib.getDocument(url);
       const pdf = await loadingTask.promise;
       setTotalPages(pdf.numPages);
@@ -2043,6 +2161,17 @@ export default function PDFSigner() {
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-white to-gray-50 dark:from-dark-bg dark:to-darkOffset">
       <Head>
+        {/* Signature fonts (only this tool uses them) */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Dancing+Script&family=Great+Vibes&family=Pacifico&family=Caveat&family=Satisfy&display=swap"
+          rel="stylesheet"
+        />
         <title>{t("tools.pdfSigner.pageTitle")}</title>
         <meta
           name="description"
@@ -2247,30 +2376,33 @@ export default function PDFSigner() {
       <Toaster position="top-center" toastOptions={{ duration: 3000 }} />
       <Header />
 
-      <main className="flex flex-col items-center w-full flex-1 px-4 sm:px-6 lg:px-8 pt-2 sm:pt-4 pb-8 max-w-7xl mx-auto">
+      <main
+        id="main-content"
+        className="flex flex-col items-center w-full flex-1 px-4 sm:px-6 lg:px-8 pt-2 sm:pt-4 pb-8 max-w-7xl mx-auto"
+      >
         {/* Breadcrumb */}
-        <nav className="w-full max-w-6xl mb-4">
+        <nav className="w-full max-w-6xl mb-4" aria-label="Breadcrumb">
           <ol className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
             <li>
               <Link
                 href="/"
                 className="hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
               >
-                Home
+                {t("header.home")}
               </Link>
             </li>
-            <li>/</li>
+            <li aria-hidden="true">/</li>
             <li>
               <Link
                 href="/tools"
                 className="hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
               >
-                Tools
+                {t("header.tools")}
               </Link>
             </li>
-            <li>/</li>
+            <li aria-hidden="true">/</li>
             <li className="text-gray-900 dark:text-white font-medium">
-              PDF Signer
+              {t("tools.pdfSigner.name")}
             </li>
           </ol>
         </nav>
@@ -2283,7 +2415,7 @@ export default function PDFSigner() {
           className="text-center mb-6 sm:mb-8 w-full max-w-3xl"
         >
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 rounded-full text-xs font-medium mb-4">
-            <PencilIcon className="w-3.5 h-3.5" />
+            <PencilIcon className="w-3.5 h-3.5" aria-hidden="true" />
             {t("tools.pdfSigner.badge")}
           </div>
 
@@ -2308,7 +2440,10 @@ export default function PDFSigner() {
             className="mb-4 flex items-center justify-center"
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-full">
-              <ShieldCheckIcon className="w-5 h-5 text-green-600 dark:text-green-400" />
+              <ShieldCheckIcon
+                className="w-5 h-5 text-green-600 dark:text-green-400"
+                aria-hidden="true"
+              />
               <span className="text-sm font-medium text-green-700 dark:text-green-300">
                 100% Private — Files never leave your device
               </span>
@@ -2384,20 +2519,20 @@ export default function PDFSigner() {
                       onClick={() => setShowSignaturePad(true)}
                       className="w-full flex items-center gap-3 px-3 py-2 bg-violet-50 dark:bg-violet-900/20 text-violet-700 dark:text-violet-300 rounded-lg hover:bg-violet-100 dark:hover:bg-violet-900/30 transition-colors"
                     >
-                      <PlusIcon className="w-4 h-4" />
+                      <PlusIcon className="w-4 h-4" aria-hidden="true" />
                       {currentSignature
                         ? "Change Signature"
                         : "Create Signature"}
                     </button>
                     {currentSignature && (
-                      <div className="mt-2 p-2 bg-gray-50 dark:bg-dark-border rounded-lg relative group">
+                      <div className="mt-2 p-2 bg-gray-50 dark:bg-dark-border rounded-lg relative">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={currentSignature}
                           alt="Your signature"
                           className="max-h-12 mx-auto"
                         />
-                        {/* Save button - appears on hover */}
+                        {/* Save button - always visible so it works on touch */}
                         {!savedSignatures.some(
                           (s) => s.data === currentSignature,
                         ) && (
@@ -2405,10 +2540,14 @@ export default function PDFSigner() {
                             onClick={() =>
                               saveSignatureToStorage(currentSignature)
                             }
-                            className="absolute top-1 right-1 p-1 bg-white dark:bg-dark-card rounded shadow opacity-0 group-hover:opacity-100 transition-opacity"
+                            aria-label="Save signature for later"
                             title="Save for later"
+                            className="absolute top-1 right-1 p-1.5 bg-white/90 dark:bg-dark-card/90 border border-gray-200 dark:border-dark-border rounded shadow-sm hover:bg-violet-50 dark:hover:bg-violet-900/30 transition-colors"
                           >
-                            <SaveIcon className="w-4 h-4 text-violet-600" />
+                            <SaveIcon
+                              className="w-4 h-4 text-violet-600"
+                              aria-hidden="true"
+                            />
                           </button>
                         )}
                       </div>
@@ -2418,31 +2557,41 @@ export default function PDFSigner() {
                   {/* Saved Signatures */}
                   {savedSignatures.length > 0 && (
                     <div className="mb-4">
-                      <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">
+                      <span className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">
                         Saved Signatures
-                      </label>
-                      <div className="space-y-1 max-h-24 overflow-y-auto">
+                      </span>
+                      <div className="space-y-1 max-h-24 overflow-y-auto overscroll-contain">
                         {savedSignatures.map((sig) => (
                           <div
                             key={sig.id}
-                            className="flex items-center gap-2 p-1.5 bg-gray-50 dark:bg-dark-border rounded-lg group cursor-pointer hover:bg-gray-100 dark:hover:bg-dark-card"
-                            onClick={() => selectSavedSignature(sig)}
+                            className="flex items-center gap-2 p-1.5 bg-gray-50 dark:bg-dark-border rounded-lg hover:bg-gray-100 dark:hover:bg-dark-card"
                           >
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                              src={sig.data}
-                              alt={sig.name}
-                              className="h-6 flex-1 object-contain"
-                            />
+                            <button
+                              type="button"
+                              onClick={() => selectSavedSignature(sig)}
+                              aria-label={`Use saved signature: ${sig.name}`}
+                              className="flex-1 min-w-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 rounded"
+                            >
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                src={sig.data}
+                                alt={sig.name}
+                                className="h-6 w-full object-contain"
+                              />
+                            </button>
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 deleteSavedSignature(sig.id);
                               }}
-                              className="p-1 hover:bg-red-100 dark:hover:bg-red-900/30 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                              aria-label={`Delete saved signature: ${sig.name}`}
                               title="Delete"
+                              className="p-1.5 hover:bg-red-100 dark:hover:bg-red-900/30 rounded transition-colors"
                             >
-                              <XIcon className="w-3 h-3 text-red-500" />
+                              <XIcon
+                                className="w-3 h-3 text-red-500"
+                                aria-hidden="true"
+                              />
                             </button>
                           </div>
                         ))}
@@ -2452,11 +2601,17 @@ export default function PDFSigner() {
 
                   {/* Full Name Input */}
                   <div className="mb-4">
-                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">
+                    <label
+                      htmlFor="pdf-signer-full-name"
+                      className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5"
+                    >
                       Your Full Name
                     </label>
                     <input
+                      id="pdf-signer-full-name"
+                      name="name"
                       type="text"
+                      autoComplete="name"
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                       placeholder="Enter your full name"
@@ -2485,7 +2640,7 @@ export default function PDFSigner() {
                       onClick={() => imageInputRef.current?.click()}
                       className="w-full flex items-center gap-3 px-3 py-2 bg-violet-50 dark:bg-violet-900/20 text-violet-700 dark:text-violet-300 rounded-lg hover:bg-violet-100 dark:hover:bg-violet-900/30 transition-colors border border-violet-200 dark:border-violet-800"
                     >
-                      <PhotographIcon className="w-4 h-4" />
+                      <PhotographIcon className="w-4 h-4" aria-hidden="true" />
                       {currentImage ? "Change Image" : "Upload Image"}
                     </button>
                     {currentImage && (
@@ -2536,18 +2691,23 @@ export default function PDFSigner() {
                         onClick={handleUndo}
                         disabled={historyIndex <= 0}
                         className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 border border-gray-300 dark:border-dark-border text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-dark-border disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                        aria-label="Undo (Ctrl+Z)"
                         title="Undo (Ctrl+Z)"
                       >
-                        <ReplyIcon className="w-4 h-4" />
+                        <ReplyIcon className="w-4 h-4" aria-hidden="true" />
                         <span className="text-xs">Undo</span>
                       </button>
                       <button
                         onClick={handleRedo}
                         disabled={historyIndex >= history.length - 1}
                         className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 border border-gray-300 dark:border-dark-border text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-dark-border disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                        aria-label="Redo (Ctrl+Y)"
                         title="Redo (Ctrl+Y)"
                       >
-                        <ReplyIcon className="w-4 h-4 transform scale-x-[-1]" />
+                        <ReplyIcon
+                          className="w-4 h-4 transform scale-x-[-1]"
+                          aria-hidden="true"
+                        />
                         <span className="text-xs">Redo</span>
                       </button>
                     </div>
@@ -2559,15 +2719,15 @@ export default function PDFSigner() {
                       {isProcessing ? (
                         <Spinner className="w-4 h-4" />
                       ) : (
-                        <DownloadIcon className="w-4 h-4" />
+                        <DownloadIcon className="w-4 h-4" aria-hidden="true" />
                       )}
                       {t("tools.pdfSigner.download")}
                     </button>
                     <button
-                      onClick={handleClear}
+                      onClick={() => setShowClearConfirm(true)}
                       className="w-full flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 dark:border-dark-border text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-dark-border transition-colors"
                     >
-                      <TrashIcon className="w-4 h-4" />
+                      <TrashIcon className="w-4 h-4" aria-hidden="true" />
                       {t("tools.pdfSigner.clearAll")}
                     </button>
                   </div>
@@ -2605,6 +2765,8 @@ export default function PDFSigner() {
                   onSelectElement={setSelectedElement}
                   onUpdateElement={handleUpdateElement}
                   onDeleteElement={handleDeleteElement}
+                  onInteractionStart={handleInteractionStart}
+                  onInteractionEnd={handleInteractionEnd}
                 />
               </div>
             </motion.div>
@@ -2787,20 +2949,28 @@ export default function PDFSigner() {
 
       <Footer />
 
+      {/* Clear All confirmation */}
+      <ConfirmDialog
+        isOpen={showClearConfirm}
+        onClose={() => setShowClearConfirm(false)}
+        onConfirm={handleClear}
+        title="Clear everything?"
+        message="This will remove the loaded PDF, all placed elements, and the undo history. This cannot be undone."
+        confirmLabel="Clear all"
+      />
+
       {/* Signature Pad Modal */}
-      <AnimatePresence>
-        {showSignaturePad && (
-          <SignaturePadModal
-            onSave={(signature) => {
-              setCurrentSignature(signature);
-              setShowSignaturePad(false);
-              setSelectedTool("signature");
-              toast.success("Signature created!");
-            }}
-            onClose={() => setShowSignaturePad(false)}
-          />
-        )}
-      </AnimatePresence>
+      {showSignaturePad && (
+        <SignaturePadModal
+          onSave={(signature) => {
+            setCurrentSignature(signature);
+            setShowSignaturePad(false);
+            setSelectedTool("signature");
+            toast.success("Signature created!");
+          }}
+          onClose={() => setShowSignaturePad(false)}
+        />
+      )}
     </div>
   );
 }

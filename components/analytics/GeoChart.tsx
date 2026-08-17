@@ -122,7 +122,9 @@ export function GeoChart({
                   className="fill-gray-600 dark:fill-gray-400"
                   fontSize={12}
                 >
-                  {chartData.find((d) => d.name === payload.value)?.flag}{" "}
+                  <tspan aria-hidden="true">
+                    {chartData.find((d) => d.name === payload.value)?.flag}
+                  </tspan>{" "}
                   {payload.value}
                 </text>
               </g>

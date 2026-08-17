@@ -1,9 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
+import { useRouter } from "next/router";
+import toast from "react-hot-toast";
 import { DashboardLayout } from "@/components";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import { useAuth } from "@/contexts";
 import { SITE_NAME } from "@/lib/constants";
+
+const PAGE_SIZE = 25;
 
 interface ShortUrl {
   id: string;
@@ -18,17 +23,49 @@ interface ShortUrl {
 
 export default function LinksPage() {
   const { user } = useAuth();
+  const router = useRouter();
   const [links, setLinks] = useState<ShortUrl[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [confirmDelete, setConfirmDelete] = useState<{
+    id: string;
+    code: string;
+  } | null>(null);
+  const hasReadQueryRef = useRef(false);
 
   useEffect(() => {
     if (!user) return;
     fetchLinks();
   }, [user]);
+
+  // Read the initial search query from the URL once
+  useEffect(() => {
+    if (!router.isReady || hasReadQueryRef.current) return;
+    hasReadQueryRef.current = true;
+    const { q } = router.query;
+    if (typeof q === "string" && q) {
+      setSearchQuery(q);
+    }
+  }, [router.isReady, router.query]);
+
+  // Reflect the search query in the URL (shallow) and reset pagination
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    setVisibleCount(PAGE_SIZE);
+    const query = { ...router.query };
+    if (value) {
+      query.q = value;
+    } else {
+      delete query.q;
+    }
+    router.replace({ pathname: router.pathname, query }, undefined, {
+      shallow: true,
+    });
+  };
 
   const fetchLinks = async () => {
     try {
@@ -56,8 +93,6 @@ export default function LinksPage() {
   };
 
   const handleDelete = async (id: string, code: string) => {
-    if (!confirm(`Are you sure you want to delete aigl.ink/${code}?`)) return;
-
     setDeletingId(id);
     try {
       const response = await fetch(`/api/urls?code=${code}`, {
@@ -66,9 +101,12 @@ export default function LinksPage() {
 
       if (!response.ok) throw new Error("Failed to delete link");
 
-      setLinks(links.filter((link) => link.id !== id));
+      setLinks((prev) => prev.filter((link) => link.id !== id));
+      toast.success(`Deleted aigl.ink/r/${code}`);
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to delete link");
+      toast.error(
+        err instanceof Error ? err.message : "Failed to delete link",
+      );
     } finally {
       setDeletingId(null);
     }
@@ -76,11 +114,13 @@ export default function LinksPage() {
 
   const handleCopy = async (code: string) => {
     try {
-      await navigator.clipboard.writeText(`https://aigl.ink/${code}`);
+      await navigator.clipboard.writeText(`https://aigl.ink/r/${code}`);
       setCopiedCode(code);
+      toast.success("Link copied to clipboard");
       setTimeout(() => setCopiedCode(null), 2000);
     } catch (err) {
       console.error("Failed to copy:", err);
+      toast.error("Failed to copy link");
     }
   };
 
@@ -90,14 +130,16 @@ export default function LinksPage() {
       link.originalUrl.toLowerCase().includes(searchQuery.toLowerCase()) ||
       link.title?.toLowerCase().includes(searchQuery.toLowerCase()),
   );
+  const visibleLinks = filteredLinks.slice(0, visibleCount);
+  const hasMore = filteredLinks.length > visibleCount;
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  };
+  const dateFormatter = new Intl.DateTimeFormat(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+  const formatDate = (dateString: string) =>
+    dateFormatter.format(new Date(dateString));
 
   return (
     <>
@@ -121,6 +163,7 @@ export default function LinksPage() {
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <path
                 strokeLinecap="round"
@@ -129,11 +172,16 @@ export default function LinksPage() {
                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
               />
             </svg>
+            <label htmlFor="links-search" className="sr-only">
+              Search links
+            </label>
             <input
-              type="text"
-              placeholder="Search links..."
+              id="links-search"
+              type="search"
+              name="q"
+              placeholder="Search links…"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => handleSearchChange(e.target.value)}
               className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
             />
           </div>
@@ -146,6 +194,7 @@ export default function LinksPage() {
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <path
                 strokeLinecap="round"
@@ -185,7 +234,7 @@ export default function LinksPage() {
                   No links found matching &quot;{searchQuery}&quot;
                 </p>
                 <button
-                  onClick={() => setSearchQuery("")}
+                  onClick={() => handleSearchChange("")}
                   className="text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 transition-colors"
                 >
                   Clear search
@@ -220,7 +269,7 @@ export default function LinksPage() {
           </div>
         ) : (
           <div className="space-y-3">
-            {filteredLinks.map((link) => (
+            {visibleLinks.map((link) => (
               <div
                 key={link.id}
                 className="p-5 rounded-xl bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 hover:border-gray-300 dark:hover:border-zinc-700 transition-colors"
@@ -230,16 +279,21 @@ export default function LinksPage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3 mb-2">
                       <a
-                        href={`https://aigl.ink/${link.code}`}
+                        href={`https://aigl.ink/r/${link.code}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-violet-600 dark:text-violet-400 font-mono hover:text-violet-700 dark:hover:text-violet-300 transition-colors"
                       >
-                        aigl.ink/{link.code}
+                        aigl.ink/r/{link.code}
                       </a>
                       <button
                         onClick={() => handleCopy(link.code)}
-                        className={`p-1.5 rounded-lg transition-colors ${
+                        aria-label={
+                          copiedCode === link.code
+                            ? "Link copied"
+                            : `Copy aigl.ink/r/${link.code}`
+                        }
+                        className={`min-w-[44px] min-h-[44px] inline-flex items-center justify-center rounded-lg transition-colors ${
                           copiedCode === link.code
                             ? "bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400"
                             : "bg-gray-100 dark:bg-zinc-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
@@ -252,6 +306,7 @@ export default function LinksPage() {
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
+                            aria-hidden="true"
                           >
                             <path
                               strokeLinecap="round"
@@ -266,6 +321,7 @@ export default function LinksPage() {
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
+                            aria-hidden="true"
                           >
                             <path
                               strokeLinecap="round"
@@ -288,24 +344,24 @@ export default function LinksPage() {
                   {/* Stats */}
                   <div className="flex items-center gap-6 lg:gap-8">
                     <div className="text-center">
-                      <p className="text-lg font-semibold text-gray-900 dark:text-white">
-                        {link.clickCount}
+                      <p className="text-lg font-semibold text-gray-900 dark:text-white tabular-nums">
+                        {link.clickCount.toLocaleString()}
                       </p>
                       <p className="text-gray-400 dark:text-gray-500 text-xs">
                         Clicks
                       </p>
                     </div>
                     <div className="text-center">
-                      <p className="text-lg font-semibold text-gray-900 dark:text-white">
-                        {link.uniqueClickCount}
+                      <p className="text-lg font-semibold text-gray-900 dark:text-white tabular-nums">
+                        {link.uniqueClickCount.toLocaleString()}
                       </p>
                       <p className="text-gray-400 dark:text-gray-500 text-xs">
                         Unique
                       </p>
                     </div>
                     <div className="text-center">
-                      <p className="text-lg font-semibold text-gray-900 dark:text-white">
-                        {link.qrScanCount}
+                      <p className="text-lg font-semibold text-gray-900 dark:text-white tabular-nums">
+                        {link.qrScanCount.toLocaleString()}
                       </p>
                       <p className="text-gray-400 dark:text-gray-500 text-xs">
                         QR Scans
@@ -317,14 +373,16 @@ export default function LinksPage() {
                   <div className="flex items-center gap-2">
                     <Link
                       href={`/dashboard/analytics?code=${link.code}`}
-                      className="p-2 rounded-lg bg-gray-100 dark:bg-zinc-800 text-gray-500 dark:text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-500/10 transition-colors"
+                      className="p-3 rounded-lg bg-gray-100 dark:bg-zinc-800 text-gray-500 dark:text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-500/10 transition-colors"
                       title="View Analytics"
+                      aria-label={`View analytics for aigl.ink/r/${link.code}`}
                     >
                       <svg
                         className="w-5 h-5"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
+                        aria-hidden="true"
                       >
                         <path
                           strokeLinecap="round"
@@ -335,15 +393,17 @@ export default function LinksPage() {
                       </svg>
                     </Link>
                     <Link
-                      href={`/tools/qr-code-generator?url=https://aigl.ink/${link.code}`}
-                      className="p-2 rounded-lg bg-gray-100 dark:bg-zinc-800 text-gray-500 dark:text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-500/10 transition-colors"
+                      href={`/tools/qr-code-generator?url=https://aigl.ink/r/${link.code}`}
+                      className="p-3 rounded-lg bg-gray-100 dark:bg-zinc-800 text-gray-500 dark:text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-500/10 transition-colors"
                       title="Generate QR Code"
+                      aria-label={`Generate QR code for aigl.ink/r/${link.code}`}
                     >
                       <svg
                         className="w-5 h-5"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
+                        aria-hidden="true"
                       >
                         <path
                           strokeLinecap="round"
@@ -354,10 +414,13 @@ export default function LinksPage() {
                       </svg>
                     </Link>
                     <button
-                      onClick={() => handleDelete(link.id, link.code)}
+                      onClick={() =>
+                        setConfirmDelete({ id: link.id, code: link.code })
+                      }
                       disabled={deletingId === link.id}
-                      className="p-2 rounded-lg bg-gray-100 dark:bg-zinc-800 text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors disabled:opacity-50"
+                      className="p-3 rounded-lg bg-gray-100 dark:bg-zinc-800 text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors disabled:opacity-50"
                       title="Delete Link"
+                      aria-label={`Delete aigl.ink/r/${link.code}`}
                     >
                       {deletingId === link.id ? (
                         <svg
@@ -365,6 +428,7 @@ export default function LinksPage() {
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
+                          aria-hidden="true"
                         >
                           <path
                             strokeLinecap="round"
@@ -379,6 +443,7 @@ export default function LinksPage() {
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
+                          aria-hidden="true"
                         >
                           <path
                             strokeLinecap="round"
@@ -396,12 +461,47 @@ export default function LinksPage() {
           </div>
         )}
 
+        {/* Load more */}
+        {!isLoading && !error && hasMore && (
+          <div className="mt-6 text-center">
+            <button
+              onClick={() => setVisibleCount((prev) => prev + PAGE_SIZE)}
+              className="px-5 py-2.5 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300 font-medium rounded-lg hover:border-violet-500 dark:hover:border-violet-500 transition-colors"
+            >
+              Load more
+            </button>
+          </div>
+        )}
+
         {/* Results count */}
         {!isLoading && !error && filteredLinks.length > 0 && (
-          <p className="text-gray-400 dark:text-gray-500 text-sm mt-6 text-center">
-            Showing {filteredLinks.length} of {links.length} links
+          <p
+            aria-live="polite"
+            className="text-gray-400 dark:text-gray-500 text-sm mt-6 text-center tabular-nums"
+          >
+            Showing {visibleLinks.length.toLocaleString()} of{" "}
+            {links.length.toLocaleString()} links
           </p>
         )}
+
+        {/* Delete confirmation */}
+        <ConfirmDialog
+          isOpen={confirmDelete !== null}
+          onClose={() => setConfirmDelete(null)}
+          onConfirm={() => {
+            if (confirmDelete) {
+              handleDelete(confirmDelete.id, confirmDelete.code);
+            }
+          }}
+          title="Delete link"
+          message={
+            confirmDelete
+              ? `Are you sure you want to delete aigl.ink/r/${confirmDelete.code}? This cannot be undone.`
+              : ""
+          }
+          confirmLabel="Delete"
+          destructive
+        />
       </DashboardLayout>
     </>
   );

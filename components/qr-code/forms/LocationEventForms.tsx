@@ -30,12 +30,18 @@ export function LocationForm({ data, updateField, t }: FormProps) {
           value={(data.latitude as string) || ""}
           onChange={(v: string) => updateField("latitude", v)}
           placeholder={t("tools.qrCode.locationLatitudePlaceholder")}
+          name="latitude"
+          inputMode="decimal"
+          spellCheck={false}
         />
         <InputField
           label={t("tools.qrCode.locationLongitude")}
           value={(data.longitude as string) || ""}
           onChange={(v: string) => updateField("longitude", v)}
           placeholder={t("tools.qrCode.locationLongitudePlaceholder")}
+          name="longitude"
+          inputMode="decimal"
+          spellCheck={false}
         />
       </div>
     </div>

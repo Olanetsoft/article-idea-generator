@@ -10,6 +10,7 @@ import {
 } from "@heroicons/react/solid";
 import { MenuIcon, XIcon } from "@heroicons/react/outline";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useDismiss } from "@/hooks/useDismiss";
 import { tools } from "@/lib/tools-config";
 import { UserMenu, UserMenuMobile } from "@/components/UserMenu";
 
@@ -22,8 +23,12 @@ export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [toolsDropdownOpen, setToolsDropdownOpen] = useState(false);
   const [mobileToolsExpanded, setMobileToolsExpanded] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLElement>(null);
   const toolsDropdownRef = useRef<HTMLDivElement>(null);
+  const toolsButtonRef = useRef<HTMLButtonElement>(null);
+  const hamburgerRef = useRef<HTMLButtonElement>(null);
+  const drawerPanelRef = useRef<HTMLDivElement>(null);
+  const wasMenuOpen = useRef(false);
 
   useEffect(() => {
     setMounted(true);
@@ -38,24 +43,23 @@ export default function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Close mobile menu when clicking outside
+  // Dismiss tools dropdown / mobile menu on outside click + Escape
+  useDismiss(toolsDropdownRef, toolsDropdownOpen, () =>
+    setToolsDropdownOpen(false),
+  { returnFocusRef: toolsButtonRef });
+  useDismiss(menuRef, mobileMenuOpen, () => setMobileMenuOpen(false), {
+    returnFocusRef: hamburgerRef,
+  });
+
+  // Move focus into the drawer on open, back to the trigger on close
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setMobileMenuOpen(false);
-      }
-      if (
-        toolsDropdownRef.current &&
-        !toolsDropdownRef.current.contains(event.target as Node)
-      ) {
-        setToolsDropdownOpen(false);
-      }
-    };
-    if (mobileMenuOpen || toolsDropdownOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
+    if (mobileMenuOpen) {
+      drawerPanelRef.current?.focus();
+    } else if (wasMenuOpen.current) {
+      hamburgerRef.current?.focus();
     }
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [mobileMenuOpen, toolsDropdownOpen]);
+    wasMenuOpen.current = mobileMenuOpen;
+  }, [mobileMenuOpen]);
 
   // Close mobile menu on route change
   useEffect(() => {
@@ -91,7 +95,14 @@ export default function Header() {
   const availableTools = tools.filter((tool) => tool.available);
 
   const renderThemeChanger = (isMobile = false) => {
-    if (!mounted) return null;
+    // Reserve the toggle's footprint before mount to avoid layout shift
+    if (!mounted) {
+      return isMobile ? (
+        <div className="w-full px-4 py-3 h-12" aria-hidden="true" />
+      ) : (
+        <div className="w-9 h-9 rounded-lg" aria-hidden="true" />
+      );
+    }
     const currentTheme = theme === "system" ? systemTheme : theme;
     const baseClasses = isMobile
       ? "flex items-center gap-3 w-full px-4 py-3 text-left hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
@@ -128,7 +139,7 @@ export default function Header() {
   return (
     <header
       ref={menuRef}
-      className={`sticky top-0 z-50 w-full transition-all duration-300 ${
+      className={`sticky top-0 z-50 w-full transition-colors duration-300 ${
         isScrolled
           ? "bg-white/90 dark:bg-black/90 backdrop-blur-md shadow-sm"
           : "bg-white dark:bg-black"
@@ -147,6 +158,7 @@ export default function Header() {
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
+              aria-hidden="true"
             >
               <path
                 strokeLinecap="round"
@@ -179,6 +191,7 @@ export default function Header() {
             {/* Tools Dropdown */}
             <div className="relative" ref={toolsDropdownRef}>
               <button
+                ref={toolsButtonRef}
                 onClick={() => setToolsDropdownOpen(!toolsDropdownOpen)}
                 className={`flex items-center gap-1 px-4 py-2 rounded-lg font-medium transition-colors ${
                   isActiveLink("/tools")
@@ -187,6 +200,7 @@ export default function Header() {
                 }`}
                 aria-expanded={toolsDropdownOpen}
                 aria-haspopup="true"
+                aria-controls="tools-dropdown-menu"
               >
                 {t("header.tools")}
                 <ChevronDownIcon
@@ -198,7 +212,10 @@ export default function Header() {
 
               {/* Dropdown Menu */}
               {toolsDropdownOpen && (
-                <div className="absolute top-full left-0 mt-1 w-56 bg-white dark:bg-dark-card rounded-lg shadow-lg border border-gray-200 dark:border-dark-border py-2 z-50">
+                <div
+                  id="tools-dropdown-menu"
+                  className="absolute top-full left-0 mt-1 w-56 bg-white dark:bg-dark-card rounded-lg shadow-lg border border-gray-200 dark:border-dark-border py-2 z-50"
+                >
                   <Link
                     href="/tools"
                     className="block px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
@@ -221,7 +238,7 @@ export default function Header() {
                   ))}
                   {availableTools.length === 0 && (
                     <span className="block px-4 py-2 text-sm text-gray-500 dark:text-gray-400 italic">
-                      Coming soon...
+                      Coming soon…
                     </span>
                   )}
                 </div>
@@ -251,10 +268,12 @@ export default function Header() {
           <div className="flex md:hidden items-center gap-1">
             {renderThemeChanger()}
             <button
+              ref={hamburgerRef}
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-2.5 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors active:scale-95"
               aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
               aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-menu"
             >
               {mobileMenuOpen ? (
                 <XIcon className="w-6 h-6" />
@@ -268,7 +287,8 @@ export default function Header() {
 
       {/* Mobile Menu */}
       <div
-        className={`md:hidden fixed inset-x-0 top-16 bottom-0 z-40 transform transition-all duration-300 ease-in-out ${
+        id="mobile-menu"
+        className={`md:hidden fixed inset-x-0 top-16 bottom-0 z-40 transform transition-[transform,opacity] duration-300 ease-in-out ${
           mobileMenuOpen
             ? "translate-x-0 opacity-100"
             : "translate-x-full opacity-0 pointer-events-none"
@@ -276,6 +296,7 @@ export default function Header() {
       >
         {/* Backdrop */}
         <div
+          aria-hidden="true"
           className={`absolute inset-0 bg-black/30 dark:bg-black/50 transition-opacity ${
             mobileMenuOpen ? "opacity-100" : "opacity-0"
           }`}
@@ -284,7 +305,9 @@ export default function Header() {
 
         {/* Menu Panel */}
         <div
-          className={`absolute right-0 top-0 h-full w-full max-w-sm bg-white dark:bg-black shadow-xl transform transition-transform duration-300 ease-out overflow-y-auto ${
+          ref={drawerPanelRef}
+          tabIndex={-1}
+          className={`absolute right-0 top-0 h-full w-full max-w-sm bg-white dark:bg-black shadow-xl transform transition-transform duration-300 ease-out overflow-y-auto overscroll-contain focus:outline-none ${
             mobileMenuOpen ? "translate-x-0" : "translate-x-full"
           }`}
         >
@@ -294,7 +317,7 @@ export default function Header() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`flex items-center gap-3 px-4 py-3.5 mx-2 rounded-xl font-medium transition-all ${
+                className={`flex items-center gap-3 px-4 py-3.5 mx-2 rounded-xl font-medium transition-colors ${
                   isActiveLink(link.href)
                     ? "text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-900/30"
                     : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 active:scale-[0.98]"
@@ -308,7 +331,9 @@ export default function Header() {
             <div className="mx-2 mt-1">
               <button
                 onClick={() => setMobileToolsExpanded(!mobileToolsExpanded)}
-                className={`flex items-center justify-between w-full px-4 py-3.5 rounded-xl font-medium transition-all ${
+                aria-expanded={mobileToolsExpanded}
+                aria-controls="mobile-tools-list"
+                className={`flex items-center justify-between w-full px-4 py-3.5 rounded-xl font-medium transition-colors ${
                   isActiveLink("/tools")
                     ? "text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-900/30"
                     : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 active:scale-[0.98]"
@@ -324,16 +349,17 @@ export default function Header() {
 
               {/* Tool Sub-links */}
               <div
-                className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                id="mobile-tools-list"
+                className={`overflow-hidden transition-[max-height,opacity] duration-300 ease-in-out ${
                   mobileToolsExpanded
-                    ? "max-h-96 opacity-100"
+                    ? "max-h-[40rem] opacity-100"
                     : "max-h-0 opacity-0"
                 }`}
               >
                 <div className="py-2 pl-4 space-y-1">
                   <Link
                     href="/tools"
-                    className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm transition-all ${
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm transition-colors ${
                       router.pathname === "/tools"
                         ? "text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-900/30"
                         : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-zinc-800"
@@ -346,7 +372,7 @@ export default function Header() {
                     <Link
                       key={tool.id}
                       href={tool.href}
-                      className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm transition-all ${
+                      className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm transition-colors ${
                         router.pathname === tool.href
                           ? "text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-900/30"
                           : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-zinc-800"
@@ -370,7 +396,7 @@ export default function Header() {
             <div className="mx-2">
               {mounted && (
                 <button
-                  className="flex items-center gap-3 w-full px-4 py-3.5 rounded-xl text-left text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-all active:scale-[0.98]"
+                  className="flex items-center gap-3 w-full px-4 py-3.5 rounded-xl text-left text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors active:scale-[0.98]"
                   onClick={() =>
                     setTheme(
                       (theme === "system" ? systemTheme : theme) === "dark"
@@ -399,7 +425,7 @@ export default function Header() {
               href="https://github.com/Olanetsoft/article-idea-generator/"
               target="_blank"
               rel="noreferrer"
-              className="flex items-center gap-3 mx-2 px-4 py-3.5 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-all active:scale-[0.98]"
+              className="flex items-center gap-3 mx-2 px-4 py-3.5 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors active:scale-[0.98]"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -407,6 +433,7 @@ export default function Header() {
                 height="20"
                 viewBox="0 0 24 24"
                 className="fill-current"
+                aria-hidden="true"
               >
                 <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
               </svg>
@@ -421,16 +448,17 @@ export default function Header() {
           </div>
 
           {/* CTA Button - Fixed at bottom */}
-          <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-white via-white dark:from-zinc-900 dark:via-zinc-900 to-transparent pt-8">
+          <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-white via-white dark:from-black dark:via-black to-transparent pt-8">
             <Link
               href="/"
-              className="flex items-center justify-center gap-2 w-full px-4 py-3.5 bg-violet-500 hover:bg-violet-600 text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl active:scale-[0.98]"
+              className="flex items-center justify-center gap-2 w-full px-4 py-3.5 bg-violet-500 hover:bg-violet-600 text-white font-semibold rounded-xl transition-[background-color,box-shadow] shadow-lg hover:shadow-xl active:scale-[0.98]"
             >
               <svg
                 className="w-5 h-5"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
+                aria-hidden="true"
               >
                 <path
                   strokeLinecap="round"

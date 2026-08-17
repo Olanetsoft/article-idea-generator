@@ -75,7 +75,7 @@ function CaseCard({ caseResult, onCopy, isCopied, index }: CaseCardProps) {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2, delay: index * 0.02 }}
-      className="group bg-white dark:bg-dark-card rounded-xl border border-gray-200 dark:border-dark-border overflow-hidden hover:border-violet-400 dark:hover:border-violet-500 hover:shadow-md transition-all duration-200"
+      className="group bg-white dark:bg-dark-card rounded-xl border border-gray-200 dark:border-dark-border overflow-hidden hover:border-violet-400 dark:hover:border-violet-500 hover:shadow-md transition-[border-color,box-shadow] duration-200"
     >
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 bg-gray-50 dark:bg-dark-card/50 border-b border-gray-100 dark:border-dark-border">
@@ -95,7 +95,7 @@ function CaseCard({ caseResult, onCopy, isCopied, index }: CaseCardProps) {
         <button
           onClick={() => onCopy(caseResult.id, caseResult.result)}
           disabled={!caseResult.result}
-          className={`p-2 rounded-lg transition-all flex-shrink-0 ${
+          className={`p-2 rounded-lg transition-colors flex-shrink-0 ${
             isCopied
               ? "bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400"
               : "bg-gray-100 dark:bg-dark-card text-gray-500 dark:text-gray-400 hover:bg-violet-100 dark:hover:bg-violet-900/30 hover:text-violet-600 dark:hover:text-violet-400 disabled:opacity-40 disabled:cursor-not-allowed"
@@ -112,15 +112,12 @@ function CaseCard({ caseResult, onCopy, isCopied, index }: CaseCardProps) {
 
       {/* Result */}
       <div
-        className="p-4 font-mono text-sm text-gray-800 dark:text-gray-200 min-h-[72px] break-words cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors"
-        onClick={() =>
-          caseResult.result && onCopy(caseResult.id, caseResult.result)
-        }
+        className="p-4 font-mono text-sm text-gray-800 dark:text-gray-200 min-h-[72px] break-words"
         style={{ wordBreak: "break-word" }}
       >
         {caseResult.result || (
           <span className="text-gray-400 dark:text-gray-500 italic font-sans">
-            Enter text above...
+            Enter text above…
           </span>
         )}
       </div>
@@ -139,7 +136,7 @@ function StatBadge({ label, value, icon }: StatBadgeProps) {
     <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 dark:bg-dark-card rounded-full text-xs">
       {icon}
       <span className="text-gray-500 dark:text-gray-400">{label}:</span>
-      <span className="font-medium text-gray-700 dark:text-gray-200">
+      <span className="font-medium tabular-nums text-gray-700 dark:text-gray-200">
         {value}
       </span>
     </div>
@@ -191,12 +188,17 @@ export default function TitleCasePage(): JSX.Element {
     (id: string, text: string) => {
       if (!text.trim()) return;
 
-      navigator.clipboard.writeText(text).then(() => {
-        setCopiedId(id);
-        toast.success(t("tools.titleCase.successCopied"));
-        trackToolUsage("Title Case Converter", `copy_${id}`);
-        setTimeout(() => setCopiedId(null), 2000);
-      });
+      navigator.clipboard
+        .writeText(text)
+        .then(() => {
+          setCopiedId(id);
+          toast.success(t("tools.titleCase.successCopied"));
+          trackToolUsage("Title Case Converter", `copy_${id}`);
+          setTimeout(() => setCopiedId(null), 2000);
+        })
+        .catch(() => {
+          toast.error("Failed to copy to clipboard");
+        });
     },
     [t],
   );
@@ -208,12 +210,17 @@ export default function TitleCasePage(): JSX.Element {
       .map((r) => `${r.label}:\n${r.result}`)
       .join("\n\n");
 
-    navigator.clipboard.writeText(allResults).then(() => {
-      setCopiedId("all");
-      toast.success(t("tools.titleCase.successAllCopied"));
-      trackToolUsage("Title Case Converter", "copy_all");
-      setTimeout(() => setCopiedId(null), 2000);
-    });
+    navigator.clipboard
+      .writeText(allResults)
+      .then(() => {
+        setCopiedId("all");
+        toast.success(t("tools.titleCase.successAllCopied"));
+        trackToolUsage("Title Case Converter", "copy_all");
+        setTimeout(() => setCopiedId(null), 2000);
+      })
+      .catch(() => {
+        toast.error("Failed to copy to clipboard");
+      });
   }, [text, results, t]);
 
   const handlePaste = useCallback(async () => {
@@ -526,7 +533,10 @@ export default function TitleCasePage(): JSX.Element {
 
       <Header />
 
-      <main className="flex flex-col items-center w-full flex-1 px-4 sm:px-6 lg:px-8 pt-2 sm:pt-4 pb-8 max-w-7xl mx-auto">
+      <main
+        id="main-content"
+        className="flex flex-col items-center w-full flex-1 px-4 sm:px-6 lg:px-8 pt-2 sm:pt-4 pb-8 max-w-7xl mx-auto"
+      >
         {/* Breadcrumb */}
         <nav className="w-full mb-4 text-sm" aria-label="Breadcrumb">
           <ol className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
@@ -575,7 +585,7 @@ export default function TitleCasePage(): JSX.Element {
                 htmlFor="text-input"
                 className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2"
               >
-                <LightningBoltIcon className="w-4 h-4 text-violet-500" />
+                <LightningBoltIcon className="w-4 h-4 text-violet-500" aria-hidden="true" />
                 {t("tools.titleCase.inputLabel")}
               </label>
 
@@ -605,7 +615,7 @@ export default function TitleCasePage(): JSX.Element {
                 value={text}
                 onChange={handleTextChange}
                 placeholder={t("tools.titleCase.placeholder")}
-                className="w-full h-64 sm:h-80 md:h-96 lg:h-[26rem] p-4 text-gray-800 dark:text-gray-200 bg-gray-50 dark:bg-dark-card rounded-xl border border-gray-200 dark:border-dark-border focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none transition-all text-base"
+                className="w-full h-64 sm:h-80 md:h-96 lg:h-[26rem] p-4 text-gray-800 dark:text-gray-200 bg-gray-50 dark:bg-dark-card rounded-xl border border-gray-200 dark:border-dark-border focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none transition-colors text-base"
                 aria-label="Text input for case conversion"
                 spellCheck={false}
               />
@@ -613,7 +623,7 @@ export default function TitleCasePage(): JSX.Element {
               {/* Quick Samples */}
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
-                  <SparklesIcon className="w-3.5 h-3.5" />
+                  <SparklesIcon className="w-3.5 h-3.5" aria-hidden="true" />
                   Try:
                 </span>
                 {SAMPLE_TEXTS.map((sample, i) => (
@@ -651,7 +661,7 @@ export default function TitleCasePage(): JSX.Element {
               <button
                 onClick={handleCopyAll}
                 disabled={!text.trim()}
-                className={`w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 sm:py-2 text-sm font-semibold rounded-lg transition-all ${
+                className={`w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 sm:py-2 text-sm font-semibold rounded-lg transition-colors ${
                   copiedId === "all"
                     ? "bg-green-500 text-white"
                     : "bg-violet-600 text-white hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -721,7 +731,7 @@ export default function TitleCasePage(): JSX.Element {
             {/* Writing */}
             <div className="bg-violet-50 dark:bg-violet-900/20 rounded-xl p-5">
               <h3 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                <span className="text-lg">✍️</span>
+                <span className="text-lg" aria-hidden="true">✍️</span>
                 {t("tools.titleCase.writingStylesTitle")}
               </h3>
               <ul className="space-y-2 text-gray-600 dark:text-gray-300 text-sm">
@@ -740,7 +750,7 @@ export default function TitleCasePage(): JSX.Element {
             {/* Programming */}
             <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-5">
               <h3 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                <span className="text-lg">💻</span>
+                <span className="text-lg" aria-hidden="true">💻</span>
                 {t("tools.titleCase.programmingStylesTitle")}
               </h3>
               <ul className="space-y-2 text-gray-600 dark:text-gray-300 text-sm">
@@ -759,7 +769,7 @@ export default function TitleCasePage(): JSX.Element {
             {/* Features */}
             <div className="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-5">
               <h3 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                <span className="text-lg">⚡</span>
+                <span className="text-lg" aria-hidden="true">⚡</span>
                 Features
               </h3>
               <ul className="space-y-2 text-gray-600 dark:text-gray-300 text-sm">
@@ -827,6 +837,7 @@ export default function TitleCasePage(): JSX.Element {
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
+                    aria-hidden="true"
                   >
                     <path
                       strokeLinecap="round"
@@ -861,7 +872,10 @@ export default function TitleCasePage(): JSX.Element {
         </section>
 
         {/* Related Tools */}
-        <RelatedTools currentToolId="title-case-converter" />
+        <RelatedTools
+          currentToolId="title-case-converter"
+          containerClassName="max-w-7xl"
+        />
       </main>
 
       <Footer />

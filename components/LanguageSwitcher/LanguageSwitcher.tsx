@@ -1,5 +1,6 @@
 import { useRouter } from "next/router";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useCallback } from "react";
+import { useDismiss } from "@/hooks/useDismiss";
 
 const LANGUAGE_CONFIG: Record<string, { name: string; flag: string }> = {
   en: { name: "English", flag: "🇺🇸" },
@@ -19,22 +20,13 @@ export default function LanguageSwitcher() {
   const { locale = "en", locales, asPath } = router;
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   const availableLocales =
     locales && locales.length > 0 ? locales : SUPPORTED_LOCALES;
 
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setIsOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  const close = useCallback(() => setIsOpen(false), []);
+  useDismiss(dropdownRef, isOpen, close, { returnFocusRef: triggerRef });
 
   // Don't render if only one locale is available
   if (availableLocales.length <= 1) {
@@ -51,13 +43,16 @@ export default function LanguageSwitcher() {
   return (
     <div className="relative" ref={dropdownRef}>
       <button
+        type="button"
+        ref={triggerRef}
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-violet-500"
+        className="flex items-center gap-1.5 px-3 py-3 -my-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-violet-500"
         aria-label="Select language"
         aria-expanded={isOpen}
-        aria-haspopup="listbox"
       >
-        <span className="text-base">{currentLang.flag}</span>
+        <span className="text-base" aria-hidden="true">
+          {currentLang.flag}
+        </span>
         <span className="hidden sm:inline">{currentLang.name}</span>
         <svg
           className={`w-4 h-4 transition-transform ${
@@ -66,6 +61,7 @@ export default function LanguageSwitcher() {
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
+          aria-hidden="true"
         >
           <path
             strokeLinecap="round"
@@ -79,7 +75,6 @@ export default function LanguageSwitcher() {
       {isOpen && (
         <div
           className="absolute right-0 mt-2 w-40 bg-white dark:bg-dark-card rounded-lg shadow-lg border border-gray-200 dark:border-dark-border py-1 z-50"
-          role="listbox"
           aria-label="Available languages"
         >
           {availableLocales.map((loc) => {
@@ -87,22 +82,25 @@ export default function LanguageSwitcher() {
             return (
               <button
                 key={loc}
+                type="button"
                 onClick={() => changeLanguage(loc)}
-                className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors ${
+                aria-current={locale === loc ? "true" : undefined}
+                className={`w-full flex items-center gap-2 px-3 py-2.5 text-sm text-left hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-violet-500 ${
                   locale === loc
                     ? "bg-violet-50 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400"
                     : "text-gray-700 dark:text-gray-300"
                 }`}
-                role="option"
-                aria-selected={locale === loc}
               >
-                <span className="text-base">{lang.flag}</span>
+                <span className="text-base" aria-hidden="true">
+                  {lang.flag}
+                </span>
                 <span>{lang.name}</span>
                 {locale === loc && (
                   <svg
                     className="w-4 h-4 ml-auto"
                     fill="currentColor"
                     viewBox="0 0 20 20"
+                    aria-hidden="true"
                   >
                     <path
                       fillRule="evenodd"

@@ -16,6 +16,8 @@ export function VCardForm({ data, updateField, t }: FormProps) {
           value={(data.firstName as string) || ""}
           onChange={(v: string) => updateField("firstName", v)}
           placeholder={t("tools.qrCode.vcardFirstNamePlaceholder")}
+          name="firstName"
+          autoComplete="given-name"
           required
         />
         <InputField
@@ -23,6 +25,8 @@ export function VCardForm({ data, updateField, t }: FormProps) {
           value={(data.lastName as string) || ""}
           onChange={(v: string) => updateField("lastName", v)}
           placeholder={t("tools.qrCode.vcardLastNamePlaceholder")}
+          name="lastName"
+          autoComplete="family-name"
         />
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -31,12 +35,16 @@ export function VCardForm({ data, updateField, t }: FormProps) {
           value={(data.organization as string) || ""}
           onChange={(v: string) => updateField("organization", v)}
           placeholder={t("tools.qrCode.vcardOrganizationPlaceholder")}
+          name="organization"
+          autoComplete="organization"
         />
         <InputField
           label={t("tools.qrCode.vcardTitle")}
           value={(data.title as string) || ""}
           onChange={(v: string) => updateField("title", v)}
           placeholder={t("tools.qrCode.vcardTitlePlaceholder")}
+          name="jobTitle"
+          autoComplete="organization-title"
         />
       </div>
       <InputField
@@ -45,6 +53,10 @@ export function VCardForm({ data, updateField, t }: FormProps) {
         onChange={(v: string) => updateField("email", v)}
         placeholder={t("tools.qrCode.emailPlaceholder")}
         type="email"
+        name="email"
+        autoComplete="email"
+        inputMode="email"
+        spellCheck={false}
       />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <InputField
@@ -53,6 +65,9 @@ export function VCardForm({ data, updateField, t }: FormProps) {
           onChange={(v: string) => updateField("phone", v)}
           placeholder={t("tools.qrCode.phonePlaceholder")}
           type="tel"
+          name="phone"
+          autoComplete="tel"
+          inputMode="tel"
         />
         <InputField
           label={t("tools.qrCode.vcardMobile")}
@@ -60,6 +75,9 @@ export function VCardForm({ data, updateField, t }: FormProps) {
           onChange={(v: string) => updateField("mobile", v)}
           placeholder={t("tools.qrCode.vcardMobilePlaceholder")}
           type="tel"
+          name="mobile"
+          autoComplete="tel"
+          inputMode="tel"
         />
       </div>
       <InputField
@@ -68,6 +86,10 @@ export function VCardForm({ data, updateField, t }: FormProps) {
         onChange={(v: string) => updateField("website", v)}
         placeholder={t("tools.qrCode.urlPlaceholder")}
         type="url"
+        name="website"
+        autoComplete="url"
+        inputMode="url"
+        spellCheck={false}
       />
       <div className="border-t border-zinc-200 dark:border-dark-border pt-4 mt-4">
         <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-3">
@@ -79,6 +101,8 @@ export function VCardForm({ data, updateField, t }: FormProps) {
             value={(data.street as string) || ""}
             onChange={(v: string) => updateField("street", v)}
             placeholder={t("tools.qrCode.vcardStreetPlaceholder")}
+            name="street"
+            autoComplete="street-address"
           />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <InputField
@@ -86,12 +110,16 @@ export function VCardForm({ data, updateField, t }: FormProps) {
               value={(data.city as string) || ""}
               onChange={(v: string) => updateField("city", v)}
               placeholder={t("tools.qrCode.vcardCityPlaceholder")}
+              name="city"
+              autoComplete="address-level2"
             />
             <InputField
               label={t("tools.qrCode.vcardState")}
               value={(data.state as string) || ""}
               onChange={(v: string) => updateField("state", v)}
               placeholder={t("tools.qrCode.vcardStatePlaceholder")}
+              name="state"
+              autoComplete="address-level1"
             />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -100,12 +128,16 @@ export function VCardForm({ data, updateField, t }: FormProps) {
               value={(data.zip as string) || ""}
               onChange={(v: string) => updateField("zip", v)}
               placeholder={t("tools.qrCode.vcardZipPlaceholder")}
+              name="zip"
+              autoComplete="postal-code"
             />
             <InputField
               label={t("tools.qrCode.vcardCountry")}
               value={(data.country as string) || ""}
               onChange={(v: string) => updateField("country", v)}
               placeholder={t("tools.qrCode.vcardCountryPlaceholder")}
+              name="country"
+              autoComplete="country-name"
             />
           </div>
         </div>

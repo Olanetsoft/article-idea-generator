@@ -19,7 +19,8 @@ export default function Footer() {
       <div className="flex w-fit flex-wrap items-center justify-center gap-1 text-center m-auto">
         <span className="flex w-fit items-center gap-2">
           <span>{t("footer.builtWith")} </span>
-          <HeartIcon className="w-6 h-6 text-red-500" aria-label="love" />
+          <HeartIcon className="w-6 h-6 text-red-500" aria-hidden="true" />
+          <span className="sr-only">love</span>
         </span>
         - {t("footer.poweredBy")}{" "}
         <a
@@ -35,15 +36,15 @@ export default function Footer() {
         <span>© {currentYear} Article Idea Generator.</span>
         <Link
           href="/privacy"
-          className="hover:text-violet-600 dark:hover:text-violet-400 hover:underline"
+          className="inline-flex items-center px-2 -mx-1 py-3.5 -my-3.5 hover:text-violet-600 dark:hover:text-violet-400 hover:underline"
         >
           Privacy Policy
         </Link>
         <button
           onClick={openCookieSettings}
-          className="flex items-center gap-1 hover:text-violet-600 dark:hover:text-violet-400 hover:underline"
+          className="inline-flex items-center gap-1 px-2 -mx-1 py-3.5 -my-3.5 hover:text-violet-600 dark:hover:text-violet-400 hover:underline"
         >
-          <CogIcon className="w-3 h-3" />
+          <CogIcon className="w-3 h-3" aria-hidden="true" />
           Cookie Settings
         </button>
       </div>

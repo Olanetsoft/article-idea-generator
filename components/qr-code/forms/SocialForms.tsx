@@ -4,7 +4,7 @@
  * Forms for generating social media QR codes: Twitter, YouTube, Facebook, App Store
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { InputField, SelectField } from "@/components/qr-code";
 import type { FormProps } from "./types";
 
@@ -15,25 +15,39 @@ export function TwitterForm({ data, updateField, t }: FormProps) {
       value={(data.username as string) || ""}
       onChange={(v: string) => updateField("username", v)}
       placeholder={t("tools.qrCode.twitterPlaceholder")}
+      name="username"
+      autoComplete="off"
+      spellCheck={false}
       required
     />
   );
 }
 
 export function YouTubeForm({ data, updateField, t }: FormProps) {
+  // Only surface the either/or validation once the user has typed something
+  const [touched, setTouched] = useState(false);
+  const errorId = useId();
   const videoId = (data.videoId as string) || "";
   const channelId = (data.channelId as string) || "";
   const bothFilled = videoId.trim() !== "" && channelId.trim() !== "";
   const neitherFilled = videoId.trim() === "" && channelId.trim() === "";
-  const showError = bothFilled || neitherFilled;
+  const showError = touched && (bothFilled || neitherFilled);
 
   return (
     <div className="space-y-4">
       <InputField
         label={t("tools.qrCode.youtubeVideo")}
         value={videoId}
-        onChange={(v: string) => updateField("videoId", v)}
+        onChange={(v: string) => {
+          setTouched(true);
+          updateField("videoId", v);
+        }}
         placeholder={t("tools.qrCode.youtubeVideoPlaceholder")}
+        name="videoId"
+        autoComplete="off"
+        spellCheck={false}
+        ariaInvalid={showError || undefined}
+        ariaDescribedBy={showError ? errorId : undefined}
       />
       <div className="flex items-center gap-4 my-3">
         <div className="flex-1 h-px bg-zinc-200 dark:bg-zinc-700" />
@@ -43,16 +57,28 @@ export function YouTubeForm({ data, updateField, t }: FormProps) {
       <InputField
         label={t("tools.qrCode.youtubeChannel")}
         value={channelId}
-        onChange={(v: string) => updateField("channelId", v)}
+        onChange={(v: string) => {
+          setTouched(true);
+          updateField("channelId", v);
+        }}
         placeholder={t("tools.qrCode.youtubeChannelPlaceholder")}
+        name="channelId"
+        autoComplete="off"
+        spellCheck={false}
+        ariaInvalid={showError || undefined}
+        ariaDescribedBy={showError ? errorId : undefined}
       />
-      {showError && (
-        <p className="text-xs text-red-500 dark:text-red-400">
-          {bothFilled
+      <p
+        id={errorId}
+        aria-live="polite"
+        className="text-xs text-red-500 dark:text-red-400"
+      >
+        {showError
+          ? bothFilled
             ? t("tools.qrCode.youtubeValidationBoth")
-            : t("tools.qrCode.youtubeValidationRequired")}
-        </p>
-      )}
+            : t("tools.qrCode.youtubeValidationRequired")
+          : null}
+      </p>
     </div>
   );
 }

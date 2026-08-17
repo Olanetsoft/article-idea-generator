@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useRef } from "react";
 import { toast } from "react-hot-toast";
 import {
   ClipboardCopyIcon,
@@ -9,6 +9,7 @@ import {
   ChevronUpIcon,
 } from "@heroicons/react/outline";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useDismiss } from "@/hooks/useDismiss";
 
 interface AbstractDisplayProps {
   abstract: string;
@@ -27,26 +28,12 @@ export default function AbstractDisplay({
   const [isExpanded, setIsExpanded] = useState(true);
   const [showShareMenu, setShowShareMenu] = useState(false);
   const shareButtonRef = useRef<HTMLButtonElement>(null);
-  const shareMenuRef = useRef<HTMLDivElement>(null);
+  const shareContainerRef = useRef<HTMLDivElement>(null);
 
-  // Close share menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        shareMenuRef.current &&
-        !shareMenuRef.current.contains(event.target as Node) &&
-        shareButtonRef.current &&
-        !shareButtonRef.current.contains(event.target as Node)
-      ) {
-        setShowShareMenu(false);
-      }
-    };
-
-    if (showShareMenu) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [showShareMenu]);
+  // Close share menu on outside click / Escape (focus returns to trigger)
+  useDismiss(shareContainerRef, showShareMenu, () => setShowShareMenu(false), {
+    returnFocusRef: shareButtonRef,
+  });
 
   // Clean the abstract text
   const cleanAbstract = useMemo(() => {
@@ -124,7 +111,7 @@ export default function AbstractDisplay({
   // Share handlers
   const shareOnTwitter = () => {
     const text = `📝 ${title}\n\n${cleanAbstract.slice(0, 200)}${
-      cleanAbstract.length > 200 ? "..." : ""
+      cleanAbstract.length > 200 ? "…" : ""
     }`;
     const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
       text,
@@ -147,11 +134,14 @@ export default function AbstractDisplay({
       <div className="px-3 sm:px-4 py-3 bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 border-b border-zinc-200 dark:border-dark-border">
         <div className="flex items-start justify-between gap-2 sm:gap-3">
           <div className="flex items-start gap-2 min-w-0 flex-1">
-            <span className="text-base sm:text-lg flex-shrink-0 mt-0.5">
+            <span
+              className="text-base sm:text-lg flex-shrink-0 mt-0.5"
+              aria-hidden="true"
+            >
               📄
             </span>
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mb-0.5">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">
                 Abstract for:
               </p>
               <h3 className="font-semibold text-gray-900 dark:text-zinc-100 text-sm sm:text-base leading-tight line-clamp-2 break-words">
@@ -176,7 +166,7 @@ export default function AbstractDisplay({
 
       {/* Content */}
       <div
-        className={`transition-all duration-300 ease-in-out overflow-hidden ${
+        className={`transition-[max-height,opacity] duration-300 ease-in-out overflow-hidden ${
           isExpanded ? "max-h-[800px] opacity-100" : "max-h-0 opacity-0"
         }`}
       >
@@ -197,7 +187,7 @@ export default function AbstractDisplay({
         <div className="px-3 sm:px-4 py-2 bg-zinc-50 dark:bg-dark-card/50 border-t border-zinc-200 dark:border-dark-border">
           <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs text-gray-500 dark:text-gray-400">
             <span className="flex items-center gap-1">
-              📊 {stats.wordCount} words
+              <span aria-hidden="true">📊</span> {stats.wordCount} words
             </span>
             <span className="hidden xs:inline">·</span>
             <span className="hidden sm:inline">{stats.charCount} chars</span>
@@ -230,7 +220,7 @@ export default function AbstractDisplay({
             </button>
 
             {/* Share Dropdown */}
-            <div className="relative">
+            <div className="relative" ref={shareContainerRef}>
               <button
                 ref={shareButtonRef}
                 onClick={() => setShowShareMenu(!showShareMenu)}
@@ -243,21 +233,18 @@ export default function AbstractDisplay({
               </button>
 
               {showShareMenu && (
-                <div
-                  ref={shareMenuRef}
-                  className="absolute bottom-full left-0 sm:left-auto sm:right-0 mb-2 w-44 bg-white dark:bg-dark-card rounded-lg shadow-lg border border-zinc-200 dark:border-dark-border py-1 z-20"
-                >
+                <div className="absolute bottom-full left-0 sm:left-auto sm:right-0 mb-2 w-44 bg-white dark:bg-dark-card rounded-lg shadow-lg border border-zinc-200 dark:border-dark-border py-1 z-20">
                   <button
                     onClick={shareOnTwitter}
                     className="w-full px-4 py-3 sm:py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 active:bg-zinc-200 dark:active:bg-zinc-600"
                   >
-                    🐦 Twitter / X
+                    <span aria-hidden="true">🐦</span> Twitter / X
                   </button>
                   <button
                     onClick={shareOnLinkedIn}
                     className="w-full px-4 py-3 sm:py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 active:bg-zinc-200 dark:active:bg-zinc-600"
                   >
-                    💼 LinkedIn
+                    <span aria-hidden="true">💼</span> LinkedIn
                   </button>
                 </div>
               )}
@@ -280,7 +267,7 @@ export default function AbstractDisplay({
                   }`}
                 />
                 <span className="hidden sm:inline">
-                  {isRegenerating ? "..." : "Regenerate"}
+                  {isRegenerating ? "…" : "Regenerate"}
                 </span>
               </button>
             )}

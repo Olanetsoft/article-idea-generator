@@ -63,13 +63,13 @@ export function ClicksChart({
           />
           <XAxis
             dataKey="displayDate"
-            className="text-gray-500 dark:text-gray-400"
+            tick={{ className: "fill-gray-500 dark:fill-gray-400" }}
             fontSize={12}
             tickLine={false}
             axisLine={false}
           />
           <YAxis
-            className="text-gray-500 dark:text-gray-400"
+            tick={{ className: "fill-gray-500 dark:fill-gray-400" }}
             fontSize={12}
             tickLine={false}
             axisLine={false}
@@ -117,7 +117,7 @@ function CustomTooltip({
 
 function formatDate(dateString: string): string {
   const date = new Date(dateString);
-  return date.toLocaleDateString("en-US", {
+  return date.toLocaleDateString(undefined, {
     month: "short",
     day: "numeric",
   });

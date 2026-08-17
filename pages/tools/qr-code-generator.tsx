@@ -7,6 +7,8 @@ import { QRCodeCanvas } from "qrcode.react";
 import { Toaster, toast } from "react-hot-toast";
 import { Header, Footer } from "@/components";
 import { RelatedTools } from "@/components/tools";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import { useDismiss } from "@/hooks/useDismiss";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useAuth } from "@/contexts/AuthContext";
 import { SITE_URL, SITE_NAME, LOCALE_MAP } from "@/lib/constants";
@@ -245,6 +247,8 @@ export default function QRCodeGeneratorPage(): JSX.Element {
   const [frameText, setFrameText] = useState("SCAN ME");
   const [showTypeCategories, setShowTypeCategories] = useState(false);
   const [showAdvancedStyle, setShowAdvancedStyle] = useState(false);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [showClearHistoryConfirm, setShowClearHistoryConfirm] = useState(false);
 
   // Short URL state for URL-type QR codes
   const [generatedShortUrl, setGeneratedShortUrl] = useState<string | null>(
@@ -266,6 +270,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
   const qrRef = useRef<HTMLDivElement>(null);
   const hasTrackedUsage = useRef(false);
   const downloadRef = useRef<HTMLDivElement>(null);
+  const downloadButtonRef = useRef<HTMLButtonElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
   const csvInputRef = useRef<HTMLInputElement>(null);
 
@@ -300,8 +305,11 @@ export default function QRCodeGeneratorPage(): JSX.Element {
         setGeneratedShortUrl(displayUrl);
       }
 
-      // Clear the query param from URL without reload
-      router.replace("/tools/qr-code-generator", undefined, { shallow: true });
+      // Clear the query param from URL without reload (keep the active locale)
+      router.replace("/tools/qr-code-generator", undefined, {
+        shallow: true,
+        locale: router.locale,
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.isReady, router.query]);
@@ -317,19 +325,14 @@ export default function QRCodeGeneratorPage(): JSX.Element {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data.url]);
 
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        downloadRef.current &&
-        !downloadRef.current.contains(event.target as Node)
-      ) {
-        setDownloadDropdown(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  // Close dropdown on outside click / Escape (restores focus to the trigger)
+  const closeDownloadDropdown = useCallback(
+    () => setDownloadDropdown(false),
+    [],
+  );
+  useDismiss(downloadRef, downloadDropdown, closeDownloadDropdown, {
+    returnFocusRef: downloadButtonRef,
+  });
 
   // Computed values
   const qrValue = useMemo(
@@ -1309,9 +1312,12 @@ export default function QRCodeGeneratorPage(): JSX.Element {
 
       <Header />
 
-      <main className="flex flex-col items-center justify-center w-full flex-1 px-4 py-8 sm:py-12">
+      <main
+        id="main-content"
+        className="flex flex-col items-center justify-center w-full flex-1 px-4 py-8 sm:py-12"
+      >
         {/* Breadcrumb */}
-        <nav className="w-full max-w-screen-lg mb-6">
+        <nav className="w-full max-w-screen-lg mb-6" aria-label="Breadcrumb">
           <ol className="flex items-center text-sm text-zinc-500 dark:text-zinc-400">
             <li>
               <Link
@@ -1321,7 +1327,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                 {t("header.home")}
               </Link>
             </li>
-            <li className="mx-2">/</li>
+            <li className="mx-2" aria-hidden="true">/</li>
             <li>
               <Link
                 href="/tools"
@@ -1330,7 +1336,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                 {t("header.tools")}
               </Link>
             </li>
-            <li className="mx-2">/</li>
+            <li className="mx-2" aria-hidden="true">/</li>
             <li className="text-zinc-900 dark:text-white font-medium">
               {t("tools.qrCode.name")}
             </li>
@@ -1359,13 +1365,17 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                 <button
                   key={type.id}
                   onClick={() => handleTypeChange(type.id)}
-                  className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg text-sm font-medium transition-all ${
+                  aria-label={t(
+                    `tools.qrCode.type${type.id.charAt(0).toUpperCase() + type.id.slice(1)}`,
+                  )}
+                  aria-pressed={contentType === type.id}
+                  className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg text-sm font-medium transition-colors ${
                     contentType === type.id
                       ? "bg-violet-600 text-white shadow-md shadow-violet-500/20"
                       : "bg-zinc-100 dark:bg-dark-card text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-dark-border"
                   }`}
                 >
-                  <span>{type.icon}</span>
+                  <span aria-hidden="true">{type.icon}</span>
                   <span className="hidden sm:inline">
                     {t(
                       `tools.qrCode.type${type.id.charAt(0).toUpperCase() + type.id.slice(1)}`,
@@ -1375,7 +1385,8 @@ export default function QRCodeGeneratorPage(): JSX.Element {
               ))}
             <button
               onClick={() => setShowTypeCategories(!showTypeCategories)}
-              className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg text-sm font-medium transition-all ${
+              aria-expanded={showTypeCategories}
+              className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg text-sm font-medium transition-colors ${
                 showTypeCategories ||
                 QR_TYPES.filter(
                   (t) =>
@@ -1387,7 +1398,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                   : "bg-zinc-100 dark:bg-dark-card text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-dark-border"
               }`}
             >
-              <span>+</span>
+              <span aria-hidden="true">+</span>
               <span>{t("tools.qrCode.moreTypes")}</span>
             </button>
           </div>
@@ -1408,13 +1419,13 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                         <button
                           key={type.id}
                           onClick={() => handleTypeChange(type.id)}
-                          className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                          className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                             contentType === type.id
                               ? "bg-violet-600 text-white"
                               : "bg-white dark:bg-dark-card text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-dark-border"
                           }`}
                         >
-                          <span>{type.icon}</span>
+                          <span aria-hidden="true">{type.icon}</span>
                           <span>
                             {t(
                               `tools.qrCode.type${type.id.charAt(0).toUpperCase() + type.id.slice(1)}`,
@@ -1436,13 +1447,13 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                         <button
                           key={type.id}
                           onClick={() => handleTypeChange(type.id)}
-                          className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                          className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                             contentType === type.id
                               ? "bg-violet-600 text-white"
                               : "bg-white dark:bg-dark-card text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-dark-border"
                           }`}
                         >
-                          <span>{type.icon}</span>
+                          <span aria-hidden="true">{type.icon}</span>
                           <span>
                             {t(
                               `tools.qrCode.type${type.id.charAt(0).toUpperCase() + type.id.slice(1)}`,
@@ -1465,13 +1476,13 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                         <button
                           key={type.id}
                           onClick={() => handleTypeChange(type.id)}
-                          className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                          className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                             contentType === type.id
                               ? "bg-violet-600 text-white"
                               : "bg-white dark:bg-dark-card text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-dark-border"
                           }`}
                         >
-                          <span>{type.icon}</span>
+                          <span aria-hidden="true">{type.icon}</span>
                           <span>
                             {t(
                               `tools.qrCode.type${type.id.charAt(0).toUpperCase() + type.id.slice(1)}`,
@@ -1543,8 +1554,15 @@ export default function QRCodeGeneratorPage(): JSX.Element {
 
                   {/* Validation Error - only show after user interaction */}
                   {hasInteracted && !validation.isValid && validation.error && (
-                    <div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-600 dark:text-red-400 text-sm">
-                      <ExclamationCircleIcon className="w-5 h-5 flex-shrink-0" />
+                    <div
+                      role="alert"
+                      aria-live="polite"
+                      className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-600 dark:text-red-400 text-sm"
+                    >
+                      <ExclamationCircleIcon
+                        className="w-5 h-5 flex-shrink-0"
+                        aria-hidden="true"
+                      />
                       <span>{validation.error}</span>
                     </div>
                   )}
@@ -1614,10 +1632,10 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                         />
 
                         {/* Size */}
-                        <div>
-                          <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-2">
+                        <div role="group" aria-label={t("tools.qrCode.size")}>
+                          <span className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-2">
                             {t("tools.qrCode.size")}
-                          </label>
+                          </span>
                           <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5">
                             {SIZE_OPTIONS.map((option) => (
                               <button
@@ -1625,6 +1643,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                                 onClick={() =>
                                   updateStyle("size", option.value)
                                 }
+                                aria-pressed={style.size === option.value}
                                 className={`px-2 py-1.5 text-xs font-medium rounded transition-colors ${
                                   style.size === option.value
                                     ? "bg-violet-600 text-white"
@@ -1638,16 +1657,22 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                         </div>
 
                         {/* Error Correction */}
-                        <div>
-                          <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-2">
+                        <div
+                          role="group"
+                          aria-label={t("tools.qrCode.errorCorrection")}
+                        >
+                          <span className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-2">
                             {t("tools.qrCode.errorCorrection")}
-                          </label>
+                          </span>
                           <div className="grid grid-cols-2 gap-2">
                             {ERROR_CORRECTION_OPTIONS.map((option) => (
                               <button
                                 key={option.value}
                                 onClick={() =>
                                   updateStyle("errorCorrection", option.value)
+                                }
+                                aria-pressed={
+                                  style.errorCorrection === option.value
                                 }
                                 className={`flex flex-col items-start px-3 py-2 rounded-lg text-left transition-colors ${
                                   style.errorCorrection === option.value
@@ -1699,10 +1724,14 @@ export default function QRCodeGeneratorPage(): JSX.Element {
 
                   {/* Batch Input */}
                   <div>
-                    <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+                    <label
+                      htmlFor="batch-input"
+                      className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
+                    >
                       {t("tools.qrCode.batchInputLabel")}
                     </label>
                     <textarea
+                      id="batch-input"
                       value={batchInput}
                       onChange={(e) => handleBatchInputChange(e.target.value)}
                       placeholder={t("tools.qrCode.batchInputPlaceholder")}
@@ -1728,7 +1757,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                       htmlFor="csv-upload"
                       className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-dark-card border border-zinc-200 dark:border-dark-border rounded-lg text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 cursor-pointer transition-colors"
                     >
-                      <UploadIcon className="w-4 h-4" />
+                      <UploadIcon className="w-4 h-4" aria-hidden="true" />
                       {t("tools.qrCode.batchUploadCSV")}
                     </label>
                     <span className="text-xs text-zinc-500 dark:text-zinc-400">
@@ -1743,7 +1772,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                         <span className="text-zinc-500 dark:text-zinc-400">
                           {t("tools.qrCode.batchItemsCount")}:{" "}
                         </span>
-                        <span className="font-medium text-zinc-900 dark:text-white">
+                        <span className="font-medium tabular-nums text-zinc-900 dark:text-white">
                           {batchPreviewItems.length}
                         </span>
                       </div>
@@ -1751,7 +1780,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                         <span className="text-zinc-500 dark:text-zinc-400">
                           {t("tools.qrCode.batchValidCount")}:{" "}
                         </span>
-                        <span className="font-medium text-emerald-600 dark:text-emerald-400">
+                        <span className="font-medium tabular-nums text-emerald-600 dark:text-emerald-400">
                           {batchPreviewItems.filter((i) => i.isValid).length}
                         </span>
                       </div>
@@ -1765,16 +1794,17 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                       disabled={!batchInput.trim()}
                       className="flex-1 px-4 py-3 bg-violet-600 hover:bg-violet-700 disabled:bg-zinc-300 dark:disabled:bg-zinc-700 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors shadow-md shadow-violet-500/20 disabled:shadow-none flex items-center justify-center gap-2"
                     >
-                      <CollectionIcon className="w-5 h-5" />
+                      <CollectionIcon className="w-5 h-5" aria-hidden="true" />
                       {t("tools.qrCode.batchGenerate")}
                     </button>
                     <button
                       onClick={handleBatchClear}
                       disabled={!batchInput && batchItems.length === 0}
                       className="px-4 py-3 bg-zinc-200 dark:bg-zinc-700 hover:bg-zinc-300 dark:hover:bg-zinc-600 disabled:opacity-50 disabled:cursor-not-allowed text-zinc-700 dark:text-zinc-300 font-medium rounded-lg transition-colors"
+                      aria-label={t("tools.qrCode.batchClear")}
                       title={t("tools.qrCode.batchClear")}
                     >
-                      <TrashIcon className="w-5 h-5" />
+                      <TrashIcon className="w-5 h-5" aria-hidden="true" />
                     </button>
                   </div>
 
@@ -1806,14 +1836,14 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                             />
                           </svg>
-                          <span>
+                          <span className="tabular-nums">
                             {t("tools.qrCode.batchDownloading")} (
                             {batchDownloadProgress}%)
                           </span>
                         </>
                       ) : (
                         <>
-                          <DownloadIcon className="w-5 h-5" />
+                          <DownloadIcon className="w-5 h-5" aria-hidden="true" />
                           {t("tools.qrCode.batchDownloadAll")} (
                           {batchItems.filter((i) => i.isValid).length}{" "}
                           {t("tools.qrCode.batchFilesZip")})
@@ -1851,11 +1881,12 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                     {t("tools.qrCode.generate")}
                   </button>
                   <button
-                    onClick={handleReset}
+                    onClick={() => setShowResetConfirm(true)}
                     className="px-4 py-3 bg-zinc-200 dark:bg-zinc-700 hover:bg-zinc-300 dark:hover:bg-zinc-600 text-zinc-700 dark:text-zinc-300 font-medium rounded-lg transition-colors"
+                    aria-label={t("tools.qrCode.reset")}
                     title={t("tools.qrCode.reset")}
                   >
-                    <RefreshIcon className="w-5 h-5" />
+                    <RefreshIcon className="w-5 h-5" aria-hidden="true" />
                   </button>
                 </div>
               )}
@@ -1866,9 +1897,9 @@ export default function QRCodeGeneratorPage(): JSX.Element {
           {activeTab !== "batch" ? (
             <div className="w-full lg:w-[380px] lg:flex-shrink-0 bg-zinc-50 dark:bg-darkOffset rounded-xl border border-zinc-200 dark:border-dark-border overflow-hidden">
               <div className="p-4 border-b border-zinc-200 dark:border-dark-border">
-                <h3 className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                <h2 className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
                   {t("tools.qrCode.preview")}
-                </h3>
+                </h2>
               </div>
 
               <div className="p-4 sm:p-6">
@@ -2000,13 +2031,17 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                     {/* Download Dropdown */}
                     <div ref={downloadRef} className="relative flex-1">
                       <button
+                        ref={downloadButtonRef}
                         onClick={() => setDownloadDropdown(!downloadDropdown)}
-                        className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-violet-600 hover:bg-violet-700 text-white font-medium rounded-lg transition-colors text-sm"
+                        aria-expanded={downloadDropdown}
+                        aria-haspopup="menu"
+                        className="w-full flex items-center justify-center gap-2 px-4 py-2.5 min-h-[44px] bg-violet-600 hover:bg-violet-700 text-white font-medium rounded-lg transition-colors text-sm"
                       >
-                        <DownloadIcon className="w-4 h-4" />
+                        <DownloadIcon className="w-4 h-4" aria-hidden="true" />
                         {t("tools.qrCode.download")}
                         <ChevronDownIcon
                           className={`w-4 h-4 transition-transform ${downloadDropdown ? "rotate-180" : ""}`}
+                          aria-hidden="true"
                         />
                       </button>
                       {downloadDropdown && (
@@ -2050,12 +2085,16 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                           ? "bg-green-500 text-white"
                           : "bg-zinc-200 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-300 dark:hover:bg-zinc-600"
                       }`}
+                      aria-label={t("tools.qrCode.copyToClipboard")}
                       title={t("tools.qrCode.copyToClipboard")}
                     >
                       {copySuccess ? (
-                        <CheckIcon className="w-4 h-4" />
+                        <CheckIcon className="w-4 h-4" aria-hidden="true" />
                       ) : (
-                        <ClipboardCopyIcon className="w-4 h-4" />
+                        <ClipboardCopyIcon
+                          className="w-4 h-4"
+                          aria-hidden="true"
+                        />
                       )}
                     </button>
                   </div>
@@ -2109,7 +2148,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                           )}
                           <span className="text-sm font-medium text-zinc-800 dark:text-white">
                             {isCreatingShortUrl
-                              ? "Creating tracked link..."
+                              ? "Creating tracked link…"
                               : "Add scan tracking"}
                           </span>
                         </div>
@@ -2196,7 +2235,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                         </p>
                         <button
                           onClick={handleCopyShortUrl}
-                          className={`flex items-center gap-1 px-2 py-1 text-xs font-medium rounded transition-all ${
+                          className={`flex items-center gap-1 px-2 py-1 text-xs font-medium rounded transition-colors ${
                             shortUrlCopied
                               ? "bg-green-500 text-white"
                               : "bg-green-600 hover:bg-green-700 text-white"
@@ -2233,17 +2272,19 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                 <div className="border-t border-zinc-200 dark:border-dark-border">
                   <button
                     onClick={() => setShowHistory(!showHistory)}
+                    aria-expanded={showHistory}
                     className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
                   >
                     <span>{t("tools.qrCode.recentHistory")}</span>
                     <ChevronDownIcon
                       className={`w-4 h-4 transition-transform ${showHistory ? "rotate-180" : ""}`}
+                      aria-hidden="true"
                     />
                   </button>
 
                   {showHistory && (
                     <div className="px-4 pb-4">
-                      <div className="space-y-2 max-h-48 overflow-y-auto">
+                      <div className="space-y-2 max-h-48 overflow-y-auto overscroll-contain">
                         {history.slice(0, 5).map((item) => (
                           <div
                             key={item.id}
@@ -2255,6 +2296,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                                 backgroundColor: item.style.bgColor,
                                 color: item.style.fgColor,
                               }}
+                              aria-hidden="true"
                             >
                               {QR_TYPES.find((t) => t.id === item.type)?.icon}
                             </div>
@@ -2268,16 +2310,17 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                             </div>
                             <button
                               onClick={() => handleDeleteHistoryItem(item.id)}
-                              className="opacity-0 group-hover:opacity-100 p-1 text-zinc-400 hover:text-red-500 transition-all"
+                              aria-label={`Delete ${item.value} from history`}
+                              className="p-2 text-zinc-400 hover:text-red-500 transition-colors"
                             >
-                              <TrashIcon className="w-4 h-4" />
+                              <TrashIcon className="w-4 h-4" aria-hidden="true" />
                             </button>
                           </div>
                         ))}
                       </div>
                       <button
-                        onClick={handleClearHistory}
-                        className="w-full mt-3 px-3 py-2 text-xs text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                        onClick={() => setShowClearHistoryConfirm(true)}
+                        className="w-full mt-3 px-3 py-2 min-h-[44px] text-xs text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
                       >
                         {t("tools.qrCode.clearHistory")}
                       </button>
@@ -2290,11 +2333,11 @@ export default function QRCodeGeneratorPage(): JSX.Element {
             /* Batch Preview Panel */
             <div className="w-full lg:w-[380px] lg:flex-shrink-0 lg:self-stretch bg-zinc-50 dark:bg-darkOffset rounded-xl border border-zinc-200 dark:border-dark-border overflow-hidden flex flex-col">
               <div className="p-4 border-b border-zinc-200 dark:border-dark-border flex items-center justify-between flex-shrink-0">
-                <h3 className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                <h2 className="text-sm font-medium tabular-nums text-zinc-700 dark:text-zinc-300">
                   {t("tools.qrCode.batchPreview")}{" "}
                   {batchItems.length > 0 &&
                     `(${batchItems.filter((i) => i.isValid).length})`}
-                </h3>
+                </h2>
               </div>
 
               <div className="p-4 sm:p-6 flex-1 overflow-y-auto max-h-[700px] sm:max-h-[1000px] lg:max-h-[1300px]">
@@ -2310,9 +2353,10 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                           {/* Delete button */}
                           <button
                             onClick={() => handleRemoveBatchItem(item.id)}
-                            className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 opacity-0 group-hover:opacity-100 p-1 bg-red-100 dark:bg-red-900/30 text-red-500 rounded-full transition-opacity z-10"
+                            aria-label={`Remove ${item.label}`}
+                            className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 p-1 bg-red-100 dark:bg-red-900/30 text-red-500 rounded-full transition-colors hover:bg-red-200 dark:hover:bg-red-900/50 z-10"
                           >
-                            <XIcon className="w-3 h-3" />
+                            <XIcon className="w-3 h-3" aria-hidden="true" />
                           </button>
 
                           {/* QR Code with Frame Styling */}
@@ -2354,7 +2398,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                                   style={{
                                     backgroundColor: style.fgColor,
                                     color: style.bgColor,
-                                    fontSize: "6px",
+                                    fontSize: "9px",
                                   }}
                                 >
                                   {frameText}
@@ -2406,7 +2450,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                                         frameStyle === "badge"
                                           ? style.fgColor
                                           : "transparent",
-                                      fontSize: "6px",
+                                      fontSize: "9px",
                                     }}
                                   >
                                     {frameText}
@@ -2425,7 +2469,7 @@ export default function QRCodeGeneratorPage(): JSX.Element {
                             onClick={() => handleBatchDownloadSingle(item)}
                             className="w-full flex items-center justify-center gap-1 px-2 py-1.5 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-400 rounded text-xs transition-colors"
                           >
-                            <DownloadIcon className="w-3 h-3" />
+                            <DownloadIcon className="w-3 h-3" aria-hidden="true" />
                             PNG
                           </button>
                         </div>
@@ -2774,7 +2818,28 @@ export default function QRCodeGeneratorPage(): JSX.Element {
         </section>
 
         {/* Related Tools */}
-        <RelatedTools currentToolId="qr-code-generator" />
+        <RelatedTools
+          currentToolId="qr-code-generator"
+          containerClassName="max-w-screen-lg"
+        />
+
+        <ConfirmDialog
+          isOpen={showResetConfirm}
+          onClose={() => setShowResetConfirm(false)}
+          onConfirm={handleReset}
+          title="Reset QR code?"
+          message="This will clear the current content, style, and preview. This cannot be undone."
+          confirmLabel="Reset"
+        />
+
+        <ConfirmDialog
+          isOpen={showClearHistoryConfirm}
+          onClose={() => setShowClearHistoryConfirm(false)}
+          onConfirm={handleClearHistory}
+          title="Clear history?"
+          message="This permanently deletes all QR codes from your history. This cannot be undone."
+          confirmLabel="Clear"
+        />
       </main>
 
       <Footer />

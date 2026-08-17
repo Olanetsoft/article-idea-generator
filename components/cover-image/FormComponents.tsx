@@ -2,7 +2,7 @@
 // Cover Image Generator - Reusable UI Components
 // ============================================================================
 
-import { ReactNode } from "react";
+import React, { ReactNode, useId } from "react";
 
 // ============================================================================
 // Form Components
@@ -38,6 +38,10 @@ interface FormInputProps {
   min?: number;
   max?: number;
   className?: string;
+  id?: string;
+  name?: string;
+  inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
+  ariaLabel?: string;
 }
 
 export function FormInput({
@@ -48,15 +52,24 @@ export function FormInput({
   min,
   max,
   className = "",
+  id,
+  name,
+  inputMode,
+  ariaLabel,
 }: FormInputProps): JSX.Element {
+  const autoId = useId();
   return (
     <input
+      id={id ?? autoId}
+      name={name}
       type={type}
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
       min={min}
       max={max}
+      inputMode={inputMode ?? (type === "number" ? "numeric" : undefined)}
+      aria-label={ariaLabel}
       className={`w-full px-4 py-2.5 bg-gray-50 dark:bg-dark-card/50 border border-gray-200 dark:border-dark-border rounded-xl text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 ${className}`}
     />
   );
@@ -166,13 +179,18 @@ export function Slider({
   formatValue,
 }: SliderProps): JSX.Element {
   const displayValue = formatValue ? formatValue(value) : `${value}${unit}`;
+  const id = useId();
 
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+      <label
+        htmlFor={id}
+        className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+      >
         {label}: {displayValue}
       </label>
       <input
+        id={id}
         type="range"
         min={min}
         max={max}
@@ -197,6 +215,7 @@ interface ButtonProps {
   size?: "sm" | "md" | "lg";
   className?: string;
   icon?: ReactNode;
+  type?: "button" | "submit";
 }
 
 const buttonVariants = {
@@ -223,12 +242,14 @@ export function Button({
   size = "md",
   className = "",
   icon,
+  type = "button",
 }: ButtonProps): JSX.Element {
   return (
     <button
+      type={type}
       onClick={onClick}
       disabled={disabled}
-      className={`flex items-center justify-center gap-2 font-medium rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed ${buttonVariants[variant]} ${buttonSizes[size]} ${className}`}
+      className={`flex items-center justify-center gap-2 font-medium rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${buttonVariants[variant]} ${buttonSizes[size]} ${className}`}
     >
       {icon}
       {children}
@@ -258,7 +279,9 @@ export function ToggleButtonGroup<T extends string>({
       {options.map((option) => (
         <button
           key={option}
+          type="button"
           onClick={() => onChange(option)}
+          aria-pressed={value === option}
           className={`flex-1 px-4 py-2 text-sm rounded-lg border transition-colors capitalize ${
             value === option
               ? "bg-violet-600 text-white border-violet-600"
@@ -280,12 +303,14 @@ interface ColorPickerProps {
   value: string;
   onChange: (color: string) => void;
   presets?: string[];
+  label?: string;
 }
 
 export function ColorPicker({
   value,
   onChange,
   presets = [],
+  label = "Color",
 }: ColorPickerProps): JSX.Element {
   return (
     <div className="flex gap-2">
@@ -293,6 +318,7 @@ export function ColorPicker({
         type="color"
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        aria-label={label}
         className="w-12 h-10 rounded-lg cursor-pointer border border-gray-200 dark:border-dark-border"
       />
       {presets.length > 0 && (
@@ -300,8 +326,11 @@ export function ColorPicker({
           {presets.map((color) => (
             <button
               key={color}
+              type="button"
               onClick={() => onChange(color)}
-              className={`w-10 h-10 rounded-lg border-2 transition-all ${
+              aria-label={`${label} preset ${color}`}
+              aria-pressed={value === color}
+              className={`w-10 h-10 rounded-lg border-2 transition-[border-color,transform] ${
                 value === color
                   ? "border-violet-600 scale-105"
                   : "border-gray-200 dark:border-dark-border"
@@ -333,12 +362,17 @@ export function GradientSwatch({
   title,
 }: GradientSwatchProps): JSX.Element {
   const gradient = `linear-gradient(135deg, ${colors[0]} 0%, ${colors[colors.length - 1]} 100%)`;
+  const accessibleName =
+    title || `Gradient ${colors[0]} to ${colors[colors.length - 1]}`;
 
   return (
     <button
+      type="button"
       onClick={onClick}
       title={title}
-      className={`aspect-square rounded-lg border-2 transition-all ${
+      aria-label={accessibleName}
+      aria-pressed={selected}
+      className={`aspect-square rounded-lg border-2 transition-[border-color,transform,box-shadow] ${
         selected
           ? "border-violet-600 scale-105 shadow-lg"
           : "border-transparent hover:border-gray-300 dark:hover:border-gray-600"
@@ -365,7 +399,9 @@ export function PillButton({
 }: PillButtonProps): JSX.Element {
   return (
     <button
+      type="button"
       onClick={onClick}
+      aria-pressed={selected}
       className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
         selected
           ? "bg-violet-600 text-white border-violet-600"
@@ -396,17 +432,19 @@ export function CardButton({
 }: CardButtonProps): JSX.Element {
   return (
     <button
+      type="button"
       onClick={onClick}
-      className={`p-3 text-left rounded-xl border transition-all ${
+      aria-pressed={selected}
+      className={`p-3 text-left rounded-xl border transition-colors min-w-0 ${
         selected
           ? "bg-violet-50 dark:bg-violet-900/20 border-violet-500"
           : "bg-gray-50 dark:bg-dark-card/50 border-gray-200 dark:border-dark-border hover:border-violet-400"
       }`}
     >
-      <span className="font-medium text-sm text-gray-900 dark:text-white block">
+      <span className="font-medium text-sm text-gray-900 dark:text-white block break-words">
         {title}
       </span>
-      <span className="text-xs text-gray-500 dark:text-gray-400">
+      <span className="text-xs text-gray-500 dark:text-gray-400 break-words">
         {description}
       </span>
     </button>
@@ -424,10 +462,11 @@ export function LoadingSpinner({
 }): JSX.Element {
   return (
     <svg
-      className={`animate-spin ${className}`}
+      className={`animate-spin motion-reduce:animate-none ${className}`}
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"
+      aria-hidden="true"
     >
       <circle
         className="opacity-25"

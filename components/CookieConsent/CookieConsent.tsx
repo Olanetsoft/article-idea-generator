@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 
@@ -45,6 +45,8 @@ export default function CookieConsent() {
   const [showSettings, setShowSettings] = useState(false);
   const [preferences, setPreferences] =
     useState<ConsentPreferences>(DEFAULT_PREFERENCES);
+  const bannerRef = useRef<HTMLDivElement>(null);
+  const rejectButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     // Check if user has already made a choice
@@ -56,14 +58,42 @@ export default function CookieConsent() {
     }
   }, []);
 
+  // Move focus to the dialog when it appears so it is announced
+  useEffect(() => {
+    if (showBanner) {
+      bannerRef.current?.focus();
+    }
+  }, [showBanner]);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Escape") {
+      if (showSettings) {
+        // Escape from settings goes back to the simple banner view
+        setShowSettings(false);
+      } else {
+        // No dismiss-without-choice path exists; guide focus to Reject All
+        rejectButtonRef.current?.focus();
+      }
+    }
+  };
+
   const savePreferences = (prefs: ConsentPreferences) => {
+    const previous = getConsentPreferences();
     localStorage.setItem(CONSENT_KEY, JSON.stringify(prefs));
     setShowBanner(false);
     setShowSettings(false);
-    // Dispatch event so other components can react
+    // Dispatch event so other components can react (e.g. _app enables
+    // analytics on grant without needing a reload)
     window.dispatchEvent(new CustomEvent("consent-updated", { detail: prefs }));
-    // Reload to apply consent (simplest approach)
-    window.location.reload();
+    // Only reload when revoking previously granted consent, to tear down
+    // already-loaded tracking scripts
+    const revoked =
+      previous !== null &&
+      ((previous.analytics && !prefs.analytics) ||
+        (previous.marketing && !prefs.marketing));
+    if (revoked) {
+      window.location.reload();
+    }
   };
 
   const acceptAll = () => {
@@ -86,17 +116,23 @@ export default function CookieConsent() {
     savePreferences(preferences);
   };
 
-  if (!showBanner) return null;
-
   return (
     <AnimatePresence>
-      <motion.div
-        initial={{ y: 100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        exit={{ y: 100, opacity: 0 }}
-        className="fixed bottom-0 left-0 right-0 z-50 p-4"
-      >
-        <div className="max-w-4xl mx-auto bg-white dark:bg-dark-card border border-zinc-200 dark:border-dark-border rounded-xl shadow-2xl overflow-hidden">
+      {showBanner && (
+        <motion.div
+          initial={{ y: 100, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: 100, opacity: 0 }}
+          className="fixed bottom-0 left-0 right-0 z-50 p-4"
+        >
+        <div
+          ref={bannerRef}
+          role="dialog"
+          aria-label="Cookie consent"
+          tabIndex={-1}
+          onKeyDown={handleKeyDown}
+          className="max-w-4xl mx-auto bg-white dark:bg-dark-card border border-zinc-200 dark:border-dark-border rounded-xl shadow-2xl overflow-hidden focus:outline-none"
+        >
           {!showSettings ? (
             // Simple banner view
             <div className="p-4 sm:p-6">
@@ -119,20 +155,24 @@ export default function CookieConsent() {
                 </div>
                 <div className="flex flex-wrap gap-2 sm:flex-nowrap">
                   <button
+                    type="button"
                     onClick={() => setShowSettings(true)}
-                    className="px-4 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-dark-hover rounded-lg transition-colors"
+                    className="px-4 py-2.5 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-dark-hover rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
                   >
                     Customize
                   </button>
                   <button
+                    type="button"
+                    ref={rejectButtonRef}
                     onClick={rejectAll}
-                    className="px-4 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 border border-zinc-300 dark:border-dark-border hover:bg-zinc-100 dark:hover:bg-dark-hover rounded-lg transition-colors"
+                    className="px-4 py-2.5 text-sm font-medium text-zinc-700 dark:text-zinc-300 border border-zinc-300 dark:border-dark-border hover:bg-zinc-100 dark:hover:bg-dark-hover rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
                   >
                     Reject All
                   </button>
                   <button
+                    type="button"
                     onClick={acceptAll}
-                    className="px-4 py-2 text-sm font-medium text-white bg-violet-600 hover:bg-violet-700 rounded-lg transition-colors"
+                    className="px-4 py-2.5 text-sm font-medium text-white bg-violet-600 hover:bg-violet-700 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-dark-card"
                   >
                     Accept All
                   </button>
@@ -141,7 +181,7 @@ export default function CookieConsent() {
             </div>
           ) : (
             // Settings view
-            <div className="p-4 sm:p-6">
+            <div className="p-4 sm:p-6 max-h-[70vh] overflow-y-auto overscroll-contain">
               <h3 className="text-lg font-semibold text-zinc-900 dark:text-white mb-4">
                 Cookie Preferences
               </h3>
@@ -175,25 +215,34 @@ export default function CookieConsent() {
                   </div>
                   <div className="ml-4">
                     <button
+                      type="button"
+                      role="switch"
+                      aria-checked={preferences.analytics}
+                      aria-label="Analytics cookies"
                       onClick={() =>
                         setPreferences((p) => ({
                           ...p,
                           analytics: !p.analytics,
                         }))
                       }
-                      className={`relative w-12 h-6 rounded-full transition-colors ${
-                        preferences.analytics
-                          ? "bg-violet-600"
-                          : "bg-zinc-300 dark:bg-zinc-600"
-                      }`}
+                      className="p-2.5 -m-2.5 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
                     >
                       <span
-                        className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${
+                        aria-hidden="true"
+                        className={`relative block w-12 h-6 rounded-full transition-colors ${
                           preferences.analytics
-                            ? "translate-x-7"
-                            : "translate-x-1"
+                            ? "bg-violet-600"
+                            : "bg-zinc-300 dark:bg-zinc-600"
                         }`}
-                      />
+                      >
+                        <span
+                          className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${
+                            preferences.analytics
+                              ? "translate-x-7"
+                              : "translate-x-1"
+                          }`}
+                        />
+                      </span>
                     </button>
                   </div>
                 </div>
@@ -210,25 +259,34 @@ export default function CookieConsent() {
                   </div>
                   <div className="ml-4">
                     <button
+                      type="button"
+                      role="switch"
+                      aria-checked={preferences.marketing}
+                      aria-label="Marketing cookies"
                       onClick={() =>
                         setPreferences((p) => ({
                           ...p,
                           marketing: !p.marketing,
                         }))
                       }
-                      className={`relative w-12 h-6 rounded-full transition-colors ${
-                        preferences.marketing
-                          ? "bg-violet-600"
-                          : "bg-zinc-300 dark:bg-zinc-600"
-                      }`}
+                      className="p-2.5 -m-2.5 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
                     >
                       <span
-                        className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${
+                        aria-hidden="true"
+                        className={`relative block w-12 h-6 rounded-full transition-colors ${
                           preferences.marketing
-                            ? "translate-x-7"
-                            : "translate-x-1"
+                            ? "bg-violet-600"
+                            : "bg-zinc-300 dark:bg-zinc-600"
                         }`}
-                      />
+                      >
+                        <span
+                          className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${
+                            preferences.marketing
+                              ? "translate-x-7"
+                              : "translate-x-1"
+                          }`}
+                        />
+                      </span>
                     </button>
                   </div>
                 </div>
@@ -236,14 +294,16 @@ export default function CookieConsent() {
 
               <div className="flex justify-end gap-2 mt-6">
                 <button
+                  type="button"
                   onClick={() => setShowSettings(false)}
-                  className="px-4 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-dark-hover rounded-lg transition-colors"
+                  className="px-4 py-2.5 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-dark-hover rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
                 >
                   Back
                 </button>
                 <button
+                  type="button"
                   onClick={saveCustom}
-                  className="px-4 py-2 text-sm font-medium text-white bg-violet-600 hover:bg-violet-700 rounded-lg transition-colors"
+                  className="px-4 py-2.5 text-sm font-medium text-white bg-violet-600 hover:bg-violet-700 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-dark-card"
                 >
                   Save Preferences
                 </button>
@@ -251,7 +311,8 @@ export default function CookieConsent() {
             </div>
           )}
         </div>
-      </motion.div>
+        </motion.div>
+      )}
     </AnimatePresence>
   );
 }

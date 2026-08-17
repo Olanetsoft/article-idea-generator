@@ -82,7 +82,10 @@ export default function PrivacyPolicy() {
       <div className="min-h-screen flex flex-col bg-zinc-50 dark:bg-dark-bg">
         <Header />
 
-        <main className="flex-1 container mx-auto px-4 py-8 sm:py-12 max-w-4xl">
+        <main
+          id="main-content"
+          className="flex-1 container mx-auto px-4 py-8 sm:py-12 max-w-4xl"
+        >
           {/* Breadcrumb */}
           <nav className="mb-6 text-sm" aria-label="Breadcrumb">
             <ol className="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
@@ -94,7 +97,7 @@ export default function PrivacyPolicy() {
                   Home
                 </Link>
               </li>
-              <li>
+              <li aria-hidden="true">
                 <span className="mx-2">/</span>
               </li>
               <li className="text-gray-900 dark:text-gray-200 font-semibold">
@@ -393,7 +396,7 @@ export default function PrivacyPolicy() {
                   className="p-3 bg-gray-50 dark:bg-dark-bg rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-800 transition group"
                 >
                   <span className="font-medium text-gray-900 dark:text-white group-hover:text-violet-600 dark:group-hover:text-violet-400">
-                    Google Analytics →
+                    Google Analytics <span aria-hidden="true">→</span>
                   </span>
                   <p className="text-sm mt-1">View Privacy Policy</p>
                 </a>
@@ -404,7 +407,7 @@ export default function PrivacyPolicy() {
                   className="p-3 bg-gray-50 dark:bg-dark-bg rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-800 transition group"
                 >
                   <span className="font-medium text-gray-900 dark:text-white group-hover:text-violet-600 dark:group-hover:text-violet-400">
-                    Vercel Analytics →
+                    Vercel Analytics <span aria-hidden="true">→</span>
                   </span>
                   <p className="text-sm mt-1">View Privacy Policy</p>
                 </a>
@@ -415,7 +418,7 @@ export default function PrivacyPolicy() {
                   className="p-3 bg-gray-50 dark:bg-dark-bg rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-800 transition group"
                 >
                   <span className="font-medium text-gray-900 dark:text-white group-hover:text-violet-600 dark:group-hover:text-violet-400">
-                    Supabase →
+                    Supabase <span aria-hidden="true">→</span>
                   </span>
                   <p className="text-sm mt-1">View Privacy Policy</p>
                 </a>
@@ -426,7 +429,7 @@ export default function PrivacyPolicy() {
                   className="p-3 bg-gray-50 dark:bg-dark-bg rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-800 transition group"
                 >
                   <span className="font-medium text-gray-900 dark:text-white group-hover:text-violet-600 dark:group-hover:text-violet-400">
-                    Google OAuth →
+                    Google OAuth <span aria-hidden="true">→</span>
                   </span>
                   <p className="text-sm mt-1">View Privacy Policy</p>
                 </a>
@@ -478,7 +481,7 @@ export default function PrivacyPolicy() {
               href="/"
               className="inline-flex items-center gap-2 text-violet-600 dark:text-violet-400 hover:underline font-medium"
             >
-              ← Back to Home
+              <span aria-hidden="true">←</span> Back to Home
             </Link>
           </div>
         </main>

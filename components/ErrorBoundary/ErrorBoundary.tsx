@@ -38,7 +38,10 @@ export default class ErrorBoundary extends Component<
       }
 
       return (
-        <div className="min-h-[400px] flex flex-col items-center justify-center p-8 text-center">
+        <div
+          role="alert"
+          className="min-h-[400px] flex flex-col items-center justify-center p-8 text-center"
+        >
           <div className="bg-red-50 dark:bg-red-900/20 rounded-xl p-8 max-w-md w-full border border-red-200 dark:border-red-800">
             <svg
               className="w-16 h-16 mx-auto text-red-500 mb-4"
@@ -61,7 +64,7 @@ export default class ErrorBoundary extends Component<
               We encountered an unexpected error. Please try again.
             </p>
             {process.env.NODE_ENV === "development" && this.state.error && (
-              <pre className="text-left text-xs bg-gray-100 dark:bg-dark-card p-3 rounded-lg mb-4 overflow-auto max-h-32 text-red-600 dark:text-red-400">
+              <pre className="text-left text-xs bg-gray-100 dark:bg-dark-card p-3 rounded-lg mb-4 overflow-auto max-h-32 text-red-600 dark:text-red-400 whitespace-pre-wrap break-words">
                 {this.state.error.message}
               </pre>
             )}

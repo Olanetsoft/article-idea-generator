@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { DashboardLayout } from "@/components";
 import { useAuth } from "@/contexts";
@@ -7,7 +7,6 @@ interface DashboardStats {
   totalLinks: number;
   totalClicks: number;
   uniqueClicks: number;
-  qrScans: number;
   topLink: {
     code: string;
     originalUrl: string;
@@ -30,69 +29,67 @@ export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const fetchStats = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await fetch("/api/urls");
+      if (!response.ok) throw new Error("Failed to fetch links");
+
+      const { urls } = await response.json();
+
+      // Calculate stats using camelCase properties from API response
+      const totalLinks = urls.length;
+      const totalClicks = urls.reduce(
+        (acc: number, url: any) => acc + (url.totalClicks || 0),
+        0,
+      );
+      const uniqueClicks = urls.reduce(
+        (acc: number, url: any) => acc + (url.uniqueClicks || 0),
+        0,
+      );
+
+      // Find top link
+      const sortedByClicks = [...urls].sort(
+        (a: any, b: any) => (b.totalClicks || 0) - (a.totalClicks || 0),
+      );
+      const topLink = sortedByClicks[0]
+        ? {
+            code: sortedByClicks[0].code,
+            originalUrl: sortedByClicks[0].originalUrl,
+            title: sortedByClicks[0].title,
+            clickCount: sortedByClicks[0].totalClicks || 0,
+          }
+        : null;
+
+      // Recent links
+      const recentLinks = urls.slice(0, 5).map((url: any) => ({
+        id: url.id,
+        code: url.code,
+        originalUrl: url.originalUrl,
+        title: url.title,
+        clickCount: url.totalClicks || 0,
+        createdAt: url.createdAt,
+      }));
+
+      setStats({
+        totalLinks,
+        totalClicks,
+        uniqueClicks,
+        topLink,
+        recentLinks,
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred");
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     if (!user) return;
-
-    const fetchStats = async () => {
-      try {
-        const response = await fetch("/api/urls");
-        if (!response.ok) throw new Error("Failed to fetch links");
-
-        const { urls } = await response.json();
-
-        // Calculate stats using camelCase properties from API response
-        const totalLinks = urls.length;
-        const totalClicks = urls.reduce(
-          (acc: number, url: any) => acc + (url.totalClicks || 0),
-          0,
-        );
-        const uniqueClicks = urls.reduce(
-          (acc: number, url: any) => acc + (url.uniqueClicks || 0),
-          0,
-        );
-        // QR scans not tracked separately yet, default to 0
-        const qrScans = 0;
-
-        // Find top link
-        const sortedByClicks = [...urls].sort(
-          (a: any, b: any) => (b.totalClicks || 0) - (a.totalClicks || 0),
-        );
-        const topLink = sortedByClicks[0]
-          ? {
-              code: sortedByClicks[0].code,
-              originalUrl: sortedByClicks[0].originalUrl,
-              title: sortedByClicks[0].title,
-              clickCount: sortedByClicks[0].totalClicks || 0,
-            }
-          : null;
-
-        // Recent links
-        const recentLinks = urls.slice(0, 5).map((url: any) => ({
-          id: url.id,
-          code: url.code,
-          originalUrl: url.originalUrl,
-          title: url.title,
-          clickCount: url.totalClicks || 0,
-          createdAt: url.createdAt,
-        }));
-
-        setStats({
-          totalLinks,
-          totalClicks,
-          uniqueClicks,
-          qrScans,
-          topLink,
-          recentLinks,
-        });
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchStats();
-  }, [user]);
+  }, [user, fetchStats]);
 
   return (
     <DashboardLayout
@@ -100,11 +97,16 @@ export default function DashboardPage() {
       description="Overview of your links and analytics"
     >
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[...Array(4)].map((_, i) => (
+        <div
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          aria-busy="true"
+          aria-label="Loading dashboard stats"
+        >
+          {[...Array(3)].map((_, i) => (
             <div
               key={i}
               className="p-5 rounded-xl bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 animate-pulse"
+              aria-hidden="true"
             >
               <div className="h-4 w-24 bg-gray-200 dark:bg-zinc-700 rounded mb-3" />
               <div className="h-8 w-16 bg-gray-200 dark:bg-zinc-700 rounded" />
@@ -112,13 +114,22 @@ export default function DashboardPage() {
           ))}
         </div>
       ) : error ? (
-        <div className="p-5 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 text-red-600 dark:text-red-400">
-          {error}
+        <div
+          role="alert"
+          className="p-5 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 text-red-600 dark:text-red-400"
+        >
+          <p className="mb-3">{error}</p>
+          <button
+            onClick={fetchStats}
+            className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors"
+          >
+            Try again
+          </button>
         </div>
       ) : (
         <>
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             <StatsCard
               title="Total Links"
               value={stats?.totalLinks || 0}
@@ -179,26 +190,6 @@ export default function DashboardPage() {
               }
               color="violet"
             />
-            <StatsCard
-              title="QR Scans"
-              value={stats?.qrScans || 0}
-              icon={
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"
-                  />
-                </svg>
-              }
-              color="emerald"
-            />
           </div>
 
           {/* Top Performing Link */}
@@ -211,14 +202,14 @@ export default function DashboardPage() {
                 <div className="flex items-center justify-between flex-wrap gap-4">
                   <div className="flex-1 min-w-0">
                     <p className="text-violet-600 dark:text-violet-400 font-mono text-base mb-1">
-                      aigl.ink/{stats.topLink.code}
+                      aigl.ink/r/{stats.topLink.code}
                     </p>
                     <p className="text-gray-500 dark:text-gray-400 truncate text-sm">
                       {stats.topLink.title || stats.topLink.originalUrl}
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                    <p className="text-2xl font-bold text-gray-900 dark:text-white tabular-nums">
                       {stats.topLink.clickCount.toLocaleString()}
                     </p>
                     <p className="text-gray-500 dark:text-gray-400 text-sm">
@@ -236,6 +227,7 @@ export default function DashboardPage() {
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
+                    aria-hidden="true"
                   >
                     <path
                       strokeLinecap="round"
@@ -271,7 +263,7 @@ export default function DashboardPage() {
                   >
                     <div className="flex-1 min-w-0">
                       <p className="text-violet-600 dark:text-violet-400 font-mono text-sm">
-                        aigl.ink/{link.code}
+                        aigl.ink/r/{link.code}
                       </p>
                       <p className="text-gray-500 dark:text-gray-400 text-sm truncate">
                         {link.title || link.originalUrl}
@@ -279,7 +271,7 @@ export default function DashboardPage() {
                     </div>
                     <div className="flex items-center gap-4">
                       <div className="text-right">
-                        <p className="text-gray-900 dark:text-white font-semibold">
+                        <p className="text-gray-900 dark:text-white font-semibold tabular-nums">
                           {link.clickCount.toLocaleString()}
                         </p>
                         <p className="text-gray-400 dark:text-gray-500 text-xs">
@@ -288,13 +280,15 @@ export default function DashboardPage() {
                       </div>
                       <Link
                         href={`/dashboard/analytics?code=${link.code}`}
-                        className="p-2 rounded-lg bg-gray-100 dark:bg-zinc-800 text-gray-500 dark:text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-500/10 transition-colors"
+                        aria-label={`View analytics for aigl.ink/r/${link.code}`}
+                        className="p-3 rounded-lg bg-gray-100 dark:bg-zinc-800 text-gray-500 dark:text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-500/10 transition-colors"
                       >
                         <svg
                           className="w-5 h-5"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
+                          aria-hidden="true"
                         >
                           <path
                             strokeLinecap="round"
@@ -352,9 +346,14 @@ function StatsCard({
         <span className="text-gray-500 dark:text-gray-400 text-sm">
           {title}
         </span>
-        <div className={`p-2 rounded-lg ${colorClasses[color]}`}>{icon}</div>
+        <div
+          className={`p-2 rounded-lg ${colorClasses[color]}`}
+          aria-hidden="true"
+        >
+          {icon}
+        </div>
       </div>
-      <p className="text-2xl font-bold text-gray-900 dark:text-white">
+      <p className="text-2xl font-bold text-gray-900 dark:text-white tabular-nums">
         {value.toLocaleString()}
       </p>
     </div>

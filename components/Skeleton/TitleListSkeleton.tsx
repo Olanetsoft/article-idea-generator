@@ -3,7 +3,7 @@ import type { TitleListSkeletonProps } from "@/types";
 
 export function TitleListSkeleton({ count = 4 }: TitleListSkeletonProps) {
   return (
-    <div className="space-y-4 w-full">
+    <div className="space-y-4 w-full" aria-hidden="true">
       {Array.from({ length: count }).map((_, i) => (
         <TitleCardSkeleton key={i} />
       ))}

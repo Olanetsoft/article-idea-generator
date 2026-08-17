@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useId } from "react";
 import { FRAME_TEMPLATES, FRAME_TEXT_PRESETS } from "@/types/qr-code";
 import { InputField } from "./FormFields";
 import type { FrameStyle } from "@/types/qr-code";
@@ -20,19 +20,26 @@ export function FrameStyleSection({
   t,
   compact = false,
 }: FrameStyleSectionProps) {
+  const headingId = useId();
+
   return (
-    <div>
-      <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+    <div role="group" aria-labelledby={headingId}>
+      <span
+        id={headingId}
+        className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
+      >
         {t("tools.qrCode.frameStyle")}
-      </label>
+      </span>
       <div
-        className={`grid ${compact ? "grid-cols-5" : "grid-cols-3 sm:grid-cols-5"} gap-1.5 mb-3`}
+        className={`grid ${compact ? "grid-cols-3 sm:grid-cols-5" : "grid-cols-3 sm:grid-cols-5"} gap-1.5 mb-3`}
       >
         {FRAME_TEMPLATES.map((frame) => (
           <button
             key={frame.id}
+            type="button"
             onClick={() => onFrameStyleChange(frame.id)}
-            className={`px-2 py-2 ${compact ? "text-[10px]" : "text-xs"} font-medium rounded-lg transition-colors ${
+            aria-pressed={frameStyle === frame.id}
+            className={`px-2 py-2 text-xs font-medium rounded-lg transition-colors ${
               frameStyle === frame.id
                 ? "bg-violet-600 text-white"
                 : "bg-white dark:bg-dark-card text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-dark-border hover:border-violet-300 dark:hover:border-violet-600"
@@ -51,13 +58,16 @@ export function FrameStyleSection({
             value={frameText}
             onChange={onFrameTextChange}
             placeholder={t("tools.qrCode.frameTextPlaceholder")}
+            name="frameText"
           />
           <div className="flex flex-wrap gap-1.5">
             {FRAME_TEXT_PRESETS.map((text) => (
               <button
                 key={text}
+                type="button"
                 onClick={() => onFrameTextChange(text)}
-                className={`px-2 py-1 ${compact ? "text-[10px]" : "text-xs"} rounded transition-colors ${
+                aria-pressed={frameText === text}
+                className={`px-2 py-1.5 text-xs rounded transition-colors ${
                   frameText === text
                     ? "bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300"
                     : "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700"

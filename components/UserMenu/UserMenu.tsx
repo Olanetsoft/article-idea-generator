@@ -1,6 +1,8 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import Link from "next/link";
+import toast from "react-hot-toast";
 import { useAuth } from "@/contexts";
+import { useDismiss } from "@/hooks/useDismiss";
 
 // Reusable avatar component
 function UserAvatar({
@@ -19,6 +21,7 @@ function UserAvatar({
     md: "w-10 h-10 text-base",
     lg: "w-12 h-12 text-lg",
   }[size];
+  const sizePx = { sm: 32, md: 40, lg: 48 }[size];
   const initial = (name || email || "U")[0].toUpperCase();
 
   if (avatarUrl) {
@@ -27,6 +30,8 @@ function UserAvatar({
       <img
         src={avatarUrl}
         alt={name || "User avatar"}
+        width={sizePx}
+        height={sizePx}
         className={`${sizeClasses} rounded-full ${size === "sm" ? "border-2 border-violet-500" : ""} object-cover`}
       />
     );
@@ -57,6 +62,7 @@ function MenuItem({
     <Link
       href={href}
       onClick={onClick}
+      role="menuitem"
       className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
     >
       {icon}
@@ -69,17 +75,12 @@ export function UserMenu() {
   const { user, profile, isLoading, signOut } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
-  // Close menu when clicking outside
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  // Close on outside click / Escape, returning focus to the trigger
+  useDismiss(menuRef, isOpen, () => setIsOpen(false), {
+    returnFocusRef: triggerRef,
+  });
 
   const handleSignOut = async () => {
     try {
@@ -87,12 +88,23 @@ export function UserMenu() {
       setIsOpen(false);
     } catch (error) {
       console.error("Sign out error:", error);
+      toast.error("Failed to sign out. Please try again.");
     }
   };
 
   const closeMenu = () => setIsOpen(false);
 
-  if (isLoading || !user) {
+  if (isLoading) {
+    // Placeholder avoids the signed-in state flashing to nothing/"Sign In"
+    return (
+      <div
+        className="w-8 h-8 rounded-full bg-gray-200 dark:bg-zinc-800 animate-pulse"
+        aria-hidden="true"
+      />
+    );
+  }
+
+  if (!user) {
     return null;
   }
 
@@ -109,7 +121,11 @@ export function UserMenu() {
   return (
     <div ref={menuRef} className="relative">
       <button
+        ref={triggerRef}
         onClick={() => setIsOpen(!isOpen)}
+        aria-label="Account menu"
+        aria-expanded={isOpen}
+        aria-haspopup="menu"
         className="flex items-center gap-2 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
       >
         <UserAvatar
@@ -121,7 +137,11 @@ export function UserMenu() {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-dark-card rounded-xl shadow-xl border border-gray-200 dark:border-dark-border overflow-hidden z-50">
+        <div
+          role="menu"
+          aria-label="Account"
+          className="absolute right-0 mt-2 w-64 bg-white dark:bg-dark-card rounded-xl shadow-xl border border-gray-200 dark:border-dark-border overflow-hidden overscroll-contain z-50"
+        >
           {/* User info */}
           <div className="p-4 border-b border-gray-200 dark:border-dark-border">
             <div className="flex items-center gap-3">
@@ -210,6 +230,7 @@ export function UserMenu() {
           <div className="p-2 border-t border-gray-200 dark:border-dark-border">
             <button
               onClick={handleSignOut}
+              role="menuitem"
               className="flex items-center gap-3 w-full px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
             >
               <svg
@@ -244,6 +265,7 @@ export function UserMenuMobile({ onNavigate }: { onNavigate?: () => void }) {
       onNavigate?.();
     } catch (error) {
       console.error("Sign out error:", error);
+      toast.error("Failed to sign out. Please try again.");
     }
   };
 
@@ -251,12 +273,28 @@ export function UserMenuMobile({ onNavigate }: { onNavigate?: () => void }) {
     onNavigate?.();
   };
 
-  if (isLoading || !user) {
+  if (isLoading) {
+    // Skeleton avoids flashing "Sign In" for authenticated users while loading
+    return (
+      <div
+        className="flex items-center gap-3 px-4 py-3 bg-gray-50 dark:bg-zinc-800/50 rounded-xl animate-pulse"
+        aria-hidden="true"
+      >
+        <div className="w-12 h-12 rounded-full bg-gray-200 dark:bg-zinc-700" />
+        <div className="flex-1 space-y-2">
+          <div className="h-4 w-28 bg-gray-200 dark:bg-zinc-700 rounded" />
+          <div className="h-3 w-40 bg-gray-200 dark:bg-zinc-700 rounded" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
     return (
       <Link
         href="/auth/signin"
         onClick={handleNavigate}
-        className="flex items-center gap-3 w-full px-4 py-3.5 rounded-xl text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-900/30 font-medium transition-all active:scale-[0.98]"
+        className="flex items-center gap-3 w-full px-4 py-3.5 rounded-xl text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-900/30 font-medium transition-[background-color,transform] active:scale-[0.98]"
       >
         <svg
           className="w-5 h-5"
@@ -310,7 +348,7 @@ export function UserMenuMobile({ onNavigate }: { onNavigate?: () => void }) {
       <Link
         href="/dashboard"
         onClick={handleNavigate}
-        className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-all active:scale-[0.98]"
+        className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-[background-color,transform] active:scale-[0.98]"
       >
         <svg
           className="w-5 h-5"
@@ -331,7 +369,7 @@ export function UserMenuMobile({ onNavigate }: { onNavigate?: () => void }) {
       <Link
         href="/dashboard/links"
         onClick={handleNavigate}
-        className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-all active:scale-[0.98]"
+        className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-[background-color,transform] active:scale-[0.98]"
       >
         <svg
           className="w-5 h-5"
@@ -352,7 +390,7 @@ export function UserMenuMobile({ onNavigate }: { onNavigate?: () => void }) {
       <Link
         href="/dashboard/analytics"
         onClick={handleNavigate}
-        className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-all active:scale-[0.98]"
+        className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-[background-color,transform] active:scale-[0.98]"
       >
         <svg
           className="w-5 h-5"
@@ -373,7 +411,7 @@ export function UserMenuMobile({ onNavigate }: { onNavigate?: () => void }) {
       {/* Sign Out Button */}
       <button
         onClick={handleSignOut}
-        className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all active:scale-[0.98]"
+        className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-[background-color,transform] active:scale-[0.98]"
       >
         <svg
           className="w-5 h-5"

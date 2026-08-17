@@ -8,34 +8,11 @@ export default function Document() {
       <Head>
         <meta charSet="utf-8" />
         <link rel="icon" href="/favicon.ico" />
-        <link rel="canonical" href="https://www.articleideagenerator.com" />
         <link rel="apple-touch-icon" href="/icon-192.png" />
 
         {/* LLM-friendly content */}
         <link rel="llms" href="/llms.txt" />
         <link rel="llms-full" href="/llms-full.txt" />
-
-        {/* Preconnect to external domains */}
-        <link rel="preconnect" href="https://api.openai.com" />
-        <link rel="dns-prefetch" href="https://api.openai.com" />
-
-        {/* Dev Icons for Cover Image Generator */}
-        <link
-          rel="stylesheet"
-          href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css"
-        />
-
-        {/* Signature Fonts for PDF Signer */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Dancing+Script&family=Great+Vibes&family=Pacifico&family=Caveat&family=Satisfy&display=swap"
-          rel="stylesheet"
-        />
 
         <meta
           name="description"
@@ -104,7 +81,16 @@ export default function Document() {
         />
 
         {/* Additional SEO */}
-        <meta name="theme-color" content="#4f46e5" />
+        <meta
+          name="theme-color"
+          media="(prefers-color-scheme: light)"
+          content="#ffffff"
+        />
+        <meta
+          name="theme-color"
+          media="(prefers-color-scheme: dark)"
+          content="#000000"
+        />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="format-detection" content="telephone=no" />
